@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "package": "de.keksuccino.drippyloadingscreen.mixin.client",
+  "compatibilityLevel": "JAVA_8",
+  "client": [
+    "MixinResourceLoadProgressGui"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "refmap": "drippyloadingscreen.mixin-refmap.json"
+}
