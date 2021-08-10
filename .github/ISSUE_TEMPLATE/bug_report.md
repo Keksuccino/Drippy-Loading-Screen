@@ -1,6 +1,6 @@
 ---
 name: Bug report
-about: Create a report to help me improve FancyMenu
+about: Create a report to help me improve Drippy Loading Screen
 title: ''
 labels: bug
 assignees: ''
@@ -28,7 +28,7 @@ If applicable, add screenshots to help explain your problem.
 
 **Basic Informations (please complete the following information):**
  - OS: [e.g. Windows]
- - FancyMenu Version [e.g. 0.2]
+ - Drippy Loading Screen Version [e.g. 0.2]
  - Forge/Fabric Version [e.g. 31.2.24]
  - Minecraft Version [e.g. 1.15.1]
  - Active Mods [e.g. Optifine, 5zig, TooManyItems]
