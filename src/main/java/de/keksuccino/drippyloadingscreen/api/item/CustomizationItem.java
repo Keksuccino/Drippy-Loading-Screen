@@ -2,11 +2,10 @@ package de.keksuccino.drippyloadingscreen.api.item;
 
 import java.util.Map;
 
-import javax.annotation.Nullable;
-
 import de.keksuccino.drippyloadingscreen.customization.helper.ui.content.FHContextMenu;
 import de.keksuccino.drippyloadingscreen.customization.items.CustomizationItemBase;
 import de.keksuccino.konkrete.properties.PropertiesSection;
+import org.jetbrains.annotations.Nullable;
 
 public abstract class CustomizationItem extends CustomizationItemBase {
 

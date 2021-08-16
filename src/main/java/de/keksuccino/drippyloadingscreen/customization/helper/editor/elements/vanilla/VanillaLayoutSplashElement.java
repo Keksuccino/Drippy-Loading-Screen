@@ -2,7 +2,7 @@ package de.keksuccino.drippyloadingscreen.customization.helper.editor.elements.v
 
 import java.awt.Color;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import net.minecraft.client.util.math.MatrixStack;
 
 import de.keksuccino.drippyloadingscreen.DrippyLoadingScreen;
 import de.keksuccino.drippyloadingscreen.customization.helper.editor.LayoutEditorScreen;
@@ -17,8 +17,7 @@ import de.keksuccino.konkrete.input.StringUtils;
 import de.keksuccino.konkrete.localization.Locals;
 import de.keksuccino.konkrete.math.MathUtils;
 import de.keksuccino.konkrete.rendering.RenderUtils;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.AbstractGui;
+import net.minecraft.client.MinecraftClient;
 
 public abstract class VanillaLayoutSplashElement extends LayoutElement {
 	
@@ -105,22 +104,22 @@ public abstract class VanillaLayoutSplashElement extends LayoutElement {
 	@Override
 	protected void renderBorder(MatrixStack matrix, int mouseX, int mouseY) {
 		//horizontal line top
-		AbstractGui.fill(matrix, this.object.getPosX(), this.object.getPosY(), this.object.getPosX() + this.object.width, this.object.getPosY() + 1, Color.BLUE.getRGB());
+		fill(matrix, this.object.getPosX(), this.object.getPosY(), this.object.getPosX() + this.object.width, this.object.getPosY() + 1, Color.BLUE.getRGB());
 		//horizontal line bottom
-		AbstractGui.fill(matrix, this.object.getPosX(), this.object.getPosY() + this.object.height - 1, this.object.getPosX() + this.object.width, this.object.getPosY() + this.object.height, Color.BLUE.getRGB());
+		fill(matrix, this.object.getPosX(), this.object.getPosY() + this.object.height - 1, this.object.getPosX() + this.object.width, this.object.getPosY() + this.object.height, Color.BLUE.getRGB());
 		//vertical line left
-		AbstractGui.fill(matrix, this.object.getPosX(), this.object.getPosY(), this.object.getPosX() + 1, this.object.getPosY() + this.object.height, Color.BLUE.getRGB());
+		fill(matrix, this.object.getPosX(), this.object.getPosY(), this.object.getPosX() + 1, this.object.getPosY() + this.object.height, Color.BLUE.getRGB());
 		//vertical line right
-		AbstractGui.fill(matrix, this.object.getPosX() + this.object.width - 1, this.object.getPosY(), this.object.getPosX() + this.object.width, this.object.getPosY() + this.object.height, Color.BLUE.getRGB());
+		fill(matrix, this.object.getPosX() + this.object.width - 1, this.object.getPosY(), this.object.getPosX() + this.object.width, this.object.getPosY() + this.object.height, Color.BLUE.getRGB());
 		
 		//Render pos and size values
 		RenderUtils.setScale(matrix, 0.5F);
-		AbstractGui.drawString(matrix, Minecraft.getInstance().fontRenderer, Locals.localize("drippyloadingscreen.helper.creator.items.border.orientation") + ": " + this.object.orientation, this.object.getPosX()*2, (this.object.getPosY()*2) - 26, Color.WHITE.getRGB());
-		AbstractGui.drawString(matrix, Minecraft.getInstance().fontRenderer, Locals.localize("drippyloadingscreen.helper.creator.items.border.posx") + ": " + this.object.getPosX(), this.object.getPosX()*2, (this.object.getPosY()*2) - 17, Color.WHITE.getRGB());
-		AbstractGui.drawString(matrix, Minecraft.getInstance().fontRenderer, Locals.localize("drippyloadingscreen.helper.creator.items.border.width") + ": " + this.object.width, this.object.getPosX()*2, (this.object.getPosY()*2) - 8, Color.WHITE.getRGB());
+		drawStringWithShadow(matrix, MinecraftClient.getInstance().textRenderer, Locals.localize("drippyloadingscreen.helper.creator.items.border.orientation") + ": " + this.object.orientation, this.object.getPosX()*2, (this.object.getPosY()*2) - 26, Color.WHITE.getRGB());
+		drawStringWithShadow(matrix, MinecraftClient.getInstance().textRenderer, Locals.localize("drippyloadingscreen.helper.creator.items.border.posx") + ": " + this.object.getPosX(), this.object.getPosX()*2, (this.object.getPosY()*2) - 17, Color.WHITE.getRGB());
+		drawStringWithShadow(matrix, MinecraftClient.getInstance().textRenderer, Locals.localize("drippyloadingscreen.helper.creator.items.border.width") + ": " + this.object.width, this.object.getPosX()*2, (this.object.getPosY()*2) - 8, Color.WHITE.getRGB());
 		
-		AbstractGui.drawString(matrix, Minecraft.getInstance().fontRenderer, Locals.localize("drippyloadingscreen.helper.creator.items.border.posy") + ": " + this.object.getPosY(), ((this.object.getPosX() + this.object.width)*2)+3, ((this.object.getPosY() + this.object.height)*2) - 14, Color.WHITE.getRGB());
-		AbstractGui.drawString(matrix, Minecraft.getInstance().fontRenderer, Locals.localize("drippyloadingscreen.helper.creator.items.border.height") + ": " + this.object.height, ((this.object.getPosX() + this.object.width)*2)+3, ((this.object.getPosY() + this.object.height)*2) - 5, Color.WHITE.getRGB());
+		drawStringWithShadow(matrix, MinecraftClient.getInstance().textRenderer, Locals.localize("drippyloadingscreen.helper.creator.items.border.posy") + ": " + this.object.getPosY(), ((this.object.getPosX() + this.object.width)*2)+3, ((this.object.getPosY() + this.object.height)*2) - 14, Color.WHITE.getRGB());
+		drawStringWithShadow(matrix, MinecraftClient.getInstance().textRenderer, Locals.localize("drippyloadingscreen.helper.creator.items.border.height") + ": " + this.object.height, ((this.object.getPosX() + this.object.width)*2)+3, ((this.object.getPosY() + this.object.height)*2) - 5, Color.WHITE.getRGB());
 		RenderUtils.postScale(matrix);
 	}
 	

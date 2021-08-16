@@ -4,13 +4,13 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import net.minecraft.client.util.math.MatrixStack;
 
 import de.keksuccino.drippyloadingscreen.customization.helper.ui.UIBase;
 import de.keksuccino.konkrete.gui.content.AdvancedButton;
 import de.keksuccino.konkrete.gui.content.ContextMenu;
 import de.keksuccino.konkrete.rendering.RenderUtils;
-import net.minecraft.client.Minecraft;
+import net.minecraft.client.MinecraftClient;
 
 public class FHContextMenu extends ContextMenu {
 
@@ -58,7 +58,7 @@ public class FHContextMenu extends ContextMenu {
 		
 		int i = 20;
 		for (AdvancedButton b : this.content) {
-			int sw = Minecraft.getInstance().fontRenderer.getStringWidth(b.getMessageString()) + 12;
+			int sw = MinecraftClient.getInstance().textRenderer.getWidth(b.getMessageString()) + 12;
 			if (b.getWidth() > sw) {
 				sw = b.getWidth();
 			}

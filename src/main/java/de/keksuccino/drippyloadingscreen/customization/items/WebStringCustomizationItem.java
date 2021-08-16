@@ -9,8 +9,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.util.math.MatrixStack;
 
 import de.keksuccino.drippyloadingscreen.customization.placeholdervalues.PlaceholderTextValueHelper;
 import de.keksuccino.drippyloadingscreen.customization.rendering.SimpleTextRenderer;
@@ -84,7 +84,7 @@ public class WebStringCustomizationItem extends CustomizationItemBase {
 
 	@Override
 	public void render(MatrixStack matrix) {
-		
+
 		if (!this.shouldRender()) {
 			return;
 		}
@@ -94,23 +94,23 @@ public class WebStringCustomizationItem extends CustomizationItemBase {
 			RenderSystem.enableBlend();
 
 			this.width = (int)(this.unscaledWidth * this.scale);
-			this.height = (int)(this.unscaledHeight * this.scale);  
-			
+			this.height = (int)(this.unscaledHeight * this.scale);
+
 			int i = 0;
 			for (Map.Entry<String, Float> m : this.lines.entrySet()) {
-				
+
 				float sc = (this.scale * m.getValue());
 				int x = this.getPosX();
 				int y = this.getPosY();
 				int stringwidth = (int) (SimpleTextRenderer.getStringWidth(m.getKey()) * sc);
-				
+
 				if (this.alignment == Alignment.RIGHT) {
 					x = (x + (this.width - stringwidth));
 				}
 				if (this.alignment == Alignment.CENTERED) {
 					x = (x + ((this.width - stringwidth) / 2));
 				}
-				
+
 				String line = "";
 				if (isEditorActive()) {
 					line = StringUtils.convertFormatCodes(m.getKey(), "&", "§");
@@ -119,13 +119,13 @@ public class WebStringCustomizationItem extends CustomizationItemBase {
 				}
 
 				if (this.shadow) {
-					SimpleTextRenderer.drawStringWithShadow(line, x, y + i, this.textColor.getRGB(), this.opacity, sc);
+					SimpleTextRenderer.drawStringWithShadow(matrix, line, x, y + i, this.textColor.getRGB(), this.opacity, sc);
 				} else {
-					SimpleTextRenderer.drawString(line, x, y + i, this.textColor.getRGB(), this.opacity, sc);
+					SimpleTextRenderer.drawString(matrix, line, x, y + i, this.textColor.getRGB(), this.opacity, sc);
 				}
-				
+
 				i += (10 * sc);
-				
+
 			}
 
 			RenderSystem.disableBlend();

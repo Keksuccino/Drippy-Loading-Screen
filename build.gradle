@@ -1,84 +1,56 @@
-buildscript {
-    repositories {
-        maven { url = 'https://files.minecraftforge.net/maven' }
-		maven { url = 'https://repo.spongepowered.org/maven' }
-		jcenter()
-        mavenCentral()
-    }
-    dependencies {
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '4.1.+', changing: true
-		classpath 'org.spongepowered:mixingradle:0.7-SNAPSHOT'
-    }
-}
-apply plugin: 'net.minecraftforge.gradle'
-apply plugin: 'org.spongepowered.mixin'
-apply plugin: 'eclipse'
-apply plugin: 'maven-publish'
-
-version = '1.0.0'
-group = 'de.keksuccino.drippyloadingscreen'
-archivesBaseName = 'drippyloadingscreen'
-
-java.toolchain.languageVersion = JavaLanguageVersion.of(8)
-
-compileJava {
-	[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+plugins {
+	id 'fabric-loom' version '0.8-SNAPSHOT'
+	id 'maven-publish'
 }
 
-println('Java: ' + System.getProperty('java.version') + ' JVM: ' + System.getProperty('java.vm.version') + '(' + System.getProperty('java.vendor') + ') Arch: ' + System.getProperty('os.arch'))
+sourceCompatibility = JavaVersion.VERSION_16
+targetCompatibility = JavaVersion.VERSION_16
 
-minecraft {
+archivesBaseName = project.archives_base_name
+version = project.mod_version
+group = project.maven_group
 
-    mappings channel: 'snapshot', version: '20210309-1.16.5'
-	
-    runs {
-        client {
-            workingDirectory project.file('run')
-            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
-            property 'forge.logging.console.level', 'debug'
-            arg "-mixin.config=drippyloadingscreen.mixin.json"
-            mods {
-                drippyloadingscreen {
-                    source sourceSets.main
-                }
-            }
-        }
-
-    }
+repositories {
+	// Add repositories to retrieve artifacts from in here.
+	// You should only use this when depending on other mods because
+	// Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
+	// See https://docs.gradle.org/current/userguide/declaring_repositories.html
+	// for more information about repositories.
 }
-
-sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 dependencies {
+	minecraft "com.mojang:minecraft:1.17.1"
+	mappings "net.fabricmc:yarn:1.17.1+build.14:v2"
+	modImplementation "net.fabricmc:fabric-loader:0.11.6"
 
-    minecraft 'net.minecraftforge:forge:1.16.5-36.1.0'
+	modImplementation "net.fabricmc.fabric-api:fabric-api:0.37.0+1.17"
 	
-	annotationProcessor 'org.spongepowered:mixin:0.8.2:processor'
-	testAnnotationProcessor 'org.spongepowered:mixin:0.8.2:processor'
-	
-	compile fileTree(dir: 'libs', include: ['*.jar'])
+	implementation fileTree('libs') { include '*.jar' }
+}
 
+processResources {
+	inputs.property "version", project.version
+
+	filesMatching("fabric.mod.json") {
+		expand "version": project.version
+	}
+}
+
+tasks.withType(JavaCompile).configureEach {
+
+	it.options.encoding = "UTF-8"
+
+	it.options.release = 16
+	
+}
+
+java {
+	withSourcesJar()
 }
 
 jar {
-    manifest {
-        attributes([
-            "Specification-Title": "drippyloadingscreen",
-            "Specification-Vendor": "Keksuccino",
-            "Specification-Version": "1",
-            "Implementation-Title": project.name,
-            "Implementation-Version": "${version}",
-            "Implementation-Vendor" :"Keksuccino",
-            "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
-            "Signing-Fingerprint": project.hasProperty('fingerprint') ? project.property('fingerprint') : 'unsigned',
-			"TweakClass": "org.spongepowered.asm.launch.MixinTweaker",
-            "TweakOrder": 0,
-            "MixinConfigs" : "drippyloadingscreen.mixin.json"
-        ])
-    }
-	
-	 rename 'mixin.refmap.json', 'drippyloadingscreen.mixin-refmap.json'
-	 
+	from("LICENSE") {
+		rename { "${it}_${project.archivesBaseName}"}
+	}
+	rename 'drippyloadingscreen-refmap.json', 'drippyloadingscreen.mixin-refmap.json'
 }
-
-jar.finalizedBy('reobfJar') 

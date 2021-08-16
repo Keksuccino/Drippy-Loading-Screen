@@ -2,7 +2,7 @@ package de.keksuccino.drippyloadingscreen.customization.items;
 
 import java.awt.Color;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import net.minecraft.client.util.math.MatrixStack;
 
 import de.keksuccino.konkrete.properties.PropertiesSection;
 import de.keksuccino.konkrete.rendering.RenderUtils;

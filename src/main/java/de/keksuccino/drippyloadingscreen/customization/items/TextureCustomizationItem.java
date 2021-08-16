@@ -2,15 +2,14 @@ package de.keksuccino.drippyloadingscreen.customization.items;
 
 import java.io.File;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import net.minecraft.client.render.GameRenderer;
+import net.minecraft.client.util.math.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import de.keksuccino.konkrete.properties.PropertiesSection;
 import de.keksuccino.konkrete.rendering.animation.ExternalGifAnimationRenderer;
 import de.keksuccino.konkrete.resources.ExternalTextureResourceLocation;
 import de.keksuccino.konkrete.resources.TextureHandler;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.IngameGui;
 
 public class TextureCustomizationItem extends CustomizationItemBase {
 	
@@ -79,7 +78,7 @@ public class TextureCustomizationItem extends CustomizationItemBase {
 				int y2 = this.gif.getPosY();
 				
 				RenderSystem.enableBlend();
-				RenderSystem.color4f(1.0F, 1.0F, 1.0F, this.opacity);
+				RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, this.opacity);
 				
 				this.gif.setPosX(x);
 				this.gif.setPosY(y);
@@ -96,12 +95,13 @@ public class TextureCustomizationItem extends CustomizationItemBase {
 				RenderSystem.disableBlend();
 				
 			} else if (this.texture != null) {
-				
-				Minecraft.getInstance().getTextureManager().bindTexture(this.texture.getResourceLocation());
+
+				RenderSystem.setShader(GameRenderer::getPositionTexShader);
+				RenderSystem.setShaderTexture(0, this.texture.getResourceLocation());
+				RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, this.opacity);
 				RenderSystem.enableBlend();
-				RenderSystem.color4f(1.0F, 1.0F, 1.0F, this.opacity);
-				blit(matrix, x, y, 0.0F, 0.0F, this.width, this.height, this.width, this.height);
-				RenderSystem.disableBlend();
+				RenderSystem.defaultBlendFunc();
+				drawTexture(matrix, x, y, 0.0F, 0.0F, this.width, this.height, this.width, this.height);
 				
 			}
 			

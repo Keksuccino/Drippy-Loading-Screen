@@ -4,9 +4,9 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.util.math.MatrixStack;
 
-import de.keksuccino.drippyloadingscreen.customization.rendering.splash.elements.ForgeTextSplashElement;
 import de.keksuccino.konkrete.localization.Locals;
 import de.keksuccino.drippyloadingscreen.customization.helper.editor.LayoutEditorScreen;
 import de.keksuccino.drippyloadingscreen.customization.helper.editor.elements.LayoutElement;
@@ -20,9 +20,7 @@ import de.keksuccino.konkrete.input.StringUtils;
 import de.keksuccino.konkrete.math.MathUtils;
 import de.keksuccino.konkrete.properties.PropertiesSection;
 import de.keksuccino.konkrete.rendering.RenderUtils;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.AbstractGui;
-import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.MinecraftClient;
 
 public class LayoutString extends LayoutElement {
 
@@ -92,69 +90,6 @@ public class LayoutString extends LayoutElement {
 		
 		this.rightclickMenu.addSeparator();
 
-		//TODO fixen
-//		/** RAINBOW MODE **/
-//		String rainbowToggleString = Locals.localize("drippyloadingscreen.helper.editor.elements.string.rainbow.on");
-//		if (!this.getObject().rainbowMode) {
-//			rainbowToggleString = Locals.localize("drippyloadingscreen.helper.editor.elements.string.rainbow.off");
-//		}
-//		AdvancedButton rainbowToggleButton = new AdvancedButton(0, 0, 0, 16, rainbowToggleString, true, (press) -> {
-//			if (this.getObject().rainbowMode) {
-//				((AdvancedButton)press).setMessage(Locals.localize("drippyloadingscreen.helper.editor.elements.string.rainbow.off"));
-//				this.getObject().rainbowMode = false;
-//			} else {
-//				((AdvancedButton)press).setMessage(Locals.localize("drippyloadingscreen.helper.editor.elements.string.rainbow.on"));
-//				this.getObject().rainbowMode = true;
-//			}
-//		});
-//		rainbowToggleButton.setDescription(StringUtils.splitLines(Locals.localize("drippyloadingscreen.helper.editor.elements.string.rainbow.btn.desc"), "%n%"));
-//		this.rightclickMenu.addContent(rainbowToggleButton);
-//
-//		AdvancedButton rainbowColorButton = new AdvancedButton(0, 0, 0, 16, Locals.localize("drippyloadingscreen.helper.editor.elements.string.rainbow.colors"), true, (press) -> {
-//			PopupHandler.displayPopup(new SetRainbowStringColorPopup(this));
-//		}) {
-//			@Override
-//			public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
-//				if (!LayoutString.this.getObject().rainbowMode) {
-//					this.active = false;
-//				} else {
-//					this.active = true;
-//				}
-//				super.render(matrixStack, mouseX, mouseY, partialTicks);
-//			}
-//		};
-//		this.rightclickMenu.addContent(rainbowColorButton);
-//
-//		AdvancedButton rainbowFadeSpeedButton = new AdvancedButton(0, 0, 0, 16, Locals.localize("drippyloadingscreen.helper.editor.elements.string.rainbow.speed"), true, (press) -> {
-//			FHTextInputPopup pop = new FHTextInputPopup(new Color(0, 0, 0, 0), Locals.localize("drippyloadingscreen.helper.editor.elements.string.rainbow.speed"), CharacterFilter.getDoubleCharacterFiler(), 240, (call) -> {
-//				if (call != null) {
-//					float newSpeed = 1.0F;
-//					if (!call.replace(" ", "").equals("")) {
-//						if (MathUtils.isFloat(call)) {
-//							newSpeed = Float.parseFloat(call);
-//						}
-//					}
-//					if (newSpeed != this.getObject().rainbowText.getSpeed()) {
-//						this.handler.history.saveSnapshot(this.handler.history.createSnapshot());
-//					}
-//					this.getObject().rainbowText.setSpeed(newSpeed);
-//				}
-//			});
-//			pop.setText("" + this.getObject().rainbowText.getSpeed());
-//			PopupHandler.displayPopup(pop);
-//		}) {
-//			@Override
-//			public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
-//				if (!LayoutString.this.getObject().rainbowMode) {
-//					this.active = false;
-//				} else {
-//					this.active = true;
-//				}
-//				super.render(matrixStack, mouseX, mouseY, partialTicks);
-//			}
-//		};
-//		this.rightclickMenu.addContent(rainbowFadeSpeedButton);
-
 	}
 	
 	@Override
@@ -169,15 +104,15 @@ public class LayoutString extends LayoutElement {
 		fill(matrix, this.getStringPosX() + this.object.width, this.getStringPosY(), this.getStringPosX() + this.object.width + 1, this.getStringPosY() + this.object.height, Color.BLUE.getRGB());
 	
 		//Render pos and size values
-		FontRenderer font = Minecraft.getInstance().fontRenderer;
+		TextRenderer font = MinecraftClient.getInstance().textRenderer;
 		RenderUtils.setScale(matrix, 0.5F);
-		font.drawString(matrix, Locals.localize("drippyloadingscreen.helper.creator.items.border.orientation")+ ": " + this.object.orientation, this.getStringPosX()*2, (this.getStringPosY()*2) - 44, Color.WHITE.getRGB());
-		font.drawString(matrix, Locals.localize("drippyloadingscreen.helper.creator.items.string.border.scale") + ": " + this.getStringScale(), this.getStringPosX()*2, (this.getStringPosY()*2) - 35, Color.WHITE.getRGB());
-		font.drawString(matrix, Locals.localize("drippyloadingscreen.helper.creator.items.string.border.alignment") + ": " + this.getObject().alignment.key, this.getStringPosX()*2, (this.getStringPosY()*2) - 26, Color.WHITE.getRGB());
-		font.drawString(matrix, Locals.localize("drippyloadingscreen.helper.creator.items.border.posx") + ": " + this.getStringPosX(), this.getStringPosX()*2, (this.getStringPosY()*2) - 17, Color.WHITE.getRGB());
-		font.drawString(matrix, Locals.localize("drippyloadingscreen.helper.creator.items.border.width") + ": " + this.object.width, this.getStringPosX()*2, (this.getStringPosY()*2) - 8, Color.WHITE.getRGB());
-		font.drawString(matrix, Locals.localize("drippyloadingscreen.helper.creator.items.border.posy") + ": " + this.getStringPosY(), ((this.getStringPosX() + this.object.width)*2)+3, ((this.getStringPosY() + this.object.height)*2) - 14, Color.WHITE.getRGB());
-		font.drawString(matrix, Locals.localize("drippyloadingscreen.helper.creator.items.border.height") + ": " + this.object.height, ((this.getStringPosX() + this.object.width)*2)+3, ((this.getStringPosY() + this.object.height)*2) - 5, Color.WHITE.getRGB());
+		font.drawWithShadow(matrix, Locals.localize("drippyloadingscreen.helper.creator.items.border.orientation")+ ": " + this.object.orientation, this.getStringPosX()*2, (this.getStringPosY()*2) - 44, Color.WHITE.getRGB());
+		font.drawWithShadow(matrix, Locals.localize("drippyloadingscreen.helper.creator.items.string.border.scale") + ": " + this.getStringScale(), this.getStringPosX()*2, (this.getStringPosY()*2) - 35, Color.WHITE.getRGB());
+		font.drawWithShadow(matrix, Locals.localize("drippyloadingscreen.helper.creator.items.string.border.alignment") + ": " + this.getObject().alignment.key, this.getStringPosX()*2, (this.getStringPosY()*2) - 26, Color.WHITE.getRGB());
+		font.drawWithShadow(matrix, Locals.localize("drippyloadingscreen.helper.creator.items.border.posx") + ": " + this.getStringPosX(), this.getStringPosX()*2, (this.getStringPosY()*2) - 17, Color.WHITE.getRGB());
+		font.drawWithShadow(matrix, Locals.localize("drippyloadingscreen.helper.creator.items.border.width") + ": " + this.object.width, this.getStringPosX()*2, (this.getStringPosY()*2) - 8, Color.WHITE.getRGB());
+		font.drawWithShadow(matrix, Locals.localize("drippyloadingscreen.helper.creator.items.border.posy") + ": " + this.getStringPosY(), ((this.getStringPosX() + this.object.width)*2)+3, ((this.getStringPosY() + this.object.height)*2) - 14, Color.WHITE.getRGB());
+		font.drawWithShadow(matrix, Locals.localize("drippyloadingscreen.helper.creator.items.border.height") + ": " + this.object.height, ((this.getStringPosX() + this.object.width)*2)+3, ((this.getStringPosY() + this.object.height)*2) - 5, Color.WHITE.getRGB());
 		RenderUtils.postScale(matrix);
 	}
 	
@@ -255,7 +190,7 @@ public class LayoutString extends LayoutElement {
 			this.handler.history.saveSnapshot(this.handler.history.createSnapshot());
 		}
 		((StringCustomizationItem)this.object).scale = scale;
-//		this.setWidth((int)(Minecraft.getInstance().fontRenderer.getStringWidth(this.object.value)*scale));
+//		this.setWidth((int)(MinecraftClient.getInstance().textRenderer.getWidth(this.object.value)*scale));
 //		this.setHeight((int)(7*scale));
 	}
 	
@@ -324,21 +259,6 @@ public class LayoutString extends LayoutElement {
 		p1.addEntry("shadow", "" + this.getObject().shadow);
 		p1.addEntry("alignment", "" + this.getObject().alignment.key);
 		p1.addEntry("textcolor", this.getObject().textColorHex);
-		
-		if (this.getObject().rainbowMode) {
-			p1.addEntry("rainbowmode", "true");
-		}
-		if (this.getObject().rainbowText.getSpeed() != 1.0F) {
-			p1.addEntry("rainbowspeed", "" + this.getObject().rainbowText.getSpeed());
-		}
-		if (this.getObject().allRainbowColorsSet()) {
-			p1.addEntry("rainbowstartcolor1", this.getObject().rainbowStartColorHex1);
-			p1.addEntry("rainbowendcolor1", this.getObject().rainbowEndColorHex1);
-			p1.addEntry("rainbowstartcolor2", this.getObject().rainbowStartColorHex2);
-			p1.addEntry("rainbowendcolor2", this.getObject().rainbowEndColorHex2);
-		}
-
-		this.addVisibilityPropertiesTo(p1);
 		
 		l.add(p1);
 		

@@ -1,11 +1,10 @@
 package de.keksuccino.drippyloadingscreen.customization.items.custombars;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import net.minecraft.client.util.math.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import de.keksuccino.drippyloadingscreen.customization.rendering.splash.SplashCustomizationLayer;
 import de.keksuccino.konkrete.properties.PropertiesSection;
 import de.keksuccino.konkrete.rendering.RenderUtils;
-import net.minecraft.client.Minecraft;
 
 public class CustomProgressBarCustomizationItem extends CustomBarCustomizationItemBase {
 	
@@ -66,7 +65,7 @@ public class CustomProgressBarCustomizationItem extends CustomBarCustomizationIt
 		if (this.barTexture == null) {
 
 			RenderSystem.enableBlend();
-			RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+			RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 
 			if (this.direction == BarDirection.RIGHT) {
 				RenderUtils.fill(matrix, this.getPosX(), this.getPosY(), this.getPosX() + this.currentPercentWidthHeight, this.getPosY() + this.height, this.barColor.getRGB(), this.opacity);
@@ -83,23 +82,23 @@ public class CustomProgressBarCustomizationItem extends CustomBarCustomizationIt
 			
 		} else {
 			
-			Minecraft.getInstance().textureManager.bindTexture(this.barTexture);
+			RenderUtils.bindTexture(this.barTexture);
 			RenderSystem.enableBlend();
-			RenderSystem.color4f(1.0F, 1.0F, 1.0F, this.opacity);
+			RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, this.opacity);
 			
 			if (this.direction == BarDirection.RIGHT) {
-				blit(matrix, this.getPosX(), this.getPosY(), 0.0F, 0.0F, this.currentPercentWidthHeight, this.height, this.width, this.height);
+				drawTexture(matrix, this.getPosX(), this.getPosY(), 0.0F, 0.0F, this.currentPercentWidthHeight, this.height, this.width, this.height);
 			}
 			if (this.direction == BarDirection.LEFT) {
 				int i = (this.width - this.currentPercentWidthHeight);
-				blit(matrix, this.getPosX() + i, this.getPosY(), i, 0.0F, this.currentPercentWidthHeight, this.height, this.width, this.height);
+				drawTexture(matrix, this.getPosX() + i, this.getPosY(), i, 0.0F, this.currentPercentWidthHeight, this.height, this.width, this.height);
 			}
 			if (this.direction == BarDirection.UP) {
 				int i = (this.height - this.currentPercentWidthHeight);
-				blit(matrix, this.getPosX(), this.getPosY() + i, 0.0F, i, this.width, this.currentPercentWidthHeight, this.width, this.height);
+				drawTexture(matrix, this.getPosX(), this.getPosY() + i, 0.0F, i, this.width, this.currentPercentWidthHeight, this.width, this.height);
 			}
 			if (this.direction == BarDirection.DOWN) {
-				blit(matrix, this.getPosX(), this.getPosY(), 0.0F, 0.0F, this.width, this.currentPercentWidthHeight, this.width, this.height);
+				drawTexture(matrix, this.getPosX(), this.getPosY(), 0.0F, 0.0F, this.width, this.currentPercentWidthHeight, this.width, this.height);
 			}
 			
 			RenderSystem.disableBlend();
@@ -114,15 +113,15 @@ public class CustomProgressBarCustomizationItem extends CustomBarCustomizationIt
 		if (this.backgroundTexture == null) {
 
 			RenderSystem.enableBlend();
-			RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+			RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 			RenderUtils.fill(matrix, this.getPosX(), this.getPosY(), this.getPosX() + this.width, this.getPosY() + this.height, this.backgroundColor.getRGB(), this.opacity);
 		
 		} else {
 			
-			Minecraft.getInstance().textureManager.bindTexture(this.backgroundTexture);
+			RenderUtils.bindTexture(this.backgroundTexture);
 			RenderSystem.enableBlend();
-			RenderSystem.color4f(1.0F, 1.0F, 1.0F, this.opacity);
-			blit(matrix, this.getPosX(), this.getPosY(), 0.0F, 0.0F, this.width, this.height, this.width, this.height);
+			RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, this.opacity);
+			drawTexture(matrix, this.getPosX(), this.getPosY(), 0.0F, 0.0F, this.width, this.height, this.width, this.height);
 			RenderSystem.disableBlend();
 			
 		}

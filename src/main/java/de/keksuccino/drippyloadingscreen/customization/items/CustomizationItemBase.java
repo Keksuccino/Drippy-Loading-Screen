@@ -1,17 +1,16 @@
 package de.keksuccino.drippyloadingscreen.customization.items;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import net.minecraft.client.gui.DrawableHelper;
+import net.minecraft.client.util.math.MatrixStack;
 
 import de.keksuccino.drippyloadingscreen.customization.CustomizationHandler;
 import de.keksuccino.drippyloadingscreen.customization.placeholdervalues.PlaceholderTextValueHelper;
 import de.keksuccino.drippyloadingscreen.customization.helper.editor.LayoutEditorScreen;
-import de.keksuccino.drippyloadingscreen.customization.items.visibilityrequirements.VisibilityRequirementContainer;
 import de.keksuccino.konkrete.math.MathUtils;
 import de.keksuccino.konkrete.properties.PropertiesSection;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.AbstractGui;
+import net.minecraft.client.MinecraftClient;
 
-public abstract class CustomizationItemBase extends AbstractGui {
+public abstract class CustomizationItemBase extends DrawableHelper {
 	
 	/**
 	 * This value CANNOT BE NULL!<br>
@@ -38,8 +37,6 @@ public abstract class CustomizationItemBase extends AbstractGui {
 	public volatile boolean fadeIn = false;
 	public volatile float fadeInSpeed = 1.0F;
 	public volatile float opacity = 1.0F;
-
-	public VisibilityRequirementContainer visibilityRequirementContainer;
 
 	protected String actionId;
 
@@ -97,8 +94,6 @@ public abstract class CustomizationItemBase extends AbstractGui {
 			}
 		}
 
-		this.visibilityRequirementContainer = new VisibilityRequirementContainer(properties, this);
-
 	}
 
 	public abstract void render(MatrixStack matrix);
@@ -109,7 +104,7 @@ public abstract class CustomizationItemBase extends AbstractGui {
 	 */
 	public int getPosX() {
 		
-		int w = Minecraft.getInstance().getMainWindow().getScaledWidth();
+		int w = MinecraftClient.getInstance().getWindow().getScaledWidth();
 		int x = this.posX;
 
 		if (orientation.equalsIgnoreCase("top-centered")) {
@@ -141,7 +136,7 @@ public abstract class CustomizationItemBase extends AbstractGui {
 	 */
 	public int getPosY() {
 		
-		int h = Minecraft.getInstance().getMainWindow().getScaledHeight();
+		int h = MinecraftClient.getInstance().getWindow().getScaledHeight();
 		int y = this.posY;
 
 		if (orientation.equalsIgnoreCase("mid-left")) {
@@ -172,9 +167,6 @@ public abstract class CustomizationItemBase extends AbstractGui {
 		if (this.value == null) {
 			return false;
 		}
-		if (!this.visibilityRequirementsMet()) {
-			return false;
-		}
 		return this.visible;
 	}
 
@@ -183,14 +175,7 @@ public abstract class CustomizationItemBase extends AbstractGui {
 	}
 
 	protected static boolean isEditorActive() {
-		return (Minecraft.getInstance().currentScreen instanceof LayoutEditorScreen);
-	}
-
-	protected boolean visibilityRequirementsMet() {
-		if (isEditorActive()) {
-			return true;
-		}
-		return this.visibilityRequirementContainer.isVisible();
+		return (MinecraftClient.getInstance().currentScreen instanceof LayoutEditorScreen);
 	}
 
 	public static enum Alignment {

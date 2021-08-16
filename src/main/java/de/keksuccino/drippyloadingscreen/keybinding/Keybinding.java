@@ -3,9 +3,9 @@ package de.keksuccino.drippyloadingscreen.keybinding;
 import de.keksuccino.drippyloadingscreen.DrippyLoadingScreen;
 import de.keksuccino.konkrete.config.exceptions.InvalidValueException;
 import de.keksuccino.konkrete.input.KeyboardHandler;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.settings.KeyBinding;
-import net.minecraftforge.fml.client.registry.ClientRegistry;
+import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.option.KeyBinding;
 
 public class Keybinding {
 
@@ -14,7 +14,7 @@ public class Keybinding {
 	public static void init() {
 
 		KeyToggleHelper = new KeyBinding("Toggle Customization Controls | CTRL + ALT + ", 76, "DrippyLoadingScreen");
-		ClientRegistry.registerKeyBinding(KeyToggleHelper);
+		KeyBindingHelper.registerKeyBinding(KeyToggleHelper);
 		
 		initGuiClickActions();
 		
@@ -24,7 +24,7 @@ public class Keybinding {
 
 		KeyboardHandler.addKeyPressedListener((c) -> {
 
-			if ((KeyToggleHelper.getKey().getKeyCode() == c.keycode) && KeyboardHandler.isCtrlPressed() && KeyboardHandler.isAltPressed()) {
+			if ((KeyBindingHelper.getBoundKeyOf(KeyToggleHelper).getCode() == c.keycode) && KeyboardHandler.isCtrlPressed() && KeyboardHandler.isAltPressed()) {
 				try {
 					if (DrippyLoadingScreen.config.getOrDefault("showcustomizationcontrols", true)) {
 						DrippyLoadingScreen.config.setValue("showcustomizationcontrols", false);
@@ -32,8 +32,8 @@ public class Keybinding {
 						DrippyLoadingScreen.config.setValue("showcustomizationcontrols", true);
 					}
 					DrippyLoadingScreen.config.syncConfig();
-					if (Minecraft.getInstance().currentScreen != null) {
-						Minecraft.getInstance().displayGuiScreen(Minecraft.getInstance().currentScreen);
+					if (MinecraftClient.getInstance().currentScreen != null) {
+						MinecraftClient.getInstance().setScreen(MinecraftClient.getInstance().currentScreen);
 					}
 				} catch (InvalidValueException e) {
 					e.printStackTrace();

@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "id": "drippyloadingscreen",
+  "version": "1.1.0",
+  "name": "Drippy Loading Screen",
+  "description": "placeholder desc",
+  "environment": "client",
+  "authors": [
+    "Keksuccino"
+  ],
+  "contributors": [],
+  "contact": {},
+  "license": "KML (Keksuccino Mod License)",
+  "icon": "assets/drippyloadingscreen/icon.png",
+  "entrypoints": {
+    "main": [
+      "de.keksuccino.drippyloadingscreen.DrippyLoadingScreen"
+    ],
+    "client": [],
+    "server": []
+  },
+  "mixins": [
+    "drippyloadingscreen.mixin.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.11.3",
+    "fabric": "*",
+    "konkrete": ">=1.2.3",
+	"minecraft": "1.17.x",
+    "java": ">=16"
+  }
+}

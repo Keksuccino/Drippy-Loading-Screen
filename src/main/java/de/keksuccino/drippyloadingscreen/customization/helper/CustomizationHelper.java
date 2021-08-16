@@ -1,12 +1,12 @@
 package de.keksuccino.drippyloadingscreen.customization.helper;
 
-import net.minecraftforge.common.MinecraftForge;
+import de.keksuccino.konkrete.Konkrete;
 
 public class CustomizationHelper {
 
 	public static void init() {
-		
-		MinecraftForge.EVENT_BUS.register(new CustomizationHelperEvents());
+
+		Konkrete.getEventHandler().registerEventsFrom(new CustomizationHelperEvents());
 		
 	}
 	

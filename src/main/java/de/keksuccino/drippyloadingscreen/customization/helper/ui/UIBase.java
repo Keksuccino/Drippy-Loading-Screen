@@ -2,17 +2,17 @@ package de.keksuccino.drippyloadingscreen.customization.helper.ui;
 
 import java.awt.Color;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import net.minecraft.client.gui.DrawableHelper;
+import net.minecraft.client.util.math.MatrixStack;
 
 import de.keksuccino.drippyloadingscreen.DrippyLoadingScreen;
 import de.keksuccino.drippyloadingscreen.customization.helper.ui.content.FHContextMenu;
 import de.keksuccino.konkrete.gui.content.AdvancedButton;
 import de.keksuccino.konkrete.input.MouseInput;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.AbstractGui;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 
-public class UIBase extends AbstractGui {
+public class UIBase extends DrawableHelper {
 
 	protected static Color idleButtonColor;
 	protected static Color hoveredButtonColor;
@@ -62,14 +62,14 @@ public class UIBase extends AbstractGui {
 	public static float getUIScale() {
 
 		float uiScale = DrippyLoadingScreen.config.getOrDefault("uiscale", 1.0F);
-		double mcScale = Minecraft.getInstance().getMainWindow().getGuiScaleFactor();
+		double mcScale = MinecraftClient.getInstance().getWindow().getScaleFactor();
 
 		return (float) ((((double)baseUIScale) * (((double)baseUIScale) / mcScale)) * uiScale);
 		
 	}
 	
 	public static void openScaledContextMenuAt(FHContextMenu menu, int x, int y) {
-		Screen s = Minecraft.getInstance().currentScreen;
+		Screen s = MinecraftClient.getInstance().currentScreen;
 		if (s != null) {
 			menu.openMenuAt((int) (x / UIBase.getUIScale()), (int) (y / UIBase.getUIScale()), (int) (s.width / getUIScale()), (int) (s.height / getUIScale()));
 		}
@@ -80,7 +80,7 @@ public class UIBase extends AbstractGui {
 	}
 	
 	public static void renderScaledContextMenu(MatrixStack matrix, FHContextMenu menu) {
-		Screen s = Minecraft.getInstance().currentScreen;
+		Screen s = MinecraftClient.getInstance().currentScreen;
 		if ((s != null) && (menu != null)) {
 			
 			matrix.push();

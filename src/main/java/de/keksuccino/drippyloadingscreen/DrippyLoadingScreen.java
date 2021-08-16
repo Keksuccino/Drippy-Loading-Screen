@@ -1,34 +1,24 @@
 package de.keksuccino.drippyloadingscreen;
 
-import java.io.File;
-
-import de.keksuccino.drippyloadingscreen.customization.items.visibilityrequirements.VisibilityRequirementHandler;
-import de.keksuccino.konkrete.input.KeyboardHandler;
-import net.minecraftforge.common.MinecraftForge;
-import org.apache.commons.lang3.tuple.Pair;
-
 import de.keksuccino.drippyloadingscreen.api.PlaceholderTextValueRegistry;
 import de.keksuccino.drippyloadingscreen.api.item.CustomizationItemRegistry;
 import de.keksuccino.drippyloadingscreen.customization.CustomizationHandler;
 import de.keksuccino.drippyloadingscreen.customization.helper.CustomizationHelper;
+import de.keksuccino.drippyloadingscreen.customization.rendering.SimpleTextRenderer;
 import de.keksuccino.drippyloadingscreen.customization.rendering.slideshow.SlideshowHandler;
 import de.keksuccino.drippyloadingscreen.keybinding.Keybinding;
 import de.keksuccino.drippyloadingscreen.logger.Logging;
 import de.keksuccino.konkrete.Konkrete;
 import de.keksuccino.konkrete.config.Config;
 import de.keksuccino.konkrete.localization.Locals;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.ExtensionPoint;
-import net.minecraftforge.fml.ModList;
-import net.minecraftforge.fml.ModLoadingContext;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.loading.FMLEnvironment;
-import net.minecraftforge.fml.network.FMLNetworkConstants;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.ModInitializer;
+import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.util.Identifier;
 
+import java.io.File;
 
-@Mod("drippyloadingscreen")
-public class DrippyLoadingScreen {
+public class DrippyLoadingScreen implements ModInitializer {
 	
 	public static final String VERSION = "1.1.0";
 	
@@ -41,11 +31,10 @@ public class DrippyLoadingScreen {
 	private static boolean fancymenuLoaded = false;
 	private static boolean optifineLoaded = false;
 
-	public DrippyLoadingScreen() {
-		
-		ModLoadingContext.get().registerExtensionPoint(ExtensionPoint.DISPLAYTEST, () -> Pair.of(() -> FMLNetworkConstants.IGNORESERVERONLY, (a, b) -> true));
+	@Override
+	public void onInitialize() {
 
-		if (FMLEnvironment.dist == Dist.CLIENT) {
+		if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
 
 			if (!HOME_DIR.exists()) {
 				HOME_DIR.mkdirs();
@@ -57,40 +46,37 @@ public class DrippyLoadingScreen {
 				SLIDESHOW_DIR.mkdirs();
 			}
 
-			if (ModList.get().isLoaded("fancymenu")) {
+			try {
+				Class.forName("de.keksuccino.fancymenu.FancyMenu");
 				System.out.println("[DRIPPY LOADING SCREEN] FancyMenu found!");
 				fancymenuLoaded = true;
-			}
-			
+			} catch (Exception e) {}
+
 			updateConfig();
-			
+
 			Logging.init();
-			
+
 			SlideshowHandler.init();
 
 			CustomizationHandler.init();
-			
+
 			CustomizationHelper.init();
 
-			VisibilityRequirementHandler.init();
+			//TODO übernehmen
+			SimpleTextRenderer.init();
 
-			//TODO remove debug
-//			MinecraftForge.EVENT_BUS.register(new Test());
-
-//			KeyboardHandler.addKeyPressedListener((key) -> {
-//				System.out.println(key.keycode);
-//			});
-			
 			if (config.getOrDefault("enablekeybinds", true)) {
-        		Keybinding.init();
-        	}
-			
+				Keybinding.init();
+			}
+
+//			Konkrete.getEventHandler().registerEventsFrom(new Test());
+
 			Konkrete.addPostLoadingEvent("drippyloadingscreen", this::onClientSetup);
 
 		} else {
 			System.out.println("## WARNING ## 'Drippy Loading Screen' is a client mod and has no effect when loaded on a server!");
 		}
-		
+
 	}
 	
 	private void onClientSetup() {
@@ -153,8 +139,8 @@ public class DrippyLoadingScreen {
 		if (!f.exists()) {
 			f.mkdirs();
 		}
-		
-		Locals.copyLocalsFileToDir(new ResourceLocation("drippyloadingscreen", baseresdir + "en_us.local"), "en_us", f.getPath());
+
+		Locals.copyLocalsFileToDir(new Identifier("drippyloadingscreen", baseresdir + "en_us.local"), "en_us", f.getPath());
 		
 		Locals.getLocalsFromDir(f.getPath());
 	}
@@ -178,5 +164,5 @@ public class DrippyLoadingScreen {
 	public static CustomizationItemRegistry getCustomizationItemRegistry() {
 		return CustomizationItemRegistry.getInstance();
 	}
-	
+
 }

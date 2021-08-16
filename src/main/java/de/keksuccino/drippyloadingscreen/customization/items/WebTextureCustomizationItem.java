@@ -1,15 +1,14 @@
 package de.keksuccino.drippyloadingscreen.customization.items;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import de.keksuccino.konkrete.rendering.RenderUtils;
+import de.keksuccino.konkrete.resources.WebTextureResourceLocation;
+import net.minecraft.client.texture.TextureManager;
+import net.minecraft.client.util.math.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import de.keksuccino.drippyloadingscreen.customization.placeholdervalues.PlaceholderTextValueHelper;
 import de.keksuccino.konkrete.properties.PropertiesSection;
 import de.keksuccino.konkrete.resources.TextureHandler;
-import de.keksuccino.konkrete.resources.WebTextureResourceLocation;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.IngameGui;
-import net.minecraft.client.renderer.texture.TextureManager;
 
 public class WebTextureCustomizationItem extends CustomizationItemBase {
 	
@@ -61,14 +60,14 @@ public class WebTextureCustomizationItem extends CustomizationItemBase {
 			int y = this.getPosY();
 
 			if (this.texture != null) {
-				Minecraft.getInstance().getTextureManager().bindTexture(this.texture.getResourceLocation());
+				RenderUtils.bindTexture(this.texture.getResourceLocation());
 			} else {
-				Minecraft.getInstance().getTextureManager().bindTexture(TextureManager.RESOURCE_LOCATION_EMPTY);
+				RenderUtils.bindTexture(TextureManager.MISSING_IDENTIFIER);
 			}
 			
 			RenderSystem.enableBlend();
-			RenderSystem.color4f(1.0F, 1.0F, 1.0F, this.opacity);
-			IngameGui.blit(matrix, x, y, 0.0F, 0.0F, this.width, this.height, this.width, this.height);
+			RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, this.opacity);
+			drawTexture(matrix, x, y, 0.0F, 0.0F, this.width, this.height, this.width, this.height);
 			RenderSystem.disableBlend();
 		}
 	}

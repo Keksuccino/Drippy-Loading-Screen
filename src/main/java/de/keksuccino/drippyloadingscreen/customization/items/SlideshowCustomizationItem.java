@@ -1,6 +1,6 @@
 package de.keksuccino.drippyloadingscreen.customization.items;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import net.minecraft.client.util.math.MatrixStack;
 
 import de.keksuccino.drippyloadingscreen.DrippyLoadingScreen;
 import de.keksuccino.drippyloadingscreen.customization.rendering.slideshow.ExternalTextureSlideshowRenderer;

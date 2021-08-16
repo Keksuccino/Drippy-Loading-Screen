@@ -3,7 +3,7 @@ package de.keksuccino.drippyloadingscreen.customization.helper.ui.popup;
 import java.io.File;
 import java.util.function.Consumer;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import net.minecraft.client.util.math.MatrixStack;
 
 import de.keksuccino.drippyloadingscreen.customization.helper.ui.UIBase;
 import de.keksuccino.konkrete.gui.content.AdvancedButton;

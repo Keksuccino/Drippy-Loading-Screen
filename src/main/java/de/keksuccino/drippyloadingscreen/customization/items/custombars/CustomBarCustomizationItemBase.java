@@ -1,6 +1,6 @@
 package de.keksuccino.drippyloadingscreen.customization.items.custombars;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import net.minecraft.client.util.math.MatrixStack;
 import de.keksuccino.drippyloadingscreen.customization.helper.editor.LayoutEditorScreen;
 import de.keksuccino.drippyloadingscreen.customization.items.CustomizationItemBase;
 import de.keksuccino.konkrete.math.MathUtils;
@@ -8,8 +8,8 @@ import de.keksuccino.konkrete.properties.PropertiesSection;
 import de.keksuccino.konkrete.rendering.RenderUtils;
 import de.keksuccino.konkrete.resources.ExternalTextureResourceLocation;
 import de.keksuccino.konkrete.resources.TextureHandler;
-import net.minecraft.client.Minecraft;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.util.Identifier;
 
 import java.awt.*;
 import java.io.File;
@@ -21,9 +21,9 @@ public abstract class CustomBarCustomizationItemBase extends CustomizationItemBa
 	public Color barColor = new Color(0, 0, 0);
 	public Color backgroundColor = new Color(0, 0, 0, 50);
 	
-	public ResourceLocation barTexture = null;
-	public ResourceLocation backgroundTexture = null;
-	public ResourceLocation barEndTexture = null;
+	public Identifier barTexture = null;
+	public Identifier backgroundTexture = null;
+	public Identifier barEndTexture = null;
 	public int barEndTextureWidth = 10;
 	public int barEndTextureHeight = 10;
 	
@@ -129,7 +129,7 @@ public abstract class CustomBarCustomizationItemBase extends CustomizationItemBa
 	}
 	
 	protected boolean isEditor() {
-		return (Minecraft.getInstance().currentScreen instanceof LayoutEditorScreen);
+		return (MinecraftClient.getInstance().currentScreen instanceof LayoutEditorScreen);
 	}
 	
 	public static enum BarDirection {

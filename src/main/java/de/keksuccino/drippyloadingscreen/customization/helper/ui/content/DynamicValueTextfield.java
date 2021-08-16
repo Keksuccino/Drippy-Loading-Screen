@@ -2,7 +2,8 @@ package de.keksuccino.drippyloadingscreen.customization.helper.ui.content;
 
 import java.util.List;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.util.math.MatrixStack;
 
 import de.keksuccino.drippyloadingscreen.api.PlaceholderTextValueRegistry;
 import de.keksuccino.drippyloadingscreen.api.PlaceholderTextValueRegistry.PlaceholderValue;
@@ -14,17 +15,16 @@ import de.keksuccino.konkrete.input.CharacterFilter;
 import de.keksuccino.konkrete.input.MouseInput;
 import de.keksuccino.konkrete.input.StringUtils;
 import de.keksuccino.konkrete.localization.Locals;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.Identifier;
 
 public class DynamicValueTextfield extends AdvancedTextField {
 
 	private AdvancedImageButton variableButton;
 	private FHContextMenu variableMenu;
 	
-	private static final ResourceLocation VARIABLES_BUTTON_RESOURCE = new ResourceLocation("drippyloadingscreen", "add_btn.png");
+	private static final Identifier VARIABLES_BUTTON_RESOURCE = new Identifier("drippyloadingscreen", "add_btn.png");
 	
-	public DynamicValueTextfield(FontRenderer fontrenderer, int x, int y, int width, int height, boolean handleTextField, CharacterFilter filter) {
+	public DynamicValueTextfield(TextRenderer fontrenderer, int x, int y, int width, int height, boolean handleTextField, CharacterFilter filter) {
 		super(fontrenderer, x, y, width, height, handleTextField, filter);
 		
 		variableMenu = new FHContextMenu();
@@ -36,14 +36,14 @@ public class DynamicValueTextfield extends AdvancedTextField {
 		variableMenu.addChild(playerMenu);
 
 		AdvancedButton playerName = new AdvancedButton(0, 0, 0, 0, Locals.localize("drippyloadingscreen.helper.ui.dynamicvariabletextfield.variables.playername"), true, (press) -> {
-			this.writeText("%playername%");
+			this.write("%playername%");
 		});
 		playerName.setDescription(StringUtils.splitLines(Locals.localize("drippyloadingscreen.helper.ui.dynamicvariabletextfield.variables.playername.desc"), "%n%"));
 		UIBase.colorizeButton(playerName);
 		playerMenu.addContent(playerName);
 
 		AdvancedButton playerUUID = new AdvancedButton(0, 0, 0, 0, Locals.localize("drippyloadingscreen.helper.ui.dynamicvariabletextfield.variables.playeruuid"), true, (press) -> {
-			this.writeText("%playeruuid%");
+			this.write("%playeruuid%");
 		});
 		playerUUID.setDescription(StringUtils.splitLines(Locals.localize("drippyloadingscreen.helper.ui.dynamicvariabletextfield.variables.playeruuid.desc"), "%n%"));
 		UIBase.colorizeButton(playerUUID);
@@ -62,37 +62,37 @@ public class DynamicValueTextfield extends AdvancedTextField {
 		variableMenu.addChild(realtimeMenu);
 		
 		AdvancedButton realtimeYear = new AdvancedButton(0, 0, 0, 0, Locals.localize("drippyloadingscreen.helper.ui.dynamicvariabletextfield.variables.realtimeyear"), true, (press) -> {
-			this.writeText("%realtimeyear%");
+			this.write("%realtimeyear%");
 		});
 		UIBase.colorizeButton(realtimeYear);
 		realtimeMenu.addContent(realtimeYear);
 		
 		AdvancedButton realtimeMonth = new AdvancedButton(0, 0, 0, 0, Locals.localize("drippyloadingscreen.helper.ui.dynamicvariabletextfield.variables.realtimemonth"), true, (press) -> {
-			this.writeText("%realtimemonth%");
+			this.write("%realtimemonth%");
 		});
 		UIBase.colorizeButton(realtimeMonth);
 		realtimeMenu.addContent(realtimeMonth);
 		
 		AdvancedButton realtimeDay = new AdvancedButton(0, 0, 0, 0, Locals.localize("drippyloadingscreen.helper.ui.dynamicvariabletextfield.variables.realtimeday"), true, (press) -> {
-			this.writeText("%realtimeday%");
+			this.write("%realtimeday%");
 		});
 		UIBase.colorizeButton(realtimeDay);
 		realtimeMenu.addContent(realtimeDay);
 		
 		AdvancedButton realtimeHour = new AdvancedButton(0, 0, 0, 0, Locals.localize("drippyloadingscreen.helper.ui.dynamicvariabletextfield.variables.realtimehour"), true, (press) -> {
-			this.writeText("%realtimehour%");
+			this.write("%realtimehour%");
 		});
 		UIBase.colorizeButton(realtimeHour);
 		realtimeMenu.addContent(realtimeHour);
 		
 		AdvancedButton realtimeMinute = new AdvancedButton(0, 0, 0, 0, Locals.localize("drippyloadingscreen.helper.ui.dynamicvariabletextfield.variables.realtimeminute"), true, (press) -> {
-			this.writeText("%realtimeminute%");
+			this.write("%realtimeminute%");
 		});
 		UIBase.colorizeButton(realtimeMinute);
 		realtimeMenu.addContent(realtimeMinute);
 		
 		AdvancedButton realtimeSecond = new AdvancedButton(0, 0, 0, 0, Locals.localize("drippyloadingscreen.helper.ui.dynamicvariabletextfield.variables.realtimesecond"), true, (press) -> {
-			this.writeText("%realtimesecond%");
+			this.write("%realtimesecond%");
 		});
 		UIBase.colorizeButton(realtimeSecond);
 		realtimeMenu.addContent(realtimeSecond);
@@ -110,42 +110,42 @@ public class DynamicValueTextfield extends AdvancedTextField {
 		variableMenu.addChild(otherMenu);
 		
 		AdvancedButton mcVersion = new AdvancedButton(0, 0, 0, 0, Locals.localize("drippyloadingscreen.helper.ui.dynamicvariabletextfield.variables.mcversion"), true, (press) -> {
-			this.writeText("%mcversion%");
+			this.write("%mcversion%");
 		});
 		mcVersion.setDescription(StringUtils.splitLines(Locals.localize("drippyloadingscreen.helper.ui.dynamicvariabletextfield.variables.mcversion.desc"), "%n%"));
 		UIBase.colorizeButton(mcVersion);
 		otherMenu.addContent(mcVersion);
 		
 		AdvancedButton forgeVersion = new AdvancedButton(0, 0, 0, 0, Locals.localize("drippyloadingscreen.helper.ui.dynamicvariabletextfield.variables.forgeversion"), true, (press) -> {
-			this.writeText("%version:forge%");
+			this.write("%version:forge%");
 		});
 		forgeVersion.setDescription(StringUtils.splitLines(Locals.localize("drippyloadingscreen.helper.ui.dynamicvariabletextfield.variables.forgeversion.desc"), "%n%"));
 		UIBase.colorizeButton(forgeVersion);
 		otherMenu.addContent(forgeVersion);
 		
 		AdvancedButton modVersion = new AdvancedButton(0, 0, 0, 0, Locals.localize("drippyloadingscreen.helper.ui.dynamicvariabletextfield.variables.modversion"), true, (press) -> {
-			this.writeText("%version:<modid>%");
+			this.write("%version:<modid>%");
 		});
 		modVersion.setDescription(StringUtils.splitLines(Locals.localize("drippyloadingscreen.helper.ui.dynamicvariabletextfield.variables.modversion.desc"), "%n%"));
 		UIBase.colorizeButton(modVersion);
 		otherMenu.addContent(modVersion);
 		
 		AdvancedButton totalMods = new AdvancedButton(0, 0, 0, 0, Locals.localize("drippyloadingscreen.helper.ui.dynamicvariabletextfield.variables.totalmods"), true, (press) -> {
-			this.writeText("%totalmods%");
+			this.write("%totalmods%");
 		});
 		totalMods.setDescription(StringUtils.splitLines(Locals.localize("drippyloadingscreen.helper.ui.dynamicvariabletextfield.variables.totalmods.desc"), "%n%"));
 		UIBase.colorizeButton(totalMods);
 		otherMenu.addContent(totalMods);
 		
 		AdvancedButton loadedMods = new AdvancedButton(0, 0, 0, 0, Locals.localize("drippyloadingscreen.helper.ui.dynamicvariabletextfield.variables.loadedmods"), true, (press) -> {
-			this.writeText("%loadedmods%");
+			this.write("%loadedmods%");
 		});
 		loadedMods.setDescription(StringUtils.splitLines(Locals.localize("drippyloadingscreen.helper.ui.dynamicvariabletextfield.variables.loadedmods.desc"), "%n%"));
 		UIBase.colorizeButton(loadedMods);
 		otherMenu.addContent(loadedMods);
 		
 		AdvancedButton fps = new AdvancedButton(0, 0, 0, 0, Locals.localize("drippyloadingscreen.helper.ui.dynamicvariabletextfield.variables.fps"), true, (press) -> {
-			this.writeText("%fps%");
+			this.write("%fps%");
 		});
 		UIBase.colorizeButton(fps);
 		otherMenu.addContent(fps);
@@ -153,19 +153,19 @@ public class DynamicValueTextfield extends AdvancedTextField {
 		otherMenu.addSeparator();
 		
 		AdvancedButton percentRam = new AdvancedButton(0, 0, 0, 0, Locals.localize("drippyloadingscreen.helper.ui.dynamicvariabletextfield.variables.percentram"), true, (press) -> {
-			this.writeText("%percentram%");
+			this.write("%percentram%");
 		});
 		UIBase.colorizeButton(percentRam);
 		otherMenu.addContent(percentRam);
 		
 		AdvancedButton usedRam = new AdvancedButton(0, 0, 0, 0, Locals.localize("drippyloadingscreen.helper.ui.dynamicvariabletextfield.variables.usedram"), true, (press) -> {
-			this.writeText("%usedram%");
+			this.write("%usedram%");
 		});
 		UIBase.colorizeButton(usedRam);
 		otherMenu.addContent(usedRam);
 		
 		AdvancedButton maxRam = new AdvancedButton(0, 0, 0, 0, Locals.localize("drippyloadingscreen.helper.ui.dynamicvariabletextfield.variables.maxram"), true, (press) -> {
-			this.writeText("%maxram%");
+			this.write("%maxram%");
 		});
 		UIBase.colorizeButton(maxRam);
 		otherMenu.addContent(maxRam);
@@ -176,7 +176,7 @@ public class DynamicValueTextfield extends AdvancedTextField {
 		for (PlaceholderValue v : PlaceholderTextValueRegistry.getInstance().getValuesAsList()) {
 			if (v.valueCategory == null) {
 				AdvancedButton customValue = new AdvancedButton(0, 0, 0, 0, v.valueDisplayName, true, (press) -> {
-					this.writeText(v.getPlaceholder());
+					this.write(v.getPlaceholder());
 				});
 				UIBase.colorizeButton(customValue);
 				otherMenu.addContent(customValue);
@@ -205,7 +205,7 @@ public class DynamicValueTextfield extends AdvancedTextField {
 				
 				for (PlaceholderValue v : values) {
 					AdvancedButton customValue = new AdvancedButton(0, 0, 0, 0, v.valueDisplayName, true, (press) -> {
-						this.writeText(v.getPlaceholder());
+						this.write(v.getPlaceholder());
 					});
 					UIBase.colorizeButton(customValue);
 					customCategoryMenu.addContent(customValue);
@@ -235,13 +235,13 @@ public class DynamicValueTextfield extends AdvancedTextField {
 	}
 	
 	@Override
-	public void renderWidget(MatrixStack matrix, int mouseX, int mouseY, float partialTicks) {
+	public void renderButton(MatrixStack matrix, int mouseX, int mouseY, float partialTicks) {
 		if (this.variableButton != null) {
 			
 			this.variableButton.setWidth(this.height);
 			this.variableButton.setHeight(this.height);
 			
-			super.renderWidget(matrix, mouseX, mouseY, partialTicks);
+			super.renderButton(matrix, mouseX, mouseY, partialTicks);
 			
 			this.variableButton.setX(this.x + this.width + 5);
 			this.variableButton.setY(this.y);

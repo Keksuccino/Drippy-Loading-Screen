@@ -12,15 +12,11 @@ import de.keksuccino.drippyloadingscreen.customization.helper.editor.elements.*;
 import de.keksuccino.drippyloadingscreen.customization.helper.editor.elements.custombars.LayoutCustomProgressBar;
 import de.keksuccino.drippyloadingscreen.customization.helper.editor.elements.string.LayoutString;
 import de.keksuccino.drippyloadingscreen.customization.helper.editor.elements.string.LayoutWebString;
-import de.keksuccino.drippyloadingscreen.customization.helper.editor.elements.vanilla.ForgeMemoryInfoLayoutSplashElement;
-import de.keksuccino.drippyloadingscreen.customization.helper.editor.elements.vanilla.ForgeTextLayoutSplashElement;
 import de.keksuccino.drippyloadingscreen.customization.helper.editor.elements.vanilla.LogoLayoutSplashElement;
 import de.keksuccino.drippyloadingscreen.customization.helper.editor.elements.vanilla.ProgressBarLayoutSplashElement;
 import de.keksuccino.drippyloadingscreen.customization.items.*;
 import de.keksuccino.drippyloadingscreen.customization.items.ShapeCustomizationItem.Shape;
 import de.keksuccino.drippyloadingscreen.customization.items.custombars.CustomProgressBarCustomizationItem;
-import de.keksuccino.drippyloadingscreen.customization.items.vanilla.ForgeMemoryInfoSplashCustomizationItem;
-import de.keksuccino.drippyloadingscreen.customization.items.vanilla.ForgeTextSplashCustomizationItem;
 import de.keksuccino.drippyloadingscreen.customization.items.vanilla.LogoSplashCustomizationItem;
 import de.keksuccino.drippyloadingscreen.customization.items.vanilla.ProgressBarSplashCustomizationItem;
 import de.keksuccino.drippyloadingscreen.customization.rendering.slideshow.SlideshowHandler;
@@ -108,8 +104,6 @@ public class PreloadedLayoutEditorScreen extends LayoutEditorScreen {
 		}
 
 		boolean logoSet = false;
-		boolean forgeTextSet = false;
-		boolean forgeMemoryInfoSet = false;
 		boolean progressBarSet = false;
 
 		for (PropertiesSection sec : properties.getPropertiesOfType("customization")) {
@@ -123,20 +117,6 @@ public class PreloadedLayoutEditorScreen extends LayoutEditorScreen {
 					this.logoLayoutSplashElement = new LogoLayoutSplashElement(new LogoSplashCustomizationItem(this.splashLayer.logoSplashElement, sec, false), this);
 					vanillaCon.add(this.logoLayoutSplashElement);
 					logoSet = true;
-				}
-
-				/** FORGE STATUS TEXT **/
-				if (action.equalsIgnoreCase("editforgestatustext")) {
-					this.forgeTextLayoutSplashElement = new ForgeTextLayoutSplashElement(new ForgeTextSplashCustomizationItem(this.splashLayer.forgeTextSplashElement, sec, false), this);
-					vanillaCon.add(this.forgeTextLayoutSplashElement);
-					forgeTextSet = true;
-				}
-
-				/** FORGE MEMORY INFO **/
-				if (action.equalsIgnoreCase("editforgememoryinfo")) {
-					this.forgeMemoryInfoLayoutSplashElement = new ForgeMemoryInfoLayoutSplashElement(new ForgeMemoryInfoSplashCustomizationItem(this.splashLayer.forgeMemoryInfoSplashElement, sec, false), this);
-					vanillaCon.add(this.forgeMemoryInfoLayoutSplashElement);
-					forgeMemoryInfoSet = true;
 				}
 
 				/** PROGRESS BAR **/
@@ -272,14 +252,6 @@ public class PreloadedLayoutEditorScreen extends LayoutEditorScreen {
 		if (!logoSet) {
 			this.logoLayoutSplashElement = new LogoLayoutSplashElement(new LogoSplashCustomizationItem(this.splashLayer.logoSplashElement, dummySec, false), this);
 			vanillaCon.add(this.logoLayoutSplashElement);
-		}
-		if (!forgeTextSet) {
-			this.forgeTextLayoutSplashElement = new ForgeTextLayoutSplashElement(new ForgeTextSplashCustomizationItem(this.splashLayer.forgeTextSplashElement, dummySec, false), this);
-			vanillaCon.add(this.forgeTextLayoutSplashElement);
-		}
-		if (!forgeMemoryInfoSet) {
-			this.forgeMemoryInfoLayoutSplashElement = new ForgeMemoryInfoLayoutSplashElement(new ForgeMemoryInfoSplashCustomizationItem(this.splashLayer.forgeMemoryInfoSplashElement, dummySec, false), this);
-			vanillaCon.add(this.forgeMemoryInfoLayoutSplashElement);
 		}
 		if (!progressBarSet) {
 			this.progressBarLayoutSplashElement = new ProgressBarLayoutSplashElement(new ProgressBarSplashCustomizationItem(this.splashLayer.progressBarSplashElement, dummySec, false), this);

@@ -1,8 +1,8 @@
 package de.keksuccino.drippyloadingscreen.events;
 
-import net.minecraftforge.eventbus.api.Event;
+import de.keksuccino.konkrete.events.EventBase;
 
-public class WindowResizedEvent extends Event {
+public class WindowResizedEvent extends EventBase {
 	
 	private int width;
 	private int height;

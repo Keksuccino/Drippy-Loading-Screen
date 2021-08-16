@@ -6,13 +6,12 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
 
-import javax.annotation.Nonnull;
-
 import de.keksuccino.drippyloadingscreen.DrippyLoadingScreen;
-import de.keksuccino.drippyloadingscreen.customization.items.visibilityrequirements.VisibilityRequirementContainer;
+import net.minecraft.client.gui.DrawableHelper;
+import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import net.minecraft.client.util.math.MatrixStack;
 
 import de.keksuccino.konkrete.localization.Locals;
 import de.keksuccino.drippyloadingscreen.customization.helper.editor.EditHistory.Snapshot;
@@ -30,10 +29,9 @@ import de.keksuccino.konkrete.input.MouseInput;
 import de.keksuccino.konkrete.input.StringUtils;
 import de.keksuccino.konkrete.properties.PropertiesSection;
 import de.keksuccino.konkrete.rendering.RenderUtils;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.AbstractGui;
+import net.minecraft.client.MinecraftClient;
 
-public abstract class LayoutElement extends AbstractGui {
+public abstract class LayoutElement extends DrawableHelper {
 	
 	public CustomizationItemBase object;
 	public LayoutEditorScreen handler;
@@ -92,7 +90,7 @@ public abstract class LayoutElement extends AbstractGui {
 	protected static final long V_RESIZE_CURSOR = GLFW.glfwCreateStandardCursor(GLFW.GLFW_VRESIZE_CURSOR);
 	protected static final long NORMAL_CURSOR = GLFW.glfwCreateStandardCursor(GLFW.GLFW_ARROW_CURSOR);
 	
-	public LayoutElement(@Nonnull CustomizationItemBase object, boolean destroyable, @Nonnull LayoutEditorScreen handler) {
+	public LayoutElement(@NotNull CustomizationItemBase object, boolean destroyable, @NotNull LayoutEditorScreen handler) {
 		this.handler = handler;
 		this.object = object;
 		this.destroyable = destroyable;
@@ -139,8 +137,8 @@ public abstract class LayoutElement extends AbstractGui {
 				if (label == null) {
 					label = "Element";
 				} else {
-					if (Minecraft.getInstance().fontRenderer.getStringWidth(label) > 200) {
-						label = Minecraft.getInstance().fontRenderer.trimStringToWidth(label, 200) + "..";
+					if (MinecraftClient.getInstance().textRenderer.getWidth(label) > 200) {
+						label = MinecraftClient.getInstance().textRenderer.trimToWidth(label, 200) + "..";
 					}
 				}
 				AdvancedButton btn = new AdvancedButton(0, 0, 0, 0, label, (press2) -> {
@@ -419,11 +417,11 @@ public abstract class LayoutElement extends AbstractGui {
 		try {
 			if (this.stretchX) {
 				this.object.posX = 0;
-				this.object.width = Minecraft.getInstance().currentScreen.width;
+				this.object.width = MinecraftClient.getInstance().currentScreen.width;
 			}
 			if (this.stretchY) {
 				this.object.posY = 0;
-				this.object.height = Minecraft.getInstance().currentScreen.height;
+				this.object.height = MinecraftClient.getInstance().currentScreen.height;
 			}
 			if (this.stretchX && !this.stretchY) {
 				this.o1.active = true;
@@ -499,7 +497,7 @@ public abstract class LayoutElement extends AbstractGui {
 		
 		//Reset cursor to default
 		if ((this.activeGrabber == -1) && (!MouseInput.isLeftMouseDown() || PopupHandler.isPopupActive())) {
-			GLFW.glfwSetCursor(Minecraft.getInstance().getMainWindow().getHandle(), NORMAL_CURSOR);
+			GLFW.glfwSetCursor(MinecraftClient.getInstance().getWindow().getHandle(), NORMAL_CURSOR);
 		}
 				
 		//Update dragging state
@@ -609,13 +607,13 @@ public abstract class LayoutElement extends AbstractGui {
 	
 	protected void renderBorder(MatrixStack matrix, int mouseX, int mouseY) {
 		//horizontal line top
-		AbstractGui.fill(matrix, this.object.getPosX(), this.object.getPosY(), this.object.getPosX() + this.object.width, this.object.getPosY() + 1, Color.BLUE.getRGB());
+		fill(matrix, this.object.getPosX(), this.object.getPosY(), this.object.getPosX() + this.object.width, this.object.getPosY() + 1, Color.BLUE.getRGB());
 		//horizontal line bottom
-		AbstractGui.fill(matrix, this.object.getPosX(), this.object.getPosY() + this.object.height - 1, this.object.getPosX() + this.object.width, this.object.getPosY() + this.object.height, Color.BLUE.getRGB());
+		fill(matrix, this.object.getPosX(), this.object.getPosY() + this.object.height - 1, this.object.getPosX() + this.object.width, this.object.getPosY() + this.object.height, Color.BLUE.getRGB());
 		//vertical line left
-		AbstractGui.fill(matrix, this.object.getPosX(), this.object.getPosY(), this.object.getPosX() + 1, this.object.getPosY() + this.object.height, Color.BLUE.getRGB());
+		fill(matrix, this.object.getPosX(), this.object.getPosY(), this.object.getPosX() + 1, this.object.getPosY() + this.object.height, Color.BLUE.getRGB());
 		//vertical line right
-		AbstractGui.fill(matrix, this.object.getPosX() + this.object.width - 1, this.object.getPosY(), this.object.getPosX() + this.object.width, this.object.getPosY() + this.object.height, Color.BLUE.getRGB());
+		fill(matrix, this.object.getPosX() + this.object.width - 1, this.object.getPosY(), this.object.getPosX() + this.object.width, this.object.getPosY() + this.object.height, Color.BLUE.getRGB());
 		
 		int w = 4;
 		int h = 4;
@@ -630,42 +628,42 @@ public abstract class LayoutElement extends AbstractGui {
 
 		if (!this.stretchX && this.resizable) {
 			//grabber left
-			AbstractGui.fill(matrix, xHorizontalLeft, yHorizontal, xHorizontalLeft + w, yHorizontal + h, Color.BLUE.getRGB());
+			fill(matrix, xHorizontalLeft, yHorizontal, xHorizontalLeft + w, yHorizontal + h, Color.BLUE.getRGB());
 			//grabber right
-			AbstractGui.fill(matrix, xHorizontalRight, yHorizontal, xHorizontalRight + w, yHorizontal + h, Color.BLUE.getRGB());
+			fill(matrix, xHorizontalRight, yHorizontal, xHorizontalRight + w, yHorizontal + h, Color.BLUE.getRGB());
 		}
 		if (!this.stretchY && this.resizable) {
 			//grabber top
-			AbstractGui.fill(matrix, xVertical, yVerticalTop, xVertical + w, yVerticalTop + h, Color.BLUE.getRGB());
+			fill(matrix, xVertical, yVerticalTop, xVertical + w, yVerticalTop + h, Color.BLUE.getRGB());
 			//grabber bottom
-			AbstractGui.fill(matrix, xVertical, yVerticalBottom, xVertical + w, yVerticalBottom + h, Color.BLUE.getRGB());
+			fill(matrix, xVertical, yVerticalBottom, xVertical + w, yVerticalBottom + h, Color.BLUE.getRGB());
 		}
 
 		//Update cursor and active grabber when grabber is hovered
 		if ((mouseX >= xHorizontalLeft) && (mouseX <= xHorizontalLeft + w) && (mouseY >= yHorizontal) && (mouseY <= yHorizontal + h)) {
 			if (!this.stretchX && this.resizable) {
-				GLFW.glfwSetCursor(Minecraft.getInstance().getMainWindow().getHandle(), H_RESIZE_CURSOR);
+				GLFW.glfwSetCursor(MinecraftClient.getInstance().getWindow().getHandle(), H_RESIZE_CURSOR);
 				this.activeGrabber = 0;
 			} else {
 				this.activeGrabber = -1;
 			}
 		} else if ((mouseX >= xHorizontalRight) && (mouseX <= xHorizontalRight + w) && (mouseY >= yHorizontal) && (mouseY <= yHorizontal + h)) {
 			if (!this.stretchX && this.resizable) {
-				GLFW.glfwSetCursor(Minecraft.getInstance().getMainWindow().getHandle(), H_RESIZE_CURSOR);
+				GLFW.glfwSetCursor(MinecraftClient.getInstance().getWindow().getHandle(), H_RESIZE_CURSOR);
 				this.activeGrabber = 1;
 			} else {
 				this.activeGrabber = -1;
 			}
 		} else if ((mouseX >= xVertical) && (mouseX <= xVertical + w) && (mouseY >= yVerticalTop) && (mouseY <= yVerticalTop + h)) {
 			if (!this.stretchY && this.resizable) {
-				GLFW.glfwSetCursor(Minecraft.getInstance().getMainWindow().getHandle(), V_RESIZE_CURSOR);
+				GLFW.glfwSetCursor(MinecraftClient.getInstance().getWindow().getHandle(), V_RESIZE_CURSOR);
 				this.activeGrabber = 2;
 			} else {
 				this.activeGrabber = -1;
 			}
 		} else if ((mouseX >= xVertical) && (mouseX <= xVertical + w) && (mouseY >= yVerticalBottom) && (mouseY <= yVerticalBottom + h)) {
 			if (!this.stretchY && this.resizable) {
-				GLFW.glfwSetCursor(Minecraft.getInstance().getMainWindow().getHandle(), V_RESIZE_CURSOR);
+				GLFW.glfwSetCursor(MinecraftClient.getInstance().getWindow().getHandle(), V_RESIZE_CURSOR);
 				this.activeGrabber = 3;
 			} else {
 				this.activeGrabber = -1;
@@ -676,12 +674,12 @@ public abstract class LayoutElement extends AbstractGui {
 		
 		//Render pos and size values
 		RenderUtils.setScale(matrix, 0.5F);
-		AbstractGui.drawString(matrix, Minecraft.getInstance().fontRenderer, Locals.localize("drippyloadingscreen.helper.creator.items.border.orientation") + ": " + this.object.orientation, this.object.getPosX()*2, (this.object.getPosY()*2) - 26, Color.WHITE.getRGB());
-		AbstractGui.drawString(matrix, Minecraft.getInstance().fontRenderer, Locals.localize("drippyloadingscreen.helper.creator.items.border.posx") + ": " + this.object.getPosX(), this.object.getPosX()*2, (this.object.getPosY()*2) - 17, Color.WHITE.getRGB());
-		AbstractGui.drawString(matrix, Minecraft.getInstance().fontRenderer, Locals.localize("drippyloadingscreen.helper.creator.items.border.width") + ": " + this.object.width, this.object.getPosX()*2, (this.object.getPosY()*2) - 8, Color.WHITE.getRGB());
+		drawStringWithShadow(matrix, MinecraftClient.getInstance().textRenderer, Locals.localize("drippyloadingscreen.helper.creator.items.border.orientation") + ": " + this.object.orientation, this.object.getPosX()*2, (this.object.getPosY()*2) - 26, Color.WHITE.getRGB());
+		drawStringWithShadow(matrix, MinecraftClient.getInstance().textRenderer, Locals.localize("drippyloadingscreen.helper.creator.items.border.posx") + ": " + this.object.getPosX(), this.object.getPosX()*2, (this.object.getPosY()*2) - 17, Color.WHITE.getRGB());
+		drawStringWithShadow(matrix, MinecraftClient.getInstance().textRenderer, Locals.localize("drippyloadingscreen.helper.creator.items.border.width") + ": " + this.object.width, this.object.getPosX()*2, (this.object.getPosY()*2) - 8, Color.WHITE.getRGB());
 		
-		AbstractGui.drawString(matrix, Minecraft.getInstance().fontRenderer, Locals.localize("drippyloadingscreen.helper.creator.items.border.posy") + ": " + this.object.getPosY(), ((this.object.getPosX() + this.object.width)*2)+3, ((this.object.getPosY() + this.object.height)*2) - 14, Color.WHITE.getRGB());
-		AbstractGui.drawString(matrix, Minecraft.getInstance().fontRenderer, Locals.localize("drippyloadingscreen.helper.creator.items.border.height") + ": " + this.object.height, ((this.object.getPosX() + this.object.width)*2)+3, ((this.object.getPosY() + this.object.height)*2) - 5, Color.WHITE.getRGB());
+		drawStringWithShadow(matrix, MinecraftClient.getInstance().textRenderer, Locals.localize("drippyloadingscreen.helper.creator.items.border.posy") + ": " + this.object.getPosY(), ((this.object.getPosX() + this.object.width)*2)+3, ((this.object.getPosY() + this.object.height)*2) - 14, Color.WHITE.getRGB());
+		drawStringWithShadow(matrix, MinecraftClient.getInstance().textRenderer, Locals.localize("drippyloadingscreen.helper.creator.items.border.height") + ": " + this.object.height, ((this.object.getPosX() + this.object.width)*2)+3, ((this.object.getPosY() + this.object.height)*2) - 5, Color.WHITE.getRGB());
 		RenderUtils.postScale(matrix);
 	}
 	
@@ -689,13 +687,13 @@ public abstract class LayoutElement extends AbstractGui {
 		Color c = new Color(0, 200, 255, 255);
 		
 		//horizontal line top
-		AbstractGui.fill(matrix, this.object.getPosX(), this.object.getPosY(), this.object.getPosX() + this.object.width, this.object.getPosY() + 1, c.getRGB());
+		fill(matrix, this.object.getPosX(), this.object.getPosY(), this.object.getPosX() + this.object.width, this.object.getPosY() + 1, c.getRGB());
 		//horizontal line bottom
-		AbstractGui.fill(matrix, this.object.getPosX(), this.object.getPosY() + this.object.height - 1, this.object.getPosX() + this.object.width, this.object.getPosY() + this.object.height, c.getRGB());
+		fill(matrix, this.object.getPosX(), this.object.getPosY() + this.object.height - 1, this.object.getPosX() + this.object.width, this.object.getPosY() + this.object.height, c.getRGB());
 		//vertical line left
-		AbstractGui.fill(matrix, this.object.getPosX(), this.object.getPosY(), this.object.getPosX() + 1, this.object.getPosY() + this.object.height, c.getRGB());
+		fill(matrix, this.object.getPosX(), this.object.getPosY(), this.object.getPosX() + 1, this.object.getPosY() + this.object.height, c.getRGB());
 		//vertical line right
-		AbstractGui.fill(matrix, this.object.getPosX() + this.object.width - 1, this.object.getPosY(), this.object.getPosX() + this.object.width, this.object.getPosY() + this.object.height, c.getRGB());
+		fill(matrix, this.object.getPosX() + this.object.width - 1, this.object.getPosY(), this.object.getPosX() + this.object.width, this.object.getPosY() + this.object.height, c.getRGB());
 	}
 	
 	/**
@@ -1141,177 +1139,5 @@ public abstract class LayoutElement extends AbstractGui {
 	}
 
 	public abstract List<PropertiesSection> getProperties();
-
-	protected void addVisibilityPropertiesTo(PropertiesSection sec) {
-
-		VisibilityRequirementContainer c = this.object.visibilityRequirementContainer;
-
-		if (c.vrCheckForActiveSlot) {
-			sec.addEntry("vr:showif:activeslot", "" + c.vrShowIfActiveSlot);
-			sec.addEntry("vr:value:activeslot", "" + c.vrActiveSlot);
-		}
-		if (c.vrCheckForItemInMainHand) {
-			sec.addEntry("vr:showif:iteminmainhand", "" + c.vrShowIfItemInMainHand);
-		}
-		if (c.vrCheckForItemInOffHand) {
-			sec.addEntry("vr:showif:iteminoffhand", "" + c.vrShowIfItemInOffHand);
-		}
-		if (c.vrCheckForActiveItemType) {
-			sec.addEntry("vr:showif:activeitemtype", "" + c.vrShowIfActiveItemType);
-			sec.addEntry("vr:value:activeitemtype", "" + c.vrActiveItemType);
-		}
-		if (c.vrCheckForActiveItemName) {
-			sec.addEntry("vr:showif:activeitemname", "" + c.vrShowIfActiveItemName);
-			sec.addEntry("vr:value:activeitemname", "" + c.vrActiveItemName);
-		}
-		if (c.vrCheckForSingleplayer) {
-			sec.addEntry("vr:showif:singleplayer", "" + c.vrShowIfSingleplayer);
-		}
-		if (c.vrCheckForMultiplayer) {
-			sec.addEntry("vr:showif:multiplayer", "" + c.vrShowIfMultiplayer);
-		}
-		if (c.vrCheckForPlayerOnGround) {
-			sec.addEntry("vr:showif:playeronground", "" + c.vrShowIfPlayerOnGround);
-		}
-		if (c.vrCheckForPlayerUnderwater) {
-			sec.addEntry("vr:showif:playerunderwater", "" + c.vrShowIfPlayerUnderwater);
-		}
-		if (c.vrCheckForPlayerIsRidingHorse) {
-			sec.addEntry("vr:showif:playerisridinghorse", "" + c.vrShowIfPlayerIsRidingHorse);
-		}
-		if (c.vrCheckForPlayerIsRidingEntity) {
-			sec.addEntry("vr:showif:playerisridingentity", "" + c.vrShowIfPlayerIsRidingEntity);
-		}
-		if (c.vrCheckForPlayerIsInWater) {
-			sec.addEntry("vr:showif:playerisinwater", "" + c.vrShowIfPlayerIsInWater);
-		}
-		if (c.vrCheckForPlayerIsRunning) {
-			sec.addEntry("vr:showif:playerisrunning", "" + c.vrShowIfPlayerIsRunning);
-		}
-		if (c.vrCheckForSlotItemName) {
-			sec.addEntry("vr:showif:slotitemname", "" + c.vrShowIfSlotItemName);
-			sec.addEntry("vr:value:slotitemname", c.vrSlotItemNameSlot + ":" + c.vrSlotItemName);
-		}
-		if (c.vrCheckForDebugOpen) {
-			sec.addEntry("vr:showif:debugopen", "" + c.vrShowIfDebugOpen);
-		}
-		if (c.vrCheckForGamePaused) {
-			sec.addEntry("vr:showif:gamepaused", "" + c.vrShowIfGamePaused);
-		}
-		if (c.vrCheckForRaining) {
-			sec.addEntry("vr:showif:raining", "" + c.vrShowIfRaining);
-		}
-		if (c.vrCheckForThundering) {
-			sec.addEntry("vr:showif:thundering", "" + c.vrShowIfThundering);
-		}
-		if (c.vrCheckForHealthLowerThan) {
-			sec.addEntry("vr:showif:healthlowerthan", "" + c.vrShowIfHealthLowerThan);
-			sec.addEntry("vr:value:healthlowerthan", "" + c.vrHealthLowerThan);
-		}
-		if (c.vrCheckForHealthLowerThanPercent) {
-			sec.addEntry("vr:showif:healthlowerthanpercent", "" + c.vrShowIfHealthLowerThanPercent);
-			sec.addEntry("vr:value:healthlowerthanpercent", "" + c.vrHealthLowerThanPercent);
-		}
-		if (c.vrCheckForFoodLowerThan) {
-			sec.addEntry("vr:showif:foodlowerthan", "" + c.vrShowIfFoodLowerThan);
-			sec.addEntry("vr:value:foodlowerthan", "" + c.vrFoodLowerThan);
-		}
-		if (c.vrCheckForFoodLowerThanPercent) {
-			sec.addEntry("vr:showif:foodlowerthanpercent", "" + c.vrShowIfFoodLowerThanPercent);
-			sec.addEntry("vr:value:foodlowerthanpercent", "" + c.vrFoodLowerThanPercent);
-		}
-		if (c.vrCheckForWithered) {
-			sec.addEntry("vr:showif:withered", "" + c.vrShowIfWithered);
-		}
-		if (c.vrCheckForSurvival) {
-			sec.addEntry("vr:showif:survival", "" + c.vrShowIfSurvival);
-		}
-		if (c.vrCheckForCreative) {
-			sec.addEntry("vr:showif:creative", "" + c.vrShowIfCreative);
-		}
-		if (c.vrCheckForAdventure) {
-			sec.addEntry("vr:showif:adventure", "" + c.vrShowIfAdventure);
-		}
-		if (c.vrCheckForSpectator) {
-			sec.addEntry("vr:showif:spectator", "" + c.vrShowIfSpectator);
-		}
-		if (c.vrCheckForPoisoned) {
-			sec.addEntry("vr:showif:poisoned", "" + c.vrShowIfPoisoned);
-		}
-		if (c.vrCheckForBadStomach) {
-			sec.addEntry("vr:showif:badstomach", "" + c.vrShowIfBadStomach);
-		}
-		if (c.vrCheckForWorldTimeHour) {
-			sec.addEntry("vr:showif:worldtimehour", "" + c.vrShowIfWorldTimeHour);
-			String worldTimeHourVal = "";
-			for (int i : c.vrWorldTimeHour) {
-				worldTimeHourVal += i + ",";
-			}
-			if (worldTimeHourVal.length() > 0) {
-				worldTimeHourVal = worldTimeHourVal.substring(0, worldTimeHourVal.length() -1);
-			}
-			if (worldTimeHourVal.length() > 0) {
-				sec.addEntry("vr:showif:worldtimehour", "" + c.vrShowIfWorldTimeHour);
-				sec.addEntry("vr:value:worldtimehour", worldTimeHourVal);
-			}
-		}
-		if (c.vrCheckForWorldTimeMinute) {
-			sec.addEntry("vr:showif:worldtimeminute", "" + c.vrShowIfWorldTimeMinute);
-			String worldTimeMinuteVal = "";
-			for (int i : c.vrWorldTimeMinute) {
-				worldTimeMinuteVal += i + ",";
-			}
-			if (worldTimeMinuteVal.length() > 0) {
-				worldTimeMinuteVal = worldTimeMinuteVal.substring(0, worldTimeMinuteVal.length() -1);
-			}
-			if (worldTimeMinuteVal.length() > 0) {
-				sec.addEntry("vr:showif:worldtimeminute", "" + c.vrShowIfWorldTimeMinute);
-				sec.addEntry("vr:value:worldtimeminute", worldTimeMinuteVal);
-			}
-		}
-		if (c.vrCheckForRealTimeHour) {
-			sec.addEntry("vr:showif:realtimehour", "" + c.vrShowIfRealTimeHour);
-			String val = "";
-			for (int i : c.vrRealTimeHour) {
-				val += i + ",";
-			}
-			if (val.length() > 0) {
-				val = val.substring(0, val.length() -1);
-			}
-			if (val.length() > 0) {
-				sec.addEntry("vr:showif:realtimehour", "" + c.vrShowIfRealTimeHour);
-				sec.addEntry("vr:value:realtimehour", val);
-			}
-		}
-		if (c.vrCheckForRealTimeMinute) {
-			sec.addEntry("vr:showif:realtimeminute", "" + c.vrShowIfRealTimeMinute);
-			String val = "";
-			for (int i : c.vrRealTimeMinute) {
-				val += i + ",";
-			}
-			if (val.length() > 0) {
-				val = val.substring(0, val.length() -1);
-			}
-			if (val.length() > 0) {
-				sec.addEntry("vr:showif:realtimeminute", "" + c.vrShowIfRealTimeMinute);
-				sec.addEntry("vr:value:realtimeminute", val);
-			}
-		}
-		if (c.vrCheckForRealTimeSecond) {
-			sec.addEntry("vr:showif:realtimesecond", "" + c.vrShowIfRealTimeSecond);
-			String val = "";
-			for (int i : c.vrRealTimeSecond) {
-				val += i + ",";
-			}
-			if (val.length() > 0) {
-				val = val.substring(0, val.length() -1);
-			}
-			if (val.length() > 0) {
-				sec.addEntry("vr:showif:realtimesecond", "" + c.vrShowIfRealTimeSecond);
-				sec.addEntry("vr:value:realtimesecond", val);
-			}
-		}
-
-	}
 
 }

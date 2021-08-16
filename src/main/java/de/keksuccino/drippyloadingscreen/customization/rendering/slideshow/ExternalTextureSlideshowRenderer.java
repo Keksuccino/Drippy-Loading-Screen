@@ -6,7 +6,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import de.keksuccino.konkrete.rendering.RenderUtils;
+import net.minecraft.client.gui.DrawableHelper;
+import net.minecraft.client.util.math.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import de.keksuccino.konkrete.math.MathUtils;
@@ -14,11 +16,9 @@ import de.keksuccino.konkrete.properties.PropertiesSection;
 import de.keksuccino.konkrete.properties.PropertiesSerializer;
 import de.keksuccino.konkrete.properties.PropertiesSet;
 import de.keksuccino.konkrete.resources.ExternalTextureResourceLocation;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.AbstractGui;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.Identifier;
 
-public class ExternalTextureSlideshowRenderer extends AbstractGui {
+public class ExternalTextureSlideshowRenderer extends DrawableHelper {
 	
 	protected List<ExternalTextureResourceLocation> images = new ArrayList<ExternalTextureResourceLocation>();
 	protected ExternalTextureResourceLocation overlay_texture;
@@ -225,13 +225,13 @@ public class ExternalTextureSlideshowRenderer extends AbstractGui {
 			if (o > this.slideshowOpacity) {
 				o = this.slideshowOpacity;
 			}
-			RenderSystem.color4f(1.0F, 1.0F, 1.0F, o);
-			ResourceLocation r = this.previous.getResourceLocation();
+			RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, o);
+			Identifier r = this.previous.getResourceLocation();
 			if (r != null) {
-				Minecraft.getInstance().getTextureManager().bindTexture(r);
-				blit(matrix, this.x, this.y, 0.0F, 0.0F, this.width, this.height, this.width, this.height);
+				RenderUtils.bindTexture(r);
+				drawTexture(matrix, this.x, this.y, 0.0F, 0.0F, this.width, this.height, this.width, this.height);
 			}
-			RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+			RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 			matrix.pop();
 		}
 	}
@@ -242,11 +242,11 @@ public class ExternalTextureSlideshowRenderer extends AbstractGui {
 				this.current.loadTexture();
 			}
 			RenderSystem.enableBlend();
-			RenderSystem.color4f(1.0F, 1.0F, 1.0F, this.slideshowOpacity);
-			ResourceLocation r = this.current.getResourceLocation();
+			RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, this.slideshowOpacity);
+			Identifier r = this.current.getResourceLocation();
 			if (r != null) {
-				Minecraft.getInstance().getTextureManager().bindTexture(r);
-				blit(matrix, this.x, this.y, 0.0F, 0.0F, this.width, this.height, this.width, this.height);
+				RenderUtils.bindTexture(r);
+				drawTexture(matrix, this.x, this.y, 0.0F, 0.0F, this.width, this.height, this.width, this.height);
 			}
 		}
 	}
@@ -257,11 +257,11 @@ public class ExternalTextureSlideshowRenderer extends AbstractGui {
 				this.overlay_texture.loadTexture();
 			}
 			RenderSystem.enableBlend();
-			RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-			ResourceLocation r = this.overlay_texture.getResourceLocation();
+			RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+			Identifier r = this.overlay_texture.getResourceLocation();
 			if (r != null) {
-				Minecraft.getInstance().getTextureManager().bindTexture(r);
-				blit(matrix, this.x, this.y, 0.0F, 0.0F, this.width, this.height, this.width, this.height);
+				RenderUtils.bindTexture(r);
+				drawTexture(matrix, this.x, this.y, 0.0F, 0.0F, this.width, this.height, this.width, this.height);
 			}
 		}
 	}

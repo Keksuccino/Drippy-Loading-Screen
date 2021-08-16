@@ -7,12 +7,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import net.minecraft.client.util.math.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import de.keksuccino.drippyloadingscreen.customization.helper.editor.elements.vanilla.*;
-import de.keksuccino.drippyloadingscreen.customization.items.vanilla.ForgeMemoryInfoSplashCustomizationItem;
-import de.keksuccino.drippyloadingscreen.customization.items.vanilla.ForgeTextSplashCustomizationItem;
 import de.keksuccino.drippyloadingscreen.customization.items.vanilla.ProgressBarSplashCustomizationItem;
 import de.keksuccino.drippyloadingscreen.customization.rendering.splash.SplashCustomizationLayer;
 import de.keksuccino.konkrete.localization.Locals;
@@ -58,9 +56,9 @@ import de.keksuccino.konkrete.properties.PropertiesSection;
 import de.keksuccino.konkrete.properties.PropertiesSet;
 import de.keksuccino.konkrete.rendering.RenderUtils;
 import de.keksuccino.konkrete.web.WebUtils;
-import net.minecraft.client.Minecraft;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.text.LiteralText;
 
 public class LayoutEditorScreen extends Screen {
 	
@@ -109,13 +107,11 @@ public class LayoutEditorScreen extends Screen {
 	public SplashCustomizationLayer splashLayer = new SplashCustomizationLayer(true);
 
 	protected LogoLayoutSplashElement logoLayoutSplashElement;
-	protected ForgeMemoryInfoLayoutSplashElement forgeMemoryInfoLayoutSplashElement;
-	protected ForgeTextLayoutSplashElement forgeTextLayoutSplashElement;
 	protected ProgressBarLayoutSplashElement progressBarLayoutSplashElement;
 	
 	public LayoutEditorScreen() {
 		
-		super(new StringTextComponent(""));
+		super(new LiteralText(""));
 
 		if (!initDone) {
 			KeyboardHandler.addKeyPressedListener(LayoutEditorScreen::onShortcutPressed);
@@ -126,13 +122,9 @@ public class LayoutEditorScreen extends Screen {
 		PropertiesSection sec = new PropertiesSection("customization");
 
 		this.logoLayoutSplashElement = new LogoLayoutSplashElement(new LogoSplashCustomizationItem(this.splashLayer.logoSplashElement, sec, false), this);
-		this.forgeMemoryInfoLayoutSplashElement = new ForgeMemoryInfoLayoutSplashElement(new ForgeMemoryInfoSplashCustomizationItem(this.splashLayer.forgeMemoryInfoSplashElement, sec, false), this);
-		this.forgeTextLayoutSplashElement = new ForgeTextLayoutSplashElement(new ForgeTextSplashCustomizationItem(this.splashLayer.forgeTextSplashElement, sec, false), this);
 		this.progressBarLayoutSplashElement = new ProgressBarLayoutSplashElement(new ProgressBarSplashCustomizationItem(this.splashLayer.progressBarSplashElement, sec, false), this);
 
 		this.content.add(this.logoLayoutSplashElement);
-		this.content.add(this.forgeMemoryInfoLayoutSplashElement);
-		this.content.add(this.forgeTextLayoutSplashElement);
 		this.content.add(this.progressBarLayoutSplashElement);
 		
 	}
@@ -411,10 +403,10 @@ public class LayoutEditorScreen extends Screen {
 		}
 		fill(matrix, 0, 0, this.width, this.height, c.getRGB());
 		if (this.splashLayer.backgroundImage != null) {
-			Minecraft.getInstance().getTextureManager().bindTexture(this.splashLayer.backgroundImage);
+			RenderUtils.bindTexture(this.splashLayer.backgroundImage);
 			RenderSystem.enableBlend();
-			RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-			blit(matrix, 0, 0, 0.0F, 0.0F, this.width, this.height, this.width, this.height);
+			RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+			drawTexture(matrix, 0, 0, 0.0F, 0.0F, this.width, this.height, this.width, this.height);
 			RenderSystem.disableBlend();
 		}
 	}
@@ -817,7 +809,7 @@ public class LayoutEditorScreen extends Screen {
 				this.history.editor = neweditor;
 				neweditor.single = ((PreloadedLayoutEditorScreen)this).single;
 
-				Minecraft.getInstance().displayGuiScreen(neweditor);
+				MinecraftClient.getInstance().setScreen(neweditor);
 			}
 
 		} else {
@@ -846,7 +838,7 @@ public class LayoutEditorScreen extends Screen {
 							this.history.editor = neweditor;
 							neweditor.single = file;
 
-							Minecraft.getInstance().displayGuiScreen(neweditor);
+							MinecraftClient.getInstance().setScreen(neweditor);
 						}
 					} else {
 						PopupHandler.displayPopup(new FHNotificationPopup(300, new Color(0, 0, 0, 0), 240, null, Locals.localize("drippyloadingscreen.helper.editor.ui.layout.saveas.failed")));
@@ -914,7 +906,7 @@ public class LayoutEditorScreen extends Screen {
 	}
 
 	protected static void onShortcutPressed(KeyboardData d) {
-		Screen c = Minecraft.getInstance().currentScreen;
+		Screen c = MinecraftClient.getInstance().currentScreen;
 		
 		if (c instanceof LayoutEditorScreen) {
 			
@@ -971,7 +963,7 @@ public class LayoutEditorScreen extends Screen {
 	}
 	
 	protected static void onArrowKeysPressed(KeyboardData d) {
-		Screen c = Minecraft.getInstance().currentScreen;
+		Screen c = MinecraftClient.getInstance().currentScreen;
 		
 		if (c instanceof LayoutEditorScreen) {
 			
@@ -1031,7 +1023,7 @@ public class LayoutEditorScreen extends Screen {
 		neweditor.single = single;
 		neweditor.history.editor = neweditor;
 
-		Minecraft.getInstance().displayGuiScreen(neweditor);
+		MinecraftClient.getInstance().setScreen(neweditor);
 	}
 
 }

@@ -14,12 +14,12 @@ import de.keksuccino.drippyloadingscreen.customization.helper.editor.LayoutEdito
 import de.keksuccino.drippyloadingscreen.customization.helper.editor.PreloadedLayoutEditorScreen;
 import de.keksuccino.drippyloadingscreen.customization.rendering.splash.SplashCustomizationLayer;
 import de.keksuccino.drippyloadingscreen.events.CustomizationSystemReloadedEvent;
+import de.keksuccino.konkrete.Konkrete;
 import de.keksuccino.konkrete.properties.PropertiesSection;
 import de.keksuccino.konkrete.properties.PropertiesSerializer;
 import de.keksuccino.konkrete.properties.PropertiesSet;
 import de.keksuccino.konkrete.sound.SoundHandler;
-import net.minecraft.client.Minecraft;
-import net.minecraftforge.common.MinecraftForge;
+import net.minecraft.client.MinecraftClient;
 
 public class CustomizationHandler {
 	
@@ -31,8 +31,8 @@ public class CustomizationHandler {
 	
 	public static void init() {
 		if (!initDone) {
-			
-			MinecraftForge.EVENT_BUS.register(new CustomizationHandlerEvents());
+
+			Konkrete.getEventHandler().registerEventsFrom(new CustomizationHandlerEvents());
 			
 			CustomizationPropertiesHandler.loadProperties();
 			
@@ -46,7 +46,7 @@ public class CustomizationHandler {
 		CustomizationPropertiesHandler.loadProperties();
 		SplashCustomizationLayer.getInstance().updateCustomizations();
 		
-		MinecraftForge.EVENT_BUS.post(new CustomizationSystemReloadedEvent());
+		Konkrete.getEventHandler().callEventsFor(new CustomizationSystemReloadedEvent());
 		
 	}
 	
@@ -95,7 +95,7 @@ public class CustomizationHandler {
 			String url = f.toURI().toURL().toString();
 			String s = System.getProperty("os.name").toLowerCase(Locale.ROOT);
 			URL u = new URL(url);
-			if (!Minecraft.IS_RUNNING_ON_MAC) {
+			if (!MinecraftClient.IS_SYSTEM_MAC) {
 				if (s.contains("win")) {
 					Runtime.getRuntime().exec(new String[]{"rundll32", "url.dll,FileProtocolHandler", url});
 				} else {
@@ -130,7 +130,7 @@ public class CustomizationHandler {
 					meta.get(0).addEntry("path", layout.getPath());
 					
 					LayoutEditorScreen.isActive = true;
-					Minecraft.getInstance().displayGuiScreen(new PreloadedLayoutEditorScreen(set));
+					MinecraftClient.getInstance().setScreen(new PreloadedLayoutEditorScreen(set));
 					stopSounds();
 					resetSounds();
 					

@@ -1,12 +1,12 @@
 package de.keksuccino.drippyloadingscreen.mixin.client;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import net.minecraft.client.gui.DrawableHelper;
+import net.minecraft.client.gui.screen.SplashOverlay;
+import net.minecraft.client.util.math.MatrixStack;
 import de.keksuccino.drippyloadingscreen.DrippyLoadingScreen;
 import de.keksuccino.drippyloadingscreen.customization.rendering.splash.SplashCustomizationLayer;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.AbstractGui;
-import net.minecraft.client.gui.ResourceLoadProgressGui;
-import net.minecraft.resources.IAsyncReloader;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.resource.ResourceReload;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.MathHelper;
 import org.spongepowered.asm.mixin.Final;
@@ -19,30 +19,30 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-@Mixin(value = ResourceLoadProgressGui.class)
-public abstract class MixinResourceLoadProgressGui extends AbstractGui {
+@Mixin(value = SplashOverlay.class)
+public abstract class MixinResourceLoadProgressGui extends DrawableHelper {
 
-	protected Minecraft mc = Minecraft.getInstance();
+	protected MinecraftClient mc = MinecraftClient.getInstance();
 
-	@Shadow @Final private IAsyncReloader asyncReloader;
-	@Shadow @Final private Consumer<Optional<Throwable>> completedCallback;
+	@Shadow @Final private ResourceReload reload;
+	@Shadow @Final private Consumer<Optional<Throwable>> exceptionHandler;
 	@Shadow @Final private boolean reloading;
-	@Shadow private long fadeOutStart;
-	@Shadow private long fadeInStart;
 	@Shadow private float progress;
+	@Shadow private long reloadCompleteTime;
+	@Shadow private long reloadStartTime;
 
 	protected boolean isUpdated = false;
 	protected int lastWidth = 0;
 	protected int lastHeight = 0;
 
 	@Inject(at = @At("HEAD"), method = "render", cancellable = true)
-	protected void onRender(MatrixStack matrix, int mouseX, int mouseY, float partialTicks, CallbackInfo info) {
+	protected void onRender(MatrixStack matrices, int mouseX, int mouseY, float delta, CallbackInfo info) {
 
 		SplashCustomizationLayer handler = SplashCustomizationLayer.getInstance();
 
-		int screenWidth = this.mc.getMainWindow().getScaledWidth();
-		int screenHeight = this.mc.getMainWindow().getScaledHeight();
-		long time = Util.milliTime();
+		int screenWidth = this.mc.getWindow().getScaledWidth();
+		int screenHeight = this.mc.getWindow().getScaledHeight();
+		long time = Util.getMeasuringTimeMs();
 
 		//Handle customization update on window resize
 		if ((lastWidth != screenWidth) || (lastHeight != screenHeight)) {
@@ -57,54 +57,60 @@ public abstract class MixinResourceLoadProgressGui extends AbstractGui {
 
 		info.cancel();
 
-		if (this.reloading && (this.asyncReloader.asyncPartDone() || this.mc.currentScreen != null) && this.fadeInStart == -1L) {
-			this.fadeInStart = time;
+		//-------------------------------------
+
+		if (this.reloading && this.reloadStartTime == -1L) {
+			this.reloadStartTime = time;
 		}
 
-		float f = this.fadeOutStart > -1L ? (float)(time - this.fadeOutStart) / 1000.0F : -1.0F;
-		float f1 = this.fadeInStart > -1L ? (float)(time - this.fadeInStart) / 500.0F : -1.0F;
+		float f = this.reloadCompleteTime > -1L ? (float)(time - this.reloadCompleteTime) / 1000.0F : -1.0F;
+		float g = this.reloadStartTime > -1L ? (float)(time - this.reloadStartTime) / 500.0F : -1.0F;
 		if (f >= 1.0F) {
 			if (this.mc.currentScreen != null) {
 				if (!DrippyLoadingScreen.isFancyMenuLoaded()) {
-					this.mc.currentScreen.render(matrix, 0, 0, partialTicks);
+					this.mc.currentScreen.render(matrices, 0, 0, delta);
 				}
 			}
+
 		} else if (this.reloading) {
-			if (this.mc.currentScreen != null && f1 < 1.0F) {
+			if (this.mc.currentScreen != null && g < 1.0F) {
 				if (!DrippyLoadingScreen.isFancyMenuLoaded()) {
-					this.mc.currentScreen.render(matrix, mouseX, mouseY, partialTicks);
+					this.mc.currentScreen.render(matrices, mouseX, mouseY, delta);
 				}
 			}
+
 		}
 
-		float f3 = this.asyncReloader.estimateExecutionSpeed();
-		this.progress = MathHelper.clamp(this.progress * 0.95F + f3 * 0.050000012F, 0.0F, 1.0F);
+		float y = this.reload.getProgress();
+		this.progress = MathHelper.clamp(this.progress * 0.95F + y * 0.050000012F, 0.0F, 1.0F);
 
 		if (f >= 2.0F) {
-			this.mc.setLoadingGui(null);
+			this.mc.setOverlay(null);
 		}
 
-		if (this.fadeOutStart == -1L && this.asyncReloader.fullyDone() && (!this.reloading || f1 >= 2.0F)) {
-			this.fadeOutStart = Util.milliTime();
+		if (this.reloadCompleteTime == -1L && this.reload.isComplete() && (!this.reloading || g >= 2.0F)) {
 			try {
-				this.asyncReloader.join();
-				this.completedCallback.accept(Optional.empty());
-			} catch (Throwable throwable) {
-				this.completedCallback.accept(Optional.of(throwable));
+				this.reload.throwException();
+				this.exceptionHandler.accept(Optional.empty());
+			} catch (Throwable var23) {
+				this.exceptionHandler.accept(Optional.of(var23));
 			}
 
+			this.reloadCompleteTime = Util.getMeasuringTimeMs();
 			if (this.mc.currentScreen != null) {
-				this.mc.currentScreen.init(this.mc, screenWidth, screenHeight);
+				this.mc.currentScreen.init(this.mc, this.mc.getWindow().getScaledWidth(), this.mc.getWindow().getScaledHeight());
 			}
 		}
+
+		//---------------------------------
 
 		//Give all important fields to the handler so elements can use them (only as getter ofc)
-		handler.asyncReloader = this.asyncReloader;
-		handler.completedCallback = this.completedCallback;
+		handler.reload = this.reload;
+		handler.exceptionHandler = this.exceptionHandler;
 		handler.reloading = this.reloading;
-		handler.fadeOutStart = this.fadeOutStart;
-		handler.fadeInStart = this.fadeInStart;
 		handler.progress = this.progress;
+		handler.reloadCompleteTime = this.reloadCompleteTime;
+		handler.reloadStartTime = this.reloadStartTime;
 
 		//Render the actual loading screen and all customization items
 		handler.renderLayer();

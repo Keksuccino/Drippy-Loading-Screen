@@ -220,8 +220,6 @@ public class LayoutCustomBarBase extends LayoutElement {
 			s.addEntry("barendtexturewidth", "" + this.getObject().barEndTextureWidth);
 			s.addEntry("barendtextureheight", "" + this.getObject().barEndTextureHeight);
 		}
-
-		this.addVisibilityPropertiesTo(s);
 		
 		return s;
 		
