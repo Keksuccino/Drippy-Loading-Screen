@@ -14,6 +14,7 @@ public class SimpleTextRenderer {
 
     private static final Identifier DEFAULT_FONT = new Identifier("textures/font/ascii.png");
     private static final Map<Character, Integer> CHARACTER_X_OFFSET = new HashMap<Character, Integer>();
+    private static final Map<Character, Integer> CHARACTER_HEIGHT_OFFSET = new HashMap<Character, Integer>();
 
     public static void init() {
 
@@ -42,8 +43,16 @@ public class SimpleTextRenderer {
         CHARACTER_X_OFFSET.put("I".charAt(0), -2);
         CHARACTER_X_OFFSET.put("l".charAt(0), -3);
         CHARACTER_X_OFFSET.put("t".charAt(0), -2);
-        CHARACTER_X_OFFSET.put("j".charAt(0), -3);
         CHARACTER_X_OFFSET.put("k".charAt(0), -1);
+
+        CHARACTER_HEIGHT_OFFSET.clear();
+
+        CHARACTER_HEIGHT_OFFSET.put("p".charAt(0), 1);
+        CHARACTER_HEIGHT_OFFSET.put("q".charAt(0), 1);
+        CHARACTER_HEIGHT_OFFSET.put("y".charAt(0), 1);
+        CHARACTER_HEIGHT_OFFSET.put("j".charAt(0), 1);
+        CHARACTER_HEIGHT_OFFSET.put("g".charAt(0), 1);
+        CHARACTER_HEIGHT_OFFSET.put("@".charAt(0), 1);
 
     }
 
@@ -59,13 +68,17 @@ public class SimpleTextRenderer {
             }
             int charX = (c & 0x0F) * 8;
             int charY = (c >> 4 & 0x0F) * 8;
+            int heightOffset = 0;
+            if (CHARACTER_HEIGHT_OFFSET.containsKey(c)) {
+                heightOffset = CHARACTER_HEIGHT_OFFSET.get(c);
+            }
             RenderUtils.bindTexture(DEFAULT_FONT, true);
             matrix.push();
             RenderSystem.enableBlend();
             RenderSystem.setShaderColor(color[0], color[1], color[2], alpha);
             matrix.translate((x + ((i * 6) * scale)) + (xOffset * scale), y, 0);
             matrix.scale(scale, scale, 0);
-            DrawableHelper.drawTexture(matrix, 0, 0, charX, charY, 6, 7, 128, 128);
+            DrawableHelper.drawTexture(matrix, 0, 0, charX, charY, 6, 7 + heightOffset, 128, 128); //charX  charY  6  7  128  128
             //Apply char offset for next char
             if (CHARACTER_X_OFFSET.containsKey(c)) {
                 xOffset += CHARACTER_X_OFFSET.get(c);
