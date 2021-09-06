@@ -113,9 +113,9 @@ public class StringCustomizationItem extends CustomizationItemBase {
 			this.rainbowText.render(matrix, x, y);
 		} else {
 			if (this.shadow) {
-				SimpleTextRenderer.drawStringWithShadow(this.value, x, y, this.textColor.getRGB(), this.opacity, this.scale);
+				SimpleTextRenderer.drawStringWithShadow(matrix, this.value, x, y, this.textColor.getRGB(), this.opacity, this.scale);
 			} else {
-				SimpleTextRenderer.drawString(this.value, x, y, this.textColor.getRGB(), this.opacity, this.scale);
+				SimpleTextRenderer.drawString(matrix, this.value, x, y, this.textColor.getRGB(), this.opacity, this.scale);
 			}
 		}
 		RenderSystem.disableBlend();

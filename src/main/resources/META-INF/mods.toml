@@ -4,7 +4,7 @@ license="KML (Keksuccino Mod License)"
 # A list of mods - how many allowed here is determined by the individual mod loader
 [[mods]] #mandatory
 modId="drippyloadingscreen" #mandatory
-version="1.1.0" #mandatory
+version="1.1.1" #mandatory
 displayName="Drippy Loading Screen" #mandatory
 authors="Keksuccino" #optional
 displayURL="https://www.curseforge.com/minecraft/mc-mods/drippyloadingscreen" #optional
@@ -14,7 +14,7 @@ COPYRIGHT:
 
 > Drippy Loading Screen © Copyright 2021 Keksuccino.
   Drippy Loading Screen is licensed under KML.
-  See https://github.com/Keksuccino/DrippyLoadingScreen/blob/main/LICENSE.md for more infos about this license.'''
+  See https://github.com/Keksuccino/Drippy-Loading-Screen/blob/main/LICENSE.md for more informations about this license.'''
 
 [[dependencies.drippyloadingscreen]]
 modId="konkrete"

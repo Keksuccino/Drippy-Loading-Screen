@@ -3,8 +3,7 @@ package de.keksuccino.drippyloadingscreen;
 import java.io.File;
 
 import de.keksuccino.drippyloadingscreen.customization.items.visibilityrequirements.VisibilityRequirementHandler;
-import de.keksuccino.konkrete.input.KeyboardHandler;
-import net.minecraftforge.common.MinecraftForge;
+import de.keksuccino.drippyloadingscreen.customization.rendering.SimpleTextRenderer;
 import org.apache.commons.lang3.tuple.Pair;
 
 import de.keksuccino.drippyloadingscreen.api.PlaceholderTextValueRegistry;
@@ -30,7 +29,7 @@ import net.minecraftforge.fml.network.FMLNetworkConstants;
 @Mod("drippyloadingscreen")
 public class DrippyLoadingScreen {
 	
-	public static final String VERSION = "1.1.0";
+	public static final String VERSION = "1.1.1";
 	
 	public static final File HOME_DIR = new File("config/drippyloadingscreen");
 	public static final File CUSTOMIZATION_DIR = new File(HOME_DIR.getPath() + "/customization");
@@ -74,12 +73,9 @@ public class DrippyLoadingScreen {
 
 			VisibilityRequirementHandler.init();
 
-			//TODO remove debug
-//			MinecraftForge.EVENT_BUS.register(new Test());
+			SimpleTextRenderer.init();
 
-//			KeyboardHandler.addKeyPressedListener((key) -> {
-//				System.out.println(key.keycode);
-//			});
+//			MinecraftForge.EVENT_BUS.register(new Test());
 			
 			if (config.getOrDefault("enablekeybinds", true)) {
         		Keybinding.init();

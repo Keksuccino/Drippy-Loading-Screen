@@ -194,10 +194,10 @@ public class SplashTextCustomizationItem extends CustomizationItemBase {
 			
 			if (this.shadow) {
 //				font.drawStringWithShadow(matrix, splash, -(SimpleTextRenderer.getStringWidth(splash) / 2), 0, c.getRGB());
-				SimpleTextRenderer.drawStringWithShadow(splash, -(SimpleTextRenderer.getStringWidth(splash) / 2), 0, c.getRGB(), 1.0F, this.opacity);
+				SimpleTextRenderer.drawStringWithShadow(matrix, splash, -(SimpleTextRenderer.getStringWidth(splash) / 2), 0, c.getRGB(), 1.0F, this.opacity);
 			} else {
 //				font.drawString(matrix, splash, -(SimpleTextRenderer.getStringWidth(splash) / 2), 0, c.getRGB());
-				SimpleTextRenderer.drawString(splash, -(SimpleTextRenderer.getStringWidth(splash) / 2), 0, c.getRGB(), 1.0F, this.opacity);
+				SimpleTextRenderer.drawString(matrix, splash, -(SimpleTextRenderer.getStringWidth(splash) / 2), 0, c.getRGB(), 1.0F, this.opacity);
 			}
 
 			RenderSystem.popMatrix();

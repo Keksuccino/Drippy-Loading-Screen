@@ -11,6 +11,7 @@ public class Test extends AbstractGui {
 
     AdvancedButton b = new AdvancedButton(20, 20,100, 20, "Open Editor DL", true, (press) -> {
         Minecraft.getInstance().displayGuiScreen(new LayoutEditorScreen());
+        Minecraft.getInstance().displayGuiScreen(new LayoutEditorScreen());
     });
 
     @SubscribeEvent

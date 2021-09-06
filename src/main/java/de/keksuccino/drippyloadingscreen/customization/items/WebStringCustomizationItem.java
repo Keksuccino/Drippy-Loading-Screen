@@ -119,9 +119,9 @@ public class WebStringCustomizationItem extends CustomizationItemBase {
 				}
 
 				if (this.shadow) {
-					SimpleTextRenderer.drawStringWithShadow(line, x, y + i, this.textColor.getRGB(), this.opacity, sc);
+					SimpleTextRenderer.drawStringWithShadow(matrix, line, x, y + i, this.textColor.getRGB(), this.opacity, sc);
 				} else {
-					SimpleTextRenderer.drawString(line, x, y + i, this.textColor.getRGB(), this.opacity, sc);
+					SimpleTextRenderer.drawString(matrix, line, x, y + i, this.textColor.getRGB(), this.opacity, sc);
 				}
 				
 				i += (10 * sc);

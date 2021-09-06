@@ -129,6 +129,12 @@ public class SplashCustomizationLayer extends AbstractGui {
                 }
                 elementOpacity = 1.0F;
             }
+            if (elementOpacity > 1.0F) {
+                elementOpacity = 1.0F;
+            }
+            if (elementOpacity < 0.0F) {
+                elementOpacity = 0.0F;
+            }
             if (this.backgroundImage != null) {
                 Minecraft.getInstance().getTextureManager().bindTexture(this.backgroundImage);
                 RenderSystem.enableBlend();
