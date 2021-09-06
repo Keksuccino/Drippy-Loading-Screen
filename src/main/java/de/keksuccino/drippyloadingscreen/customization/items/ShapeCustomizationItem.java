@@ -45,6 +45,12 @@ public class ShapeCustomizationItem extends CustomizationItemBase {
 				if (i < alpha) {
 					alpha = i;
 				}
+				if (alpha > 255) {
+					alpha = 255;
+				}
+				if (alpha < 0) {
+					alpha = 0;
+				}
 				Color c = new Color(this.color.getRed(), this.color.getGreen(), this.color.getBlue(), alpha);
 				
 				if (this.shape == Shape.RECTANGLE) {

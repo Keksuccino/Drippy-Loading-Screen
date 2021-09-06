@@ -123,6 +123,12 @@ public class SplashCustomizationLayer extends DrawableHelper {
                 }
                 elementOpacity = 1.0F;
             }
+            if (elementOpacity > 1.0F) {
+                elementOpacity = 1.0F;
+            }
+            if (elementOpacity < 0.0F) {
+                elementOpacity = 0.0F;
+            }
             if (this.backgroundImage != null) {
                 RenderUtils.bindTexture(this.backgroundImage);
                 RenderSystem.enableBlend();
