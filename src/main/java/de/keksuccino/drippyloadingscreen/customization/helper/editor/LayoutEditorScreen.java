@@ -58,6 +58,7 @@ import de.keksuccino.konkrete.properties.PropertiesSection;
 import de.keksuccino.konkrete.properties.PropertiesSet;
 import de.keksuccino.konkrete.rendering.RenderUtils;
 import de.keksuccino.konkrete.web.WebUtils;
+import net.minecraft.client.MainWindow;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.util.text.StringTextComponent;
@@ -96,6 +97,16 @@ public class LayoutEditorScreen extends Screen {
 	protected int biggerThanHeight = 0;
 	protected int smallerThanWidth = 0;
 	protected int smallerThanHeight = 0;
+
+	//TODO übernehmen
+	protected int scale = 0;
+	protected boolean fadeOut = true;
+	//--------------
+
+	//TODO übernehmen
+	protected int autoScalingWidth = 0;
+	protected int autoScalingHeight = 0;
+	//--------------
 
 	protected boolean multiselectStretchedX = false;
 	protected boolean multiselectStretchedY = false;
@@ -159,6 +170,34 @@ public class LayoutEditorScreen extends Screen {
 		this.focusedObjects.clear();
 		
 		this.focusChangeBlocker.clear();
+
+		//TODO übernehmen
+		MainWindow w = Minecraft.getInstance().getMainWindow();
+		if (this.scale > 0) {
+			w.setGuiScale(this.scale);
+		} else {
+			int mcScale = w.calcGuiScale(Minecraft.getInstance().gameSettings.guiScale, Minecraft.getInstance().getForceUnicodeFont());
+			w.setGuiScale(mcScale);
+		}
+		this.width = w.getScaledWidth();
+		this.height = w.getScaledHeight();
+		//-------------------
+
+		//TODO übernehmen
+		//Handle auto-scaling
+		if ((this.autoScalingWidth != 0) && (this.autoScalingHeight != 0)) {
+			double guiWidth = this.width * w.getGuiScaleFactor();
+			double guiHeight = this.height * w.getGuiScaleFactor();
+			double percentX = (guiWidth / (double)this.autoScalingWidth) * 100.0D;
+			double percentY = (guiHeight / (double)this.autoScalingHeight) * 100.0D;
+			double newScaleX = (percentX / 100.0D) * w.getGuiScaleFactor();
+			double newScaleY = (percentY / 100.0D) * w.getGuiScaleFactor();
+			double newScale = Math.min(newScaleX, newScaleY);
+
+			w.setGuiScale(newScale);
+			this.width = w.getScaledWidth();
+			this.height = w.getScaledHeight();
+		}
 		
 	}
 	
@@ -211,6 +250,19 @@ public class LayoutEditorScreen extends Screen {
 		}
 		if (this.smallerThanHeight != 0) {
 			meta.addEntry("smallerthanheight", "" + this.smallerThanHeight);
+		}
+		//TODO übernehmen
+		if (this.scale > 0) {
+			meta.addEntry("scale", "" + this.scale);
+		}
+		//TODO übernehmen
+		if (!this.fadeOut) {
+			meta.addEntry("fadeout", "false");
+		}
+		//TODO übernehmen
+		if ((this.autoScalingWidth != 0) && (this.autoScalingHeight != 0)) {
+			meta.addEntry("autoscale_basewidth", "" + this.autoScalingWidth);
+			meta.addEntry("autoscale_baseheight", "" + this.autoScalingHeight);
 		}
 		
 		l.add(meta);
@@ -280,6 +332,9 @@ public class LayoutEditorScreen extends Screen {
 		}
 
 		this.renderEditorBackground(matrix);
+
+		//TODO übernehmen
+		this.drawGrid(matrix);
 		
 		//Render vanilla elements if rendering order is set to foreground
 		if (this.renderorder.equals("foreground")) {
@@ -395,6 +450,43 @@ public class LayoutEditorScreen extends Screen {
 		}
 		this.postRenderTasks.clear();
 
+	}
+
+	//TODO übernehmen
+	protected void drawGrid(MatrixStack matrix) {
+		if (DrippyLoadingScreen.config.getOrDefault("showgrid", false)) {
+			Color c = new Color(255, 255, 255, 100);
+			int gridSize = DrippyLoadingScreen.config.getOrDefault("gridsize", 10);
+			int lineThickness = 1;
+			int verticalLines = Minecraft.getInstance().getMainWindow().getScaledWidth() / gridSize;
+			int horizontalLines = Minecraft.getInstance().getMainWindow().getScaledHeight() / gridSize;
+
+			//Draw vertical lines
+			int i1 = 1;
+			int space1 = 0;
+			while (i1 <= verticalLines) {
+				int minX = (gridSize * i1) + space1;
+				int maxX = minX + lineThickness;
+				int minY = 0;
+				int maxY = Minecraft.getInstance().getMainWindow().getScaledHeight();
+				fill(matrix, minX, minY, maxX, maxY, c.getRGB());
+				i1++;
+				space1 += lineThickness;
+			}
+
+			//Draw horizontal lines
+			int i2 = 1;
+			int space2 = 0;
+			while (i2 <= horizontalLines) {
+				int minX = 0;
+				int maxX = Minecraft.getInstance().getMainWindow().getScaledWidth();
+				int minY = (gridSize * i2) + space2;
+				int maxY = minY + lineThickness;
+				fill(matrix, minX, minY, maxX, maxY, c.getRGB());
+				i2++;
+				space2 += lineThickness;
+			}
+		}
 	}
 	
 	protected void renderVanillaElements(MatrixStack matrix, float partial) {
@@ -963,6 +1055,22 @@ public class LayoutEditorScreen extends Screen {
 			if (((LayoutEditorScreen)c).isObjectFocused() && !PopupHandler.isPopupActive()) {
 				if (d.keycode == 261) {
 					((LayoutEditorScreen) c).deleteFocusedObjects();
+				}
+			}
+
+			//TODO übernehmen
+			//CTRL + G
+			if (d.keycode == 71) {
+				if (KeyboardHandler.isCtrlPressed()) {
+					try {
+						if (DrippyLoadingScreen.config.getOrDefault("showgrid", false)) {
+							DrippyLoadingScreen.config.setValue("showgrid", false);
+						} else {
+							DrippyLoadingScreen.config.setValue("showgrid", true);
+						}
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
 				}
 			}
 			

@@ -119,9 +119,6 @@ public class VisibilityRequirementHandler {
             }
         }
 
-        //VR: Active Item Type
-        //TODO implementieren
-
         //VR: Active Item Name
         if (p != null) {
             activeItemName = inventoryItemNames.get(p.inventory.currentItem);

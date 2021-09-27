@@ -19,11 +19,13 @@ import de.keksuccino.drippyloadingscreen.customization.rendering.splash.elements
 import de.keksuccino.drippyloadingscreen.customization.rendering.splash.elements.ForgeTextSplashElement;
 import de.keksuccino.drippyloadingscreen.customization.rendering.splash.elements.LogoSplashElement;
 import de.keksuccino.drippyloadingscreen.customization.rendering.splash.elements.ProgressBarSplashElement;
+import de.keksuccino.konkrete.math.MathUtils;
 import de.keksuccino.konkrete.properties.PropertiesSection;
 import de.keksuccino.konkrete.properties.PropertiesSet;
 import de.keksuccino.konkrete.rendering.RenderUtils;
 import de.keksuccino.konkrete.resources.ExternalTextureResourceLocation;
 import de.keksuccino.konkrete.resources.TextureHandler;
+import net.minecraft.client.MainWindow;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.resources.IAsyncReloader;
@@ -58,6 +60,11 @@ public class SplashCustomizationLayer extends AbstractGui {
     public ResourceLocation backgroundImage = null;
     public String backgroundImagePath = null;
 
+    //TODO übernehmen
+    public boolean scaled = false;
+    public boolean fadeOut = true;
+    //-----------------
+
     public final boolean isEditor;
 
     /** GETTER ONLY **/
@@ -90,6 +97,11 @@ public class SplashCustomizationLayer extends AbstractGui {
         }
         this.lastCustomBackgroundHex = this.customBackgroundHex;
 
+        //TODO übernehmen
+        if ((Minecraft.getInstance() == null) || (Minecraft.getInstance().getMainWindow() == null)) {
+            return;
+        }
+
         MatrixStack matrix = new MatrixStack();
         float partial = Minecraft.getInstance().getRenderPartialTicks();
         int screenWidth = this.mc.getMainWindow().getScaledWidth();
@@ -102,7 +114,8 @@ public class SplashCustomizationLayer extends AbstractGui {
             long time = Util.milliTime();
             float f = this.fadeOutStart > -1L ? (float)(time - this.fadeOutStart) / 1000.0F : -1.0F;
             float f1 = this.fadeInStart > -1L ? (float)(time - this.fadeInStart) / 500.0F : -1.0F;
-            if (isCustomizationHelperScreen() || DrippyLoadingScreen.isFancyMenuLoaded()) {
+            //TODO übernehmen
+            if (isCustomizationHelperScreen() || DrippyLoadingScreen.isFancyMenuLoaded() || !this.fadeOut) {
                 f = 1.0F;
             }
             if (f >= 1.0F) {
@@ -148,7 +161,8 @@ public class SplashCustomizationLayer extends AbstractGui {
             }
         }
 
-        if (this.isEditor || SplashCustomizationLayer.isCustomizationHelperScreen() || DrippyLoadingScreen.isFancyMenuLoaded()) {
+        //TODO übernehmen
+        if (this.isEditor || SplashCustomizationLayer.isCustomizationHelperScreen() || DrippyLoadingScreen.isFancyMenuLoaded() || !this.fadeOut) {
             elementOpacity = 1.0F;
         }
 
@@ -220,6 +234,11 @@ public class SplashCustomizationLayer extends AbstractGui {
             this.foregroundElements.clear();
             this.backgroundElements.clear();
 
+            //TODO übernehmen
+            this.scaled = false;
+            this.fadeOut = true;
+            //----------------
+
             List<PropertiesSet> props = CustomizationPropertiesHandler.getProperties();
 
             boolean logoSet = false;
@@ -240,6 +259,55 @@ public class SplashCustomizationLayer extends AbstractGui {
                 String roString = metas.get(0).getEntryValue("renderorder");
                 if ((roString != null) && roString.equalsIgnoreCase("background")) {
                     renderInBackground = true;
+                }
+
+                //TODO übernehmen
+                MainWindow w = Minecraft.getInstance().getMainWindow();
+                String scaleString = metas.get(0).getEntryValue("scale");
+                if ((scaleString != null) && (MathUtils.isInteger(scaleString.replace(" ", "")) || MathUtils.isDouble(scaleString.replace(" ", "")))) {
+                    int newscale = (int) Double.parseDouble(scaleString.replace(" ", ""));
+                    if (newscale <= 0) {
+                        newscale = 1;
+                    }
+                    w.setGuiScale((double)newscale);
+                    if (mc.currentScreen != null) {
+                        mc.currentScreen.width = w.getScaledWidth();
+                        mc.currentScreen.height = w.getScaledHeight();
+                    }
+                    this.scaled = true;
+                }
+
+                //TODO übernehmen
+                //Handle auto-scaling
+                int autoScaleBaseWidth = 0;
+                int autoScaleBaseHeight = 0;
+                String baseWidth = metas.get(0).getEntryValue("autoscale_basewidth");
+                String baseHeight = metas.get(0).getEntryValue("autoscale_baseheight");
+                if ((baseWidth != null) && (baseHeight != null) && MathUtils.isInteger(baseWidth) && MathUtils.isInteger(baseHeight)) {
+                    autoScaleBaseWidth = Integer.parseInt(baseWidth);
+                    autoScaleBaseHeight = Integer.parseInt(baseHeight);
+                }
+                if ((autoScaleBaseWidth != 0) && (autoScaleBaseHeight != 0)) {
+                    double guiWidth = w.getWidth();
+                    double guiHeight = w.getHeight();
+                    double percentX = (guiWidth / (double)autoScaleBaseWidth) * 100.0D;
+                    double percentY = (guiHeight / (double)autoScaleBaseHeight) * 100.0D;
+                    double newScaleX = (percentX / 100.0D) * w.getGuiScaleFactor();
+                    double newScaleY = (percentY / 100.0D) * w.getGuiScaleFactor();
+                    double newScale = Math.min(newScaleX, newScaleY);
+
+                    w.setGuiScale(newScale);
+                    if (mc.currentScreen != null) {
+                        mc.currentScreen.width = w.getScaledWidth();
+                        mc.currentScreen.height = w.getScaledHeight();
+                    }
+                    this.scaled = true;
+                }
+
+                //TODO übernehmen
+                String fadeOutString = metas.get(0).getEntryValue("fadeout");
+                if ((fadeOutString != null) && fadeOutString.equalsIgnoreCase("false")) {
+                    this.fadeOut = false;
                 }
 
                 String cusBackColorString = metas.get(0).getEntryValue("backgroundcolor");

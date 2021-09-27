@@ -10,6 +10,7 @@ import net.minecraft.item.Item;
 import java.util.ArrayList;
 import java.util.List;
 
+//Unused atm - will be re-implemented in a later update
 public class VisibilityRequirementContainer {
 
     //Visibility Requirements
@@ -178,7 +179,6 @@ public class VisibilityRequirementContainer {
             }
             String itemType = properties.getEntryValue("vr:value:activeitemtype");
             if (itemType != null) {
-                //TODO enum for item types
                 if (itemType.equals("weapon") || itemType.equals("tool") || itemType.equals("food") || itemType.equals("block") || itemType.equals("potion")) {
                     this.vrCheckForActiveItemType = true;
                     this.vrActiveItemType = itemType;
@@ -619,11 +619,6 @@ public class VisibilityRequirementContainer {
                     return false;
                 }
             }
-        }
-
-        //VR: Active Item Type
-        if (this.vrCheckForActiveItemType) {
-            //TODO implementieren
         }
 
         //VR: Active Item Name

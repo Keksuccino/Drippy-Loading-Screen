@@ -92,69 +92,6 @@ public class LayoutString extends LayoutElement {
 		
 		this.rightclickMenu.addSeparator();
 
-		//TODO fixen
-//		/** RAINBOW MODE **/
-//		String rainbowToggleString = Locals.localize("drippyloadingscreen.helper.editor.elements.string.rainbow.on");
-//		if (!this.getObject().rainbowMode) {
-//			rainbowToggleString = Locals.localize("drippyloadingscreen.helper.editor.elements.string.rainbow.off");
-//		}
-//		AdvancedButton rainbowToggleButton = new AdvancedButton(0, 0, 0, 16, rainbowToggleString, true, (press) -> {
-//			if (this.getObject().rainbowMode) {
-//				((AdvancedButton)press).setMessage(Locals.localize("drippyloadingscreen.helper.editor.elements.string.rainbow.off"));
-//				this.getObject().rainbowMode = false;
-//			} else {
-//				((AdvancedButton)press).setMessage(Locals.localize("drippyloadingscreen.helper.editor.elements.string.rainbow.on"));
-//				this.getObject().rainbowMode = true;
-//			}
-//		});
-//		rainbowToggleButton.setDescription(StringUtils.splitLines(Locals.localize("drippyloadingscreen.helper.editor.elements.string.rainbow.btn.desc"), "%n%"));
-//		this.rightclickMenu.addContent(rainbowToggleButton);
-//
-//		AdvancedButton rainbowColorButton = new AdvancedButton(0, 0, 0, 16, Locals.localize("drippyloadingscreen.helper.editor.elements.string.rainbow.colors"), true, (press) -> {
-//			PopupHandler.displayPopup(new SetRainbowStringColorPopup(this));
-//		}) {
-//			@Override
-//			public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
-//				if (!LayoutString.this.getObject().rainbowMode) {
-//					this.active = false;
-//				} else {
-//					this.active = true;
-//				}
-//				super.render(matrixStack, mouseX, mouseY, partialTicks);
-//			}
-//		};
-//		this.rightclickMenu.addContent(rainbowColorButton);
-//
-//		AdvancedButton rainbowFadeSpeedButton = new AdvancedButton(0, 0, 0, 16, Locals.localize("drippyloadingscreen.helper.editor.elements.string.rainbow.speed"), true, (press) -> {
-//			FHTextInputPopup pop = new FHTextInputPopup(new Color(0, 0, 0, 0), Locals.localize("drippyloadingscreen.helper.editor.elements.string.rainbow.speed"), CharacterFilter.getDoubleCharacterFiler(), 240, (call) -> {
-//				if (call != null) {
-//					float newSpeed = 1.0F;
-//					if (!call.replace(" ", "").equals("")) {
-//						if (MathUtils.isFloat(call)) {
-//							newSpeed = Float.parseFloat(call);
-//						}
-//					}
-//					if (newSpeed != this.getObject().rainbowText.getSpeed()) {
-//						this.handler.history.saveSnapshot(this.handler.history.createSnapshot());
-//					}
-//					this.getObject().rainbowText.setSpeed(newSpeed);
-//				}
-//			});
-//			pop.setText("" + this.getObject().rainbowText.getSpeed());
-//			PopupHandler.displayPopup(pop);
-//		}) {
-//			@Override
-//			public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
-//				if (!LayoutString.this.getObject().rainbowMode) {
-//					this.active = false;
-//				} else {
-//					this.active = true;
-//				}
-//				super.render(matrixStack, mouseX, mouseY, partialTicks);
-//			}
-//		};
-//		this.rightclickMenu.addContent(rainbowFadeSpeedButton);
-
 	}
 	
 	@Override
@@ -324,19 +261,6 @@ public class LayoutString extends LayoutElement {
 		p1.addEntry("shadow", "" + this.getObject().shadow);
 		p1.addEntry("alignment", "" + this.getObject().alignment.key);
 		p1.addEntry("textcolor", this.getObject().textColorHex);
-		
-		if (this.getObject().rainbowMode) {
-			p1.addEntry("rainbowmode", "true");
-		}
-		if (this.getObject().rainbowText.getSpeed() != 1.0F) {
-			p1.addEntry("rainbowspeed", "" + this.getObject().rainbowText.getSpeed());
-		}
-		if (this.getObject().allRainbowColorsSet()) {
-			p1.addEntry("rainbowstartcolor1", this.getObject().rainbowStartColorHex1);
-			p1.addEntry("rainbowendcolor1", this.getObject().rainbowEndColorHex1);
-			p1.addEntry("rainbowstartcolor2", this.getObject().rainbowStartColorHex2);
-			p1.addEntry("rainbowendcolor2", this.getObject().rainbowEndColorHex2);
-		}
 
 		this.addVisibilityPropertiesTo(p1);
 		

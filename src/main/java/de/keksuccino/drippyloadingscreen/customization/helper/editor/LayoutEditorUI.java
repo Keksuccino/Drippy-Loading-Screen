@@ -33,8 +33,10 @@ import de.keksuccino.konkrete.gui.content.AdvancedButton;
 import de.keksuccino.konkrete.gui.content.AdvancedImageButton;
 import de.keksuccino.konkrete.gui.screens.popup.PopupHandler;
 import de.keksuccino.konkrete.gui.screens.popup.TextInputPopup;
+import de.keksuccino.konkrete.input.CharacterFilter;
 import de.keksuccino.konkrete.input.StringUtils;
 import de.keksuccino.konkrete.localization.Locals;
+import de.keksuccino.konkrete.math.MathUtils;
 import de.keksuccino.konkrete.properties.PropertiesSection;
 import de.keksuccino.konkrete.properties.PropertiesSet;
 import de.keksuccino.konkrete.resources.ExternalTextureResourceLocation;
@@ -552,6 +554,79 @@ public class LayoutEditorUI extends UIBase {
 			});
 			backgroundImageButton.setDescription(StringUtils.splitLines(Locals.localize("drippyloadingscreen.helper.editor.backgroundimage.btn.desc"), "%n%"));
 			this.addContent(backgroundImageButton);
+
+			//TODO übernehmen
+			this.addSeparator();
+
+			//TODO übernehmen
+			/** FORCE GUI SCALE **/
+			AdvancedButton forceScaleButton = new AdvancedButton(0, 0, 0, 16, Locals.localize("drippyloadingscreen.helper.editor.forcescale"), (press) -> {
+				FHTextInputPopup pop = new FHTextInputPopup(new Color(0, 0, 0, 0), Locals.localize("drippyloadingscreen.helper.editor.forcescale"), CharacterFilter.getIntegerCharacterFiler(), 240, (call) -> {
+					if (call != null) {
+						if (!call.replace(" ", "").equals("")) {
+							if (MathUtils.isInteger(call)) {
+								int newScale = Integer.parseInt(call);
+								if (newScale != this.parent.scale) {
+									this.parent.history.saveSnapshot(this.parent.history.createSnapshot());
+								}
+								this.parent.scale = newScale;
+							}
+						} else {
+							if (this.parent.scale != 0) {
+								this.parent.history.saveSnapshot(this.parent.history.createSnapshot());
+							}
+							this.parent.scale = 0;
+						}
+						this.parent.init();
+					}
+				});
+				pop.setText("" + this.parent.scale);
+				PopupHandler.displayPopup(pop);
+			});
+			forceScaleButton.setDescription(StringUtils.splitLines(Locals.localize("drippyloadingscreen.helper.editor.forcescale.btn.desc"), "%n%"));
+			this.addContent(forceScaleButton);
+
+			//TODO übernehmen
+			/** AUTO-SCALING **/
+			String autoScalingLabel = Locals.localize("drippyloadingscreen.helper.editor.properties.autoscale.off");
+			if ((this.parent.autoScalingWidth != 0) && (this.parent.autoScalingHeight != 0)) {
+				autoScalingLabel = Locals.localize("drippyloadingscreen.helper.editor.properties.autoscale.on");
+			}
+			AdvancedButton autoScalingButton = new AdvancedButton(0, 0, 0, 16, autoScalingLabel, true, (press) -> {
+				if ((this.parent.autoScalingWidth != 0) && (this.parent.autoScalingHeight != 0)) {
+					((AdvancedButton)press).setMessage(Locals.localize("drippyloadingscreen.helper.editor.properties.autoscale.off"));
+					this.parent.autoScalingWidth = 0;
+					this.parent.autoScalingHeight = 0;
+					this.parent.init(Minecraft.getInstance(), Minecraft.getInstance().getMainWindow().getScaledWidth(), Minecraft.getInstance().getMainWindow().getScaledHeight());
+				} else {
+					PopupHandler.displayPopup(new AutoScalingPopup(this.parent, (call) -> {
+						if (call) {
+							((AdvancedButton)press).setMessage(Locals.localize("drippyloadingscreen.helper.editor.properties.autoscale.on"));
+							this.parent.init(Minecraft.getInstance(), Minecraft.getInstance().getMainWindow().getScaledWidth(), Minecraft.getInstance().getMainWindow().getScaledHeight());
+						}
+					}));
+				}
+			});
+			autoScalingButton.setDescription(StringUtils.splitLines(Locals.localize("drippyloadingscreen.helper.editor.properties.autoscale.btn.desc"), "%n%"));
+			this.addContent(autoScalingButton);
+
+			//TODO übernehmen
+			/** FADE-OUT **/
+			String fadeOutLabel = Locals.localize("drippyloadingscreen.helper.editor.fadeout.on");
+			if (!this.parent.fadeOut) {
+				fadeOutLabel = Locals.localize("drippyloadingscreen.helper.editor.fadeout.off");
+			}
+			AdvancedButton fadeOutButton = new AdvancedButton(0, 0, 0, 16, fadeOutLabel, (press) -> {
+				if (this.parent.fadeOut) {
+					((AdvancedButton)press).setMessage(Locals.localize("drippyloadingscreen.helper.editor.fadeout.off"));
+					this.parent.fadeOut = false;
+				} else {
+					((AdvancedButton)press).setMessage(Locals.localize("drippyloadingscreen.helper.editor.fadeout.on"));
+					this.parent.fadeOut = true;
+				}
+			});
+			fadeOutButton.setDescription(StringUtils.splitLines(Locals.localize("drippyloadingscreen.helper.editor.fadeout.btn.desc"), "%n%"));
+			this.addContent(fadeOutButton);
 			
 			if (this.isRightclickOpened) {
 

@@ -5,6 +5,7 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import de.keksuccino.drippyloadingscreen.DrippyLoadingScreen;
 import de.keksuccino.drippyloadingscreen.customization.rendering.splash.SplashCustomizationLayer;
+import net.minecraft.client.Minecraft;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.MathHelper;
@@ -16,11 +17,14 @@ public class LogoSplashElement extends SplashElementBase {
     public LogoSplashElement(SplashCustomizationLayer handler) {
         super(handler);
 
-        double d0 = Math.min((double)this.mc.getMainWindow().getScaledWidth() * 0.75D, this.mc.getMainWindow().getScaledHeight()) * 0.25D;
-        double d1 = d0 * 4.0D;
-        int k1 = (int)(d1 * 0.5D);
-        this.width = (int) (k1 * 2.0D);
-        this.height = (int) d0;
+        //TODO übernehmen
+        if ((Minecraft.getInstance() != null) && (Minecraft.getInstance().getMainWindow() != null)) {
+            double d0 = Math.min((double)this.mc.getMainWindow().getScaledWidth() * 0.75D, this.mc.getMainWindow().getScaledHeight()) * 0.25D;
+            double d1 = d0 * 4.0D;
+            int k1 = (int)(d1 * 0.5D);
+            this.width = (int) (k1 * 2.0D);
+            this.height = (int) d0;
+        }
     }
 
     @Override
@@ -63,7 +67,7 @@ public class LogoSplashElement extends SplashElementBase {
         RenderSystem.alphaFunc(516, 0.0F);
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, f2);
 
-        //   matrix  X       Y       W   H        uOff      vOff  uW   uH  texW texH
+        //   matrix  X       Y       W   H        uOff      vOff  uW   vH  texW texH
         blit(matrix, this.x, this.y, k1, (int)d0, -0.0625F, 0.0F, 120, 60, 120, 120);
         blit(matrix, this.x + k1, this.y, k1, (int)d0, 0.0625F, 60.0F, 120, 60, 120, 120);
 

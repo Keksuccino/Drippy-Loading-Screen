@@ -4,6 +4,7 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import de.keksuccino.drippyloadingscreen.DrippyLoadingScreen;
 import de.keksuccino.drippyloadingscreen.customization.rendering.splash.SplashCustomizationLayer;
 import de.keksuccino.konkrete.rendering.RenderUtils;
+import net.minecraft.client.Minecraft;
 import net.minecraft.util.ColorHelper;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.MathHelper;
@@ -19,13 +20,16 @@ public class ProgressBarSplashElement extends SplashElementBase {
     public ProgressBarSplashElement(SplashCustomizationLayer handler) {
         super(handler);
 
-        int screenWidth = this.mc.getMainWindow().getScaledWidth();
-        int screenHeight = this.mc.getMainWindow().getScaledHeight();
-        double d0 = Math.min((double)screenWidth * 0.75D, screenHeight) * 0.25D;
-        double d1 = d0 * 4.0D;
-        int k1 = (int)(d1 * 0.5D);
-        this.width = k1 * 2;
-        this.height = 10;
+        //TODO übernehmen
+        if ((Minecraft.getInstance() != null) && (Minecraft.getInstance().getMainWindow() != null)) {
+            int screenWidth = this.mc.getMainWindow().getScaledWidth();
+            int screenHeight = this.mc.getMainWindow().getScaledHeight();
+            double d0 = Math.min((double) screenWidth * 0.75D, screenHeight) * 0.25D;
+            double d1 = d0 * 4.0D;
+            int k1 = (int) (d1 * 0.5D);
+            this.width = k1 * 2;
+            this.height = 10;
+        }
     }
 
     @Override

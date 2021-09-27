@@ -51,7 +51,6 @@ public class ForgeTextLayoutSplashElement extends VanillaLayoutSplashElement {
 		
 	}
 
-	//TODO update to real properties
 	@Override
 	public List<PropertiesSection> getProperties() {
 		List<PropertiesSection> l = new ArrayList<PropertiesSection>();
