@@ -1,7 +1,7 @@
 package de.keksuccino.drippyloadingscreen.customization.items.custombars;
 
-import net.minecraft.client.util.math.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import de.keksuccino.drippyloadingscreen.customization.rendering.splash.SplashCustomizationLayer;
 import de.keksuccino.konkrete.properties.PropertiesSection;
 import de.keksuccino.konkrete.rendering.RenderUtils;
@@ -36,13 +36,13 @@ public class CustomProgressBarCustomizationItem extends CustomBarCustomizationIt
 	}
 	
 	@Override
-	public void render(MatrixStack matrix) {
+	public void render(PoseStack matrix) {
 
 		if (!this.shouldRender()) {
 			return;
 		}
 
-		float progressPercent = SplashCustomizationLayer.getInstance().progress * 100.0F;
+		float progressPercent = SplashCustomizationLayer.getInstance().currentProgress * 100.0F;
 		if (this.isEditor() || SplashCustomizationLayer.isCustomizationHelperScreen()) {
 			progressPercent = 50.0F;
 		}
@@ -60,7 +60,7 @@ public class CustomProgressBarCustomizationItem extends CustomBarCustomizationIt
 	}
 
 	@Override
-	protected void renderBar(MatrixStack matrix) {
+	protected void renderBar(PoseStack matrix) {
 		
 		if (this.barTexture == null) {
 
@@ -87,18 +87,18 @@ public class CustomProgressBarCustomizationItem extends CustomBarCustomizationIt
 			RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, this.opacity);
 			
 			if (this.direction == BarDirection.RIGHT) {
-				drawTexture(matrix, this.getPosX(), this.getPosY(), 0.0F, 0.0F, this.currentPercentWidthHeight, this.height, this.width, this.height);
+				blit(matrix, this.getPosX(), this.getPosY(), 0.0F, 0.0F, this.currentPercentWidthHeight, this.height, this.width, this.height);
 			}
 			if (this.direction == BarDirection.LEFT) {
 				int i = (this.width - this.currentPercentWidthHeight);
-				drawTexture(matrix, this.getPosX() + i, this.getPosY(), i, 0.0F, this.currentPercentWidthHeight, this.height, this.width, this.height);
+				blit(matrix, this.getPosX() + i, this.getPosY(), i, 0.0F, this.currentPercentWidthHeight, this.height, this.width, this.height);
 			}
 			if (this.direction == BarDirection.UP) {
 				int i = (this.height - this.currentPercentWidthHeight);
-				drawTexture(matrix, this.getPosX(), this.getPosY() + i, 0.0F, i, this.width, this.currentPercentWidthHeight, this.width, this.height);
+				blit(matrix, this.getPosX(), this.getPosY() + i, 0.0F, i, this.width, this.currentPercentWidthHeight, this.width, this.height);
 			}
 			if (this.direction == BarDirection.DOWN) {
-				drawTexture(matrix, this.getPosX(), this.getPosY(), 0.0F, 0.0F, this.width, this.currentPercentWidthHeight, this.width, this.height);
+				blit(matrix, this.getPosX(), this.getPosY(), 0.0F, 0.0F, this.width, this.currentPercentWidthHeight, this.width, this.height);
 			}
 			
 			RenderSystem.disableBlend();
@@ -108,7 +108,7 @@ public class CustomProgressBarCustomizationItem extends CustomBarCustomizationIt
 	}
 
 	@Override
-	protected void renderBarBackground(MatrixStack matrix) {
+	protected void renderBarBackground(PoseStack matrix) {
 		
 		if (this.backgroundTexture == null) {
 
@@ -121,7 +121,7 @@ public class CustomProgressBarCustomizationItem extends CustomBarCustomizationIt
 			RenderUtils.bindTexture(this.backgroundTexture);
 			RenderSystem.enableBlend();
 			RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, this.opacity);
-			drawTexture(matrix, this.getPosX(), this.getPosY(), 0.0F, 0.0F, this.width, this.height, this.width, this.height);
+			blit(matrix, this.getPosX(), this.getPosY(), 0.0F, 0.0F, this.width, this.height, this.width, this.height);
 			RenderSystem.disableBlend();
 			
 		}

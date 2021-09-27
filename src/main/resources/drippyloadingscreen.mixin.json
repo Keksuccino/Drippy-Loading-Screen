@@ -2,8 +2,9 @@
   "required": true,
   "package": "de.keksuccino.drippyloadingscreen.mixin.client",
   "compatibilityLevel": "JAVA_16",
+  "minVersion": "0.8",
   "client": [
-    "MixinResourceLoadProgressGui"
+    "MixinLoadingOverlay"
   ],
   "injectors": {
     "defaultRequire": 1

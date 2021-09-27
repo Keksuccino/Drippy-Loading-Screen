@@ -1,16 +1,16 @@
 package de.keksuccino.drippyloadingscreen.customization.items;
 
-import net.minecraft.client.gui.DrawableHelper;
-import net.minecraft.client.util.math.MatrixStack;
-
+import com.mojang.blaze3d.vertex.PoseStack;
 import de.keksuccino.drippyloadingscreen.customization.CustomizationHandler;
 import de.keksuccino.drippyloadingscreen.customization.placeholdervalues.PlaceholderTextValueHelper;
 import de.keksuccino.drippyloadingscreen.customization.helper.editor.LayoutEditorScreen;
+import de.keksuccino.drippyloadingscreen.customization.items.visibilityrequirements.VisibilityRequirementContainer;
 import de.keksuccino.konkrete.math.MathUtils;
 import de.keksuccino.konkrete.properties.PropertiesSection;
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiComponent;
 
-public abstract class CustomizationItemBase extends DrawableHelper {
+public abstract class CustomizationItemBase extends GuiComponent {
 	
 	/**
 	 * This value CANNOT BE NULL!<br>
@@ -37,6 +37,8 @@ public abstract class CustomizationItemBase extends DrawableHelper {
 	public volatile boolean fadeIn = false;
 	public volatile float fadeInSpeed = 1.0F;
 	public volatile float opacity = 1.0F;
+
+	public VisibilityRequirementContainer visibilityRequirementContainer;
 
 	protected String actionId;
 
@@ -94,9 +96,11 @@ public abstract class CustomizationItemBase extends DrawableHelper {
 			}
 		}
 
+		this.visibilityRequirementContainer = new VisibilityRequirementContainer(properties, this);
+
 	}
 
-	public abstract void render(MatrixStack matrix);
+	public abstract void render(PoseStack matrix);
 	
 	/**
 	 * Should be used to get the REAL and final X-position of this item.<br>
@@ -104,7 +108,7 @@ public abstract class CustomizationItemBase extends DrawableHelper {
 	 */
 	public int getPosX() {
 		
-		int w = MinecraftClient.getInstance().getWindow().getScaledWidth();
+		int w = Minecraft.getInstance().getWindow().getGuiScaledWidth();
 		int x = this.posX;
 
 		if (orientation.equalsIgnoreCase("top-centered")) {
@@ -136,7 +140,7 @@ public abstract class CustomizationItemBase extends DrawableHelper {
 	 */
 	public int getPosY() {
 		
-		int h = MinecraftClient.getInstance().getWindow().getScaledHeight();
+		int h = Minecraft.getInstance().getWindow().getGuiScaledHeight();
 		int y = this.posY;
 
 		if (orientation.equalsIgnoreCase("mid-left")) {
@@ -167,6 +171,9 @@ public abstract class CustomizationItemBase extends DrawableHelper {
 		if (this.value == null) {
 			return false;
 		}
+		if (!this.visibilityRequirementsMet()) {
+			return false;
+		}
 		return this.visible;
 	}
 
@@ -175,7 +182,14 @@ public abstract class CustomizationItemBase extends DrawableHelper {
 	}
 
 	protected static boolean isEditorActive() {
-		return (MinecraftClient.getInstance().currentScreen instanceof LayoutEditorScreen);
+		return (Minecraft.getInstance().screen instanceof LayoutEditorScreen);
+	}
+
+	protected boolean visibilityRequirementsMet() {
+		if (isEditorActive()) {
+			return true;
+		}
+		return this.visibilityRequirementContainer.isVisible();
 	}
 
 	public static enum Alignment {

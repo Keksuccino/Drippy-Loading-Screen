@@ -3,10 +3,11 @@ package de.keksuccino.drippyloadingscreen.customization.helper.editor;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 import de.keksuccino.konkrete.properties.PropertiesSection;
 import de.keksuccino.konkrete.properties.PropertiesSet;
-import net.minecraft.client.MinecraftClient;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.client.Minecraft;
 
 public class EditHistory {
 
@@ -78,7 +79,7 @@ public class EditHistory {
 				neweditor.single = single;
 				this.editor = neweditor;
 
-				MinecraftClient.getInstance().setScreen(neweditor);
+				Minecraft.getInstance().setScreen(neweditor);
 
 			}
 			
@@ -105,7 +106,7 @@ public class EditHistory {
 					neweditor.single = single;
 					this.editor = neweditor;
 
-					MinecraftClient.getInstance().setScreen(neweditor);
+					Minecraft.getInstance().setScreen(neweditor);
 				}
 
 			}

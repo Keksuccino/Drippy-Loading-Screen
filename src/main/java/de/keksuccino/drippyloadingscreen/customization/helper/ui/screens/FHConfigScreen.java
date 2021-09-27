@@ -4,7 +4,7 @@ import de.keksuccino.drippyloadingscreen.DrippyLoadingScreen;
 import de.keksuccino.konkrete.config.ConfigEntry;
 import de.keksuccino.konkrete.gui.screens.ConfigScreen;
 import de.keksuccino.konkrete.localization.Locals;
-import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.screens.Screen;
 
 public class FHConfigScreen extends ConfigScreen {
 

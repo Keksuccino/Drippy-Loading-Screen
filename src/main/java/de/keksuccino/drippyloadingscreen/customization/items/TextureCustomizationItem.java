@@ -2,14 +2,15 @@ package de.keksuccino.drippyloadingscreen.customization.items;
 
 import java.io.File;
 
-import net.minecraft.client.render.GameRenderer;
-import net.minecraft.client.util.math.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import de.keksuccino.konkrete.properties.PropertiesSection;
+import de.keksuccino.konkrete.rendering.RenderUtils;
 import de.keksuccino.konkrete.rendering.animation.ExternalGifAnimationRenderer;
 import de.keksuccino.konkrete.resources.ExternalTextureResourceLocation;
 import de.keksuccino.konkrete.resources.TextureHandler;
+import net.minecraft.client.Minecraft;
 
 public class TextureCustomizationItem extends CustomizationItemBase {
 	
@@ -65,7 +66,7 @@ public class TextureCustomizationItem extends CustomizationItemBase {
 	}
 
 	@Override
-	public void render(MatrixStack matrix) {
+	public void render(PoseStack matrix) {
 		if (this.shouldRender()) {
 			
 			int x = this.getPosX();
@@ -95,13 +96,11 @@ public class TextureCustomizationItem extends CustomizationItemBase {
 				RenderSystem.disableBlend();
 				
 			} else if (this.texture != null) {
-
-				RenderSystem.setShader(GameRenderer::getPositionTexShader);
-				RenderSystem.setShaderTexture(0, this.texture.getResourceLocation());
+				
+				RenderUtils.bindTexture(this.texture.getResourceLocation());
 				RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, this.opacity);
-				RenderSystem.enableBlend();
-				RenderSystem.defaultBlendFunc();
-				drawTexture(matrix, x, y, 0.0F, 0.0F, this.width, this.height, this.width, this.height);
+				blit(matrix, x, y, 0.0F, 0.0F, this.width, this.height, this.width, this.height);
+				RenderSystem.disableBlend();
 				
 			}
 			

@@ -1,11 +1,13 @@
 package de.keksuccino.drippyloadingscreen.customization.rendering.splash.elements;
 
-import net.minecraft.client.gui.hud.BackgroundHelper;
-import net.minecraft.client.util.math.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import de.keksuccino.drippyloadingscreen.DrippyLoadingScreen;
 import de.keksuccino.drippyloadingscreen.customization.rendering.splash.SplashCustomizationLayer;
 import de.keksuccino.konkrete.rendering.RenderUtils;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.Util;
+import net.minecraft.client.Minecraft;
+import net.minecraft.util.FastColor;
+import net.minecraft.util.Mth;
 
 import java.awt.*;
 
@@ -18,13 +20,15 @@ public class ProgressBarSplashElement extends SplashElementBase {
     public ProgressBarSplashElement(SplashCustomizationLayer handler) {
         super(handler);
 
-        int screenWidth = this.mc.getWindow().getScaledWidth();
-        int screenHeight = this.mc.getWindow().getScaledHeight();
-        double d0 = Math.min((double)screenWidth * 0.75D, screenHeight) * 0.25D;
-        double d1 = d0 * 4.0D;
-        int k1 = (int)(d1 * 0.5D);
-        this.width = k1 * 2;
-        this.height = 10;
+        if ((Minecraft.getInstance() != null) && (Minecraft.getInstance().getWindow() != null)) {
+            int screenWidth = this.mc.getWindow().getGuiScaledWidth();
+            int screenHeight = this.mc.getWindow().getGuiScaledHeight();
+            double d0 = Math.min((double) screenWidth * 0.75D, screenHeight) * 0.25D;
+            double d1 = d0 * 4.0D;
+            int k1 = (int) (d1 * 0.5D);
+            this.width = k1 * 2;
+            this.height = 10;
+        }
     }
 
     @Override
@@ -37,7 +41,7 @@ public class ProgressBarSplashElement extends SplashElementBase {
     }
 
     @Override
-    public void render(MatrixStack matrix, int scaledWidth, int scaledHeight, float partialTicks) {
+    public void render(PoseStack matrix, int scaledWidth, int scaledHeight, float partialTicks) {
 
         if ((this.customBarColorHex != null) && !this.customBarColorHex.equals(this.lastCustomBarColorHex)) {
             this.customBarColor = RenderUtils.getColorFromHexString(this.customBarColorHex);
@@ -50,15 +54,16 @@ public class ProgressBarSplashElement extends SplashElementBase {
 
     }
 
-    protected void renderProgressBar(MatrixStack matrix) {
-        long time = System.currentTimeMillis();
-        float f = this.handler.reloadCompleteTime > -1L ? (float)(time - this.handler.reloadCompleteTime) / 1000.0F : -1.0F;
-        int screenWidth = this.mc.getWindow().getScaledWidth();
-        int screenHeight = this.mc.getWindow().getScaledHeight();
+    protected void renderProgressBar(PoseStack matrix) {
+        long time = Util.getMillis();
+        float f = handler.fadeOutStart > -1L ? (float)(time - handler.fadeOutStart) / 1000.0F : -1.0F;
+        int screenWidth = this.mc.getWindow().getGuiScaledWidth();
+        int screenHeight = this.mc.getWindow().getGuiScaledHeight();
         double d0 = Math.min((double)screenWidth * 0.75D, screenHeight) * 0.25D;
         double d1 = d0 * 4.0D;
         int k1 = (int)(d1 * 0.5D);
-        float barTransparency = 1.0F - MathHelper.clamp(f, 0.0F, 1.0F);
+        int l1 = (int)((double)screenHeight * 0.8325D);
+        float barTransparency = 1.0F - Mth.clamp(f, 0.0F, 1.0F);
 
         //Update width and height
         this.width = k1 * 2;
@@ -67,19 +72,19 @@ public class ProgressBarSplashElement extends SplashElementBase {
         this.renderProgressBarRaw(matrix, this.x, this.y, this.x + (k1 * 2), this.y + 10, barTransparency);
     }
 
-    protected void renderProgressBarRaw(MatrixStack matrix, int minX, int minY, int maxX, int maxY, float alpha) {
-        float prog = handler.progress;
+    protected void renderProgressBarRaw(PoseStack matrix, int minX, int minY, int maxX, int maxY, float alpha) {
+        float prog = handler.currentProgress;
         if (this.handler.isEditor || SplashCustomizationLayer.isCustomizationHelperScreen()) {
             prog = 0.5F;
         }
-        int i = MathHelper.ceil((float)(maxX - minX - 2) * prog);
+        int i = Mth.ceil((float)(maxX - minX - 2) * prog);
         int j = Math.round(alpha * 255.0F);
         if (this.handler.isEditor || SplashCustomizationLayer.isCustomizationHelperScreen() || DrippyLoadingScreen.isFancyMenuLoaded()) {
             j = 255;
         }
-        int k = BackgroundHelper.ColorMixer.getArgb(j, 255, 255, 255);
+        int k = FastColor.ARGB32.color(j, 255, 255, 255);
         if (this.customBarColor != null) {
-            k = BackgroundHelper.ColorMixer.getArgb(j, this.customBarColor.getRed(), this.customBarColor.getGreen(), this.customBarColor.getBlue());
+            k = FastColor.ARGB32.color(j, this.customBarColor.getRed(), this.customBarColor.getGreen(), this.customBarColor.getBlue());
         }
         fill(matrix, minX + 1, minY, maxX - 1, minY + 1, k);
         fill(matrix, minX + 1, maxY, maxX - 1, maxY - 1, k);

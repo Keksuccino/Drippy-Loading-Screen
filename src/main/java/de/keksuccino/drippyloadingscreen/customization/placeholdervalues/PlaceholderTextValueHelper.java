@@ -9,17 +9,17 @@ import java.util.Optional;
 import de.keksuccino.drippyloadingscreen.api.PlaceholderTextValueRegistry;
 import de.keksuccino.drippyloadingscreen.api.PlaceholderTextValueRegistry.PlaceholderValue;
 import de.keksuccino.konkrete.input.StringUtils;
-import net.fabricmc.loader.api.FabricLoader;
-import net.fabricmc.loader.api.ModContainer;
-import net.minecraft.SharedConstants;
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Minecraft;
+import net.minecraftforge.fml.ModContainer;
+import net.minecraftforge.fml.ModList;
+import net.minecraftforge.versions.mcp.MCPVersion;
 
 public class PlaceholderTextValueHelper {
 	
 	public static String convertFromRaw(String in) {
 		try {
 
-			MinecraftClient mc = MinecraftClient.getInstance();
+			Minecraft mc = Minecraft.getInstance();
 
 			if (mc == null) {
 				return in;
@@ -29,16 +29,16 @@ public class PlaceholderTextValueHelper {
 			in = StringUtils.convertFormatCodes(in, "&", "§");
 
 			//Only for internal use
-			in = in.replace("%guiwidth%", "" + MinecraftClient.getInstance().getWindow().getScaledWidth());
-			in = in.replace("%guiheight%", "" + MinecraftClient.getInstance().getWindow().getScaledHeight());
+			in = in.replace("%guiwidth%", "" + Minecraft.getInstance().getWindow().getGuiScaledWidth());
+			in = in.replace("%guiheight%", "" + Minecraft.getInstance().getWindow().getGuiScaledHeight());
 			//-------------
 
 			//Replace player name and uuid placeholders
-			in = in.replace("%playername%", mc.getSession().getUsername());
-			in = in.replace("%playeruuid%", mc.getSession().getUuid());
+			in = in.replace("%playername%", mc.getUser().getName());
+			in = in.replace("%playeruuid%", mc.getUser().getUuid());
 
 			//Replace mc version placeholder
-			in = in.replace("%mcversion%", SharedConstants.getGameVersion().getReleaseTarget());
+			in = in.replace("%mcversion%", MCPVersion.getMCVersion());
 
 			//Replace mod version placeholder
 			in = replaceModVersionPlaceholder(in);
@@ -68,7 +68,7 @@ public class PlaceholderTextValueHelper {
 			}
 
 			if (in.contains("%fps%")) {
-				in = in.replace("%fps%", mc.fpsDebugString.split("[ ]", 2)[0]);
+				in = in.replace("%fps%", mc.fpsString.split("[ ]", 2)[0]);
 			}
 
 			if (in.contains("ram%")) {
@@ -100,7 +100,7 @@ public class PlaceholderTextValueHelper {
 		String s = convertFromRaw(in);
 		return !s.equals(in);
 	}
-
+	
 	private static String replaceModVersionPlaceholder(String in) {
 		try {
 			if (in.contains("%version:")) {
@@ -126,11 +126,11 @@ public class PlaceholderTextValueHelper {
 					if (s.contains(":")) {
 						String blank = s.substring(1, s.length()-1);
 						String mod = blank.split(":", 2)[1];
-						if (FabricLoader.getInstance().isModLoaded(mod)) {
-							Optional<ModContainer> o = FabricLoader.getInstance().getModContainer(mod);
+						if (ModList.get().isLoaded(mod)) {
+							Optional<? extends ModContainer> o = ModList.get().getModContainerById(mod);
 							if (o.isPresent()) {
 								ModContainer c = o.get();
-								String version = c.getMetadata().getVersion().getFriendlyString();
+								String version = c.getModInfo().getVersion().toString();
 								in = in.replace(s, version);
 							}
 						}
@@ -162,7 +162,7 @@ public class PlaceholderTextValueHelper {
 
 	private static int getLoadedMods() {
 		try {
-			return FabricLoader.getInstance().getAllMods().size();
+			return ModList.get().getMods().size();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

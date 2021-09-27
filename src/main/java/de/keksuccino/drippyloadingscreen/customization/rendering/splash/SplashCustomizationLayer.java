@@ -1,76 +1,87 @@
 package de.keksuccino.drippyloadingscreen.customization.rendering.splash;
 
+import com.mojang.blaze3d.platform.Window;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
+import de.keksuccino.drippyloadingscreen.DrippyLoadingScreen;
 import de.keksuccino.drippyloadingscreen.api.item.CustomizationItem;
 import de.keksuccino.drippyloadingscreen.api.item.CustomizationItemContainer;
 import de.keksuccino.drippyloadingscreen.api.item.CustomizationItemRegistry;
-import de.keksuccino.drippyloadingscreen.customization.CustomizationPropertiesHandler;
-import de.keksuccino.drippyloadingscreen.customization.rendering.SimpleTextRenderer;
-import de.keksuccino.konkrete.resources.ExternalTextureResourceLocation;
-import net.minecraft.client.gui.DrawableHelper;
-import net.minecraft.client.gui.hud.BackgroundHelper;
-import net.minecraft.client.util.math.MatrixStack;
-import com.mojang.blaze3d.systems.RenderSystem;
-import de.keksuccino.drippyloadingscreen.DrippyLoadingScreen;
 import de.keksuccino.drippyloadingscreen.customization.CustomizationHandler;
+import de.keksuccino.drippyloadingscreen.customization.CustomizationPropertiesHandler;
 import de.keksuccino.drippyloadingscreen.customization.helper.CustomizationHelperScreen;
 import de.keksuccino.drippyloadingscreen.customization.items.*;
 import de.keksuccino.drippyloadingscreen.customization.items.custombars.CustomProgressBarCustomizationItem;
+import de.keksuccino.drippyloadingscreen.customization.items.vanilla.ForgeMemoryInfoSplashCustomizationItem;
+import de.keksuccino.drippyloadingscreen.customization.items.vanilla.ForgeTextSplashCustomizationItem;
 import de.keksuccino.drippyloadingscreen.customization.items.vanilla.LogoSplashCustomizationItem;
 import de.keksuccino.drippyloadingscreen.customization.items.vanilla.ProgressBarSplashCustomizationItem;
+import de.keksuccino.drippyloadingscreen.customization.rendering.splash.elements.ForgeMemoryInfoSplashElement;
+import de.keksuccino.drippyloadingscreen.customization.rendering.splash.elements.ForgeTextSplashElement;
 import de.keksuccino.drippyloadingscreen.customization.rendering.splash.elements.LogoSplashElement;
 import de.keksuccino.drippyloadingscreen.customization.rendering.splash.elements.ProgressBarSplashElement;
+import de.keksuccino.konkrete.math.MathUtils;
 import de.keksuccino.konkrete.properties.PropertiesSection;
 import de.keksuccino.konkrete.properties.PropertiesSet;
 import de.keksuccino.konkrete.rendering.RenderUtils;
+import de.keksuccino.konkrete.resources.ExternalTextureResourceLocation;
 import de.keksuccino.konkrete.resources.TextureHandler;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.resource.ResourceReload;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.Util;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.ReloadInstance;
+import net.minecraft.util.FastColor;
+import net.minecraft.util.Mth;
 
-import java.awt.*;
+import java.awt.Color;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-public class SplashCustomizationLayer extends DrawableHelper {
+public class SplashCustomizationLayer extends GuiComponent {
 
     protected static SplashCustomizationLayer instance;
 
-    private static final int backgroundColor = BackgroundHelper.ColorMixer.getArgb(255, 239, 50, 61);
-    private static final int backgroundColor2 = backgroundColor & 16777215;
+    private static int backgroundColor = FastColor.ARGB32.color(255, 239, 50, 61);
+    private static int backgroundColor2 = backgroundColor & 16777215;
 
     public final LogoSplashElement logoSplashElement = new LogoSplashElement(this);
+//    public final ForgeTextSplashElement forgeTextSplashElement = new ForgeTextSplashElement(this);
+//    public final ForgeMemoryInfoSplashElement forgeMemoryInfoSplashElement = new ForgeMemoryInfoSplashElement(this);
     public final ProgressBarSplashElement progressBarSplashElement = new ProgressBarSplashElement(this);
 
     public String customBackgroundHex = null;
     protected String lastCustomBackgroundHex = null;
     public Color customBackgroundColor;
 
-    public Identifier backgroundImage = null;
+    public ResourceLocation backgroundImage = null;
     public String backgroundImagePath = null;
+
+    public boolean scaled = false;
+    public boolean fadeOut = true;
 
     public final boolean isEditor;
 
     /** GETTER ONLY **/
-    public ResourceReload reload;
+    public ReloadInstance reload;
     /** GETTER ONLY **/
-    public Consumer<Optional<Throwable>> exceptionHandler;
+    public Consumer<Optional<Throwable>> onFinish;
     /** GETTER ONLY **/
-    public boolean reloading;
+    public boolean fadeIn;
     /** GETTER ONLY **/
-    public float progress;
+    public long fadeOutStart;
     /** GETTER ONLY **/
-    public long reloadCompleteTime = -1L;
+    public long fadeInStart;
     /** GETTER ONLY **/
-    public long reloadStartTime = -1L;
+    public float currentProgress;
 
     protected List<CustomizationItemBase> backgroundElements = new ArrayList<CustomizationItemBase>();
     protected List<CustomizationItemBase> foregroundElements = new ArrayList<CustomizationItemBase>();
 
-    protected MinecraftClient mc = MinecraftClient.getInstance();
+    protected Minecraft mc = Minecraft.getInstance();
 
     public SplashCustomizationLayer(boolean isEditor) {
         this.isEditor = isEditor;
@@ -84,31 +95,35 @@ public class SplashCustomizationLayer extends DrawableHelper {
         }
         this.lastCustomBackgroundHex = this.customBackgroundHex;
 
-        MatrixStack matrix = new MatrixStack();
-        float partial = MinecraftClient.getInstance().getTickDelta();
-        int screenWidth = this.mc.getWindow().getScaledWidth();
-        int screenHeight = this.mc.getWindow().getScaledHeight();
+        if ((Minecraft.getInstance() == null) || (Minecraft.getInstance().getWindow() == null)) {
+            return;
+        }
+
+        PoseStack matrix = new PoseStack();
+        float partial = Minecraft.getInstance().getFrameTime();
+        int screenWidth = this.mc.getWindow().getGuiScaledWidth();
+        int screenHeight = this.mc.getWindow().getGuiScaledHeight();
 
         float elementOpacity = 1.0F;
 
         //Render background
         if (!this.isEditor) {
-            long time = System.currentTimeMillis();
-            float f = this.reloadCompleteTime > -1L ? (float)(time - this.reloadCompleteTime) / 1000.0F : -1.0F;
-            float f1 = this.reloadStartTime > -1L ? (float)(time - this.reloadStartTime) / 500.0F : -1.0F;
-            if (isCustomizationHelperScreen() || DrippyLoadingScreen.isFancyMenuLoaded()) {
+            long time = Util.getMillis();
+            float f = this.fadeOutStart > -1L ? (float)(time - this.fadeOutStart) / 1000.0F : -1.0F;
+            float f1 = this.fadeInStart > -1L ? (float)(time - this.fadeInStart) / 500.0F : -1.0F;
+            if (isCustomizationHelperScreen() || DrippyLoadingScreen.isFancyMenuLoaded() || !this.fadeOut) {
                 f = 1.0F;
             }
             if (f >= 1.0F) {
-                int l = MathHelper.ceil((1.0F - MathHelper.clamp(f - 1.0F, 0.0F, 1.0F)) * 255.0F);
+                int l = Mth.ceil((1.0F - Mth.clamp(f - 1.0F, 0.0F, 1.0F)) * 255.0F);
                 if (this.customBackgroundColor != null) {
                     fill(matrix, 0, 0, screenWidth, screenHeight, withAlpha(this.customBackgroundColor.getRGB(), l));
                 } else {
                     fill(matrix, 0, 0, screenWidth, screenHeight, withAlpha(backgroundColor2, l));
                 }
-                elementOpacity = (1.0F - MathHelper.clamp(f - 1.0F, 0.0F, 1.0F));
-            } else if (this.reloading) {
-                int i2 = MathHelper.ceil(MathHelper.clamp(f1, 0.15D, 1.0D) * 255.0D);
+                elementOpacity = (1.0F - Mth.clamp(f - 1.0F, 0.0F, 1.0F));
+            } else if (this.fadeIn) {
+                int i2 = Mth.ceil(Mth.clamp(f1, 0.15D, 1.0D) * 255.0D);
                 if (this.customBackgroundColor != null) {
                     fill(matrix, 0, 0, screenWidth, screenHeight, withAlpha(this.customBackgroundColor.getRGB(), i2));
                 } else {
@@ -131,18 +146,17 @@ public class SplashCustomizationLayer extends DrawableHelper {
             }
             if (this.backgroundImage != null) {
                 RenderUtils.bindTexture(this.backgroundImage);
-                RenderSystem.enableBlend();
                 if (!SplashCustomizationLayer.isCustomizationHelperScreen()) {
                     RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, elementOpacity);
                 } else {
                     RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
                 }
-                drawTexture(matrix, 0, 0, 0.0F, 0.0F, screenWidth, screenHeight, screenWidth, screenHeight);
+                blit(matrix, 0, 0, 0.0F, 0.0F, screenWidth, screenHeight, screenWidth, screenHeight);
                 RenderSystem.disableBlend();
             }
         }
 
-        if (this.isEditor || SplashCustomizationLayer.isCustomizationHelperScreen() || DrippyLoadingScreen.isFancyMenuLoaded()) {
+        if (this.isEditor || SplashCustomizationLayer.isCustomizationHelperScreen() || DrippyLoadingScreen.isFancyMenuLoaded() || !this.fadeOut) {
             elementOpacity = 1.0F;
         }
 
@@ -167,6 +181,10 @@ public class SplashCustomizationLayer extends DrawableHelper {
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 
         this.logoSplashElement.render(matrix, screenWidth, screenHeight, partial);
+
+//        this.forgeTextSplashElement.render(matrix, screenWidth, screenHeight, partial);
+
+//        this.forgeMemoryInfoSplashElement.render(matrix, screenWidth, screenHeight, partial);
 
         this.progressBarSplashElement.render(matrix, screenWidth, screenHeight, partial);
 
@@ -194,6 +212,8 @@ public class SplashCustomizationLayer extends DrawableHelper {
         try {
 
             this.logoSplashElement.onReloadCustomizations();
+//            this.forgeTextSplashElement.onReloadCustomizations();
+//            this.forgeMemoryInfoSplashElement.onReloadCustomizations();
             this.progressBarSplashElement.onReloadCustomizations();
 
             this.customBackgroundHex = null;
@@ -206,9 +226,14 @@ public class SplashCustomizationLayer extends DrawableHelper {
             this.foregroundElements.clear();
             this.backgroundElements.clear();
 
+            this.scaled = false;
+            this.fadeOut = true;
+
             List<PropertiesSet> props = CustomizationPropertiesHandler.getProperties();
 
             boolean logoSet = false;
+            boolean forgeTextSet = false;
+            boolean forgeMemoryInfoSet = false;
             boolean progressBarSet = false;
 
             for (PropertiesSet s : props) {
@@ -224,6 +249,52 @@ public class SplashCustomizationLayer extends DrawableHelper {
                 String roString = metas.get(0).getEntryValue("renderorder");
                 if ((roString != null) && roString.equalsIgnoreCase("background")) {
                     renderInBackground = true;
+                }
+
+                Window w = Minecraft.getInstance().getWindow();
+                String scaleString = metas.get(0).getEntryValue("scale");
+                if ((scaleString != null) && (MathUtils.isInteger(scaleString.replace(" ", "")) || MathUtils.isDouble(scaleString.replace(" ", "")))) {
+                    int newscale = (int) Double.parseDouble(scaleString.replace(" ", ""));
+                    if (newscale <= 0) {
+                        newscale = 1;
+                    }
+                    w.setGuiScale((double)newscale);
+                    if (mc.screen != null) {
+                        mc.screen.width = w.getGuiScaledWidth();
+                        mc.screen.height = w.getGuiScaledHeight();
+                    }
+                    this.scaled = true;
+                }
+
+                //Handle auto-scaling
+                int autoScaleBaseWidth = 0;
+                int autoScaleBaseHeight = 0;
+                String baseWidth = metas.get(0).getEntryValue("autoscale_basewidth");
+                String baseHeight = metas.get(0).getEntryValue("autoscale_baseheight");
+                if ((baseWidth != null) && (baseHeight != null) && MathUtils.isInteger(baseWidth) && MathUtils.isInteger(baseHeight)) {
+                    autoScaleBaseWidth = Integer.parseInt(baseWidth);
+                    autoScaleBaseHeight = Integer.parseInt(baseHeight);
+                }
+                if ((autoScaleBaseWidth != 0) && (autoScaleBaseHeight != 0)) {
+                    double guiWidth = w.getScreenWidth();
+                    double guiHeight = w.getScreenHeight();
+                    double percentX = (guiWidth / (double)autoScaleBaseWidth) * 100.0D;
+                    double percentY = (guiHeight / (double)autoScaleBaseHeight) * 100.0D;
+                    double newScaleX = (percentX / 100.0D) * w.getGuiScale();
+                    double newScaleY = (percentY / 100.0D) * w.getGuiScale();
+                    double newScale = Math.min(newScaleX, newScaleY);
+
+                    w.setGuiScale(newScale);
+                    if (mc.screen != null) {
+                        mc.screen.width = w.getGuiScaledWidth();
+                        mc.screen.height = w.getGuiScaledHeight();
+                    }
+                    this.scaled = true;
+                }
+
+                String fadeOutString = metas.get(0).getEntryValue("fadeout");
+                if ((fadeOutString != null) && fadeOutString.equalsIgnoreCase("false")) {
+                    this.fadeOut = false;
                 }
 
                 String cusBackColorString = metas.get(0).getEntryValue("backgroundcolor");
@@ -256,6 +327,18 @@ public class SplashCustomizationLayer extends DrawableHelper {
                                 this.backgroundElements.add(new LogoSplashCustomizationItem(this.logoSplashElement, sec, logoSet));
                                 logoSet = true;
                             }
+
+//                            /** FORGE STATUS TEXT **/
+//                            if (action.equalsIgnoreCase("editforgestatustext")) {
+//                                this.backgroundElements.add(new ForgeTextSplashCustomizationItem(this.forgeTextSplashElement, sec, forgeTextSet));
+//                                forgeTextSet = true;
+//                            }
+//
+//                            /** FORGE MEMORY INFO **/
+//                            if (action.equalsIgnoreCase("editforgememoryinfo")) {
+//                                this.backgroundElements.add(new ForgeMemoryInfoSplashCustomizationItem(this.forgeMemoryInfoSplashElement, sec, forgeMemoryInfoSet));
+//                                forgeMemoryInfoSet = true;
+//                            }
 
                             /** PROGRESS BAR **/
                             if (action.equalsIgnoreCase("editprogressbar")) {
@@ -375,6 +458,12 @@ public class SplashCustomizationLayer extends DrawableHelper {
             if (!logoSet) {
                 this.backgroundElements.add(new LogoSplashCustomizationItem(this.logoSplashElement, dummySec, false));
             }
+//            if (!forgeTextSet) {
+//                this.backgroundElements.add(new ForgeTextSplashCustomizationItem(this.forgeTextSplashElement, dummySec, false));
+//            }
+//            if (!forgeMemoryInfoSet) {
+//                this.backgroundElements.add(new ForgeMemoryInfoSplashCustomizationItem(this.forgeMemoryInfoSplashElement, dummySec, false));
+//            }
             if (!progressBarSet) {
                 this.backgroundElements.add(new ProgressBarSplashCustomizationItem(this.progressBarSplashElement, dummySec, false));
             }
@@ -390,7 +479,7 @@ public class SplashCustomizationLayer extends DrawableHelper {
     }
 
     public static boolean isCustomizationHelperScreen() {
-        return (MinecraftClient.getInstance().currentScreen instanceof CustomizationHelperScreen);
+        return (Minecraft.getInstance().screen instanceof CustomizationHelperScreen);
     }
 
     public static SplashCustomizationLayer getInstance() {

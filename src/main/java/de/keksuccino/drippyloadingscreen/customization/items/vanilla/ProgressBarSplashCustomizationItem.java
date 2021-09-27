@@ -1,6 +1,6 @@
 package de.keksuccino.drippyloadingscreen.customization.items.vanilla;
 
-import net.minecraft.client.util.math.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import de.keksuccino.drippyloadingscreen.customization.rendering.splash.elements.ProgressBarSplashElement;
 import de.keksuccino.konkrete.properties.PropertiesSection;
 
@@ -23,7 +23,7 @@ public class ProgressBarSplashCustomizationItem extends VanillaSplashCustomizati
 	}
 	
 	@Override
-	public void render(MatrixStack matrix) {
+	public void render(PoseStack matrix) {
 
 		ProgressBarSplashElement he = (ProgressBarSplashElement) this.element;
 

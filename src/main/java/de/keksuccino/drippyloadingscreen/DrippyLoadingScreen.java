@@ -1,26 +1,32 @@
 package de.keksuccino.drippyloadingscreen;
 
+import java.io.File;
+
+import de.keksuccino.drippyloadingscreen.customization.items.visibilityrequirements.VisibilityRequirementHandler;
+import de.keksuccino.drippyloadingscreen.customization.rendering.SimpleTextRenderer;
+
 import de.keksuccino.drippyloadingscreen.api.PlaceholderTextValueRegistry;
 import de.keksuccino.drippyloadingscreen.api.item.CustomizationItemRegistry;
 import de.keksuccino.drippyloadingscreen.customization.CustomizationHandler;
 import de.keksuccino.drippyloadingscreen.customization.helper.CustomizationHelper;
-import de.keksuccino.drippyloadingscreen.customization.rendering.SimpleTextRenderer;
 import de.keksuccino.drippyloadingscreen.customization.rendering.slideshow.SlideshowHandler;
 import de.keksuccino.drippyloadingscreen.keybinding.Keybinding;
 import de.keksuccino.drippyloadingscreen.logger.Logging;
 import de.keksuccino.konkrete.Konkrete;
 import de.keksuccino.konkrete.config.Config;
 import de.keksuccino.konkrete.localization.Locals;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.ModInitializer;
-import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.fml.ModList;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.loading.FMLEnvironment;
 
-import java.io.File;
 
-public class DrippyLoadingScreen implements ModInitializer {
-	
-	public static final String VERSION = "1.1.1";
+@Mod("drippyloadingscreen")
+public class DrippyLoadingScreen {
+
+	//TODO übernehmen
+	public static final String VERSION = "1.2.0";
 	
 	public static final File HOME_DIR = new File("config/drippyloadingscreen");
 	public static final File CUSTOMIZATION_DIR = new File(HOME_DIR.getPath() + "/customization");
@@ -31,10 +37,11 @@ public class DrippyLoadingScreen implements ModInitializer {
 	private static boolean fancymenuLoaded = false;
 	private static boolean optifineLoaded = false;
 
-	@Override
-	public void onInitialize() {
+	public DrippyLoadingScreen() {
+		
+//		ModLoadingContext.get().registerExtensionPoint(ExtensionPoint.DISPLAYTEST, () -> Pair.of(() -> FMLNetworkConstants.IGNORESERVERONLY, (a, b) -> true));
 
-		if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
+		if (FMLEnvironment.dist == Dist.CLIENT) {
 
 			if (!HOME_DIR.exists()) {
 				HOME_DIR.mkdirs();
@@ -46,37 +53,37 @@ public class DrippyLoadingScreen implements ModInitializer {
 				SLIDESHOW_DIR.mkdirs();
 			}
 
-			try {
-				Class.forName("de.keksuccino.fancymenu.FancyMenu");
+			if (ModList.get().isLoaded("fancymenu")) {
 				System.out.println("[DRIPPY LOADING SCREEN] FancyMenu found!");
 				fancymenuLoaded = true;
-			} catch (Exception e) {}
-
+			}
+			
 			updateConfig();
-
+			
 			Logging.init();
-
+			
 			SlideshowHandler.init();
 
 			CustomizationHandler.init();
-
+			
 			CustomizationHelper.init();
 
-			//TODO übernehmen
+			VisibilityRequirementHandler.init();
+
 			SimpleTextRenderer.init();
 
+//			MinecraftForge.EVENT_BUS.register(new Test());
+			
 			if (config.getOrDefault("enablekeybinds", true)) {
-				Keybinding.init();
-			}
-
-//			Konkrete.getEventHandler().registerEventsFrom(new Test());
-
+        		Keybinding.init();
+        	}
+			
 			Konkrete.addPostLoadingEvent("drippyloadingscreen", this::onClientSetup);
 
 		} else {
 			System.out.println("## WARNING ## 'Drippy Loading Screen' is a client mod and has no effect when loaded on a server!");
 		}
-
+		
 	}
 	
 	private void onClientSetup() {
@@ -115,6 +122,10 @@ public class DrippyLoadingScreen implements ModInitializer {
 			config.registerValue("printwarnings", true, "logging");
 			
 			config.registerValue("editordeleteconfirmation", true, "layouteditor");
+			//TODO übernehmen
+			config.registerValue("showgrid", false, "layouteditor");
+			config.registerValue("gridsize", 10, "layouteditor");
+			//------------
 			
 			config.registerValue("showcustomizationcontrols", true, "customization");
 			config.registerValue("enablekeybinds", true, "customization");
@@ -139,8 +150,8 @@ public class DrippyLoadingScreen implements ModInitializer {
 		if (!f.exists()) {
 			f.mkdirs();
 		}
-
-		Locals.copyLocalsFileToDir(new Identifier("drippyloadingscreen", baseresdir + "en_us.local"), "en_us", f.getPath());
+		
+		Locals.copyLocalsFileToDir(new ResourceLocation("drippyloadingscreen", baseresdir + "en_us.local"), "en_us", f.getPath());
 		
 		Locals.getLocalsFromDir(f.getPath());
 	}
@@ -164,5 +175,5 @@ public class DrippyLoadingScreen implements ModInitializer {
 	public static CustomizationItemRegistry getCustomizationItemRegistry() {
 		return CustomizationItemRegistry.getInstance();
 	}
-
+	
 }

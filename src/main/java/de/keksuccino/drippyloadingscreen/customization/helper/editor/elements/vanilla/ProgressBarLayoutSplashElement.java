@@ -2,9 +2,7 @@ package de.keksuccino.drippyloadingscreen.customization.helper.editor.elements.v
 
 import de.keksuccino.drippyloadingscreen.customization.helper.editor.LayoutEditorScreen;
 import de.keksuccino.drippyloadingscreen.customization.helper.ui.popup.FHTextInputPopup;
-import de.keksuccino.drippyloadingscreen.customization.items.vanilla.LogoSplashCustomizationItem;
 import de.keksuccino.drippyloadingscreen.customization.items.vanilla.ProgressBarSplashCustomizationItem;
-import de.keksuccino.drippyloadingscreen.customization.rendering.splash.elements.LogoSplashElement;
 import de.keksuccino.drippyloadingscreen.customization.rendering.splash.elements.ProgressBarSplashElement;
 import de.keksuccino.konkrete.gui.content.AdvancedButton;
 import de.keksuccino.konkrete.gui.screens.popup.PopupHandler;

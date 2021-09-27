@@ -7,8 +7,8 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import com.google.common.io.Files;
-import net.minecraft.client.util.math.MatrixStack;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import de.keksuccino.drippyloadingscreen.api.item.CustomizationItemContainer;
 import de.keksuccino.drippyloadingscreen.api.item.CustomizationItemRegistry;
 import de.keksuccino.drippyloadingscreen.customization.CustomizationHandler;
@@ -33,16 +33,18 @@ import de.keksuccino.konkrete.gui.content.AdvancedButton;
 import de.keksuccino.konkrete.gui.content.AdvancedImageButton;
 import de.keksuccino.konkrete.gui.screens.popup.PopupHandler;
 import de.keksuccino.konkrete.gui.screens.popup.TextInputPopup;
+import de.keksuccino.konkrete.input.CharacterFilter;
 import de.keksuccino.konkrete.input.StringUtils;
 import de.keksuccino.konkrete.localization.Locals;
+import de.keksuccino.konkrete.math.MathUtils;
 import de.keksuccino.konkrete.properties.PropertiesSection;
 import de.keksuccino.konkrete.properties.PropertiesSet;
 import de.keksuccino.konkrete.resources.ExternalTextureResourceLocation;
 import de.keksuccino.konkrete.resources.TextureHandler;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.text.LiteralText;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.resources.ResourceLocation;
 
 public class LayoutEditorUI extends UIBase {
 	
@@ -51,7 +53,7 @@ public class LayoutEditorUI extends UIBase {
 
 	protected int tick = 0;
 	
-	protected static final Identifier CLOSE_BUTTON_TEXTURE = new Identifier("drippyloadingscreen", "close_btn.png");
+	protected static final ResourceLocation CLOSE_BUTTON_TEXTURE = new ResourceLocation("drippyloadingscreen", "close_btn.png");
 	
 	public LayoutEditorUI(LayoutEditorScreen parent) {
 		this.parent = parent;
@@ -77,7 +79,7 @@ public class LayoutEditorUI extends UIBase {
 			AdvancedButton newLayoutButton = new AdvancedButton(0, 0, 0, 0, Locals.localize("drippyloadingscreen.helper.editor.ui.layout.new"), true, (press) -> {
 				this.displayUnsavedWarning((call) -> {
 					if (call) {
-						MinecraftClient.getInstance().setScreen(new LayoutEditorScreen());
+						Minecraft.getInstance().setScreen(new LayoutEditorScreen());
 					}
 				});
 			});
@@ -132,7 +134,7 @@ public class LayoutEditorUI extends UIBase {
 			AdvancedButton undoButton = new AdvancedButton(0, 0, 0, 0, Locals.localize("drippyloadingscreen.helper.editor.ui.edit.undo"), true, (press) -> {
 				this.parent.history.stepBack();
 				try {
-					((LayoutEditorScreen)MinecraftClient.getInstance().currentScreen).ui.bar.getChild("fm.editor.ui.tab.edit").openMenuAt(editMenu.getX(), editMenu.getY());
+					((LayoutEditorScreen)Minecraft.getInstance().screen).ui.bar.getChild("fm.editor.ui.tab.edit").openMenuAt(editMenu.getX(), editMenu.getY());
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -142,7 +144,7 @@ public class LayoutEditorUI extends UIBase {
 			AdvancedButton redoButton = new AdvancedButton(0, 0, 0, 0, Locals.localize("drippyloadingscreen.helper.editor.ui.edit.redo"), true, (press) -> {
 				this.parent.history.stepForward();
 				try {
-					((LayoutEditorScreen)MinecraftClient.getInstance().currentScreen).ui.bar.getChild("fm.editor.ui.tab.edit").openMenuAt(editMenu.getX(), editMenu.getY());
+					((LayoutEditorScreen)Minecraft.getInstance().screen).ui.bar.getChild("fm.editor.ui.tab.edit").openMenuAt(editMenu.getX(), editMenu.getY());
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -203,7 +205,7 @@ public class LayoutEditorUI extends UIBase {
 				this.closeEditor();
 			}) {
 				@Override
-				public void render(MatrixStack matrix, int mouseX, int mouseY, float partialTicks) {
+				public void render(PoseStack matrix, int mouseX, int mouseY, float partialTicks) {
 					this.width = this.height;
 					super.render(matrix, mouseX, mouseY, partialTicks);
 				}
@@ -219,7 +221,7 @@ public class LayoutEditorUI extends UIBase {
 		}
 	}
 	
-	public void render(MatrixStack matrix, Screen screen) {
+	public void render(PoseStack matrix, Screen screen) {
 		try {
 
 			if (bar != null) {
@@ -251,11 +253,11 @@ public class LayoutEditorUI extends UIBase {
 				CustomizationHandler.resetSounds();
 				CustomizationHandler.reloadSystem();
 
-				MinecraftClient.getInstance().getWindow().setScaleFactor(MinecraftClient.getInstance().getWindow().calculateScaleFactor(MinecraftClient.getInstance().options.guiScale, MinecraftClient.getInstance().forcesUnicodeFont()));
-				this.parent.height = MinecraftClient.getInstance().getWindow().getScaledHeight();
-				this.parent.width = MinecraftClient.getInstance().getWindow().getScaledWidth();
+				Minecraft.getInstance().getWindow().setGuiScale(Minecraft.getInstance().getWindow().calculateScale(Minecraft.getInstance().options.guiScale, Minecraft.getInstance().isEnforceUnicode()));
+				this.parent.height = Minecraft.getInstance().getWindow().getGuiScaledHeight();
+				this.parent.width = Minecraft.getInstance().getWindow().getGuiScaledWidth();
 				
-				MinecraftClient.getInstance().setScreen(new CustomizationHelperScreen());
+				Minecraft.getInstance().setScreen(new CustomizationHelperScreen());
 				
 			}
 		});
@@ -552,6 +554,79 @@ public class LayoutEditorUI extends UIBase {
 			});
 			backgroundImageButton.setDescription(StringUtils.splitLines(Locals.localize("drippyloadingscreen.helper.editor.backgroundimage.btn.desc"), "%n%"));
 			this.addContent(backgroundImageButton);
+
+			//TODO übernehmen
+			this.addSeparator();
+
+			//TODO übernehmen
+			/** FORCE GUI SCALE **/
+			AdvancedButton forceScaleButton = new AdvancedButton(0, 0, 0, 16, Locals.localize("drippyloadingscreen.helper.editor.forcescale"), (press) -> {
+				FHTextInputPopup pop = new FHTextInputPopup(new Color(0, 0, 0, 0), Locals.localize("drippyloadingscreen.helper.editor.forcescale"), CharacterFilter.getIntegerCharacterFiler(), 240, (call) -> {
+					if (call != null) {
+						if (!call.replace(" ", "").equals("")) {
+							if (MathUtils.isInteger(call)) {
+								int newScale = Integer.parseInt(call);
+								if (newScale != this.parent.scale) {
+									this.parent.history.saveSnapshot(this.parent.history.createSnapshot());
+								}
+								this.parent.scale = newScale;
+							}
+						} else {
+							if (this.parent.scale != 0) {
+								this.parent.history.saveSnapshot(this.parent.history.createSnapshot());
+							}
+							this.parent.scale = 0;
+						}
+						this.parent.init();
+					}
+				});
+				pop.setText("" + this.parent.scale);
+				PopupHandler.displayPopup(pop);
+			});
+			forceScaleButton.setDescription(StringUtils.splitLines(Locals.localize("drippyloadingscreen.helper.editor.forcescale.btn.desc"), "%n%"));
+			this.addContent(forceScaleButton);
+
+			//TODO übernehmen
+			/** AUTO-SCALING **/
+			String autoScalingLabel = Locals.localize("drippyloadingscreen.helper.editor.properties.autoscale.off");
+			if ((this.parent.autoScalingWidth != 0) && (this.parent.autoScalingHeight != 0)) {
+				autoScalingLabel = Locals.localize("drippyloadingscreen.helper.editor.properties.autoscale.on");
+			}
+			AdvancedButton autoScalingButton = new AdvancedButton(0, 0, 0, 16, autoScalingLabel, true, (press) -> {
+				if ((this.parent.autoScalingWidth != 0) && (this.parent.autoScalingHeight != 0)) {
+					((AdvancedButton)press).setMessage(Locals.localize("drippyloadingscreen.helper.editor.properties.autoscale.off"));
+					this.parent.autoScalingWidth = 0;
+					this.parent.autoScalingHeight = 0;
+					this.parent.init(Minecraft.getInstance(), Minecraft.getInstance().getWindow().getGuiScaledWidth(), Minecraft.getInstance().getWindow().getGuiScaledHeight());
+				} else {
+					PopupHandler.displayPopup(new AutoScalingPopup(this.parent, (call) -> {
+						if (call) {
+							((AdvancedButton)press).setMessage(Locals.localize("drippyloadingscreen.helper.editor.properties.autoscale.on"));
+							this.parent.init(Minecraft.getInstance(), Minecraft.getInstance().getWindow().getGuiScaledWidth(), Minecraft.getInstance().getWindow().getGuiScaledHeight());
+						}
+					}));
+				}
+			});
+			autoScalingButton.setDescription(StringUtils.splitLines(Locals.localize("drippyloadingscreen.helper.editor.properties.autoscale.btn.desc"), "%n%"));
+			this.addContent(autoScalingButton);
+
+			//TODO übernehmen
+			/** FADE-OUT **/
+			String fadeOutLabel = Locals.localize("drippyloadingscreen.helper.editor.fadeout.on");
+			if (!this.parent.fadeOut) {
+				fadeOutLabel = Locals.localize("drippyloadingscreen.helper.editor.fadeout.off");
+			}
+			AdvancedButton fadeOutButton = new AdvancedButton(0, 0, 0, 16, fadeOutLabel, (press) -> {
+				if (this.parent.fadeOut) {
+					((AdvancedButton)press).setMessage(Locals.localize("drippyloadingscreen.helper.editor.fadeout.off"));
+					this.parent.fadeOut = false;
+				} else {
+					((AdvancedButton)press).setMessage(Locals.localize("drippyloadingscreen.helper.editor.fadeout.on"));
+					this.parent.fadeOut = true;
+				}
+			});
+			fadeOutButton.setDescription(StringUtils.splitLines(Locals.localize("drippyloadingscreen.helper.editor.fadeout.btn.desc"), "%n%"));
+			this.addContent(fadeOutButton);
 			
 			if (this.isRightclickOpened) {
 
@@ -605,37 +680,37 @@ public class LayoutEditorUI extends UIBase {
 				PopupHandler.displayPopup(new DynamicValueInputPopup(new Color(0, 0, 0, 0), "§l" + Locals.localize("drippyloadingscreen.helper.creator.web.enterurl"), null, 240, this.parent::addWebTexture));
 			});
 			this.addContent(webImageButton);
-
+			
 			/** TEXT **/
 			AdvancedButton textButton = new AdvancedButton(0, 0, 0, 20, Locals.localize("drippyloadingscreen.helper.creator.add.text"), (press) -> {
 				PopupHandler.displayPopup(new DynamicValueInputPopup(new Color(0, 0, 0, 0), "§l" + Locals.localize("drippyloadingscreen.helper.creator.add.text.newtext") + ":", null, 240, this.parent::addText));
 			});
 			textButton.setDescription(StringUtils.splitLines(Locals.localize("drippyloadingscreen.helper.editor.elements.text.onlybasicchars"), "%n%"));
 			this.addContent(textButton);
-
+			
 			/** WEB TEXT **/
 			AdvancedButton webTextButton = new AdvancedButton(0, 0, 0, 20, Locals.localize("drippyloadingscreen.helper.creator.add.webtext"), (press) -> {
 				PopupHandler.displayPopup(new DynamicValueInputPopup(new Color(0, 0, 0, 0), "§l" + Locals.localize("drippyloadingscreen.helper.creator.web.enterurl"), null, 240, this.parent::addWebText));
 			});
 			this.addContent(webTextButton);
-
+			
 			/** SPLASH TEXT **/
 			FHContextMenu splashMenu = new FHContextMenu();
 			splashMenu.setAutoclose(true);
 			this.addChild(splashMenu);
-
+			
 			AdvancedButton singleSplashButton = new AdvancedButton(0, 0, 0, 0, Locals.localize("drippyloadingscreen.helper.creator.add.splash.single"), true, (press) -> {
 				PopupHandler.displayPopup(new DynamicValueInputPopup(new Color(0, 0, 0, 0), Locals.localize("drippyloadingscreen.helper.creator.add.splash.single.popup.headline"), null, 240, this.parent::addSingleSplashText));
 			});
 			singleSplashButton.setDescription(StringUtils.splitLines(Locals.localize("drippyloadingscreen.helper.creator.add.splash.single.btn.desc"), "%n%"));
 			splashMenu.addContent(singleSplashButton);
-
+			
 			AdvancedButton multiSplashButton = new AdvancedButton(0, 0, 0, 0, Locals.localize("drippyloadingscreen.helper.creator.add.splash.multi"), true, (press) -> {
 				PopupHandler.displayPopup(new ChooseFilePopup(this.parent::addMultiSplashText, "txt"));
 			});
 			multiSplashButton.setDescription(StringUtils.splitLines(Locals.localize("drippyloadingscreen.helper.creator.add.splash.multi.btn.desc"), "%n%"));
 			splashMenu.addContent(multiSplashButton);
-
+			
 			AdvancedButton splashButton = new AdvancedButton(0, 0, 0, 20, Locals.localize("drippyloadingscreen.helper.creator.add.splash"), (press) -> {
 				splashMenu.setParentButton((AdvancedButton) press);
 				splashMenu.openMenuAt(0, press.y, screenWidth, screenHeight);
@@ -656,8 +731,8 @@ public class LayoutEditorUI extends UIBase {
 			
 			for (String s : SlideshowHandler.getSlideshowNames()) {
 				String name = s;
-				if (MinecraftClient.getInstance().textRenderer.getWidth(name) > 90) {
-					name = MinecraftClient.getInstance().textRenderer.trimToWidth(name, 90) + "..";
+				if (Minecraft.getInstance().font.width(name) > 90) {
+					name = Minecraft.getInstance().font.plainSubstrByWidth(name, 90) + "..";
 				}
 				
 				AdvancedButton slideshowB = new AdvancedButton(0, 0, 0, 20, name, true, (press) -> {
@@ -769,9 +844,9 @@ public class LayoutEditorUI extends UIBase {
 					this.parent.multiselectStretchedX = !this.parent.multiselectStretchedX;
 					
 					if (!this.parent.multiselectStretchedX) {
-						press.setMessage(new LiteralText(Locals.localize("drippyloadingscreen.helper.creator.object.stretch.x")));
+						press.setMessage(new TextComponent(Locals.localize("drippyloadingscreen.helper.creator.object.stretch.x")));
 					} else {
-						press.setMessage(new LiteralText("§a" + Locals.localize("drippyloadingscreen.helper.creator.object.stretch.x")));
+						press.setMessage(new TextComponent("§a" + Locals.localize("drippyloadingscreen.helper.creator.object.stretch.x")));
 					}
 
 				});
@@ -789,9 +864,9 @@ public class LayoutEditorUI extends UIBase {
 					this.parent.multiselectStretchedY = !this.parent.multiselectStretchedY;
 					
 					if (!this.parent.multiselectStretchedY) {
-						press.setMessage(new LiteralText(Locals.localize("drippyloadingscreen.helper.creator.object.stretch.y")));
+						press.setMessage(new TextComponent(Locals.localize("drippyloadingscreen.helper.creator.object.stretch.y")));
 					} else {
-						press.setMessage(new LiteralText("§a" + Locals.localize("drippyloadingscreen.helper.creator.object.stretch.y")));
+						press.setMessage(new TextComponent("§a" + Locals.localize("drippyloadingscreen.helper.creator.object.stretch.y")));
 					}
 					
 				});

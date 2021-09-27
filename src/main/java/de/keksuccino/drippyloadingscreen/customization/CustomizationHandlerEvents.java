@@ -1,10 +1,10 @@
 package de.keksuccino.drippyloadingscreen.customization;
 
 import de.keksuccino.drippyloadingscreen.events.WindowResizedEvent;
-import de.keksuccino.konkrete.Konkrete;
-import de.keksuccino.konkrete.events.SubscribeEvent;
-import de.keksuccino.konkrete.events.client.ClientTickEvent;
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Minecraft;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.TickEvent.ClientTickEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 public class CustomizationHandlerEvents {
 	
@@ -15,11 +15,11 @@ public class CustomizationHandlerEvents {
 	public void onTick(ClientTickEvent e) {
 		
 		/** WINDOW RESIZE EVENT HANDLER **/
-		int width = MinecraftClient.getInstance().getWindow().getScaledWidth();
-		int height = MinecraftClient.getInstance().getWindow().getScaledHeight();
+		int width = Minecraft.getInstance().getWindow().getGuiScaledWidth();
+		int height = Minecraft.getInstance().getWindow().getGuiScaledHeight();
 		if ((lastWindowWidth != -1) && ((lastWindowWidth != width) || (lastWindowHeight != height))) {
 			WindowResizedEvent event = new WindowResizedEvent(width, height);
-			Konkrete.getEventHandler().callEventsFor(event);
+			MinecraftForge.EVENT_BUS.post(event);
 		}
 		this.lastWindowWidth = width;
 		this.lastWindowHeight = height;

@@ -1,12 +1,12 @@
 package de.keksuccino.drippyloadingscreen.customization.helper.ui.screens;
 
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.text.LiteralText;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.TextComponent;
 
 public class DummyScreen extends Screen {
 
 	public DummyScreen() {
-		super(new LiteralText(""));
+		super(new TextComponent(""));
 	}
 
 }

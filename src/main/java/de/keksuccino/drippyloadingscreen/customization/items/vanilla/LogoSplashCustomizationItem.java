@@ -1,7 +1,6 @@
 package de.keksuccino.drippyloadingscreen.customization.items.vanilla;
 
-import net.minecraft.client.util.math.MatrixStack;
-
+import com.mojang.blaze3d.vertex.PoseStack;
 import de.keksuccino.drippyloadingscreen.customization.rendering.splash.elements.LogoSplashElement;
 import de.keksuccino.konkrete.properties.PropertiesSection;
 
@@ -19,7 +18,7 @@ public class LogoSplashCustomizationItem extends VanillaSplashCustomizationItemB
 	}
 	
 	@Override
-	public void render(MatrixStack matrix) {
+	public void render(PoseStack matrix) {
 
 		LogoSplashElement he = (LogoSplashElement) this.element;
 

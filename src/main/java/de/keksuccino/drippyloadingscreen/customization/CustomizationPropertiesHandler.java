@@ -10,8 +10,8 @@ import de.keksuccino.konkrete.math.MathUtils;
 import de.keksuccino.konkrete.properties.PropertiesSection;
 import de.keksuccino.konkrete.properties.PropertiesSerializer;
 import de.keksuccino.konkrete.properties.PropertiesSet;
-import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.SharedConstants;
+import net.minecraftforge.fml.ModList;
+import net.minecraftforge.versions.mcp.MCPVersion;
 
 public class CustomizationPropertiesHandler {
 	
@@ -48,7 +48,7 @@ public class CustomizationPropertiesHandler {
 						if (!isVersionCompatible(s4, s5, DrippyLoadingScreen.VERSION)) {
 							continue;
 						}
-						if (!isVersionCompatible(s6, s7, SharedConstants.getGameVersion().getReleaseTarget())) {
+						if (!isVersionCompatible(s6, s7, MCPVersion.getMCVersion())) {
 							continue;
 						}
 						if (!allRequiredModsLoaded(s3)) {
@@ -107,7 +107,7 @@ public class CustomizationPropertiesHandler {
 		}
 		return true;
 	}
-
+	
 	private static boolean allRequiredModsLoaded(String requiredMods) {
 		if ((requiredMods == null) || (requiredMods.replace(" ", "").length() == 0)) {
 			return true;
@@ -123,7 +123,7 @@ public class CustomizationPropertiesHandler {
 			mods.add(requiredMods.replace(" ", ""));
 		}
 		for (String s : mods) {
-			if (!FabricLoader.getInstance().isModLoaded(s)) {
+			if (!ModList.get().isLoaded(s)) {
 				return false;
 			}
 		}

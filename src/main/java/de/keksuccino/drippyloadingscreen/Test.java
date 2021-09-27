@@ -1,15 +1,22 @@
 package de.keksuccino.drippyloadingscreen;
 
-import de.keksuccino.drippyloadingscreen.customization.rendering.SimpleTextRenderer;
-import de.keksuccino.konkrete.events.SubscribeEvent;
-import de.keksuccino.konkrete.events.client.GuiScreenEvent;
-import net.minecraft.client.MinecraftClient;
+import de.keksuccino.drippyloadingscreen.customization.helper.editor.LayoutEditorScreen;
+import de.keksuccino.konkrete.gui.content.AdvancedButton;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiComponent;
+import net.minecraftforge.client.event.GuiScreenEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 
-public class Test {
+public class Test extends GuiComponent {
+
+    AdvancedButton b = new AdvancedButton(20, 20,100, 20, "Open Editor DL", true, (press) -> {
+        Minecraft.getInstance().setScreen(new LayoutEditorScreen());
+        Minecraft.getInstance().setScreen(new LayoutEditorScreen());
+    });
 
     @SubscribeEvent
-    public void onRenderMain(GuiScreenEvent.DrawScreenEvent.Post e) {
-        MinecraftClient.getInstance();
+    public void onDrawScreenPost(GuiScreenEvent.DrawScreenEvent.Post e) {
+        b.render(e.getMatrixStack(), e.getMouseX(), e.getMouseY(), e.getRenderPartialTicks());
     }
 
 }

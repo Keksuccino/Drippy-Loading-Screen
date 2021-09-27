@@ -6,11 +6,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import de.keksuccino.konkrete.Konkrete;
-import de.keksuccino.konkrete.events.SubscribeEvent;
-import net.minecraft.client.util.math.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Vector3f;
 import de.keksuccino.drippyloadingscreen.customization.placeholdervalues.PlaceholderTextValueHelper;
 import de.keksuccino.drippyloadingscreen.customization.rendering.SimpleTextRenderer;
 import de.keksuccino.drippyloadingscreen.events.CustomizationSystemReloadedEvent;
@@ -19,8 +18,13 @@ import de.keksuccino.konkrete.input.StringUtils;
 import de.keksuccino.konkrete.math.MathUtils;
 import de.keksuccino.konkrete.properties.PropertiesSection;
 import de.keksuccino.konkrete.rendering.RenderUtils;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3f;
+import net.minecraft.Util;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.util.Mth;
+import net.minecraftforge.client.event.GuiScreenEvent;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 public class SplashTextCustomizationItem extends CustomizationItemBase {
 
@@ -41,12 +45,13 @@ public class SplashTextCustomizationItem extends CustomizationItemBase {
 	
 	protected static boolean isNewMenu = false;
 	protected boolean isNewMenuThis = false;
+	protected static Screen lastScreen = null;
 	
 	public SplashTextCustomizationItem(PropertiesSection item) {
 		super(item);
 		
 		if (!init) {
-			Konkrete.getEventHandler().registerEventsFrom(SplashTextCustomizationItem.class);
+			MinecraftForge.EVENT_BUS.register(SplashTextCustomizationItem.class);
 			init = true;
 		}
 		
@@ -107,25 +112,25 @@ public class SplashTextCustomizationItem extends CustomizationItemBase {
 	}
 
 	@Override
-	public void render(MatrixStack matrix) {
-
+	public void render(PoseStack matrix) {
+		
 		if (this.isNewMenuThis) {
 			isNewMenu = false;
 		}
 		this.isNewMenuThis = isNewMenu;
-
+		
 		this.width = (int) (30 * basescale * this.scale);
 		this.height = (int) (10 * basescale * this.scale);
-
+		
 		if (this.shouldRender()) {
-
+			
 			this.renderSplash(matrix);
-
+			
 		}
 		
 	}
 
-	protected void renderSplash(MatrixStack matrix) {
+	protected void renderSplash(PoseStack matrix) {
 
 		String splash = null;
 
@@ -167,22 +172,22 @@ public class SplashTextCustomizationItem extends CustomizationItemBase {
 
 			float f = basescale;
 			if (this.bounce) {
-				f = f - MathHelper.abs(MathHelper.sin((float) (System.currentTimeMillis() % 1000L) / 1000.0F * ((float) Math.PI * 2F)) * 0.1F);
+				f = f - Mth.abs(Mth.sin((float) (System.currentTimeMillis() % 1000L) / 1000.0F * ((float) Math.PI * 2F)) * 0.1F);
 			}
 			f = f * 100.0F / (float) (SimpleTextRenderer.getStringWidth(splash) + 32);
 
 			RenderSystem.enableBlend();
 
-			matrix.push();
+			matrix.pushPose();
 			matrix.scale(this.scale, this.scale, this.scale);
 
-			matrix.push();
+			matrix.pushPose();
 			matrix.translate(((this.getPosX() + (this.width / 2)) / this.scale), this.getPosY() / this.scale, 0.0F);
-			matrix.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(this.rotation));
+			matrix.mulPose(Vector3f.ZP.rotationDegrees(this.rotation));
 			matrix.scale(f, f, f);
 
 			int alpha = this.basecolor.getAlpha();
-			int i = MathHelper.ceil(this.opacity * 255.0F);
+			int i = Mth.ceil(this.opacity * 255.0F);
 			if (i < alpha) {
 				alpha = i;
 			}
@@ -194,11 +199,22 @@ public class SplashTextCustomizationItem extends CustomizationItemBase {
 				SimpleTextRenderer.drawString(matrix, splash, -(SimpleTextRenderer.getStringWidth(splash) / 2), 0, c.getRGB(), 1.0F, this.opacity);
 			}
 
-			matrix.pop();
-			matrix.pop();
+			matrix.popPose();
+			matrix.popPose();
 
 		}
 
+	}
+	
+	@SubscribeEvent
+	public static void onInitScreenPre(GuiScreenEvent.InitGuiEvent.Pre e) {
+		Screen s = Minecraft.getInstance().screen;
+		if (s != null) {
+			if ((lastScreen == null) || !lastScreen.getClass().getName().equals(s.getClass().getName())) {
+				isNewMenu = true;
+			}
+		}
+		lastScreen = s;
 	}
 	
 	@SubscribeEvent

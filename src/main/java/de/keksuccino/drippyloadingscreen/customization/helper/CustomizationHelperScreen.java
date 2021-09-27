@@ -1,10 +1,11 @@
 package de.keksuccino.drippyloadingscreen.customization.helper;
 
-import net.minecraft.client.util.math.MatrixStack;
-
+import com.mojang.blaze3d.platform.Window;
+import com.mojang.blaze3d.vertex.PoseStack;
 import de.keksuccino.drippyloadingscreen.customization.rendering.splash.SplashCustomizationLayer;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.text.LiteralText;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.TextComponent;
 
 public class CustomizationHelperScreen extends Screen {
 
@@ -13,20 +14,28 @@ public class CustomizationHelperScreen extends Screen {
 	public static boolean renderBackgroundOverlay = false;
 	
 	public CustomizationHelperScreen() {
-		super(new LiteralText(""));
+		super(new TextComponent(""));
 	}
-	
+
 	@Override
 	protected void init() {
-		
+
+		//TODO übernehmen
 		CustomizationHelperUI.currentHelperScreen = this;
-		CustomizationHelperUI.updateUI();
 		splashLayer.updateCustomizations();
+		CustomizationHelperUI.updateUI();
+		//-----------------
 		
 	}
-	
+
+	//TODO übernehmen
 	@Override
-	public void render(MatrixStack matrix, int mouseX, int mouseY, float partialTicks) {
+	public boolean shouldCloseOnEsc() {
+		return false;
+	}
+
+	@Override
+	public void render(PoseStack matrix, int mouseX, int mouseY, float partialTicks) {
 
 		splashLayer.renderLayer();
 		
@@ -34,6 +43,21 @@ public class CustomizationHelperScreen extends Screen {
 		
 		super.render(matrix, mouseX, mouseY, partialTicks);
 		
+	}
+
+	//TODO übernehmen
+	public static void resetScale() {
+		if (splashLayer.scaled) {
+
+			Minecraft mc = Minecraft.getInstance();
+			Window w = mc.getWindow();
+			int mcScale = w.calculateScale(mc.options.guiScale, mc.isEnforceUnicode());
+
+			w.setGuiScale((double)mcScale);
+
+			splashLayer.scaled = false;
+
+		}
 	}
 
 }

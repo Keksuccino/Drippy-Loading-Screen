@@ -9,8 +9,8 @@ import java.util.Map;
 import de.keksuccino.drippyloadingscreen.DrippyLoadingScreen;
 import de.keksuccino.drippyloadingscreen.events.CustomizationSystemReloadedEvent;
 import de.keksuccino.drippyloadingscreen.logger.Logging;
-import de.keksuccino.konkrete.Konkrete;
-import de.keksuccino.konkrete.events.SubscribeEvent;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 public class SlideshowHandler {
 	
@@ -18,8 +18,8 @@ public class SlideshowHandler {
 	
 	public static void init() {
 		updateSlideshows();
-
-		Konkrete.getEventHandler().registerEventsFrom(new SlideshowHandler());
+		
+		MinecraftForge.EVENT_BUS.register(new SlideshowHandler());
 	}
 	
 	public static void updateSlideshows() {

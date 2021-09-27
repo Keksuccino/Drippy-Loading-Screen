@@ -215,6 +215,8 @@ public class LayoutWebString extends LayoutElement {
 		p1.addEntry("alignment", this.getObject().alignment.key);
 		p1.addEntry("textcolor", this.getObject().textColorHex);
 
+		this.addVisibilityPropertiesTo(p1);
+
 		l.add(p1);
 		
 		return l;

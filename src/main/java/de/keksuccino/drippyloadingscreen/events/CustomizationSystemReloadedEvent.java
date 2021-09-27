@@ -1,8 +1,8 @@
 package de.keksuccino.drippyloadingscreen.events;
 
-import de.keksuccino.konkrete.events.EventBase;
+import net.minecraftforge.eventbus.api.Event;
 
-public class CustomizationSystemReloadedEvent extends EventBase {
+public class CustomizationSystemReloadedEvent extends Event {
 	
 	@Override
 	public boolean isCancelable() {

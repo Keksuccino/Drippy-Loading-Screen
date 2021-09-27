@@ -1,14 +1,14 @@
 package de.keksuccino.drippyloadingscreen.customization.items;
 
-import de.keksuccino.konkrete.rendering.RenderUtils;
-import de.keksuccino.konkrete.resources.WebTextureResourceLocation;
-import net.minecraft.client.texture.TextureManager;
-import net.minecraft.client.util.math.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import de.keksuccino.drippyloadingscreen.customization.placeholdervalues.PlaceholderTextValueHelper;
 import de.keksuccino.konkrete.properties.PropertiesSection;
+import de.keksuccino.konkrete.rendering.RenderUtils;
 import de.keksuccino.konkrete.resources.TextureHandler;
+import de.keksuccino.konkrete.resources.WebTextureResourceLocation;
+import net.minecraft.client.renderer.texture.TextureManager;
 
 public class WebTextureCustomizationItem extends CustomizationItemBase {
 	
@@ -53,7 +53,7 @@ public class WebTextureCustomizationItem extends CustomizationItemBase {
 	}
 
 	@Override
-	public void render(MatrixStack matrix) {
+	public void render(PoseStack matrix) {
 		if (this.shouldRender()) {
 			
 			int x = this.getPosX();
@@ -62,12 +62,12 @@ public class WebTextureCustomizationItem extends CustomizationItemBase {
 			if (this.texture != null) {
 				RenderUtils.bindTexture(this.texture.getResourceLocation());
 			} else {
-				RenderUtils.bindTexture(TextureManager.MISSING_IDENTIFIER);
+				RenderUtils.bindTexture(TextureManager.INTENTIONAL_MISSING_TEXTURE);
 			}
 			
 			RenderSystem.enableBlend();
 			RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, this.opacity);
-			drawTexture(matrix, x, y, 0.0F, 0.0F, this.width, this.height, this.width, this.height);
+			blit(matrix, x, y, 0.0F, 0.0F, this.width, this.height, this.width, this.height);
 			RenderSystem.disableBlend();
 		}
 	}

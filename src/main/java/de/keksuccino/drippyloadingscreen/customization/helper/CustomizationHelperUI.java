@@ -5,20 +5,19 @@ import java.io.File;
 import java.util.List;
 
 import com.google.common.io.Files;
-import de.keksuccino.drippyloadingscreen.customization.CustomizationPropertiesHandler;
-import de.keksuccino.drippyloadingscreen.customization.helper.ui.popup.FHYesNoPopup;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.util.math.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import de.keksuccino.drippyloadingscreen.DrippyLoadingScreen;
 import de.keksuccino.drippyloadingscreen.customization.CustomizationHandler;
+import de.keksuccino.drippyloadingscreen.customization.CustomizationPropertiesHandler;
 import de.keksuccino.drippyloadingscreen.customization.helper.editor.LayoutEditorScreen;
 import de.keksuccino.drippyloadingscreen.customization.helper.ui.UIBase;
 import de.keksuccino.drippyloadingscreen.customization.helper.ui.content.CustomizationButton;
 import de.keksuccino.drippyloadingscreen.customization.helper.ui.content.FHContextMenu;
 import de.keksuccino.drippyloadingscreen.customization.helper.ui.content.MenuBar;
 import de.keksuccino.drippyloadingscreen.customization.helper.ui.content.MenuBar.ElementAlignment;
+import de.keksuccino.drippyloadingscreen.customization.helper.ui.popup.FHYesNoPopup;
 import de.keksuccino.konkrete.file.FileUtils;
 import de.keksuccino.konkrete.gui.content.AdvancedButton;
 import de.keksuccino.konkrete.gui.content.AdvancedImageButton;
@@ -28,9 +27,10 @@ import de.keksuccino.konkrete.localization.Locals;
 import de.keksuccino.konkrete.properties.PropertiesSection;
 import de.keksuccino.konkrete.properties.PropertiesSet;
 import de.keksuccino.konkrete.rendering.RenderUtils;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.resources.ResourceLocation;
 
 public class CustomizationHelperUI extends UIBase {
 	
@@ -38,8 +38,8 @@ public class CustomizationHelperUI extends UIBase {
 	
 	public static CustomizationHelperScreen currentHelperScreen;
 	
-	protected static final Identifier CLOSE_BUTTON_TEXTURE = new Identifier("drippyloadingscreen", "close_btn.png");
-	protected static final Identifier RELOAD_BUTTON_TEXTURE = new Identifier("keksuccino", "/filechooser/back_icon.png");
+	protected static final ResourceLocation CLOSE_BUTTON_TEXTURE = new ResourceLocation("drippyloadingscreen", "close_btn.png");
+	protected static final ResourceLocation RELOAD_BUTTON_TEXTURE = new ResourceLocation("keksuccino", "/filechooser/back_icon.png");
 	
 	public static void updateUI() {
 		try {
@@ -56,32 +56,13 @@ public class CustomizationHelperUI extends UIBase {
 			hudMenu.setAutoclose(true);
 			bar.addChild(hudMenu, "fh.ui.tab.hud", ElementAlignment.LEFT);
 			
-//			String lightModeString = Locals.localize("drippyloadingscreen.helper.ui.hud.lightmode.on");
-//			if (!CustomizationHandler.isLightModeEnabled()) {
-//				lightModeString = Locals.localize("drippyloadingscreen.helper.ui.hud.lightmode.off");
-//			}
-//			CustomizationButton lightModeButton = new CustomizationButton(0, 0, 0, 0, lightModeString, true, (press) -> {
-//				PopupHandler.displayPopup(new FHYesNoPopup(300, new Color(0, 0, 0, 0), 240, (call) -> {
-//					if (call) {
-//						if (CustomizationHandler.isLightModeEnabled()) {
-//							CustomizationHandler.setLightmode(false);
-//						} else {
-//							CustomizationHandler.setLightmode(true);
-//						}
-//						MinecraftClient.getInstance().shutdown();
-//					}
-//				}, StringUtils.splitLines(Locals.localize("drippyloadingscreen.helper.ui.hud.lightmode.popup.msg"), "%n%")));
-//			});
-//			lightModeButton.setDescription(StringUtils.splitLines(Locals.localize("drippyloadingscreen.helper.ui.hud.lightmode.btn.desc"), "%n%"));
-//			hudMenu.addContent(lightModeButton);
-			
 			FHContextMenu layoutsMenu = new FHContextMenu();
 			layoutsMenu.setAutoclose(true);
 			hudMenu.addChild(layoutsMenu);
 			
 			CustomizationButton newLayoutButton = new CustomizationButton(0, 0, 0, 0, Locals.localize("drippyloadingscreen.helper.ui.hud.layouts.new"), true, (press) -> {
 				LayoutEditorScreen.isActive = true;
-				MinecraftClient.getInstance().setScreen(new LayoutEditorScreen());
+				Minecraft.getInstance().setScreen(new LayoutEditorScreen());
 			});
 			newLayoutButton.setDescription(StringUtils.splitLines(Locals.localize("drippyloadingscreen.helper.ui.hud.layouts.new.desc"), "%n%"));
 			layoutsMenu.addContent(newLayoutButton);
@@ -110,39 +91,14 @@ public class CustomizationHelperUI extends UIBase {
 			});
 			bar.addElement(hudTab, "fh.ui.tab.hud", ElementAlignment.LEFT, false);
 			
-//			/** TOOLS TAB **/
-//			FHContextMenu toolsMenu = new FHContextMenu();
-//			toolsMenu.setAutoclose(true);
-//			bar.addChild(toolsMenu, "fh.ui.tab.tools", ElementAlignment.LEFT);
-//
-//			String backgroundOverlayLabel = Locals.localize("drippyloadingscreen.helper.ui.tools.backgroundoverlay.on");
-//			if (!CustomizationHelperScreen.renderBackgroundOverlay) {
-//				backgroundOverlayLabel = Locals.localize("drippyloadingscreen.helper.ui.tools.backgroundoverlay.off");
-//			}
-//			CustomizationButton backgroundOverlayButton = new CustomizationButton(0, 0, 0, 0, backgroundOverlayLabel, true, (press) -> {
-//				if (CustomizationHelperScreen.renderBackgroundOverlay) {
-//					CustomizationHelperScreen.renderBackgroundOverlay = false;
-//					((CustomizationButton)press).setMessage(Locals.localize("drippyloadingscreen.helper.ui.tools.backgroundoverlay.off"));
-//				} else {
-//					CustomizationHelperScreen.renderBackgroundOverlay = true;
-//					((CustomizationButton)press).setMessage(Locals.localize("drippyloadingscreen.helper.ui.tools.backgroundoverlay.on"));
-//				}
-//			});
-//			backgroundOverlayButton.setDescription(StringUtils.splitLines(Locals.localize("drippyloadingscreen.helper.ui.tools.backgroundoverlay.desc"), "%n%"));
-//			toolsMenu.addContent(backgroundOverlayButton);
-//
-//			CustomizationButton toolsTab = new CustomizationButton(0, 0, 0, 0, Locals.localize("drippyloadingscreen.helper.ui.tools"), true, (press) -> {
-//				toolsMenu.setParentButton((AdvancedButton) press);
-//				toolsMenu.openMenuAt(press.x, press.y + press.getHeight());
-//			});
-//			bar.addElement(toolsTab, "fh.ui.tab.tools", ElementAlignment.LEFT, false);
-			
 			/** CLOSE HELPER BUTTON **/
 			AdvancedImageButton closeGuiButtonTab = new AdvancedImageButton(20, 20, 20, 20, CLOSE_BUTTON_TEXTURE, true, (press) -> {
-				MinecraftClient.getInstance().setScreen(null);
+				//TODO übernehmen
+				CustomizationHelperScreen.resetScale();
+				Minecraft.getInstance().setScreen(null);
 			}) {
 				@Override
-				public void render(MatrixStack matrix, int mouseX, int mouseY, float partialTicks) {
+				public void render(PoseStack matrix, int mouseX, int mouseY, float partialTicks) {
 					this.width = this.height;
 					super.render(matrix, mouseX, mouseY, partialTicks);
 				}
@@ -158,7 +114,7 @@ public class CustomizationHelperUI extends UIBase {
 				CustomizationHandler.reloadSystem();
 			}) {
 				@Override
-				public void render(MatrixStack matrix, int mouseX, int mouseY, float partialTicks) {
+				public void render(PoseStack matrix, int mouseX, int mouseY, float partialTicks) {
 					this.width = this.height;
 					super.render(matrix, mouseX, mouseY, partialTicks);
 				}
@@ -187,7 +143,7 @@ public class CustomizationHelperUI extends UIBase {
 		}
 	}
 	
-	public static void render(MatrixStack matrix, Screen screen) {
+	public static void render(PoseStack matrix, Screen screen) {
 		try {
 			
 			if (bar != null) {
@@ -209,13 +165,13 @@ public class CustomizationHelperUI extends UIBase {
 		}
 	}
 	
-	protected static void renderUnicodeWarning(MatrixStack matrix, Screen screen) {
-		if (MinecraftClient.getInstance().options.forceUnicodeFont) {
+	protected static void renderUnicodeWarning(PoseStack matrix, Screen screen) {
+		if (Minecraft.getInstance().options.forceUnicodeFont) {
 			String title = Locals.localize("drippyloadingscreen.helper.ui.warning");
-			int w = MinecraftClient.getInstance().textRenderer.getWidth(title);
+			int w = Minecraft.getInstance().font.width(title);
 			String[] lines = StringUtils.splitLines(Locals.localize("drippyloadingscreen.helper.ui.warning.unicode"), "%n%");
 			for (String s : lines) {
-				int w2 = MinecraftClient.getInstance().textRenderer.getWidth(s);
+				int w2 = Minecraft.getInstance().font.width(s);
 				if (w2 > w) {
 					w = w2;
 				}
@@ -232,11 +188,11 @@ public class CustomizationHelperUI extends UIBase {
 			}
 			fill(matrix, x - 4, y, x + w + 2, y + h, new Color(230, 15, 0, 240).getRGB());
 
-			drawStringWithShadow(matrix, MinecraftClient.getInstance().textRenderer, title, x, y + 2, Color.WHITE.getRGB());
+			drawString(matrix, Minecraft.getInstance().font, title, x, y + 2, Color.WHITE.getRGB());
 			
 			int i = 0;
 			for (String s : lines) {
-				drawStringWithShadow(matrix, MinecraftClient.getInstance().textRenderer, s, x, y + 13 + i, Color.WHITE.getRGB());
+				drawString(matrix, Minecraft.getInstance().font, s, x, y + 13 + i, Color.WHITE.getRGB());
 				i += 10;
 			}
 			
@@ -255,7 +211,7 @@ public class CustomizationHelperUI extends UIBase {
 			
 		}
 
-		public void openMenuAt(ButtonWidget parentBtn) {
+		public void openMenuAt(AbstractWidget parentBtn) {
 			this.content.clear();
 			
 			List<PropertiesSet> enabled = CustomizationPropertiesHandler.getProperties();
@@ -319,7 +275,7 @@ public class CustomizationHelperUI extends UIBase {
 		}
 		
 		@Override
-		public void render(MatrixStack matrix, int mouseX, int mouseY) {
+		public void render(PoseStack matrix, int mouseX, int mouseY) {
 			super.render(matrix, mouseX, mouseY);
 			
 			if (this.manageSubPopup != null) {

@@ -1,18 +1,18 @@
 package de.keksuccino.drippyloadingscreen.customization.items.vanilla;
 
-import net.minecraft.client.util.math.MatrixStack;
+import javax.annotation.Nonnull;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import de.keksuccino.drippyloadingscreen.customization.items.CustomizationItemBase;
 import de.keksuccino.drippyloadingscreen.customization.rendering.splash.elements.SplashElementBase;
 import de.keksuccino.drippyloadingscreen.logger.Logging;
 import de.keksuccino.konkrete.math.MathUtils;
 import de.keksuccino.konkrete.properties.PropertiesSection;
-import org.jetbrains.annotations.NotNull;
 
 public class VanillaSplashCustomizationItemBase extends CustomizationItemBase {
 
 	public SplashElementBase element;
-	public boolean isSecondItemOfThisType;
+	public boolean isSecondItemOfThisType = false;
 	
 	public boolean isOriginalPosX = false;
 	public boolean isOriginalPosY = false;
@@ -23,7 +23,7 @@ public class VanillaSplashCustomizationItemBase extends CustomizationItemBase {
 	public boolean vanillaVisible = true;
 	public boolean fireEvents = true;
 	
-	public VanillaSplashCustomizationItemBase(@NotNull SplashElementBase element, String elementDisplayName, @NotNull PropertiesSection props, boolean isSecondItemOfThisType) {
+	public VanillaSplashCustomizationItemBase(@Nonnull SplashElementBase element, String elementDisplayName, @Nonnull PropertiesSection props, boolean isSecondItemOfThisType) {
 		super(props);
 		
 		this.isSecondItemOfThisType = isSecondItemOfThisType;
@@ -85,7 +85,7 @@ public class VanillaSplashCustomizationItemBase extends CustomizationItemBase {
 	}
 
 	@Override
-	public void render(MatrixStack matrix) {
+	public void render(PoseStack matrix) {
 		
 		if (this.element == null) {
 			Logging.error("VanillaCustomizationItem: element null");
@@ -101,6 +101,9 @@ public class VanillaSplashCustomizationItemBase extends CustomizationItemBase {
 		if (!(this.isOriginalPosY && this.isSecondItemOfThisType)) {
 			this.element.y = this.getPosY();
 		}
+		
+//		this.element.rotation = this.rotation;
+//		this.element.opacity = this.opacity;
 		
 		this.element.scale = this.scale;
 		

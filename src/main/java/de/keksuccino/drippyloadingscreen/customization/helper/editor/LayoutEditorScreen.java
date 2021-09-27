@@ -7,10 +7,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.minecraft.client.util.math.MatrixStack;
+import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import de.keksuccino.drippyloadingscreen.customization.helper.editor.elements.vanilla.*;
+import de.keksuccino.drippyloadingscreen.customization.items.vanilla.ForgeMemoryInfoSplashCustomizationItem;
+import de.keksuccino.drippyloadingscreen.customization.items.vanilla.ForgeTextSplashCustomizationItem;
 import de.keksuccino.drippyloadingscreen.customization.items.vanilla.ProgressBarSplashCustomizationItem;
 import de.keksuccino.drippyloadingscreen.customization.rendering.splash.SplashCustomizationLayer;
 import de.keksuccino.konkrete.localization.Locals;
@@ -56,9 +59,9 @@ import de.keksuccino.konkrete.properties.PropertiesSection;
 import de.keksuccino.konkrete.properties.PropertiesSet;
 import de.keksuccino.konkrete.rendering.RenderUtils;
 import de.keksuccino.konkrete.web.WebUtils;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.text.LiteralText;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.TextComponent;
 
 public class LayoutEditorScreen extends Screen {
 	
@@ -95,6 +98,16 @@ public class LayoutEditorScreen extends Screen {
 	protected int smallerThanWidth = 0;
 	protected int smallerThanHeight = 0;
 
+	//TODO übernehmen
+	protected int scale = 0;
+	protected boolean fadeOut = true;
+	//--------------
+
+	//TODO übernehmen
+	protected int autoScalingWidth = 0;
+	protected int autoScalingHeight = 0;
+	//--------------
+
 	protected boolean multiselectStretchedX = false;
 	protected boolean multiselectStretchedY = false;
 	protected List<ContextMenu> multiselectChilds = new ArrayList<ContextMenu>();
@@ -107,11 +120,13 @@ public class LayoutEditorScreen extends Screen {
 	public SplashCustomizationLayer splashLayer = new SplashCustomizationLayer(true);
 
 	protected LogoLayoutSplashElement logoLayoutSplashElement;
+	protected ForgeMemoryInfoLayoutSplashElement forgeMemoryInfoLayoutSplashElement;
+	protected ForgeTextLayoutSplashElement forgeTextLayoutSplashElement;
 	protected ProgressBarLayoutSplashElement progressBarLayoutSplashElement;
 	
 	public LayoutEditorScreen() {
 		
-		super(new LiteralText(""));
+		super(new TextComponent(""));
 
 		if (!initDone) {
 			KeyboardHandler.addKeyPressedListener(LayoutEditorScreen::onShortcutPressed);
@@ -122,9 +137,13 @@ public class LayoutEditorScreen extends Screen {
 		PropertiesSection sec = new PropertiesSection("customization");
 
 		this.logoLayoutSplashElement = new LogoLayoutSplashElement(new LogoSplashCustomizationItem(this.splashLayer.logoSplashElement, sec, false), this);
+//		this.forgeMemoryInfoLayoutSplashElement = new ForgeMemoryInfoLayoutSplashElement(new ForgeMemoryInfoSplashCustomizationItem(this.splashLayer.forgeMemoryInfoSplashElement, sec, false), this);
+//		this.forgeTextLayoutSplashElement = new ForgeTextLayoutSplashElement(new ForgeTextSplashCustomizationItem(this.splashLayer.forgeTextSplashElement, sec, false), this);
 		this.progressBarLayoutSplashElement = new ProgressBarLayoutSplashElement(new ProgressBarSplashCustomizationItem(this.splashLayer.progressBarSplashElement, sec, false), this);
 
 		this.content.add(this.logoLayoutSplashElement);
+		this.content.add(this.forgeMemoryInfoLayoutSplashElement);
+		this.content.add(this.forgeTextLayoutSplashElement);
 		this.content.add(this.progressBarLayoutSplashElement);
 		
 	}
@@ -151,6 +170,34 @@ public class LayoutEditorScreen extends Screen {
 		this.focusedObjects.clear();
 		
 		this.focusChangeBlocker.clear();
+
+		//TODO übernehmen
+		Window w = Minecraft.getInstance().getWindow();
+		if (this.scale > 0) {
+			w.setGuiScale(this.scale);
+		} else {
+			int mcScale = w.calculateScale(Minecraft.getInstance().options.guiScale, Minecraft.getInstance().isEnforceUnicode());
+			w.setGuiScale(mcScale);
+		}
+		this.width = w.getGuiScaledWidth();
+		this.height = w.getGuiScaledHeight();
+		//-------------------
+
+		//TODO übernehmen
+		//Handle auto-scaling
+		if ((this.autoScalingWidth != 0) && (this.autoScalingHeight != 0)) {
+			double guiWidth = this.width * w.getGuiScale();
+			double guiHeight = this.height * w.getGuiScale();
+			double percentX = (guiWidth / (double)this.autoScalingWidth) * 100.0D;
+			double percentY = (guiHeight / (double)this.autoScalingHeight) * 100.0D;
+			double newScaleX = (percentX / 100.0D) * w.getGuiScale();
+			double newScaleY = (percentY / 100.0D) * w.getGuiScale();
+			double newScale = Math.min(newScaleX, newScaleY);
+
+			w.setGuiScale(newScale);
+			this.width = w.getGuiScaledWidth();
+			this.height = w.getGuiScaledHeight();
+		}
 		
 	}
 	
@@ -204,6 +251,19 @@ public class LayoutEditorScreen extends Screen {
 		if (this.smallerThanHeight != 0) {
 			meta.addEntry("smallerthanheight", "" + this.smallerThanHeight);
 		}
+		//TODO übernehmen
+		if (this.scale > 0) {
+			meta.addEntry("scale", "" + this.scale);
+		}
+		//TODO übernehmen
+		if (!this.fadeOut) {
+			meta.addEntry("fadeout", "false");
+		}
+		//TODO übernehmen
+		if ((this.autoScalingWidth != 0) && (this.autoScalingHeight != 0)) {
+			meta.addEntry("autoscale_basewidth", "" + this.autoScalingWidth);
+			meta.addEntry("autoscale_baseheight", "" + this.autoScalingHeight);
+		}
 		
 		l.add(meta);
 		
@@ -242,7 +302,7 @@ public class LayoutEditorScreen extends Screen {
 	}
 
 	@Override
-	public void render(MatrixStack matrix, int mouseX, int mouseY, float partialTicks) {
+	public void render(PoseStack matrix, int mouseX, int mouseY, float partialTicks) {
 		
 		//Handle object focus and update the top hovered object
 		if (!MouseInput.isVanillaInputBlocked()) {
@@ -272,6 +332,9 @@ public class LayoutEditorScreen extends Screen {
 		}
 
 		this.renderEditorBackground(matrix);
+
+		//TODO übernehmen
+		this.drawGrid(matrix);
 		
 		//Render vanilla elements if rendering order is set to foreground
 		if (this.renderorder.equals("foreground")) {
@@ -388,14 +451,51 @@ public class LayoutEditorScreen extends Screen {
 		this.postRenderTasks.clear();
 
 	}
+
+	//TODO übernehmen
+	protected void drawGrid(PoseStack matrix) {
+		if (DrippyLoadingScreen.config.getOrDefault("showgrid", false)) {
+			Color c = new Color(255, 255, 255, 100);
+			int gridSize = DrippyLoadingScreen.config.getOrDefault("gridsize", 10);
+			int lineThickness = 1;
+			int verticalLines = Minecraft.getInstance().getWindow().getGuiScaledWidth() / gridSize;
+			int horizontalLines = Minecraft.getInstance().getWindow().getGuiScaledHeight() / gridSize;
+
+			//Draw vertical lines
+			int i1 = 1;
+			int space1 = 0;
+			while (i1 <= verticalLines) {
+				int minX = (gridSize * i1) + space1;
+				int maxX = minX + lineThickness;
+				int minY = 0;
+				int maxY = Minecraft.getInstance().getWindow().getGuiScaledHeight();
+				fill(matrix, minX, minY, maxX, maxY, c.getRGB());
+				i1++;
+				space1 += lineThickness;
+			}
+
+			//Draw horizontal lines
+			int i2 = 1;
+			int space2 = 0;
+			while (i2 <= horizontalLines) {
+				int minX = 0;
+				int maxX = Minecraft.getInstance().getWindow().getGuiScaledWidth();
+				int minY = (gridSize * i2) + space2;
+				int maxY = minY + lineThickness;
+				fill(matrix, minX, minY, maxX, maxY, c.getRGB());
+				i2++;
+				space2 += lineThickness;
+			}
+		}
+	}
 	
-	protected void renderVanillaElements(MatrixStack matrix, float partial) {
+	protected void renderVanillaElements(PoseStack matrix, float partial) {
 		
 		this.splashLayer.renderLayer();
 		
 	}
 
-	protected void renderEditorBackground(MatrixStack matrix) {
+	protected void renderEditorBackground(PoseStack matrix) {
 		RenderSystem.enableBlend();
 		Color c = new Color(239, 50, 61);
 		if (this.splashLayer.customBackgroundColor != null) {
@@ -404,9 +504,8 @@ public class LayoutEditorScreen extends Screen {
 		fill(matrix, 0, 0, this.width, this.height, c.getRGB());
 		if (this.splashLayer.backgroundImage != null) {
 			RenderUtils.bindTexture(this.splashLayer.backgroundImage);
-			RenderSystem.enableBlend();
 			RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-			drawTexture(matrix, 0, 0, 0.0F, 0.0F, this.width, this.height, this.width, this.height);
+			blit(matrix, 0, 0, 0.0F, 0.0F, this.width, this.height, this.width, this.height);
 			RenderSystem.disableBlend();
 		}
 	}
@@ -809,7 +908,7 @@ public class LayoutEditorScreen extends Screen {
 				this.history.editor = neweditor;
 				neweditor.single = ((PreloadedLayoutEditorScreen)this).single;
 
-				MinecraftClient.getInstance().setScreen(neweditor);
+				Minecraft.getInstance().setScreen(neweditor);
 			}
 
 		} else {
@@ -838,7 +937,7 @@ public class LayoutEditorScreen extends Screen {
 							this.history.editor = neweditor;
 							neweditor.single = file;
 
-							MinecraftClient.getInstance().setScreen(neweditor);
+							Minecraft.getInstance().setScreen(neweditor);
 						}
 					} else {
 						PopupHandler.displayPopup(new FHNotificationPopup(300, new Color(0, 0, 0, 0), 240, null, Locals.localize("drippyloadingscreen.helper.editor.ui.layout.saveas.failed")));
@@ -906,7 +1005,7 @@ public class LayoutEditorScreen extends Screen {
 	}
 
 	protected static void onShortcutPressed(KeyboardData d) {
-		Screen c = MinecraftClient.getInstance().currentScreen;
+		Screen c = Minecraft.getInstance().screen;
 		
 		if (c instanceof LayoutEditorScreen) {
 			
@@ -957,13 +1056,29 @@ public class LayoutEditorScreen extends Screen {
 					((LayoutEditorScreen) c).deleteFocusedObjects();
 				}
 			}
+
+			//TODO übernehmen
+			//CTRL + G
+			if (d.keycode == 71) {
+				if (KeyboardHandler.isCtrlPressed()) {
+					try {
+						if (DrippyLoadingScreen.config.getOrDefault("showgrid", false)) {
+							DrippyLoadingScreen.config.setValue("showgrid", false);
+						} else {
+							DrippyLoadingScreen.config.setValue("showgrid", true);
+						}
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+			}
 			
 		}
 		
 	}
 	
 	protected static void onArrowKeysPressed(KeyboardData d) {
-		Screen c = MinecraftClient.getInstance().currentScreen;
+		Screen c = Minecraft.getInstance().screen;
 		
 		if (c instanceof LayoutEditorScreen) {
 			
@@ -1023,7 +1138,7 @@ public class LayoutEditorScreen extends Screen {
 		neweditor.single = single;
 		neweditor.history.editor = neweditor;
 
-		MinecraftClient.getInstance().setScreen(neweditor);
+		Minecraft.getInstance().setScreen(neweditor);
 	}
 
 }

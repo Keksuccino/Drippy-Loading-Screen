@@ -4,16 +4,17 @@ import java.awt.Color;
 import java.io.File;
 import java.util.function.Consumer;
 
-import net.minecraft.client.util.math.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import de.keksuccino.konkrete.localization.Locals;
 import de.keksuccino.konkrete.gui.content.AdvancedButton;
 import de.keksuccino.konkrete.gui.screens.popup.PopupHandler;
 import de.keksuccino.konkrete.input.CharacterFilter;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.text.LiteralText;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.TextComponent;
 
 public class ChooseFilePopup extends FHTextInputPopup {
 
@@ -49,19 +50,19 @@ public class ChooseFilePopup extends FHTextInputPopup {
 	}
 	
 	@Override
-	public void render(MatrixStack matrix, int mouseX, int mouseY, Screen renderIn) {
+	public void render(PoseStack matrix, int mouseX, int mouseY, Screen renderIn) {
 		if (!this.isDisplayed()) {
 			return;
 		}
 		RenderSystem.enableBlend();
 		fill(matrix, 0, 0, renderIn.width, renderIn.height, new Color(0, 0, 0, 240).getRGB());
 		RenderSystem.disableBlend();
-
-		drawCenteredText(matrix, MinecraftClient.getInstance().textRenderer, new LiteralText(title), renderIn.width / 2, (renderIn.height  / 2) - 40, Color.WHITE.getRGB());
+		
+		GuiComponent.drawCenteredString(matrix, Minecraft.getInstance().font, new TextComponent(title), renderIn.width / 2, (renderIn.height  / 2) - 40, Color.WHITE.getRGB());
 		
 		this.textField.setX((renderIn.width / 2) - (this.textField.getWidth() / 2));
 		this.textField.setY((renderIn.height  / 2) - (this.textField.getHeight() / 2));
-		this.textField.renderButton(matrix, mouseX, mouseY, MinecraftClient.getInstance().getTickDelta());
+		this.textField.renderButton(matrix, mouseX, mouseY, Minecraft.getInstance().getFrameTime());
 		
 		this.doneButton.setX((renderIn.width / 2) - (this.doneButton.getWidth() / 2));
 		this.doneButton.setY(((renderIn.height  / 2) + 100) - this.doneButton.getHeight() - 5);
