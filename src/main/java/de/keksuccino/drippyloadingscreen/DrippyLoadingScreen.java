@@ -20,7 +20,7 @@ import java.io.File;
 
 public class DrippyLoadingScreen implements ModInitializer {
 	
-	public static final String VERSION = "1.1.1";
+	public static final String VERSION = "1.2.0";
 	
 	public static final File HOME_DIR = new File("config/drippyloadingscreen");
 	public static final File CUSTOMIZATION_DIR = new File(HOME_DIR.getPath() + "/customization");
@@ -62,7 +62,6 @@ public class DrippyLoadingScreen implements ModInitializer {
 
 			CustomizationHelper.init();
 
-			//TODO übernehmen
 			SimpleTextRenderer.init();
 
 			if (config.getOrDefault("enablekeybinds", true)) {
@@ -115,6 +114,8 @@ public class DrippyLoadingScreen implements ModInitializer {
 			config.registerValue("printwarnings", true, "logging");
 			
 			config.registerValue("editordeleteconfirmation", true, "layouteditor");
+			config.registerValue("showgrid", false, "layouteditor");
+			config.registerValue("gridsize", 10, "layouteditor");
 			
 			config.registerValue("showcustomizationcontrols", true, "customization");
 			config.registerValue("enablekeybinds", true, "customization");

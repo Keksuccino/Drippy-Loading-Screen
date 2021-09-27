@@ -110,35 +110,9 @@ public class CustomizationHelperUI extends UIBase {
 			});
 			bar.addElement(hudTab, "fh.ui.tab.hud", ElementAlignment.LEFT, false);
 			
-//			/** TOOLS TAB **/
-//			FHContextMenu toolsMenu = new FHContextMenu();
-//			toolsMenu.setAutoclose(true);
-//			bar.addChild(toolsMenu, "fh.ui.tab.tools", ElementAlignment.LEFT);
-//
-//			String backgroundOverlayLabel = Locals.localize("drippyloadingscreen.helper.ui.tools.backgroundoverlay.on");
-//			if (!CustomizationHelperScreen.renderBackgroundOverlay) {
-//				backgroundOverlayLabel = Locals.localize("drippyloadingscreen.helper.ui.tools.backgroundoverlay.off");
-//			}
-//			CustomizationButton backgroundOverlayButton = new CustomizationButton(0, 0, 0, 0, backgroundOverlayLabel, true, (press) -> {
-//				if (CustomizationHelperScreen.renderBackgroundOverlay) {
-//					CustomizationHelperScreen.renderBackgroundOverlay = false;
-//					((CustomizationButton)press).setMessage(Locals.localize("drippyloadingscreen.helper.ui.tools.backgroundoverlay.off"));
-//				} else {
-//					CustomizationHelperScreen.renderBackgroundOverlay = true;
-//					((CustomizationButton)press).setMessage(Locals.localize("drippyloadingscreen.helper.ui.tools.backgroundoverlay.on"));
-//				}
-//			});
-//			backgroundOverlayButton.setDescription(StringUtils.splitLines(Locals.localize("drippyloadingscreen.helper.ui.tools.backgroundoverlay.desc"), "%n%"));
-//			toolsMenu.addContent(backgroundOverlayButton);
-//
-//			CustomizationButton toolsTab = new CustomizationButton(0, 0, 0, 0, Locals.localize("drippyloadingscreen.helper.ui.tools"), true, (press) -> {
-//				toolsMenu.setParentButton((AdvancedButton) press);
-//				toolsMenu.openMenuAt(press.x, press.y + press.getHeight());
-//			});
-//			bar.addElement(toolsTab, "fh.ui.tab.tools", ElementAlignment.LEFT, false);
-			
 			/** CLOSE HELPER BUTTON **/
 			AdvancedImageButton closeGuiButtonTab = new AdvancedImageButton(20, 20, 20, 20, CLOSE_BUTTON_TEXTURE, true, (press) -> {
+				CustomizationHelperScreen.resetScale();
 				MinecraftClient.getInstance().setScreen(null);
 			}) {
 				@Override

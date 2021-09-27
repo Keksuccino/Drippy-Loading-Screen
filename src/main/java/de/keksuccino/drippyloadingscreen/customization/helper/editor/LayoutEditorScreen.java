@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.minecraft.client.util.Window;
 import net.minecraft.client.util.math.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 
@@ -95,6 +96,12 @@ public class LayoutEditorScreen extends Screen {
 	protected int smallerThanWidth = 0;
 	protected int smallerThanHeight = 0;
 
+	protected int scale = 0;
+	protected boolean fadeOut = true;
+
+	protected int autoScalingWidth = 0;
+	protected int autoScalingHeight = 0;
+
 	protected boolean multiselectStretchedX = false;
 	protected boolean multiselectStretchedY = false;
 	protected List<ContextMenu> multiselectChilds = new ArrayList<ContextMenu>();
@@ -151,6 +158,32 @@ public class LayoutEditorScreen extends Screen {
 		this.focusedObjects.clear();
 		
 		this.focusChangeBlocker.clear();
+
+		//Handle force scale
+		Window w = MinecraftClient.getInstance().getWindow();
+		if (this.scale > 0) {
+			w.setScaleFactor(this.scale);
+		} else {
+			int mcScale = w.calculateScaleFactor(MinecraftClient.getInstance().options.guiScale, MinecraftClient.getInstance().forcesUnicodeFont());
+			w.setScaleFactor(mcScale);
+		}
+		this.width = w.getScaledWidth();
+		this.height = w.getScaledHeight();
+
+		//Handle auto scaling
+		if ((this.autoScalingWidth != 0) && (this.autoScalingHeight != 0)) {
+			double guiWidth = this.width * w.getScaleFactor();
+			double guiHeight = this.height * w.getScaleFactor();
+			double percentX = (guiWidth / (double)this.autoScalingWidth) * 100.0D;
+			double percentY = (guiHeight / (double)this.autoScalingHeight) * 100.0D;
+			double newScaleX = (percentX / 100.0D) * w.getScaleFactor();
+			double newScaleY = (percentY / 100.0D) * w.getScaleFactor();
+			double newScale = Math.min(newScaleX, newScaleY);
+
+			w.setScaleFactor(newScale);
+			this.width = w.getScaledWidth();
+			this.height = w.getScaledHeight();
+		}
 		
 	}
 	
@@ -203,6 +236,16 @@ public class LayoutEditorScreen extends Screen {
 		}
 		if (this.smallerThanHeight != 0) {
 			meta.addEntry("smallerthanheight", "" + this.smallerThanHeight);
+		}
+		if (this.scale > 0) {
+			meta.addEntry("scale", "" + this.scale);
+		}
+		if (!this.fadeOut) {
+			meta.addEntry("fadeout", "false");
+		}
+		if ((this.autoScalingWidth != 0) && (this.autoScalingHeight != 0)) {
+			meta.addEntry("autoscale_basewidth", "" + this.autoScalingWidth);
+			meta.addEntry("autoscale_baseheight", "" + this.autoScalingHeight);
 		}
 		
 		l.add(meta);
@@ -272,6 +315,8 @@ public class LayoutEditorScreen extends Screen {
 		}
 
 		this.renderEditorBackground(matrix);
+
+		this.drawGrid(matrix);
 		
 		//Render vanilla elements if rendering order is set to foreground
 		if (this.renderorder.equals("foreground")) {
@@ -387,6 +432,42 @@ public class LayoutEditorScreen extends Screen {
 		}
 		this.postRenderTasks.clear();
 
+	}
+
+	protected void drawGrid(MatrixStack matrix) {
+		if (DrippyLoadingScreen.config.getOrDefault("showgrid", false)) {
+			Color c = new Color(255, 255, 255, 100);
+			int gridSize = DrippyLoadingScreen.config.getOrDefault("gridsize", 10);
+			int lineThickness = 1;
+			int verticalLines = MinecraftClient.getInstance().getWindow().getScaledWidth() / gridSize;
+			int horizontalLines = MinecraftClient.getInstance().getWindow().getScaledHeight() / gridSize;
+
+			//Draw vertical lines
+			int i1 = 1;
+			int space1 = 0;
+			while (i1 <= verticalLines) {
+				int minX = (gridSize * i1) + space1;
+				int maxX = minX + lineThickness;
+				int minY = 0;
+				int maxY = MinecraftClient.getInstance().getWindow().getScaledHeight();
+				fill(matrix, minX, minY, maxX, maxY, c.getRGB());
+				i1++;
+				space1 += lineThickness;
+			}
+
+			//Draw horizontal lines
+			int i2 = 1;
+			int space2 = 0;
+			while (i2 <= horizontalLines) {
+				int minX = 0;
+				int maxX = MinecraftClient.getInstance().getWindow().getScaledWidth();
+				int minY = (gridSize * i2) + space2;
+				int maxY = minY + lineThickness;
+				fill(matrix, minX, minY, maxX, maxY, c.getRGB());
+				i2++;
+				space2 += lineThickness;
+			}
+		}
 	}
 	
 	protected void renderVanillaElements(MatrixStack matrix, float partial) {
@@ -955,6 +1036,21 @@ public class LayoutEditorScreen extends Screen {
 			if (((LayoutEditorScreen)c).isObjectFocused() && !PopupHandler.isPopupActive()) {
 				if (d.keycode == 261) {
 					((LayoutEditorScreen) c).deleteFocusedObjects();
+				}
+			}
+
+			//CTRL + G
+			if (d.keycode == 71) {
+				if (KeyboardHandler.isCtrlPressed()) {
+					try {
+						if (DrippyLoadingScreen.config.getOrDefault("showgrid", false)) {
+							DrippyLoadingScreen.config.setValue("showgrid", false);
+						} else {
+							DrippyLoadingScreen.config.setValue("showgrid", true);
+						}
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
 				}
 			}
 			

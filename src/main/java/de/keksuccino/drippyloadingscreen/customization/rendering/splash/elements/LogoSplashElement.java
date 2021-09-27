@@ -1,6 +1,6 @@
 package de.keksuccino.drippyloadingscreen.customization.rendering.splash.elements;
 
-import de.keksuccino.konkrete.rendering.RenderUtils;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 
@@ -17,11 +17,13 @@ public class LogoSplashElement extends SplashElementBase {
     public LogoSplashElement(SplashCustomizationLayer handler) {
         super(handler);
 
-        double d0 = Math.min((double)this.mc.getWindow().getScaledWidth() * 0.75D, this.mc.getWindow().getScaledHeight()) * 0.25D;
-        double d1 = d0 * 4.0D;
-        int k1 = (int)(d1 * 0.5D);
-        this.width = (int) (k1 * 2.0D);
-        this.height = (int) d0;
+        if ((MinecraftClient.getInstance() != null) && (MinecraftClient.getInstance().getWindow() != null)) {
+            double d0 = Math.min((double) this.mc.getWindow().getScaledWidth() * 0.75D, this.mc.getWindow().getScaledHeight()) * 0.25D;
+            double d1 = d0 * 4.0D;
+            int k1 = (int) (d1 * 0.5D);
+            this.width = (int) (k1 * 2.0D);
+            this.height = (int) d0;
+        }
     }
 
     @Override

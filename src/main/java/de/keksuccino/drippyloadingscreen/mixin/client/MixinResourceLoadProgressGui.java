@@ -2,6 +2,7 @@ package de.keksuccino.drippyloadingscreen.mixin.client;
 
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.screen.SplashOverlay;
+import net.minecraft.client.util.Window;
 import net.minecraft.client.util.math.MatrixStack;
 import de.keksuccino.drippyloadingscreen.DrippyLoadingScreen;
 import de.keksuccino.drippyloadingscreen.customization.rendering.splash.SplashCustomizationLayer;
@@ -67,14 +68,14 @@ public abstract class MixinResourceLoadProgressGui extends DrawableHelper {
 		float g = this.reloadStartTime > -1L ? (float)(time - this.reloadStartTime) / 500.0F : -1.0F;
 		if (f >= 1.0F) {
 			if (this.mc.currentScreen != null) {
-				if (!DrippyLoadingScreen.isFancyMenuLoaded()) {
+				if (!DrippyLoadingScreen.isFancyMenuLoaded() && handler.fadeOut) {
 					this.mc.currentScreen.render(matrices, 0, 0, delta);
 				}
 			}
 
 		} else if (this.reloading) {
 			if (this.mc.currentScreen != null && g < 1.0F) {
-				if (!DrippyLoadingScreen.isFancyMenuLoaded()) {
+				if (!DrippyLoadingScreen.isFancyMenuLoaded() && handler.fadeOut) {
 					this.mc.currentScreen.render(matrices, mouseX, mouseY, delta);
 				}
 			}
@@ -85,6 +86,7 @@ public abstract class MixinResourceLoadProgressGui extends DrawableHelper {
 		this.progress = MathHelper.clamp(this.progress * 0.95F + y * 0.050000012F, 0.0F, 1.0F);
 
 		if (f >= 2.0F) {
+			this.resetScale(handler);
 			this.mc.setOverlay(null);
 		}
 
@@ -115,6 +117,25 @@ public abstract class MixinResourceLoadProgressGui extends DrawableHelper {
 		//Render the actual loading screen and all customization items
 		handler.renderLayer();
 
+	}
+
+	private static void resetScale(SplashCustomizationLayer handler) {
+		if (handler.scaled) {
+
+			MinecraftClient mc = MinecraftClient.getInstance();
+			Window w = mc.getWindow();
+			int mcScale = w.calculateScaleFactor(mc.options.guiScale, mc.forcesUnicodeFont());
+
+			w.setScaleFactor((double)mcScale);
+
+			int screenWidth = w.getScaledWidth();
+			int screenHeight = w.getScaledHeight();
+
+			mc.currentScreen.init(mc, screenWidth, screenHeight);
+
+			handler.scaled = false;
+
+		}
 	}
 
 }

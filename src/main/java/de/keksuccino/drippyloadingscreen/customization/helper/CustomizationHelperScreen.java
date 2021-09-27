@@ -1,5 +1,7 @@
 package de.keksuccino.drippyloadingscreen.customization.helper;
 
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.util.Window;
 import net.minecraft.client.util.math.MatrixStack;
 
 import de.keksuccino.drippyloadingscreen.customization.rendering.splash.SplashCustomizationLayer;
@@ -18,13 +20,18 @@ public class CustomizationHelperScreen extends Screen {
 	
 	@Override
 	protected void init() {
-		
+
 		CustomizationHelperUI.currentHelperScreen = this;
-		CustomizationHelperUI.updateUI();
 		splashLayer.updateCustomizations();
+		CustomizationHelperUI.updateUI();
 		
 	}
-	
+
+	@Override
+	public boolean shouldCloseOnEsc() {
+		return false;
+	}
+
 	@Override
 	public void render(MatrixStack matrix, int mouseX, int mouseY, float partialTicks) {
 
@@ -34,6 +41,20 @@ public class CustomizationHelperScreen extends Screen {
 		
 		super.render(matrix, mouseX, mouseY, partialTicks);
 		
+	}
+
+	public static void resetScale() {
+		if (splashLayer.scaled) {
+
+			MinecraftClient mc = MinecraftClient.getInstance();
+			Window w = mc.getWindow();
+			int mcScale = w.calculateScaleFactor(mc.options.guiScale, mc.forcesUnicodeFont());
+
+			w.setScaleFactor((double)mcScale);
+
+			splashLayer.scaled = false;
+
+		}
 	}
 
 }

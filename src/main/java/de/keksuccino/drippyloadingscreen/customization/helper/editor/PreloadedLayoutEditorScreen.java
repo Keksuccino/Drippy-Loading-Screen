@@ -51,6 +51,27 @@ public class PreloadedLayoutEditorScreen extends LayoutEditorScreen {
 				this.renderorder = "background";
 			}
 
+			String scaleString = meta.getEntryValue("scale");
+			if ((scaleString != null) && (MathUtils.isInteger(scaleString) || MathUtils.isDouble(scaleString))) {
+				this.scale = (int) Double.parseDouble(scaleString);
+			}
+
+			String fadeOutString = meta.getEntryValue("fadeout");
+			if ((fadeOutString != null) && fadeOutString.equalsIgnoreCase("false")) {
+				this.fadeOut = false;
+			}
+
+			String autoScaleW = meta.getEntryValue("autoscale_basewidth");
+			String autoScaleH = meta.getEntryValue("autoscale_baseheight");
+			if ((autoScaleW != null) && (autoScaleH != null) && MathUtils.isInteger(autoScaleW) && MathUtils.isInteger(autoScaleH)) {
+				int w2 = Integer.parseInt(autoScaleW);
+				int h2 = Integer.parseInt(autoScaleH);
+				if ((w2 > 0) && (h2 > 0)) {
+					this.autoScalingWidth = w2;
+					this.autoScalingHeight = h2;
+				}
+			}
+
 			this.splashLayer.customBackgroundHex = meta.getEntryValue("backgroundcolor");
 
 			String backgroundImageString = meta.getEntryValue("backgroundimage");

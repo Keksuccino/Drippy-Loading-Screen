@@ -12,8 +12,8 @@ public class CustomizationHandlerEvents {
 	private int lastWindowHeight = -1;
 	
 	@SubscribeEvent
-	public void onTick(ClientTickEvent e) {
-		
+	public void onTick(ClientTickEvent.Post e) {
+
 		/** WINDOW RESIZE EVENT HANDLER **/
 		int width = MinecraftClient.getInstance().getWindow().getScaledWidth();
 		int height = MinecraftClient.getInstance().getWindow().getScaledHeight();

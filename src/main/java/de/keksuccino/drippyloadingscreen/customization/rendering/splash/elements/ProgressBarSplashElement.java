@@ -1,5 +1,6 @@
 package de.keksuccino.drippyloadingscreen.customization.rendering.splash.elements;
 
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.hud.BackgroundHelper;
 import net.minecraft.client.util.math.MatrixStack;
 import de.keksuccino.drippyloadingscreen.DrippyLoadingScreen;
@@ -18,13 +19,15 @@ public class ProgressBarSplashElement extends SplashElementBase {
     public ProgressBarSplashElement(SplashCustomizationLayer handler) {
         super(handler);
 
-        int screenWidth = this.mc.getWindow().getScaledWidth();
-        int screenHeight = this.mc.getWindow().getScaledHeight();
-        double d0 = Math.min((double)screenWidth * 0.75D, screenHeight) * 0.25D;
-        double d1 = d0 * 4.0D;
-        int k1 = (int)(d1 * 0.5D);
-        this.width = k1 * 2;
-        this.height = 10;
+        if ((MinecraftClient.getInstance() != null) && (MinecraftClient.getInstance().getWindow() != null)) {
+            int screenWidth = this.mc.getWindow().getScaledWidth();
+            int screenHeight = this.mc.getWindow().getScaledHeight();
+            double d0 = Math.min((double) screenWidth * 0.75D, screenHeight) * 0.25D;
+            double d1 = d0 * 4.0D;
+            int k1 = (int) (d1 * 0.5D);
+            this.width = k1 * 2;
+            this.height = 10;
+        }
     }
 
     @Override

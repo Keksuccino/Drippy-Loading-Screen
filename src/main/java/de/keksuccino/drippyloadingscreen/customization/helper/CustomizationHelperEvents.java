@@ -4,12 +4,14 @@ import de.keksuccino.drippyloadingscreen.DrippyLoadingScreen;
 import de.keksuccino.drippyloadingscreen.customization.helper.ui.UIBase;
 import de.keksuccino.drippyloadingscreen.customization.rendering.splash.SplashCustomizationLayer;
 import de.keksuccino.drippyloadingscreen.events.CustomizationSystemReloadedEvent;
+import de.keksuccino.drippyloadingscreen.events.WindowResizedEvent;
 import de.keksuccino.konkrete.events.SubscribeEvent;
 import de.keksuccino.konkrete.events.client.GuiScreenEvent;
 import de.keksuccino.konkrete.gui.content.AdvancedButton;
 import de.keksuccino.konkrete.input.StringUtils;
 import de.keksuccino.konkrete.localization.Locals;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.TitleScreen;
 import net.minecraft.util.Identifier;
 
@@ -19,6 +21,14 @@ public class CustomizationHelperEvents {
 	private static final Identifier OPEN_HELPER_BUTTON_TEXTURE_HOVER = new Identifier("drippyloadingscreen", "/helper/cus_button_hover.png");
 	
 	protected AdvancedButton openHelperButton;
+
+	@SubscribeEvent
+	public void onWindowResize(WindowResizedEvent e) {
+		Screen s = MinecraftClient.getInstance().currentScreen;
+		if ((s != null) && (s instanceof CustomizationHelperScreen)) {
+			MinecraftClient.getInstance().setScreen(s);
+		}
+	}
 	
 	@SubscribeEvent
 	public void onInitScreenPost(GuiScreenEvent.InitGuiEvent.Post e) {

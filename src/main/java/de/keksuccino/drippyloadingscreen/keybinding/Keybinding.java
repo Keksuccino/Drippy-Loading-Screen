@@ -13,7 +13,7 @@ public class Keybinding {
 	
 	public static void init() {
 
-		KeyToggleHelper = new KeyBinding("Toggle Customization Controls | CTRL + ALT + ", 76, "DrippyLoadingScreen");
+		KeyToggleHelper = new KeyBinding("Toggle Drippy Customization Overlay | CTRL + ALT + ", 76, "Drippy Loading Screen");
 		KeyBindingHelper.registerKeyBinding(KeyToggleHelper);
 		
 		initGuiClickActions();
