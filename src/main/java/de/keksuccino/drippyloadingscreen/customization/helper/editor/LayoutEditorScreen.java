@@ -142,8 +142,8 @@ public class LayoutEditorScreen extends Screen {
 		this.progressBarLayoutSplashElement = new ProgressBarLayoutSplashElement(new ProgressBarSplashCustomizationItem(this.splashLayer.progressBarSplashElement, sec, false), this);
 
 		this.content.add(this.logoLayoutSplashElement);
-		this.content.add(this.forgeMemoryInfoLayoutSplashElement);
-		this.content.add(this.forgeTextLayoutSplashElement);
+//		this.content.add(this.forgeMemoryInfoLayoutSplashElement);
+//		this.content.add(this.forgeTextLayoutSplashElement);
 		this.content.add(this.progressBarLayoutSplashElement);
 		
 	}
