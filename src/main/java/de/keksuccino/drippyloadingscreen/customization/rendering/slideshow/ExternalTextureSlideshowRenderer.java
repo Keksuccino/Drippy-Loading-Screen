@@ -225,13 +225,13 @@ public class ExternalTextureSlideshowRenderer extends DrawableHelper {
 			if (o > this.slideshowOpacity) {
 				o = this.slideshowOpacity;
 			}
-			RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, o);
+			RenderSystem.color4f(1.0F, 1.0F, 1.0F, o);
 			Identifier r = this.previous.getResourceLocation();
 			if (r != null) {
 				RenderUtils.bindTexture(r);
 				drawTexture(matrix, this.x, this.y, 0.0F, 0.0F, this.width, this.height, this.width, this.height);
 			}
-			RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+			RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
 			matrix.pop();
 		}
 	}
@@ -242,7 +242,7 @@ public class ExternalTextureSlideshowRenderer extends DrawableHelper {
 				this.current.loadTexture();
 			}
 			RenderSystem.enableBlend();
-			RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, this.slideshowOpacity);
+			RenderSystem.color4f(1.0F, 1.0F, 1.0F, this.slideshowOpacity);
 			Identifier r = this.current.getResourceLocation();
 			if (r != null) {
 				RenderUtils.bindTexture(r);
@@ -257,7 +257,7 @@ public class ExternalTextureSlideshowRenderer extends DrawableHelper {
 				this.overlay_texture.loadTexture();
 			}
 			RenderSystem.enableBlend();
-			RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+			RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
 			Identifier r = this.overlay_texture.getResourceLocation();
 			if (r != null) {
 				RenderUtils.bindTexture(r);

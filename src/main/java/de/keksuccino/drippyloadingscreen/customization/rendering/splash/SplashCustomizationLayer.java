@@ -30,7 +30,7 @@ import de.keksuccino.konkrete.properties.PropertiesSet;
 import de.keksuccino.konkrete.rendering.RenderUtils;
 import de.keksuccino.konkrete.resources.TextureHandler;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.resource.ResourceReload;
+import net.minecraft.resource.ResourceReloadMonitor;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 import org.jetbrains.annotations.Nullable;
@@ -64,7 +64,7 @@ public class SplashCustomizationLayer extends DrawableHelper {
     public boolean isNewLoadingScreen = true;
 
     /** GETTER ONLY **/
-    public ResourceReload reload;
+    public ResourceReloadMonitor reloadMonitor;
     /** GETTER ONLY **/
     public Consumer<Optional<Throwable>> exceptionHandler;
     /** GETTER ONLY **/
@@ -162,9 +162,9 @@ public class SplashCustomizationLayer extends DrawableHelper {
                 RenderUtils.bindTexture(this.backgroundImage);
                 RenderSystem.enableBlend();
                 if (!SplashCustomizationLayer.isCustomizationHelperScreen()) {
-                    RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, elementOpacity);
+                    RenderSystem.color4f(1.0F, 1.0F, 1.0F, elementOpacity);
                 } else {
-                    RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+                    RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
                 }
                 drawTexture(matrix, 0, 0, 0.0F, 0.0F, screenWidth, screenHeight, screenWidth, screenHeight);
                 RenderSystem.disableBlend();
@@ -193,7 +193,7 @@ public class SplashCustomizationLayer extends DrawableHelper {
         RenderSystem.defaultBlendFunc();
         RenderSystem.enableTexture();
         RenderSystem.enableCull();
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
 
         this.logoSplashElement.render(matrix, screenWidth, screenHeight, partial);
 
@@ -203,7 +203,7 @@ public class SplashCustomizationLayer extends DrawableHelper {
         RenderSystem.defaultBlendFunc();
         RenderSystem.enableTexture();
         RenderSystem.enableCull();
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
 
         //Render foreground customization items
         if (!this.isEditor) {

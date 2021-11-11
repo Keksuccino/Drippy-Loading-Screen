@@ -66,7 +66,7 @@ public class WebTextureCustomizationItem extends CustomizationItemBase {
 			}
 			
 			RenderSystem.enableBlend();
-			RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, this.opacity);
+			RenderSystem.color4f(1.0F, 1.0F, 1.0F, this.opacity);
 			drawTexture(matrix, x, y, 0.0F, 0.0F, this.width, this.height, this.width, this.height);
 			RenderSystem.disableBlend();
 		}

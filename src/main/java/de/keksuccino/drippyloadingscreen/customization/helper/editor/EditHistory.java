@@ -78,7 +78,7 @@ public class EditHistory {
 				neweditor.single = single;
 				this.editor = neweditor;
 
-				MinecraftClient.getInstance().setScreen(neweditor);
+				MinecraftClient.getInstance().openScreen(neweditor);
 
 			}
 			
@@ -105,7 +105,7 @@ public class EditHistory {
 					neweditor.single = single;
 					this.editor = neweditor;
 
-					MinecraftClient.getInstance().setScreen(neweditor);
+					MinecraftClient.getInstance().openScreen(neweditor);
 				}
 
 			}

@@ -64,22 +64,22 @@ public class AutoScalingPopup extends FHPopup {
         int screenCenterX = renderIn.width / 2;
         int screenCenterY = renderIn.height / 2;
 
-        drawCenteredText(matrix, font, Locals.localize("drippyloadingscreen.helper.editor.properties.autoscale.basesize.popup.desc.line1"), screenCenterX, screenCenterY - 90, -1);
-        drawCenteredText(matrix, font, Locals.localize("drippyloadingscreen.helper.editor.properties.autoscale.basesize.popup.desc.line2"), screenCenterX, screenCenterY - 80, -1);
-        drawCenteredText(matrix, font, Locals.localize("drippyloadingscreen.helper.editor.properties.autoscale.basesize.popup.desc.line3"), screenCenterX, screenCenterY - 70, -1);
+        drawCenteredString(matrix, font, Locals.localize("drippyloadingscreen.helper.editor.properties.autoscale.basesize.popup.desc.line1"), screenCenterX, screenCenterY - 90, -1);
+        drawCenteredString(matrix, font, Locals.localize("drippyloadingscreen.helper.editor.properties.autoscale.basesize.popup.desc.line2"), screenCenterX, screenCenterY - 80, -1);
+        drawCenteredString(matrix, font, Locals.localize("drippyloadingscreen.helper.editor.properties.autoscale.basesize.popup.desc.line3"), screenCenterX, screenCenterY - 70, -1);
 
-        drawCenteredText(matrix, font, Locals.localize("general.width"), screenCenterX, screenCenterY - 50, -1);
+        drawCenteredString(matrix, font, Locals.localize("general.width"), screenCenterX, screenCenterY - 50, -1);
         this.widthTextField.x = screenCenterX - (this.widthTextField.getWidth() / 2);
         this.widthTextField.y = screenCenterY - 35;
         this.widthTextField.render(matrix, mouseX, mouseY, partial);
 
-        drawCenteredText(matrix, font, Locals.localize("general.height"), screenCenterX, screenCenterY - 5, -1);
+        drawCenteredString(matrix, font, Locals.localize("general.height"), screenCenterX, screenCenterY - 5, -1);
         this.heightTextField.x = screenCenterX - (this.heightTextField.getWidth() / 2);
         this.heightTextField.y = screenCenterY + 10;
         this.heightTextField.render(matrix, mouseX, mouseY, partial);
 
-        drawCenteredText(matrix, font, Locals.localize("drippyloadingscreen.helper.editor.windowsize.currentwidth") + ": " + MinecraftClient.getInstance().getWindow().getWidth(), screenCenterX, screenCenterY + 45, -1);
-        drawCenteredText(matrix, font, Locals.localize("drippyloadingscreen.helper.editor.windowsize.currentheight") + ": " + MinecraftClient.getInstance().getWindow().getHeight(), screenCenterX, screenCenterY + 55, -1);
+        drawCenteredString(matrix, font, Locals.localize("drippyloadingscreen.helper.editor.windowsize.currentwidth") + ": " + MinecraftClient.getInstance().getWindow().getWidth(), screenCenterX, screenCenterY + 45, -1);
+        drawCenteredString(matrix, font, Locals.localize("drippyloadingscreen.helper.editor.windowsize.currentheight") + ": " + MinecraftClient.getInstance().getWindow().getHeight(), screenCenterX, screenCenterY + 55, -1);
 
         this.doneButton.x = screenCenterX - this.doneButton.getWidth() - 5;
         this.doneButton.y = screenCenterY + 80;

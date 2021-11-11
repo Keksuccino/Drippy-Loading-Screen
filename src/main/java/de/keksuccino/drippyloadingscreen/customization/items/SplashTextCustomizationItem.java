@@ -20,7 +20,6 @@ import de.keksuccino.konkrete.math.MathUtils;
 import de.keksuccino.konkrete.properties.PropertiesSection;
 import de.keksuccino.konkrete.rendering.RenderUtils;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3f;
 
 public class SplashTextCustomizationItem extends CustomizationItemBase {
 
@@ -173,13 +172,13 @@ public class SplashTextCustomizationItem extends CustomizationItemBase {
 
 			RenderSystem.enableBlend();
 
-			matrix.push();
-			matrix.scale(this.scale, this.scale, this.scale);
+			RenderSystem.pushMatrix();
+			RenderSystem.scalef(this.scale, this.scale, this.scale);
 
-			matrix.push();
-			matrix.translate(((this.getPosX() + (this.width / 2)) / this.scale), this.getPosY() / this.scale, 0.0F);
-			matrix.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(this.rotation));
-			matrix.scale(f, f, f);
+			RenderSystem.pushMatrix();
+			RenderSystem.translatef(((this.getPosX() + (this.width / 2)) / this.scale), this.getPosY() / this.scale, 0.0F);
+			RenderSystem.rotatef(this.rotation, 0.0F, 0.0F, 1.0F);
+			RenderSystem.scalef(f, f, f);
 
 			int alpha = this.basecolor.getAlpha();
 			int i = MathHelper.ceil(this.opacity * 255.0F);
@@ -194,8 +193,8 @@ public class SplashTextCustomizationItem extends CustomizationItemBase {
 				SimpleTextRenderer.drawString(matrix, splash, -(SimpleTextRenderer.getStringWidth(splash) / 2), 0, c.getRGB(), 1.0F, this.opacity);
 			}
 
-			matrix.pop();
-			matrix.pop();
+			RenderSystem.popMatrix();
+			RenderSystem.popMatrix();
 
 		}
 

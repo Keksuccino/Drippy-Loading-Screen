@@ -130,7 +130,7 @@ public class CustomizationHandler {
 					meta.get(0).addEntry("path", layout.getPath());
 					
 					LayoutEditorScreen.isActive = true;
-					MinecraftClient.getInstance().setScreen(new PreloadedLayoutEditorScreen(set));
+					MinecraftClient.getInstance().openScreen(new PreloadedLayoutEditorScreen(set));
 					stopSounds();
 					resetSounds();
 					

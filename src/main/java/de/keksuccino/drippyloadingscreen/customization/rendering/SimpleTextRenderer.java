@@ -74,7 +74,7 @@ public class SimpleTextRenderer {
             RenderUtils.bindTexture(DEFAULT_FONT, true);
             matrix.push();
             RenderSystem.enableBlend();
-            RenderSystem.setShaderColor(color[0], color[1], color[2], alpha);
+            RenderSystem.color4f(color[0], color[1], color[2], alpha);
             matrix.translate((x + ((i * 6) * scale)) + (xOffset * scale), y, 0);
             matrix.scale(scale, scale, 0);
             DrawableHelper.drawTexture(matrix, 0, 0, charX, charY, 6, 7 + heightOffset, 128, 128); //charX  charY  6  7  128  128
@@ -82,7 +82,7 @@ public class SimpleTextRenderer {
             if (CHARACTER_X_OFFSET.containsKey(c)) {
                 xOffset += CHARACTER_X_OFFSET.get(c);
             }
-            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
             matrix.pop();
         }
 

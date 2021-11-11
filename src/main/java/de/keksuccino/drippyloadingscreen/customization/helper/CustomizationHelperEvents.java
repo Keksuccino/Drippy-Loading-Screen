@@ -26,7 +26,7 @@ public class CustomizationHelperEvents {
 	public void onWindowResize(WindowResizedEvent e) {
 		Screen s = MinecraftClient.getInstance().currentScreen;
 		if ((s != null) && (s instanceof CustomizationHelperScreen)) {
-			MinecraftClient.getInstance().setScreen(s);
+			MinecraftClient.getInstance().openScreen(s);
 		}
 	}
 	
@@ -41,7 +41,7 @@ public class CustomizationHelperEvents {
 				int btnheight = (int) (70 * UIBase.getUIScale());
 
 				this.openHelperButton = new AdvancedButton(0, 90 , btnwidth, btnheight, "", false, (press) -> {
-					MinecraftClient.getInstance().setScreen(new CustomizationHelperScreen());
+					MinecraftClient.getInstance().openScreen(new CustomizationHelperScreen());
 				});
 				this.openHelperButton.setBackgroundTexture(OPEN_HELPER_BUTTON_TEXTURE_IDLE, OPEN_HELPER_BUTTON_TEXTURE_HOVER);
 				this.openHelperButton.setDescription(StringUtils.splitLines(Locals.localize("drippyloadingscreen.helper.openhelper"), "%n%"));
@@ -57,7 +57,7 @@ public class CustomizationHelperEvents {
 	@SubscribeEvent
 	public void onReloadSystem(CustomizationSystemReloadedEvent e) {
 		if (SplashCustomizationLayer.isCustomizationHelperScreen()) {
-			MinecraftClient.getInstance().setScreen(new CustomizationHelperScreen());
+			MinecraftClient.getInstance().openScreen(new CustomizationHelperScreen());
 		}
 	}
 

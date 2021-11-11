@@ -47,7 +47,7 @@ public class MenuBar extends UIBase {
 		//Add default drippyloadingscreen button
 		AdvancedButton fhBtn = new AdvancedImageButton(0, 0, 0, 0, FH_LOGO_TEXTURE, true, (press) -> {
 
-			MinecraftClient.getInstance().setScreen(new FHConfigScreen(MinecraftClient.getInstance().currentScreen));
+			MinecraftClient.getInstance().openScreen(new FHConfigScreen(MinecraftClient.getInstance().currentScreen));
 
 		}) {
 			@Override

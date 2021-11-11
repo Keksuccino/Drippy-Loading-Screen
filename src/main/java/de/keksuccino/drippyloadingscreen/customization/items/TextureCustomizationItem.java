@@ -2,6 +2,7 @@ package de.keksuccino.drippyloadingscreen.customization.items;
 
 import java.io.File;
 
+import de.keksuccino.konkrete.rendering.RenderUtils;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -78,7 +79,7 @@ public class TextureCustomizationItem extends CustomizationItemBase {
 				int y2 = this.gif.getPosY();
 				
 				RenderSystem.enableBlend();
-				RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, this.opacity);
+				RenderSystem.color4f(1.0F, 1.0F, 1.0F, this.opacity);
 				
 				this.gif.setPosX(x);
 				this.gif.setPosY(y);
@@ -96,10 +97,8 @@ public class TextureCustomizationItem extends CustomizationItemBase {
 				
 			} else if (this.texture != null) {
 
-				RenderSystem.setShader(GameRenderer::getPositionTexShader);
-				RenderSystem.setShaderTexture(0, this.texture.getResourceLocation());
-				RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, this.opacity);
-				RenderSystem.enableBlend();
+				RenderUtils.bindTexture(this.texture.getResourceLocation());
+				RenderSystem.color4f(1.0F, 1.0F, 1.0F, this.opacity);
 				RenderSystem.defaultBlendFunc();
 				drawTexture(matrix, x, y, 0.0F, 0.0F, this.width, this.height, this.width, this.height);
 				

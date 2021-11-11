@@ -5,7 +5,7 @@ import de.keksuccino.konkrete.config.exceptions.InvalidValueException;
 import de.keksuccino.konkrete.input.KeyboardHandler;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.option.KeyBinding;
+import net.minecraft.client.options.KeyBinding;
 
 public class Keybinding {
 
@@ -33,7 +33,7 @@ public class Keybinding {
 					}
 					DrippyLoadingScreen.config.syncConfig();
 					if (MinecraftClient.getInstance().currentScreen != null) {
-						MinecraftClient.getInstance().setScreen(MinecraftClient.getInstance().currentScreen);
+						MinecraftClient.getInstance().openScreen(MinecraftClient.getInstance().currentScreen);
 					}
 				} catch (InvalidValueException e) {
 					e.printStackTrace();

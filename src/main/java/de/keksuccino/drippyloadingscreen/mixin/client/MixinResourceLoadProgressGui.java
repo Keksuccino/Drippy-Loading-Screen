@@ -1,13 +1,13 @@
 package de.keksuccino.drippyloadingscreen.mixin.client;
 
 import net.minecraft.client.gui.DrawableHelper;
-import net.minecraft.client.gui.screen.SplashOverlay;
+import net.minecraft.client.gui.screen.SplashScreen;
 import net.minecraft.client.util.Window;
 import net.minecraft.client.util.math.MatrixStack;
 import de.keksuccino.drippyloadingscreen.DrippyLoadingScreen;
 import de.keksuccino.drippyloadingscreen.customization.rendering.splash.SplashCustomizationLayer;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.resource.ResourceReload;
+import net.minecraft.resource.ResourceReloadMonitor;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.MathHelper;
 import org.spongepowered.asm.mixin.Final;
@@ -20,17 +20,17 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-@Mixin(value = SplashOverlay.class)
+@Mixin(value = SplashScreen.class)
 public abstract class MixinResourceLoadProgressGui extends DrawableHelper {
 
 	protected MinecraftClient mc = MinecraftClient.getInstance();
 
-	@Shadow @Final private ResourceReload reload;
+	@Shadow @Final private ResourceReloadMonitor reloadMonitor;
 	@Shadow @Final private Consumer<Optional<Throwable>> exceptionHandler;
 	@Shadow @Final private boolean reloading;
 	@Shadow private float progress;
-	@Shadow private long reloadCompleteTime;
-	@Shadow private long reloadStartTime;
+	@Shadow private long applyCompleteTime;
+	@Shadow private long prepareCompleteTime;
 
 	protected boolean isUpdated = false;
 	protected int lastWidth = 0;
@@ -60,29 +60,27 @@ public abstract class MixinResourceLoadProgressGui extends DrawableHelper {
 
 		//-------------------------------------
 
-		if (this.reloading && this.reloadStartTime == -1L) {
-			this.reloadStartTime = time;
+		if (this.reloading && (this.reloadMonitor.isPrepareStageComplete() || this.mc.currentScreen != null) && this.prepareCompleteTime == -1L) {
+			this.prepareCompleteTime = time;
 		}
 
-		float f = this.reloadCompleteTime > -1L ? (float)(time - this.reloadCompleteTime) / 1000.0F : -1.0F;
-		float g = this.reloadStartTime > -1L ? (float)(time - this.reloadStartTime) / 500.0F : -1.0F;
+		float f = this.applyCompleteTime > -1L ? (float)(time - this.applyCompleteTime) / 1000.0F : -1.0F;
+		float f1 = this.prepareCompleteTime > -1L ? (float)(time - this.prepareCompleteTime) / 500.0F : -1.0F;
 		if (f >= 1.0F) {
 			if (this.mc.currentScreen != null) {
 				if (!DrippyLoadingScreen.isFancyMenuLoaded() && handler.fadeOut) {
 					this.mc.currentScreen.render(matrices, 0, 0, delta);
 				}
 			}
-
 		} else if (this.reloading) {
-			if (this.mc.currentScreen != null && g < 1.0F) {
+			if (this.mc.currentScreen != null && f1 < 1.0F) {
 				if (!DrippyLoadingScreen.isFancyMenuLoaded() && handler.fadeOut) {
 					this.mc.currentScreen.render(matrices, mouseX, mouseY, delta);
 				}
 			}
-
 		}
 
-		float y = this.reload.getProgress();
+		float y = this.reloadMonitor.getProgress();
 		this.progress = MathHelper.clamp(this.progress * 0.95F + y * 0.050000012F, 0.0F, 1.0F);
 
 		if (f >= 2.0F) {
@@ -90,29 +88,29 @@ public abstract class MixinResourceLoadProgressGui extends DrawableHelper {
 			this.mc.setOverlay(null);
 		}
 
-		if (this.reloadCompleteTime == -1L && this.reload.isComplete() && (!this.reloading || g >= 2.0F)) {
+		if (this.applyCompleteTime == -1L && this.reloadMonitor.isApplyStageComplete() && (!this.reloading || f1 >= 2.0F)) {
+			this.applyCompleteTime = Util.getMeasuringTimeMs();
 			try {
-				this.reload.throwException();
+				this.reloadMonitor.throwExceptions();
 				this.exceptionHandler.accept(Optional.empty());
-			} catch (Throwable var23) {
-				this.exceptionHandler.accept(Optional.of(var23));
+			} catch (Throwable throwable) {
+				this.exceptionHandler.accept(Optional.of(throwable));
 			}
 
-			this.reloadCompleteTime = Util.getMeasuringTimeMs();
 			if (this.mc.currentScreen != null) {
-				this.mc.currentScreen.init(this.mc, this.mc.getWindow().getScaledWidth(), this.mc.getWindow().getScaledHeight());
+				this.mc.currentScreen.init(this.mc, screenWidth, screenHeight);
 			}
 		}
 
 		//---------------------------------
 
 		//Give all important fields to the handler so elements can use them (only as getter ofc)
-		handler.reload = this.reload;
+		handler.reloadMonitor = this.reloadMonitor;
 		handler.exceptionHandler = this.exceptionHandler;
 		handler.reloading = this.reloading;
 		handler.progress = this.progress;
-		handler.reloadCompleteTime = this.reloadCompleteTime;
-		handler.reloadStartTime = this.reloadStartTime;
+		handler.reloadCompleteTime = this.applyCompleteTime;
+		handler.reloadStartTime = this.prepareCompleteTime;
 
 		//Render the actual loading screen and all customization items
 		handler.renderLayer();

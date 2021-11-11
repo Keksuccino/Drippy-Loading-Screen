@@ -36,7 +36,7 @@ public class CustomizationHelperScreen extends Screen {
 	@Override
 	public void onClose() {
 		CustomizationHelperScreen.resetScale();
-		MinecraftClient.getInstance().setScreen(null);
+		MinecraftClient.getInstance().openScreen(null);
 	}
 
 	@Override

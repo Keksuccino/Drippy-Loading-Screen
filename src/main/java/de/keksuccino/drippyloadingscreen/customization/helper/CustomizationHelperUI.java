@@ -81,7 +81,7 @@ public class CustomizationHelperUI extends UIBase {
 			
 			CustomizationButton newLayoutButton = new CustomizationButton(0, 0, 0, 0, Locals.localize("drippyloadingscreen.helper.ui.hud.layouts.new"), true, (press) -> {
 				LayoutEditorScreen.isActive = true;
-				MinecraftClient.getInstance().setScreen(new LayoutEditorScreen());
+				MinecraftClient.getInstance().openScreen(new LayoutEditorScreen());
 			});
 			newLayoutButton.setDescription(StringUtils.splitLines(Locals.localize("drippyloadingscreen.helper.ui.hud.layouts.new.desc"), "%n%"));
 			layoutsMenu.addContent(newLayoutButton);
@@ -113,7 +113,7 @@ public class CustomizationHelperUI extends UIBase {
 			/** CLOSE HELPER BUTTON **/
 			AdvancedImageButton closeGuiButtonTab = new AdvancedImageButton(20, 20, 20, 20, CLOSE_BUTTON_TEXTURE, true, (press) -> {
 				CustomizationHelperScreen.resetScale();
-				MinecraftClient.getInstance().setScreen(null);
+				MinecraftClient.getInstance().openScreen(null);
 			}) {
 				@Override
 				public void render(MatrixStack matrix, int mouseX, int mouseY, float partialTicks) {

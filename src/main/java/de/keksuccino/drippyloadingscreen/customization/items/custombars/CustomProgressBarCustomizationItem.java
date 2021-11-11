@@ -65,7 +65,7 @@ public class CustomProgressBarCustomizationItem extends CustomBarCustomizationIt
 		if (this.barTexture == null) {
 
 			RenderSystem.enableBlend();
-			RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+			RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
 
 			if (this.direction == BarDirection.RIGHT) {
 				RenderUtils.fill(matrix, this.getPosX(), this.getPosY(), this.getPosX() + this.currentPercentWidthHeight, this.getPosY() + this.height, this.barColor.getRGB(), this.opacity);
@@ -84,7 +84,7 @@ public class CustomProgressBarCustomizationItem extends CustomBarCustomizationIt
 			
 			RenderUtils.bindTexture(this.barTexture);
 			RenderSystem.enableBlend();
-			RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, this.opacity);
+			RenderSystem.color4f(1.0F, 1.0F, 1.0F, this.opacity);
 			
 			if (this.direction == BarDirection.RIGHT) {
 				drawTexture(matrix, this.getPosX(), this.getPosY(), 0.0F, 0.0F, this.currentPercentWidthHeight, this.height, this.width, this.height);
@@ -113,14 +113,14 @@ public class CustomProgressBarCustomizationItem extends CustomBarCustomizationIt
 		if (this.backgroundTexture == null) {
 
 			RenderSystem.enableBlend();
-			RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+			RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
 			RenderUtils.fill(matrix, this.getPosX(), this.getPosY(), this.getPosX() + this.width, this.getPosY() + this.height, this.backgroundColor.getRGB(), this.opacity);
 		
 		} else {
 			
 			RenderUtils.bindTexture(this.backgroundTexture);
 			RenderSystem.enableBlend();
-			RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, this.opacity);
+			RenderSystem.color4f(1.0F, 1.0F, 1.0F, this.opacity);
 			drawTexture(matrix, this.getPosX(), this.getPosY(), 0.0F, 0.0F, this.width, this.height, this.width, this.height);
 			RenderSystem.disableBlend();
 			

@@ -79,7 +79,7 @@ public class LayoutEditorUI extends UIBase {
 			AdvancedButton newLayoutButton = new AdvancedButton(0, 0, 0, 0, Locals.localize("drippyloadingscreen.helper.editor.ui.layout.new"), true, (press) -> {
 				this.displayUnsavedWarning((call) -> {
 					if (call) {
-						MinecraftClient.getInstance().setScreen(new LayoutEditorScreen());
+						MinecraftClient.getInstance().openScreen(new LayoutEditorScreen());
 					}
 				});
 			});
@@ -257,7 +257,7 @@ public class LayoutEditorUI extends UIBase {
 				this.parent.height = MinecraftClient.getInstance().getWindow().getScaledHeight();
 				this.parent.width = MinecraftClient.getInstance().getWindow().getScaledWidth();
 				
-				MinecraftClient.getInstance().setScreen(new CustomizationHelperScreen());
+				MinecraftClient.getInstance().openScreen(new CustomizationHelperScreen());
 				
 			}
 		});

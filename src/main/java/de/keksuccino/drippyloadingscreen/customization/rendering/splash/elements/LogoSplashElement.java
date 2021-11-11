@@ -1,5 +1,6 @@
 package de.keksuccino.drippyloadingscreen.customization.rendering.splash.elements;
 
+import de.keksuccino.konkrete.rendering.RenderUtils;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.util.math.MatrixStack;
@@ -59,12 +60,12 @@ public class LogoSplashElement extends SplashElementBase {
         this.width = (int) (k1 * 2.0D);
         this.height = (int) d0;
 
-        RenderSystem.setShaderTexture(0, MOJANG_LOGO_TEXTURE);
-        RenderSystem.enableBlend();
+        //TODO experimental
+        RenderUtils.bindTexture(MOJANG_LOGO_TEXTURE);
         RenderSystem.blendEquation(32774);
         RenderSystem.blendFunc(770, 1);
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, f2);
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, f2);
+        //---------------
 
         //   matrix  X       Y       W   H        uOff      vOff  uW   uH  texW texH
         drawTexture(matrix, this.x, this.y, k1, (int)d0, -0.0625F, 0.0F, 120, 60, 120, 120);

@@ -494,7 +494,7 @@ public class LayoutEditorScreen extends Screen {
 		if (this.splashLayer.backgroundImage != null) {
 			RenderUtils.bindTexture(this.splashLayer.backgroundImage);
 			RenderSystem.enableBlend();
-			RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+			RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
 			drawTexture(matrix, 0, 0, 0.0F, 0.0F, this.width, this.height, this.width, this.height);
 			RenderSystem.disableBlend();
 		}
@@ -898,7 +898,7 @@ public class LayoutEditorScreen extends Screen {
 				this.history.editor = neweditor;
 				neweditor.single = ((PreloadedLayoutEditorScreen)this).single;
 
-				MinecraftClient.getInstance().setScreen(neweditor);
+				MinecraftClient.getInstance().openScreen(neweditor);
 			}
 
 		} else {
@@ -927,7 +927,7 @@ public class LayoutEditorScreen extends Screen {
 							this.history.editor = neweditor;
 							neweditor.single = file;
 
-							MinecraftClient.getInstance().setScreen(neweditor);
+							MinecraftClient.getInstance().openScreen(neweditor);
 						}
 					} else {
 						PopupHandler.displayPopup(new FHNotificationPopup(300, new Color(0, 0, 0, 0), 240, null, Locals.localize("drippyloadingscreen.helper.editor.ui.layout.saveas.failed")));
@@ -1127,7 +1127,7 @@ public class LayoutEditorScreen extends Screen {
 		neweditor.single = single;
 		neweditor.history.editor = neweditor;
 
-		MinecraftClient.getInstance().setScreen(neweditor);
+		MinecraftClient.getInstance().openScreen(neweditor);
 	}
 
 }
