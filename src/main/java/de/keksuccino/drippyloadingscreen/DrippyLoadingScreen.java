@@ -26,7 +26,7 @@ import net.minecraftforge.fml.loading.FMLEnvironment;
 public class DrippyLoadingScreen {
 
 	//TODO übernehmen
-	public static final String VERSION = "1.2.0";
+	public static final String VERSION = "1.3.0";
 	
 	public static final File HOME_DIR = new File("config/drippyloadingscreen");
 	public static final File CUSTOMIZATION_DIR = new File(HOME_DIR.getPath() + "/customization");
@@ -122,10 +122,8 @@ public class DrippyLoadingScreen {
 			config.registerValue("printwarnings", true, "logging");
 			
 			config.registerValue("editordeleteconfirmation", true, "layouteditor");
-			//TODO übernehmen
 			config.registerValue("showgrid", false, "layouteditor");
 			config.registerValue("gridsize", 10, "layouteditor");
-			//------------
 			
 			config.registerValue("showcustomizationcontrols", true, "customization");
 			config.registerValue("enablekeybinds", true, "customization");
@@ -158,7 +156,7 @@ public class DrippyLoadingScreen {
 	
 	/**
 	 * Gets the {@link PlaceholderTextValueRegistry} instance that allows you to register your own placeholder text values to the mod.<br>
-	 * These can be used in many text-based HUD elements and items.
+	 * These can be used in many text-based elements and items.
 	 */
 	public static PlaceholderTextValueRegistry getDynamicValueRegistry() {
 		return PlaceholderTextValueRegistry.getInstance();
@@ -166,11 +164,11 @@ public class DrippyLoadingScreen {
 	
 	/**
 	 * Gets the {@link CustomizationItemRegistry} instance that allows you to register your own <b>customization items</b>.<br>
-	 * Customization items are all elements you can add to the HUD, like images, texts and more.<br><br>
+	 * Customization items are all elements you can add to the loading screen, like images, texts and more.<br><br>
 	 * 
 	 * <b>NOTE:</b><br>
 	 * Internally, these are called "items" and vanilla elements are called "elements", but they are both called "elements" in the actual mod.<br>
-	 * This was done to not forget that they are different things in the code, even if they look the same in the HUD.
+	 * This was done to not forget that they are different things in the code, even if they look the same in the loading screen.
 	 */
 	public static CustomizationItemRegistry getCustomizationItemRegistry() {
 		return CustomizationItemRegistry.getInstance();

@@ -206,4 +206,12 @@ public abstract class CustomizationItemBase extends GuiComponent {
 		
 	}
 
+	//TODO übernehmen
+	public static String fixBackslashPath(String path) {
+		if (path != null) {
+			return path.replace("\\", "/");
+		}
+		return null;
+	}
+
 }

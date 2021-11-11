@@ -99,14 +99,16 @@ public class LayoutEditorScreen extends Screen {
 	protected int smallerThanHeight = 0;
 
 	//TODO übernehmen
+	protected boolean randomMode = false;
+	protected String randomGroup = "1";
+	protected boolean randomOnlyFirstTime = false;
+	//--------------------
+
 	protected int scale = 0;
 	protected boolean fadeOut = true;
-	//--------------
 
-	//TODO übernehmen
 	protected int autoScalingWidth = 0;
 	protected int autoScalingHeight = 0;
-	//--------------
 
 	protected boolean multiselectStretchedX = false;
 	protected boolean multiselectStretchedY = false;
@@ -171,7 +173,6 @@ public class LayoutEditorScreen extends Screen {
 		
 		this.focusChangeBlocker.clear();
 
-		//TODO übernehmen
 		Window w = Minecraft.getInstance().getWindow();
 		if (this.scale > 0) {
 			w.setGuiScale(this.scale);
@@ -181,9 +182,7 @@ public class LayoutEditorScreen extends Screen {
 		}
 		this.width = w.getGuiScaledWidth();
 		this.height = w.getGuiScaledHeight();
-		//-------------------
 
-		//TODO übernehmen
 		//Handle auto-scaling
 		if ((this.autoScalingWidth != 0) && (this.autoScalingHeight != 0)) {
 			double guiWidth = this.width * w.getGuiScale();
@@ -212,6 +211,12 @@ public class LayoutEditorScreen extends Screen {
 		PropertiesSection meta = new PropertiesSection("customization-meta");
 		
 		meta.addEntry("renderorder", this.renderorder);
+
+		//TODO übernehmen
+		meta.addEntry("randommode", "" + this.randomMode);
+		meta.addEntry("randomgroup", this.randomGroup);
+		meta.addEntry("randomonlyfirsttime", "" + this.randomOnlyFirstTime);
+		//-------------------
 
 		if (this.splashLayer.customBackgroundHex != null) {
 			meta.addEntry("backgroundcolor", this.splashLayer.customBackgroundHex);
@@ -251,15 +256,12 @@ public class LayoutEditorScreen extends Screen {
 		if (this.smallerThanHeight != 0) {
 			meta.addEntry("smallerthanheight", "" + this.smallerThanHeight);
 		}
-		//TODO übernehmen
 		if (this.scale > 0) {
 			meta.addEntry("scale", "" + this.scale);
 		}
-		//TODO übernehmen
 		if (!this.fadeOut) {
 			meta.addEntry("fadeout", "false");
 		}
-		//TODO übernehmen
 		if ((this.autoScalingWidth != 0) && (this.autoScalingHeight != 0)) {
 			meta.addEntry("autoscale_basewidth", "" + this.autoScalingWidth);
 			meta.addEntry("autoscale_baseheight", "" + this.autoScalingHeight);
@@ -333,7 +335,6 @@ public class LayoutEditorScreen extends Screen {
 
 		this.renderEditorBackground(matrix);
 
-		//TODO übernehmen
 		this.drawGrid(matrix);
 		
 		//Render vanilla elements if rendering order is set to foreground
@@ -452,7 +453,6 @@ public class LayoutEditorScreen extends Screen {
 
 	}
 
-	//TODO übernehmen
 	protected void drawGrid(PoseStack matrix) {
 		if (DrippyLoadingScreen.config.getOrDefault("showgrid", false)) {
 			Color c = new Color(255, 255, 255, 100);
@@ -1057,7 +1057,6 @@ public class LayoutEditorScreen extends Screen {
 				}
 			}
 
-			//TODO übernehmen
 			//CTRL + G
 			if (d.keycode == 71) {
 				if (KeyboardHandler.isCtrlPressed()) {

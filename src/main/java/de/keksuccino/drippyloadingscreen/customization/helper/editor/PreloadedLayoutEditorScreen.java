@@ -49,25 +49,37 @@ public class PreloadedLayoutEditorScreen extends LayoutEditorScreen {
 			this.maximumDL = meta.getEntryValue("maximumdlversion");
 			this.minimumMC = meta.getEntryValue("minimummcversion");
 			this.maximumMC = meta.getEntryValue("maximummcversion");
+
+			//TODO übernehmen
+			String ranMode = meta.getEntryValue("randommode");
+			if ((ranMode != null) && ranMode.equalsIgnoreCase("true")) {
+				this.randomMode = true;
+			}
+			String ranModeGroup = meta.getEntryValue("randomgroup");
+			if ((ranModeGroup != null) && MathUtils.isInteger(ranModeGroup)) {
+				this.randomGroup = ranModeGroup;
+			}
+			String ranModeFirstTime = meta.getEntryValue("randomonlyfirsttime");
+			if ((ranModeFirstTime != null) && ranModeFirstTime.equalsIgnoreCase("true")) {
+				this.randomOnlyFirstTime = true;
+			}
+			//------------------------
 			
 			String order = meta.getEntryValue("renderorder");
 			if ((order != null) && order.equalsIgnoreCase("background")) {
 				this.renderorder = "background";
 			}
 
-			//TODO übernehmen
 			String scaleString = meta.getEntryValue("scale");
 			if ((scaleString != null) && (MathUtils.isInteger(scaleString) || MathUtils.isDouble(scaleString))) {
 				this.scale = (int) Double.parseDouble(scaleString);
 			}
 
-			//TODO übernehmen
 			String fadeOutString = meta.getEntryValue("fadeout");
 			if ((fadeOutString != null) && fadeOutString.equalsIgnoreCase("false")) {
 				this.fadeOut = false;
 			}
 
-			//TODO übernehmen
 			String autoScaleW = meta.getEntryValue("autoscale_basewidth");
 			String autoScaleH = meta.getEntryValue("autoscale_baseheight");
 			if ((autoScaleW != null) && (autoScaleH != null) && MathUtils.isInteger(autoScaleW) && MathUtils.isInteger(autoScaleH)) {

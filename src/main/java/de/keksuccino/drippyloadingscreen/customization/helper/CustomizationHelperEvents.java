@@ -13,6 +13,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.client.event.GuiScreenEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 public class CustomizationHelperEvents {
@@ -54,7 +55,6 @@ public class CustomizationHelperEvents {
 		
 	}
 
-	@SubscribeEvent
 	public void onReloadSystem(CustomizationSystemReloadedEvent e) {
 		if (SplashCustomizationLayer.isCustomizationHelperScreen()) {
 			Minecraft.getInstance().setScreen(new CustomizationHelperScreen());

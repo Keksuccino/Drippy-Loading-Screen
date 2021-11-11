@@ -32,8 +32,6 @@ minecraft {
     runs {
         client {
             workingDirectory project.file('run')
-            property 'forge.logging.markers', 'REGISTRIES'
-            property 'forge.logging.console.level', 'debug'
 			arg "-mixin.config=drippyloadingscreen.mixin.json"
             mods {
                 drippyloadingscreen {
@@ -58,7 +56,7 @@ repositories {
 
 dependencies {
 
-    minecraft 'net.minecraftforge:forge:1.17.1-37.0.65'
+    minecraft 'net.minecraftforge:forge:1.17.1-37.0.95'
 
     // Examples using mod jars from ./libs
     // implementation fg.deobf("blank:coolmod-${mc_version}:${coolmod_version}")

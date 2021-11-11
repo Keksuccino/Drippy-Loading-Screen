@@ -11,7 +11,6 @@ public class Test extends GuiComponent {
 
     AdvancedButton b = new AdvancedButton(20, 20,100, 20, "Open Editor DL", true, (press) -> {
         Minecraft.getInstance().setScreen(new LayoutEditorScreen());
-        Minecraft.getInstance().setScreen(new LayoutEditorScreen());
     });
 
     @SubscribeEvent

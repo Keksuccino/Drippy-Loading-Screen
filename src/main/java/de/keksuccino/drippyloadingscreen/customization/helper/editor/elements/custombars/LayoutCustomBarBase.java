@@ -4,6 +4,7 @@ import de.keksuccino.drippyloadingscreen.customization.helper.editor.LayoutEdito
 import de.keksuccino.drippyloadingscreen.customization.helper.editor.elements.LayoutElement;
 import de.keksuccino.drippyloadingscreen.customization.helper.ui.popup.ChooseFilePopup;
 import de.keksuccino.drippyloadingscreen.customization.helper.ui.popup.FHTextInputPopup;
+import de.keksuccino.drippyloadingscreen.customization.items.CustomizationItemBase;
 import de.keksuccino.drippyloadingscreen.customization.items.custombars.CustomBarCustomizationItemBase;
 import de.keksuccino.konkrete.gui.content.AdvancedButton;
 import de.keksuccino.konkrete.gui.screens.popup.PopupHandler;
@@ -42,8 +43,6 @@ public class LayoutCustomBarBase extends LayoutElement {
 					if (c != null) {
 						this.getObject().barColorHex = call;
 						this.getObject().updateItem();
-					} else {
-						//TODO error message anzeigen
 					}
 				}
 			});
@@ -65,8 +64,6 @@ public class LayoutCustomBarBase extends LayoutElement {
 					if (c != null) {
 						this.getObject().backgroundColorHex = call;
 						this.getObject().updateItem();
-					} else {
-						//TODO error message anzeigen
 					}
 				}
 			});
@@ -94,8 +91,6 @@ public class LayoutCustomBarBase extends LayoutElement {
 						if (f.exists() && f.isFile() && (f.getPath().toLowerCase().endsWith(".jpg") || f.getPath().toLowerCase().endsWith(".jpeg") || f.getPath().toLowerCase().endsWith(".png"))) {
 							this.getObject().barTexturePath = call;
 							this.getObject().updateItem();
-						} else {
-							//TODO error popup
 						}
 					}
 				}
@@ -123,8 +118,6 @@ public class LayoutCustomBarBase extends LayoutElement {
 						if (f.exists() && f.isFile() && (f.getPath().toLowerCase().endsWith(".jpg") || f.getPath().toLowerCase().endsWith(".jpeg") || f.getPath().toLowerCase().endsWith(".png"))) {
 							this.getObject().backgroundTexturePath = call;
 							this.getObject().updateItem();
-						} else {
-							//TODO error popup
 						}
 					}
 				}
@@ -210,13 +203,16 @@ public class LayoutCustomBarBase extends LayoutElement {
 			s.addEntry("backgroundcolor", this.getObject().backgroundColorHex);
 		}
 		if (this.getObject().barTexturePath != null) {
-			s.addEntry("bartexture", this.getObject().barTexturePath);
+			//TODO übernehmen
+			s.addEntry("bartexture", CustomizationItemBase.fixBackslashPath(this.getObject().barTexturePath));
 		}
 		if (this.getObject().backgroundTexturePath != null) {
-			s.addEntry("backgroundtexture", this.getObject().backgroundTexturePath);
+			//TODO übernehmen
+			s.addEntry("backgroundtexture", CustomizationItemBase.fixBackslashPath(this.getObject().backgroundTexturePath));
 		}
 		if (this.getObject().barEndTexturePath != null) {
-			s.addEntry("barendtexture", this.getObject().barEndTexturePath);
+			//TODO übernehmen
+			s.addEntry("barendtexture", CustomizationItemBase.fixBackslashPath(this.getObject().barEndTexturePath));
 			s.addEntry("barendtexturewidth", "" + this.getObject().barEndTextureWidth);
 			s.addEntry("barendtextureheight", "" + this.getObject().barEndTextureHeight);
 		}

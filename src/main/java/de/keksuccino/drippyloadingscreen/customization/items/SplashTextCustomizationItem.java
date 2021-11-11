@@ -18,7 +18,6 @@ import de.keksuccino.konkrete.input.StringUtils;
 import de.keksuccino.konkrete.math.MathUtils;
 import de.keksuccino.konkrete.properties.PropertiesSection;
 import de.keksuccino.konkrete.rendering.RenderUtils;
-import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.util.Mth;
@@ -56,8 +55,9 @@ public class SplashTextCustomizationItem extends CustomizationItemBase {
 		}
 		
 		if ((this.action != null) && this.action.equalsIgnoreCase("addsplash")) {
-			
-			String filepath = item.getEntryValue("splashfilepath");
+
+			//TODO übernehmen
+			String filepath = fixBackslashPath(item.getEntryValue("splashfilepath"));
 			if (filepath != null) {
 				this.splashfile = new File(filepath);
 				if (!this.splashfile.exists() || !this.splashfile.getPath().toLowerCase().endsWith(".txt")) {

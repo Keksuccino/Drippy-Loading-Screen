@@ -93,7 +93,6 @@ public class CustomizationHelperUI extends UIBase {
 			
 			/** CLOSE HELPER BUTTON **/
 			AdvancedImageButton closeGuiButtonTab = new AdvancedImageButton(20, 20, 20, 20, CLOSE_BUTTON_TEXTURE, true, (press) -> {
-				//TODO übernehmen
 				CustomizationHelperScreen.resetScale();
 				Minecraft.getInstance().setScreen(null);
 			}) {

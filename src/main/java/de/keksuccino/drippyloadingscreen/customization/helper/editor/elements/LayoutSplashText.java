@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import de.keksuccino.drippyloadingscreen.customization.items.CustomizationItemBase;
 import de.keksuccino.konkrete.localization.Locals;
 import de.keksuccino.drippyloadingscreen.customization.helper.editor.LayoutEditorScreen;
 import de.keksuccino.drippyloadingscreen.customization.helper.ui.popup.FHTextInputPopup;
@@ -184,7 +185,8 @@ public class LayoutSplashText extends LayoutElement {
 			p1.addEntry("text", this.getObject().text);
 		}
 		if (this.getObject().splashfile != null) {
-			p1.addEntry("splashfilepath", this.getObject().splashfile.getPath());
+			//TODO übernehmen
+			p1.addEntry("splashfilepath", CustomizationItemBase.fixBackslashPath(this.getObject().splashfile.getPath()));
 		}
 		p1.addEntry("x", "" + this.object.posX);
 		p1.addEntry("y", "" + this.object.posY);
