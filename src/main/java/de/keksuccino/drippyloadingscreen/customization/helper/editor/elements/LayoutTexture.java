@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.keksuccino.drippyloadingscreen.customization.helper.editor.LayoutEditorScreen;
+import de.keksuccino.drippyloadingscreen.customization.items.CustomizationItemBase;
 import de.keksuccino.drippyloadingscreen.customization.items.TextureCustomizationItem;
 import de.keksuccino.konkrete.properties.PropertiesSection;
 
@@ -35,7 +36,7 @@ public class LayoutTexture extends LayoutElement {
 				p1.addEntry("fadeinspeed", "" + this.object.fadeInSpeed);
 			}
 		}
-		p1.addEntry("path", this.object.value);
+		p1.addEntry("path", CustomizationItemBase.fixBackslashPath(this.object.value));
 		p1.addEntry("orientation", this.object.orientation);
 		if (this.stretchX) {
 			p1.addEntry("x", "0");

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "drippyloadingscreen",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "name": "Drippy Loading Screen",
   "description": "Drippy Loading Screen © Copyright 2021 Keksuccino. Drippy Loading Screen is licensed under KML. See https://github.com/Keksuccino/Drippy-Loading-Screen/blob/main/LICENSE.md for more informations about this license.",
   "environment": "client",
@@ -24,8 +24,8 @@
   ],
   "depends": {
     "fabricloader": ">=0.11.3",
-    "fabric": "*",
     "konkrete": ">=1.3.0",
+    "fabric": "*",
 	"minecraft": "1.17.x",
     "java": ">=16"
   }

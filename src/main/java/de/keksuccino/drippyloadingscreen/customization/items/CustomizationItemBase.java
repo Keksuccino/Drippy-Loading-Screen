@@ -192,4 +192,11 @@ public abstract class CustomizationItemBase extends DrawableHelper {
 		
 	}
 
+	public static String fixBackslashPath(String path) {
+		if (path != null) {
+			return path.replace("\\", "/");
+		}
+		return null;
+	}
+
 }

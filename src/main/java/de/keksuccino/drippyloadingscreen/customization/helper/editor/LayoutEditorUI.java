@@ -359,6 +359,81 @@ public class LayoutEditorUI extends UIBase {
 			
 			this.content.clear();
 
+			/** RANDOM MODE **/
+			String randomModeString = Locals.localize("drippyloadingscreen.helper.editor.layoutoptions.randommode.on");
+			if (!this.parent.randomMode) {
+				randomModeString = Locals.localize("drippyloadingscreen.helper.editor.layoutoptions.randommode.off");
+			}
+			AdvancedButton randomModeButton = new AdvancedButton(0, 0, 0, 16, randomModeString, true, (press) -> {
+				if (this.parent.randomMode) {
+					((AdvancedButton)press).setMessage(Locals.localize("drippyloadingscreen.helper.editor.layoutoptions.randommode.off"));
+					this.parent.randomMode = false;
+				} else {
+					((AdvancedButton)press).setMessage(Locals.localize("drippyloadingscreen.helper.editor.layoutoptions.randommode.on"));
+					this.parent.randomMode = true;
+				}
+			});
+			randomModeButton.setDescription(StringUtils.splitLines(Locals.localize("drippyloadingscreen.helper.editor.layoutoptions.randommode.btn.desc"), "%n%"));
+			this.addContent(randomModeButton);
+
+			AdvancedButton randomModeGroupButton = new AdvancedButton(0, 0, 0, 16, Locals.localize("drippyloadingscreen.helper.editor.layoutoptions.randommode.setgroup"), true, (press) -> {
+				FHTextInputPopup pop = new FHTextInputPopup(new Color(0, 0, 0, 0), Locals.localize("drippyloadingscreen.helper.editor.layoutoptions.randommode.setgroup"), CharacterFilter.getIntegerCharacterFiler(), 240, (call) -> {
+					if (call != null) {
+						if (!MathUtils.isInteger(call)) {
+							call = "1";
+						}
+						if (!call.equalsIgnoreCase(this.parent.randomGroup)) {
+							this.parent.history.saveSnapshot(this.parent.history.createSnapshot());
+						}
+						this.parent.randomGroup = call;
+					}
+				});
+				if (this.parent.randomGroup != null) {
+					pop.setText(this.parent.randomGroup);
+				}
+				PopupHandler.displayPopup(pop);
+			}) {
+				@Override
+				public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+					if (parent.randomMode) {
+						this.active = true;
+					} else {
+						this.active = false;
+					}
+					super.render(matrixStack, mouseX, mouseY, partialTicks);
+				}
+			};
+			randomModeGroupButton.setDescription(StringUtils.splitLines(Locals.localize("drippyloadingscreen.helper.editor.layoutoptions.randommode.setgroup.btn.desc"), "%n%"));
+			this.addContent(randomModeGroupButton);
+
+			String randomModeFirstTimeString = Locals.localize("drippyloadingscreen.helper.editor.layoutoptions.randommode.onlyfirsttime.on");
+			if (!this.parent.randomOnlyFirstTime) {
+				randomModeFirstTimeString = Locals.localize("drippyloadingscreen.helper.editor.layoutoptions.randommode.onlyfirsttime.off");
+			}
+			AdvancedButton randomModeFirstTimeButton = new AdvancedButton(0, 0, 0, 16, randomModeFirstTimeString, true, (press) -> {
+				if (this.parent.randomOnlyFirstTime) {
+					((AdvancedButton)press).setMessage(Locals.localize("drippyloadingscreen.helper.editor.layoutoptions.randommode.onlyfirsttime.off"));
+					this.parent.randomOnlyFirstTime = false;
+				} else {
+					((AdvancedButton)press).setMessage(Locals.localize("drippyloadingscreen.helper.editor.layoutoptions.randommode.onlyfirsttime.on"));
+					this.parent.randomOnlyFirstTime = true;
+				}
+			}) {
+				@Override
+				public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+					if (parent.randomMode) {
+						this.active = true;
+					} else {
+						this.active = false;
+					}
+					super.render(matrixStack, mouseX, mouseY, partialTicks);
+				}
+			};
+			randomModeFirstTimeButton.setDescription(StringUtils.splitLines(Locals.localize("drippyloadingscreen.helper.editor.layoutoptions.randommode.onlyfirsttime.btn.desc"), "%n%"));
+			this.addContent(randomModeFirstTimeButton);
+
+			this.addSeparator();
+
 			/** RENDERING ORDER **/
 			FHContextMenu renderingOrderMenu = new FHContextMenu();
 			renderingOrderMenu.setAutoclose(true);

@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.keksuccino.drippyloadingscreen.customization.items.CustomizationItemBase;
 import net.minecraft.client.util.math.MatrixStack;
 
 import de.keksuccino.konkrete.localization.Locals;
@@ -207,7 +208,7 @@ public class LayoutSplashText extends LayoutElement {
 			p1.addEntry("text", this.getObject().text);
 		}
 		if (this.getObject().splashfile != null) {
-			p1.addEntry("splashfilepath", this.getObject().splashfile.getPath());
+			p1.addEntry("splashfilepath", CustomizationItemBase.fixBackslashPath(this.getObject().splashfile.getPath()));
 		}
 		p1.addEntry("x", "" + this.object.posX);
 		p1.addEntry("y", "" + this.object.posY);

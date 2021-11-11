@@ -96,6 +96,10 @@ public class LayoutEditorScreen extends Screen {
 	protected int smallerThanWidth = 0;
 	protected int smallerThanHeight = 0;
 
+	protected boolean randomMode = false;
+	protected String randomGroup = "1";
+	protected boolean randomOnlyFirstTime = false;
+
 	protected int scale = 0;
 	protected boolean fadeOut = true;
 
@@ -198,6 +202,10 @@ public class LayoutEditorScreen extends Screen {
 		PropertiesSection meta = new PropertiesSection("customization-meta");
 		
 		meta.addEntry("renderorder", this.renderorder);
+
+		meta.addEntry("randommode", "" + this.randomMode);
+		meta.addEntry("randomgroup", this.randomGroup);
+		meta.addEntry("randomonlyfirsttime", "" + this.randomOnlyFirstTime);
 
 		if (this.splashLayer.customBackgroundHex != null) {
 			meta.addEntry("backgroundcolor", this.splashLayer.customBackgroundHex);

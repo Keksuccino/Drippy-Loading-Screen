@@ -16,6 +16,7 @@ public class CustomizationHelperScreen extends Screen {
 	
 	public CustomizationHelperScreen() {
 		super(new LiteralText(""));
+		splashLayer.isNewLoadingScreen = true;
 	}
 	
 	@Override
@@ -29,7 +30,13 @@ public class CustomizationHelperScreen extends Screen {
 
 	@Override
 	public boolean shouldCloseOnEsc() {
-		return false;
+		return true;
+	}
+
+	@Override
+	public void onClose() {
+		CustomizationHelperScreen.resetScale();
+		MinecraftClient.getInstance().setScreen(null);
 	}
 
 	@Override

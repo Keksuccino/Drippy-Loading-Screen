@@ -30,20 +30,18 @@ public class SimpleTextRenderer {
         CHARACTER_X_OFFSET.put("'".charAt(0), -4);
         CHARACTER_X_OFFSET.put("´".charAt(0), -4);
         CHARACTER_X_OFFSET.put("`".charAt(0), -4);
-        CHARACTER_X_OFFSET.put("/".charAt(0), -3);
-        CHARACTER_X_OFFSET.put("\\".charAt(0), -3);
         CHARACTER_X_OFFSET.put("}".charAt(0), -3);
         CHARACTER_X_OFFSET.put("{".charAt(0), -3);
-        CHARACTER_X_OFFSET.put(")".charAt(0), -3);
-        CHARACTER_X_OFFSET.put("(".charAt(0), -3);
-        CHARACTER_X_OFFSET.put("]".charAt(0), -3);
-        CHARACTER_X_OFFSET.put("[".charAt(0), -3);
-        CHARACTER_X_OFFSET.put("1".charAt(0), -3);
+        CHARACTER_X_OFFSET.put(")".charAt(0), -2);
+        CHARACTER_X_OFFSET.put("(".charAt(0), -2);
+        CHARACTER_X_OFFSET.put("]".charAt(0), -2);
+        CHARACTER_X_OFFSET.put("[".charAt(0), -2);
         CHARACTER_X_OFFSET.put("i".charAt(0), -4);
         CHARACTER_X_OFFSET.put("I".charAt(0), -2);
         CHARACTER_X_OFFSET.put("l".charAt(0), -3);
         CHARACTER_X_OFFSET.put("t".charAt(0), -2);
         CHARACTER_X_OFFSET.put("k".charAt(0), -1);
+        CHARACTER_X_OFFSET.put("|".charAt(0), -3);
 
         CHARACTER_HEIGHT_OFFSET.clear();
 
@@ -53,6 +51,7 @@ public class SimpleTextRenderer {
         CHARACTER_HEIGHT_OFFSET.put("j".charAt(0), 1);
         CHARACTER_HEIGHT_OFFSET.put("g".charAt(0), 1);
         CHARACTER_HEIGHT_OFFSET.put("@".charAt(0), 1);
+        CHARACTER_HEIGHT_OFFSET.put(",".charAt(0), 1);
 
     }
 
