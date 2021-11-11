@@ -49,6 +49,19 @@ public class PreloadedLayoutEditorScreen extends LayoutEditorScreen {
 			this.maximumDL = meta.getEntryValue("maximumdlversion");
 			this.minimumMC = meta.getEntryValue("minimummcversion");
 			this.maximumMC = meta.getEntryValue("maximummcversion");
+
+			String ranMode = meta.getEntryValue("randommode");
+			if ((ranMode != null) && ranMode.equalsIgnoreCase("true")) {
+				this.randomMode = true;
+			}
+			String ranModeGroup = meta.getEntryValue("randomgroup");
+			if ((ranModeGroup != null) && MathUtils.isInteger(ranModeGroup)) {
+				this.randomGroup = ranModeGroup;
+			}
+			String ranModeFirstTime = meta.getEntryValue("randomonlyfirsttime");
+			if ((ranModeFirstTime != null) && ranModeFirstTime.equalsIgnoreCase("true")) {
+				this.randomOnlyFirstTime = true;
+			}
 			
 			String order = meta.getEntryValue("renderorder");
 			if ((order != null) && order.equalsIgnoreCase("background")) {

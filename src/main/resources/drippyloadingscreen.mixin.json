@@ -4,7 +4,8 @@
   "compatibilityLevel": "JAVA_8",
   "minVersion": "0.8",
   "client": [
-    "MixinResourceLoadProgressGui"
+    "MixinResourceLoadProgressGui",
+    "MixinMinecraft"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -58,6 +58,8 @@ public abstract class MixinResourceLoadProgressGui extends AbstractGui {
 
 		info.cancel();
 
+		//--------------------------------------
+
 		if (this.reloading && (this.asyncReloader.asyncPartDone() || this.mc.currentScreen != null) && this.fadeInStart == -1L) {
 			this.fadeInStart = time;
 		}
@@ -102,6 +104,8 @@ public abstract class MixinResourceLoadProgressGui extends AbstractGui {
 				this.mc.currentScreen.init(this.mc, screenWidth, screenHeight);
 			}
 		}
+
+		//---------------------------------
 
 		//Give all important fields to the handler so elements can use them (only as getter ofc)
 		handler.asyncReloader = this.asyncReloader;

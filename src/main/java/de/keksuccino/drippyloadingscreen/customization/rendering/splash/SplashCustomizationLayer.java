@@ -19,6 +19,8 @@ import de.keksuccino.drippyloadingscreen.customization.rendering.splash.elements
 import de.keksuccino.drippyloadingscreen.customization.rendering.splash.elements.ForgeTextSplashElement;
 import de.keksuccino.drippyloadingscreen.customization.rendering.splash.elements.LogoSplashElement;
 import de.keksuccino.drippyloadingscreen.customization.rendering.splash.elements.ProgressBarSplashElement;
+import de.keksuccino.drippyloadingscreen.events.CustomizationSystemReloadedEvent;
+import de.keksuccino.drippyloadingscreen.events.OverlayOpenEvent;
 import de.keksuccino.konkrete.math.MathUtils;
 import de.keksuccino.konkrete.properties.PropertiesSection;
 import de.keksuccino.konkrete.properties.PropertiesSet;
@@ -33,12 +35,15 @@ import net.minecraft.util.ColorHelper;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.MathHelper;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.eventbus.api.EventPriority;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 
+import javax.annotation.Nullable;
 import java.awt.*;
 import java.io.File;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Consumer;
 
 public class SplashCustomizationLayer extends AbstractGui {
@@ -60,12 +65,11 @@ public class SplashCustomizationLayer extends AbstractGui {
     public ResourceLocation backgroundImage = null;
     public String backgroundImagePath = null;
 
-    //TODO übernehmen
     public boolean scaled = false;
     public boolean fadeOut = true;
-    //-----------------
 
     public final boolean isEditor;
+    public boolean isNewLoadingScreen = true;
 
     /** GETTER ONLY **/
     public IAsyncReloader asyncReloader;
@@ -83,11 +87,27 @@ public class SplashCustomizationLayer extends AbstractGui {
     protected List<CustomizationItemBase> backgroundElements = new ArrayList<CustomizationItemBase>();
     protected List<CustomizationItemBase> foregroundElements = new ArrayList<CustomizationItemBase>();
 
+    protected Map<String, RandomLayoutContainer> randomLayoutGroups = new HashMap<String, RandomLayoutContainer>();
+
     protected Minecraft mc = Minecraft.getInstance();
 
     public SplashCustomizationLayer(boolean isEditor) {
         this.isEditor = isEditor;
         this.updateCustomizations();
+        MinecraftForge.EVENT_BUS.register(this);
+    }
+
+    @SubscribeEvent(priority = EventPriority.HIGH)
+    public void onCustomizationSystemReloaded(CustomizationSystemReloadedEvent e) {
+        for (RandomLayoutContainer c : this.randomLayoutGroups.values()) {
+            c.lastLayoutPath = null;
+        }
+        this.updateCustomizations();
+    }
+
+    @SubscribeEvent
+    public void onOverlayOpenEvent(OverlayOpenEvent e) {
+        this.isNewLoadingScreen = true;
     }
 
     public void renderLayer() {
@@ -97,7 +117,6 @@ public class SplashCustomizationLayer extends AbstractGui {
         }
         this.lastCustomBackgroundHex = this.customBackgroundHex;
 
-        //TODO übernehmen
         if ((Minecraft.getInstance() == null) || (Minecraft.getInstance().getMainWindow() == null)) {
             return;
         }
@@ -114,7 +133,6 @@ public class SplashCustomizationLayer extends AbstractGui {
             long time = Util.milliTime();
             float f = this.fadeOutStart > -1L ? (float)(time - this.fadeOutStart) / 1000.0F : -1.0F;
             float f1 = this.fadeInStart > -1L ? (float)(time - this.fadeInStart) / 500.0F : -1.0F;
-            //TODO übernehmen
             if (isCustomizationHelperScreen() || DrippyLoadingScreen.isFancyMenuLoaded() || !this.fadeOut) {
                 f = 1.0F;
             }
@@ -161,7 +179,6 @@ public class SplashCustomizationLayer extends AbstractGui {
             }
         }
 
-        //TODO übernehmen
         if (this.isEditor || SplashCustomizationLayer.isCustomizationHelperScreen() || DrippyLoadingScreen.isFancyMenuLoaded() || !this.fadeOut) {
             elementOpacity = 1.0F;
         }
@@ -234,19 +251,79 @@ public class SplashCustomizationLayer extends AbstractGui {
             this.foregroundElements.clear();
             this.backgroundElements.clear();
 
-            //TODO übernehmen
             this.scaled = false;
             this.fadeOut = true;
-            //----------------
 
-            List<PropertiesSet> props = CustomizationPropertiesHandler.getProperties();
+            List<PropertiesSet> propsRaw = CustomizationPropertiesHandler.getProperties();
+            List<PropertiesSet> normalLayouts = new ArrayList<PropertiesSet>();
+            List<PropertiesSet> layouts = new ArrayList<PropertiesSet>();
+
+            String randomDefaultGroup = "-100397";
+
+            for (RandomLayoutContainer c : this.randomLayoutGroups.values()) {
+                c.onlyFirstTime = false;
+                c.clearLayouts();
+            }
 
             boolean logoSet = false;
             boolean forgeTextSet = false;
             boolean forgeMemoryInfoSet = false;
             boolean progressBarSet = false;
 
-            for (PropertiesSet s : props) {
+            for (PropertiesSet s : propsRaw) {
+
+                List<PropertiesSection> metas = s.getPropertiesOfType("customization-meta");
+
+                if (metas.isEmpty()) {
+                    continue;
+                }
+
+                String randomMode = metas.get(0).getEntryValue("randommode");
+                if ((randomMode != null) && randomMode.equalsIgnoreCase("true")) {
+
+                    String group = metas.get(0).getEntryValue("randomgroup");
+                    if (group == null) {
+                        group = randomDefaultGroup;
+                    }
+                    if (!this.randomLayoutGroups.containsKey(group)) {
+                        this.randomLayoutGroups.put(group, new RandomLayoutContainer(group, this));
+                    }
+                    RandomLayoutContainer c = this.randomLayoutGroups.get(group);
+                    if (c != null) {
+                        String randomOnlyFirstTime = metas.get(0).getEntryValue("randomonlyfirsttime");
+                        if ((randomOnlyFirstTime != null) && randomOnlyFirstTime.equalsIgnoreCase("true")) {
+                            c.setOnlyFirstTime(true);
+                        }
+                        c.addLayout(s);
+                    }
+
+                } else {
+
+                    normalLayouts.add(s);
+
+                }
+
+            }
+
+            List<String> trashLayoutGroups = new ArrayList<String>();
+            for (Map.Entry<String, RandomLayoutContainer> m : this.randomLayoutGroups.entrySet()) {
+                if (m.getValue().getLayouts().isEmpty()) {
+                    trashLayoutGroups.add(m.getKey());
+                }
+            }
+            for (String s : trashLayoutGroups) {
+                this.randomLayoutGroups.remove(s);
+            }
+
+            for (RandomLayoutContainer c : this.randomLayoutGroups.values()) {
+                PropertiesSet s = c.getRandomLayout();
+                if (s != null) {
+                    layouts.add(s);
+                }
+            }
+            layouts.addAll(normalLayouts);
+
+            for (PropertiesSet s : layouts) {
 
                 boolean renderInBackground = false;
 
@@ -261,7 +338,6 @@ public class SplashCustomizationLayer extends AbstractGui {
                     renderInBackground = true;
                 }
 
-                //TODO übernehmen
                 MainWindow w = Minecraft.getInstance().getMainWindow();
                 String scaleString = metas.get(0).getEntryValue("scale");
                 if ((scaleString != null) && (MathUtils.isInteger(scaleString.replace(" ", "")) || MathUtils.isDouble(scaleString.replace(" ", "")))) {
@@ -277,7 +353,6 @@ public class SplashCustomizationLayer extends AbstractGui {
                     this.scaled = true;
                 }
 
-                //TODO übernehmen
                 //Handle auto-scaling
                 int autoScaleBaseWidth = 0;
                 int autoScaleBaseHeight = 0;
@@ -304,7 +379,6 @@ public class SplashCustomizationLayer extends AbstractGui {
                     this.scaled = true;
                 }
 
-                //TODO übernehmen
                 String fadeOutString = metas.get(0).getEntryValue("fadeout");
                 if ((fadeOutString != null) && fadeOutString.equalsIgnoreCase("false")) {
                     this.fadeOut = false;
@@ -485,6 +559,8 @@ public class SplashCustomizationLayer extends AbstractGui {
             ex.printStackTrace();
         }
 
+        this.isNewLoadingScreen = false;
+
     }
 
     private static int withAlpha(int color, int alpha) {
@@ -500,6 +576,88 @@ public class SplashCustomizationLayer extends AbstractGui {
             instance = new SplashCustomizationLayer(false);
         }
         return instance;
+    }
+
+    public static class RandomLayoutContainer {
+
+        public final String id;
+        protected List<PropertiesSet> layouts = new ArrayList<PropertiesSet>();
+        protected boolean onlyFirstTime = false;
+        protected String lastLayoutPath = null;
+
+        public SplashCustomizationLayer parent;
+
+        public RandomLayoutContainer(String id, SplashCustomizationLayer parent) {
+            this.id = id;
+            this.parent = parent;
+        }
+
+        public List<PropertiesSet> getLayouts() {
+            return this.layouts;
+        }
+
+        public void addLayout(PropertiesSet layout) {
+            this.layouts.add(layout);
+        }
+
+        public void addLayouts(List<PropertiesSet> layouts) {
+            this.layouts.addAll(layouts);
+        }
+
+        public void clearLayouts() {
+            this.layouts.clear();
+        }
+
+        public void setOnlyFirstTime(boolean b) {
+            this.onlyFirstTime = b;
+        }
+
+        public boolean isOnlyFirstTime() {
+            return this.onlyFirstTime;
+        }
+
+        public void resetLastLayout() {
+            this.lastLayoutPath = null;
+        }
+
+        @Nullable
+        public PropertiesSet getRandomLayout() {
+            if (!this.layouts.isEmpty()) {
+                if ((this.onlyFirstTime || !this.parent.isNewLoadingScreen) && (this.lastLayoutPath != null)) {
+                    File f = new File(this.lastLayoutPath);
+                    if (f.exists()) {
+                        for (PropertiesSet s : this.layouts) {
+                            List<PropertiesSection> metas = s.getPropertiesOfType("customization-meta");
+                            if (metas.isEmpty()) {
+                                metas = s.getPropertiesOfType("type-meta");
+                            }
+                            if (metas.isEmpty()) {
+                                continue;
+                            }
+                            String path = metas.get(0).getEntryValue("path");
+                            if ((path != null) && path.equals(this.lastLayoutPath)) {
+                                return s;
+                            }
+                        }
+                    }
+                }
+                int i = MathUtils.getRandomNumberInRange(0, this.layouts.size()-1);
+                PropertiesSet s = this.layouts.get(i);
+                List<PropertiesSection> metas = s.getPropertiesOfType("customization-meta");
+                if (metas.isEmpty()) {
+                    metas = s.getPropertiesOfType("type-meta");
+                }
+                if (!metas.isEmpty()) {
+                    String path = metas.get(0).getEntryValue("path");
+                    if ((path != null)) {
+                        this.lastLayoutPath = path;
+                        return s;
+                    }
+                }
+            }
+            return null;
+        }
+
     }
 
 }

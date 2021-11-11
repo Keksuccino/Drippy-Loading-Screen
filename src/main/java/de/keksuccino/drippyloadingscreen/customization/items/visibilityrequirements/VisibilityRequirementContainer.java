@@ -1,7 +1,6 @@
 package de.keksuccino.drippyloadingscreen.customization.items.visibilityrequirements;
 
 import de.keksuccino.drippyloadingscreen.customization.items.CustomizationItemBase;
-import de.keksuccino.drippyloadingscreen.customization.rendering.ItemRenderUtils;
 import de.keksuccino.konkrete.math.MathUtils;
 import de.keksuccino.konkrete.properties.PropertiesSection;
 import net.minecraft.item.AirItem;
@@ -182,43 +181,6 @@ public class VisibilityRequirementContainer {
                 if (itemType.equals("weapon") || itemType.equals("tool") || itemType.equals("food") || itemType.equals("block") || itemType.equals("potion")) {
                     this.vrCheckForActiveItemType = true;
                     this.vrActiveItemType = itemType;
-                }
-            }
-        }
-
-        //VR: Active Item Name
-        String vrStringShowIfActiveItemName = properties.getEntryValue("vr:showif:activeitemname");
-        if (vrStringShowIfActiveItemName != null) {
-            if (vrStringShowIfActiveItemName.equalsIgnoreCase("true")) {
-                this.vrShowIfActiveItemName = true;
-            }
-            String itemName = properties.getEntryValue("vr:value:activeitemname");
-            if (itemName != null) {
-                Item i = ItemRenderUtils.getItemByName(itemName);
-                if ((i != null) && (itemName.equalsIgnoreCase("minecraft:air") || !(i instanceof AirItem))) {
-                    this.vrCheckForActiveItemName = true;
-                    this.vrActiveItemName = itemName;
-                }
-            }
-        }
-
-        //VR: Slot Item Name
-        String vrStringShowIfSlotItemName = properties.getEntryValue("vr:showif:slotitemname");
-        if (vrStringShowIfSlotItemName != null) {
-            if (vrStringShowIfSlotItemName.equalsIgnoreCase("true")) {
-                this.vrShowIfSlotItemName = true;
-            }
-            String slotAndItemName = properties.getEntryValue("vr:value:slotitemname");
-            if ((slotAndItemName != null) && slotAndItemName.contains(":")) {
-                String slotString = slotAndItemName.split("[:]", 2)[0];
-                String itemNameString = slotAndItemName.split("[:]", 2)[1];
-                if (MathUtils.isInteger(slotString)) {
-                    Item i = ItemRenderUtils.getItemByName(itemNameString);
-                    if ((i != null) && (itemNameString.equalsIgnoreCase("minecraft:air") || !(i instanceof AirItem))) {
-                        this.vrCheckForSlotItemName = true;
-                        this.vrSlotItemName = itemNameString;
-                        this.vrSlotItemNameSlot = Integer.parseInt(slotString);
-                    }
                 }
             }
         }

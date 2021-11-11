@@ -30,7 +30,7 @@ import net.minecraftforge.fml.network.FMLNetworkConstants;
 public class DrippyLoadingScreen {
 
 	//TODO übernehmen
-	public static final String VERSION = "1.2.0";
+	public static final String VERSION = "1.3.0";
 	
 	public static final File HOME_DIR = new File("config/drippyloadingscreen");
 	public static final File CUSTOMIZATION_DIR = new File(HOME_DIR.getPath() + "/customization");

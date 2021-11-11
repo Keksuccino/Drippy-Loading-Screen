@@ -16,23 +16,27 @@ public class CustomizationHelperScreen extends Screen {
 	
 	public CustomizationHelperScreen() {
 		super(new StringTextComponent(""));
+		splashLayer.isNewLoadingScreen = true;
 	}
 
 	@Override
 	protected void init() {
 
-		//TODO übernehmen
 		CustomizationHelperUI.currentHelperScreen = this;
 		splashLayer.updateCustomizations();
 		CustomizationHelperUI.updateUI();
-		//-----------------
 		
 	}
 
-	//TODO übernehmen
 	@Override
 	public boolean shouldCloseOnEsc() {
-		return false;
+		return true;
+	}
+
+	@Override
+	public void closeScreen() {
+		CustomizationHelperScreen.resetScale();
+		Minecraft.getInstance().displayGuiScreen(null);
 	}
 
 	@Override

@@ -207,4 +207,11 @@ public abstract class CustomizationItemBase extends AbstractGui {
 		
 	}
 
+	public static String fixBackslashPath(String path) {
+		if (path != null) {
+			return path.replace("\\", "/");
+		}
+		return null;
+	}
+
 }

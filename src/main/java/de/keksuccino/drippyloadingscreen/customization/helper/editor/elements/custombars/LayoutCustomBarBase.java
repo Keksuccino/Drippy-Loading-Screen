@@ -4,6 +4,7 @@ import de.keksuccino.drippyloadingscreen.customization.helper.editor.LayoutEdito
 import de.keksuccino.drippyloadingscreen.customization.helper.editor.elements.LayoutElement;
 import de.keksuccino.drippyloadingscreen.customization.helper.ui.popup.ChooseFilePopup;
 import de.keksuccino.drippyloadingscreen.customization.helper.ui.popup.FHTextInputPopup;
+import de.keksuccino.drippyloadingscreen.customization.items.CustomizationItemBase;
 import de.keksuccino.drippyloadingscreen.customization.items.custombars.CustomBarCustomizationItemBase;
 import de.keksuccino.konkrete.gui.content.AdvancedButton;
 import de.keksuccino.konkrete.gui.screens.popup.PopupHandler;
@@ -210,13 +211,13 @@ public class LayoutCustomBarBase extends LayoutElement {
 			s.addEntry("backgroundcolor", this.getObject().backgroundColorHex);
 		}
 		if (this.getObject().barTexturePath != null) {
-			s.addEntry("bartexture", this.getObject().barTexturePath);
+			s.addEntry("bartexture", CustomizationItemBase.fixBackslashPath(this.getObject().barTexturePath));
 		}
 		if (this.getObject().backgroundTexturePath != null) {
-			s.addEntry("backgroundtexture", this.getObject().backgroundTexturePath);
+			s.addEntry("backgroundtexture", CustomizationItemBase.fixBackslashPath(this.getObject().backgroundTexturePath));
 		}
 		if (this.getObject().barEndTexturePath != null) {
-			s.addEntry("barendtexture", this.getObject().barEndTexturePath);
+			s.addEntry("barendtexture", CustomizationItemBase.fixBackslashPath(this.getObject().barEndTexturePath));
 			s.addEntry("barendtexturewidth", "" + this.getObject().barEndTextureWidth);
 			s.addEntry("barendtextureheight", "" + this.getObject().barEndTextureHeight);
 		}
