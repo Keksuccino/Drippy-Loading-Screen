@@ -15,7 +15,6 @@ public class CustomizationHelperScreen extends Screen {
 	
 	public CustomizationHelperScreen() {
 		super(new TextComponent(""));
-		//TODO übernehmen
 		splashLayer.isNewLoadingScreen = true;
 	}
 
@@ -28,13 +27,11 @@ public class CustomizationHelperScreen extends Screen {
 		
 	}
 
-	//TODO übernehmen
 	@Override
 	public boolean shouldCloseOnEsc() {
 		return true;
 	}
 
-	//TODO übernehmen
 	@Override
 	public void onClose() {
 		CustomizationHelperScreen.resetScale();

@@ -359,7 +359,6 @@ public class LayoutEditorUI extends UIBase {
 			
 			this.content.clear();
 
-			//TODO übernehmen
 			/** RANDOM MODE **/
 			String randomModeString = Locals.localize("drippyloadingscreen.helper.editor.layoutoptions.randommode.on");
 			if (!this.parent.randomMode) {
@@ -376,9 +375,7 @@ public class LayoutEditorUI extends UIBase {
 			});
 			randomModeButton.setDescription(StringUtils.splitLines(Locals.localize("drippyloadingscreen.helper.editor.layoutoptions.randommode.btn.desc"), "%n%"));
 			this.addContent(randomModeButton);
-			//------------------------
 
-			//TODO übernehmen
 			AdvancedButton randomModeGroupButton = new AdvancedButton(0, 0, 0, 16, Locals.localize("drippyloadingscreen.helper.editor.layoutoptions.randommode.setgroup"), true, (press) -> {
 				FHTextInputPopup pop = new FHTextInputPopup(new Color(0, 0, 0, 0), Locals.localize("drippyloadingscreen.helper.editor.layoutoptions.randommode.setgroup"), CharacterFilter.getIntegerCharacterFiler(), 240, (call) -> {
 					if (call != null) {
@@ -408,9 +405,7 @@ public class LayoutEditorUI extends UIBase {
 			};
 			randomModeGroupButton.setDescription(StringUtils.splitLines(Locals.localize("drippyloadingscreen.helper.editor.layoutoptions.randommode.setgroup.btn.desc"), "%n%"));
 			this.addContent(randomModeGroupButton);
-			//---------------------
 
-			//TODO übernehmen
 			String randomModeFirstTimeString = Locals.localize("drippyloadingscreen.helper.editor.layoutoptions.randommode.onlyfirsttime.on");
 			if (!this.parent.randomOnlyFirstTime) {
 				randomModeFirstTimeString = Locals.localize("drippyloadingscreen.helper.editor.layoutoptions.randommode.onlyfirsttime.off");
@@ -436,9 +431,7 @@ public class LayoutEditorUI extends UIBase {
 			};
 			randomModeFirstTimeButton.setDescription(StringUtils.splitLines(Locals.localize("drippyloadingscreen.helper.editor.layoutoptions.randommode.onlyfirsttime.btn.desc"), "%n%"));
 			this.addContent(randomModeFirstTimeButton);
-			//-------------------------
 
-			//TODO übernehmen
 			this.addSeparator();
 
 			/** RENDERING ORDER **/

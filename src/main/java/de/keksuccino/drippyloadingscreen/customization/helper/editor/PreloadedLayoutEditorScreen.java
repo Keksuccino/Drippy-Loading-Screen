@@ -12,15 +12,11 @@ import de.keksuccino.drippyloadingscreen.customization.helper.editor.elements.*;
 import de.keksuccino.drippyloadingscreen.customization.helper.editor.elements.custombars.LayoutCustomProgressBar;
 import de.keksuccino.drippyloadingscreen.customization.helper.editor.elements.string.LayoutString;
 import de.keksuccino.drippyloadingscreen.customization.helper.editor.elements.string.LayoutWebString;
-import de.keksuccino.drippyloadingscreen.customization.helper.editor.elements.vanilla.ForgeMemoryInfoLayoutSplashElement;
-import de.keksuccino.drippyloadingscreen.customization.helper.editor.elements.vanilla.ForgeTextLayoutSplashElement;
 import de.keksuccino.drippyloadingscreen.customization.helper.editor.elements.vanilla.LogoLayoutSplashElement;
 import de.keksuccino.drippyloadingscreen.customization.helper.editor.elements.vanilla.ProgressBarLayoutSplashElement;
 import de.keksuccino.drippyloadingscreen.customization.items.*;
 import de.keksuccino.drippyloadingscreen.customization.items.ShapeCustomizationItem.Shape;
 import de.keksuccino.drippyloadingscreen.customization.items.custombars.CustomProgressBarCustomizationItem;
-import de.keksuccino.drippyloadingscreen.customization.items.vanilla.ForgeMemoryInfoSplashCustomizationItem;
-import de.keksuccino.drippyloadingscreen.customization.items.vanilla.ForgeTextSplashCustomizationItem;
 import de.keksuccino.drippyloadingscreen.customization.items.vanilla.LogoSplashCustomizationItem;
 import de.keksuccino.drippyloadingscreen.customization.items.vanilla.ProgressBarSplashCustomizationItem;
 import de.keksuccino.drippyloadingscreen.customization.rendering.slideshow.SlideshowHandler;
@@ -50,7 +46,6 @@ public class PreloadedLayoutEditorScreen extends LayoutEditorScreen {
 			this.minimumMC = meta.getEntryValue("minimummcversion");
 			this.maximumMC = meta.getEntryValue("maximummcversion");
 
-			//TODO übernehmen
 			String ranMode = meta.getEntryValue("randommode");
 			if ((ranMode != null) && ranMode.equalsIgnoreCase("true")) {
 				this.randomMode = true;
@@ -63,7 +58,6 @@ public class PreloadedLayoutEditorScreen extends LayoutEditorScreen {
 			if ((ranModeFirstTime != null) && ranModeFirstTime.equalsIgnoreCase("true")) {
 				this.randomOnlyFirstTime = true;
 			}
-			//------------------------
 			
 			String order = meta.getEntryValue("renderorder");
 			if ((order != null) && order.equalsIgnoreCase("background")) {

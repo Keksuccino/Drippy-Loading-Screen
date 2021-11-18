@@ -44,11 +44,8 @@ public abstract class CustomBarCustomizationItemBase extends CustomizationItemBa
 		
 		this.barColorHex = item.getEntryValue("barcolor");
 		this.backgroundColorHex = item.getEntryValue("backgroundcolor");
-		//TODO übernehmen
 		this.barTexturePath = fixBackslashPath(item.getEntryValue("bartexture"));
-		//TODO übernehmen
 		this.backgroundTexturePath = fixBackslashPath(item.getEntryValue("backgroundtexture"));
-		//TODO übernehmen
 		this.barEndTexturePath = fixBackslashPath(item.getEntryValue("barendtexture"));
 
 		String barEndWidthString = item.getEntryValue("barendtexturewidth");

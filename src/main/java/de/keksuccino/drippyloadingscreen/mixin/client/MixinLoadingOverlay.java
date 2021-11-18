@@ -1,4 +1,3 @@
-//TODO übernehmen
 package de.keksuccino.drippyloadingscreen.mixin.client;
 
 import com.mojang.blaze3d.platform.Window;
@@ -33,11 +32,9 @@ public abstract class MixinLoadingOverlay extends GuiComponent {
 	@Shadow @Final private Consumer<Optional<Throwable>> onFinish;
 	@Shadow @Final private boolean fadeIn;
 
-	//TODO übernehmen (nicht mehr shadown)
 	private float currentProgressNotShadowed;
 	private long fadeOutStartNotShadowed = -1L;
 	private long fadeInStartNotShadowed = -1L;
-	//----------------
 
 	protected boolean isUpdated = false;
 	protected int lastWidth = 0;
@@ -72,7 +69,6 @@ public abstract class MixinLoadingOverlay extends GuiComponent {
 	@Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/server/packs/resources/ReloadInstance;checkExceptions()V"), method = "*")
 	private void cancelCheckExceptionsCall(ReloadInstance i) {}
 
-	//TODO übernehmen (jetzt tail, nicht mehr head + info.cancel() call entfernen + cancellable entfernen)
 	@Inject(at = @At("TAIL"), method = "render")
 	protected void onRender(PoseStack matrices, int mouseX, int mouseY, float delta, CallbackInfo info) {
 
@@ -92,9 +88,6 @@ public abstract class MixinLoadingOverlay extends GuiComponent {
 			handler.updateCustomizations();
 			isUpdated = true;
 		}
-
-		//TODO übernehmen
-//		info.cancel();
 
 		//-------------------------------------
 

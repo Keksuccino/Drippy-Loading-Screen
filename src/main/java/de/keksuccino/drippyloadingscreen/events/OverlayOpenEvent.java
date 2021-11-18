@@ -1,4 +1,3 @@
-//TODO übernehmen
 package de.keksuccino.drippyloadingscreen.events;
 
 import net.minecraft.client.gui.screens.Overlay;

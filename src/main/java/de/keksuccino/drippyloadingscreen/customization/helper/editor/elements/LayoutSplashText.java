@@ -185,7 +185,6 @@ public class LayoutSplashText extends LayoutElement {
 			p1.addEntry("text", this.getObject().text);
 		}
 		if (this.getObject().splashfile != null) {
-			//TODO übernehmen
 			p1.addEntry("splashfilepath", CustomizationItemBase.fixBackslashPath(this.getObject().splashfile.getPath()));
 		}
 		p1.addEntry("x", "" + this.object.posX);

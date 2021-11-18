@@ -10,7 +10,6 @@ import de.keksuccino.konkrete.rendering.RenderUtils;
 import de.keksuccino.konkrete.rendering.animation.ExternalGifAnimationRenderer;
 import de.keksuccino.konkrete.resources.ExternalTextureResourceLocation;
 import de.keksuccino.konkrete.resources.TextureHandler;
-import net.minecraft.client.Minecraft;
 
 public class TextureCustomizationItem extends CustomizationItemBase {
 	
@@ -23,7 +22,6 @@ public class TextureCustomizationItem extends CustomizationItemBase {
 		if ((this.action != null) && this.action.equalsIgnoreCase("addtexture")) {
 			this.value = item.getEntryValue("path");
 			if (this.value != null) {
-				//TODO übernehmen
 				this.value = fixBackslashPath(this.value);
 				
 				File f = new File(this.value);

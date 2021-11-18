@@ -36,7 +36,6 @@ public class LayoutTexture extends LayoutElement {
 				p1.addEntry("fadeinspeed", "" + this.object.fadeInSpeed);
 			}
 		}
-		//TODO übernehmen
 		p1.addEntry("path", CustomizationItemBase.fixBackslashPath(this.object.value));
 		p1.addEntry("orientation", this.object.orientation);
 		if (this.stretchX) {

@@ -203,15 +203,12 @@ public class LayoutCustomBarBase extends LayoutElement {
 			s.addEntry("backgroundcolor", this.getObject().backgroundColorHex);
 		}
 		if (this.getObject().barTexturePath != null) {
-			//TODO übernehmen
 			s.addEntry("bartexture", CustomizationItemBase.fixBackslashPath(this.getObject().barTexturePath));
 		}
 		if (this.getObject().backgroundTexturePath != null) {
-			//TODO übernehmen
 			s.addEntry("backgroundtexture", CustomizationItemBase.fixBackslashPath(this.getObject().backgroundTexturePath));
 		}
 		if (this.getObject().barEndTexturePath != null) {
-			//TODO übernehmen
 			s.addEntry("barendtexture", CustomizationItemBase.fixBackslashPath(this.getObject().barEndTexturePath));
 			s.addEntry("barendtexturewidth", "" + this.getObject().barEndTextureWidth);
 			s.addEntry("barendtextureheight", "" + this.getObject().barEndTextureHeight);

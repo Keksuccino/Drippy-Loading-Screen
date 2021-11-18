@@ -56,7 +56,6 @@ public class SplashTextCustomizationItem extends CustomizationItemBase {
 		
 		if ((this.action != null) && this.action.equalsIgnoreCase("addsplash")) {
 
-			//TODO übernehmen
 			String filepath = fixBackslashPath(item.getEntryValue("splashfilepath"));
 			if (filepath != null) {
 				this.splashfile = new File(filepath);

@@ -12,12 +12,8 @@ import de.keksuccino.drippyloadingscreen.customization.CustomizationPropertiesHa
 import de.keksuccino.drippyloadingscreen.customization.helper.CustomizationHelperScreen;
 import de.keksuccino.drippyloadingscreen.customization.items.*;
 import de.keksuccino.drippyloadingscreen.customization.items.custombars.CustomProgressBarCustomizationItem;
-import de.keksuccino.drippyloadingscreen.customization.items.vanilla.ForgeMemoryInfoSplashCustomizationItem;
-import de.keksuccino.drippyloadingscreen.customization.items.vanilla.ForgeTextSplashCustomizationItem;
 import de.keksuccino.drippyloadingscreen.customization.items.vanilla.LogoSplashCustomizationItem;
 import de.keksuccino.drippyloadingscreen.customization.items.vanilla.ProgressBarSplashCustomizationItem;
-import de.keksuccino.drippyloadingscreen.customization.rendering.splash.elements.ForgeMemoryInfoSplashElement;
-import de.keksuccino.drippyloadingscreen.customization.rendering.splash.elements.ForgeTextSplashElement;
 import de.keksuccino.drippyloadingscreen.customization.rendering.splash.elements.LogoSplashElement;
 import de.keksuccino.drippyloadingscreen.customization.rendering.splash.elements.ProgressBarSplashElement;
 import de.keksuccino.drippyloadingscreen.events.CustomizationSystemReloadedEvent;
@@ -68,7 +64,6 @@ public class SplashCustomizationLayer extends GuiComponent {
     public boolean fadeOut = true;
 
     public final boolean isEditor;
-    //TODO übernehmen
     public boolean isNewLoadingScreen = true;
 
     /** GETTER ONLY **/
@@ -87,7 +82,6 @@ public class SplashCustomizationLayer extends GuiComponent {
     protected List<CustomizationItemBase> backgroundElements = new ArrayList<CustomizationItemBase>();
     protected List<CustomizationItemBase> foregroundElements = new ArrayList<CustomizationItemBase>();
 
-    //TODO übernehmen
     protected Map<String, RandomLayoutContainer> randomLayoutGroups = new HashMap<String, RandomLayoutContainer>();
 
     protected Minecraft mc = Minecraft.getInstance();
@@ -95,11 +89,9 @@ public class SplashCustomizationLayer extends GuiComponent {
     public SplashCustomizationLayer(boolean isEditor) {
         this.isEditor = isEditor;
         this.updateCustomizations();
-        //TODO übernehmen
         MinecraftForge.EVENT_BUS.register(this);
     }
 
-    //TODO übernehmen
     @SubscribeEvent(priority = EventPriority.HIGH)
     public void onCustomizationSystemReloaded(CustomizationSystemReloadedEvent e) {
         for (RandomLayoutContainer c : this.randomLayoutGroups.values()) {
@@ -108,7 +100,6 @@ public class SplashCustomizationLayer extends GuiComponent {
         this.updateCustomizations();
     }
 
-    //TODO übernehmen
     @SubscribeEvent
     public void onOverlayOpenEvent(OverlayOpenEvent e) {
         this.isNewLoadingScreen = true;
@@ -255,17 +246,12 @@ public class SplashCustomizationLayer extends GuiComponent {
             this.scaled = false;
             this.fadeOut = true;
 
-            //TODO übernehmen (namen ändern)
             List<PropertiesSet> propsRaw = CustomizationPropertiesHandler.getProperties();
-            //TODO übernehmen
             List<PropertiesSet> normalLayouts = new ArrayList<PropertiesSet>();
             List<PropertiesSet> layouts = new ArrayList<PropertiesSet>();
-            //---------------------
 
-            //TODO übernehmen
             String randomDefaultGroup = "-100397";
 
-            //TODO übernehmen
             for (RandomLayoutContainer c : this.randomLayoutGroups.values()) {
                 c.onlyFirstTime = false;
                 c.clearLayouts();
@@ -276,7 +262,6 @@ public class SplashCustomizationLayer extends GuiComponent {
             boolean forgeMemoryInfoSet = false;
             boolean progressBarSet = false;
 
-            //TODO übernehmen (neuer abschnitt)
             for (PropertiesSet s : propsRaw) {
 
                 List<PropertiesSection> metas = s.getPropertiesOfType("customization-meta");
@@ -312,7 +297,6 @@ public class SplashCustomizationLayer extends GuiComponent {
 
             }
 
-            //TODO übernehmen
             List<String> trashLayoutGroups = new ArrayList<String>();
             for (Map.Entry<String, RandomLayoutContainer> m : this.randomLayoutGroups.entrySet()) {
                 if (m.getValue().getLayouts().isEmpty()) {
@@ -322,9 +306,7 @@ public class SplashCustomizationLayer extends GuiComponent {
             for (String s : trashLayoutGroups) {
                 this.randomLayoutGroups.remove(s);
             }
-            //-----------------------
 
-            //TODO übernehmen
             for (RandomLayoutContainer c : this.randomLayoutGroups.values()) {
                 PropertiesSet s = c.getRandomLayout();
                 if (s != null) {
@@ -332,9 +314,7 @@ public class SplashCustomizationLayer extends GuiComponent {
                 }
             }
             layouts.addAll(normalLayouts);
-            //------------------------
 
-            //TODO übernehmen (list zu 'layouts' ändern)
             for (PropertiesSet s : layouts) {
 
                 boolean renderInBackground = false;
@@ -571,7 +551,6 @@ public class SplashCustomizationLayer extends GuiComponent {
             ex.printStackTrace();
         }
 
-        //TODO übernehmen
         this.isNewLoadingScreen = false;
 
     }
@@ -591,7 +570,6 @@ public class SplashCustomizationLayer extends GuiComponent {
         return instance;
     }
 
-    //TODO übernehmen
     public static class RandomLayoutContainer {
 
         public final String id;

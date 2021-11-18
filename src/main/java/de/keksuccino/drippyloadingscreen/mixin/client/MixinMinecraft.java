@@ -1,4 +1,3 @@
-//TODO übernehmen
 package de.keksuccino.drippyloadingscreen.mixin.client;
 
 import de.keksuccino.drippyloadingscreen.events.OverlayOpenEvent;
