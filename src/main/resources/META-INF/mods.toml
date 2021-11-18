@@ -4,7 +4,7 @@ license="KML (Keksuccino Mod License)"
 # A list of mods - how many allowed here is determined by the individual mod loader
 [[mods]] #mandatory
 modId="drippyloadingscreen" #mandatory
-version="1.3.0" #mandatory
+version="1.3.1" #mandatory
 displayName="Drippy Loading Screen" #mandatory
 authors="Keksuccino" #optional
 displayURL="https://www.curseforge.com/minecraft/mc-mods/drippyloadingscreen" #optional
