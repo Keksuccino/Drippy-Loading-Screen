@@ -40,18 +40,29 @@ public class CustomizationHelperEvents {
 				int btnwidth = (int) (88 * UIBase.getUIScale());
 				int btnheight = (int) (70 * UIBase.getUIScale());
 
-				this.openHelperButton = new AdvancedButton(0, 90 , btnwidth, btnheight, "", false, (press) -> {
+				this.openHelperButton = new AdvancedButton(0, 90 , btnwidth, btnheight, "", true, (press) -> {
 					MinecraftClient.getInstance().setScreen(new CustomizationHelperScreen());
 				});
 				this.openHelperButton.setBackgroundTexture(OPEN_HELPER_BUTTON_TEXTURE_IDLE, OPEN_HELPER_BUTTON_TEXTURE_HOVER);
 				this.openHelperButton.setDescription(StringUtils.splitLines(Locals.localize("drippyloadingscreen.helper.openhelper"), "%n%"));
 
-				e.addWidget(openHelperButton);
-
 			}
 
 		}
 		
+	}
+
+	@SubscribeEvent
+	public void onDrawScreen(GuiScreenEvent.DrawScreenEvent.Post e) {
+
+		if (e.getGui() instanceof TitleScreen) {
+			if (DrippyLoadingScreen.config.getOrDefault("showcustomizationcontrols", true)) {
+				if (this.openHelperButton != null) {
+					this.openHelperButton.render(e.getMatrixStack(), e.getMouseX(), e.getMouseY(), e.getRenderPartialTicks());
+				}
+			}
+		}
+
 	}
 
 	@SubscribeEvent
