@@ -58,4 +58,9 @@ public class ForgeMemoryInfoSplashCustomizationItem extends VanillaSplashCustomi
 		super.render(matrix);
 	}
 
+	@Override
+	public String getActionId() {
+		return "vanilla:forgememory";
+	}
+
 }

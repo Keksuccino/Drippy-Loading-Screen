@@ -43,26 +43,6 @@ public abstract class VanillaLayoutSplashElement extends LayoutElement {
 		resetElementButton.setDescription(StringUtils.splitLines(Locals.localize("drippyloadingscreen.helper.editor.elements.vanilla.resetelement.btn.desc"), "%n%"));
 		this.rightclickMenu.addContent(resetElementButton);
 		
-//		/** MOD CUSTOMIZATIONS **/
-//		String modCusString = Locals.localize("drippyloadingscreen.helper.editor.elements.vanilla.modcustomizations.on");
-//		if (!this.getVanillaObject().fireEvents) {
-//			modCusString = Locals.localize("drippyloadingscreen.helper.editor.elements.vanilla.modcustomizations.off");
-//		}
-//		AdvancedButton modCustomizationsButton = new AdvancedButton(0, 0, 0, 0, modCusString, (press) -> {
-//			this.handler.history.saveSnapshot(this.handler.history.createSnapshot());
-//			if (this.getVanillaObject().fireEvents) {
-//				((AdvancedButton)press).setMessage(Locals.localize("drippyloadingscreen.helper.editor.elements.vanilla.modcustomizations.off"));
-//				this.getVanillaObject().element.fireEvents = false;
-//				this.getVanillaObject().fireEvents = false;
-//			} else {
-//				((AdvancedButton)press).setMessage(Locals.localize("drippyloadingscreen.helper.editor.elements.vanilla.modcustomizations.on"));
-//				this.getVanillaObject().element.fireEvents = true;
-//				this.getVanillaObject().fireEvents = true;
-//			}
-//		});
-//		modCustomizationsButton.setDescription(StringUtils.splitLines(Locals.localize("drippyloadingscreen.helper.editor.elements.vanilla.modcustomizations.desc", ""), "%n%"));
-//		this.rightclickMenu.addContent(modCustomizationsButton);
-		
 		this.rightclickMenu.addSeparator();
 		
 		/** SCALE **/

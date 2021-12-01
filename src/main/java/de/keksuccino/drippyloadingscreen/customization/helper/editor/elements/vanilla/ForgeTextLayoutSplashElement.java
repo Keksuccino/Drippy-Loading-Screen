@@ -4,7 +4,6 @@ import de.keksuccino.drippyloadingscreen.customization.helper.editor.LayoutEdito
 import de.keksuccino.drippyloadingscreen.customization.helper.ui.popup.FHTextInputPopup;
 import de.keksuccino.drippyloadingscreen.customization.items.vanilla.ForgeTextSplashCustomizationItem;
 import de.keksuccino.drippyloadingscreen.customization.rendering.splash.elements.ForgeTextSplashElement;
-import de.keksuccino.drippyloadingscreen.customization.rendering.splash.elements.ProgressBarSplashElement;
 import de.keksuccino.konkrete.gui.content.AdvancedButton;
 import de.keksuccino.konkrete.gui.screens.popup.PopupHandler;
 import de.keksuccino.konkrete.input.StringUtils;
@@ -59,6 +58,9 @@ public class ForgeTextLayoutSplashElement extends VanillaLayoutSplashElement {
 		p.addEntry("action", "editforgestatustext");
 		if (!this.getVanillaObject().isOriginalOrientation) {
 			p.addEntry("orientation", this.object.orientation);
+			if (this.object.orientation.equals("loading-progress") && (this.object.orientationElementIdentifier != null)) {
+				p.addEntry("orientation_element", this.object.orientationElementIdentifier);
+			}
 		}
 		if (!this.getVanillaObject().isOriginalPosX) {
 			p.addEntry("x", "" + this.object.posX);

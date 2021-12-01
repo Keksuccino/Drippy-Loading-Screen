@@ -9,6 +9,10 @@ import java.util.function.Consumer;
 import javax.annotation.Nonnull;
 
 import de.keksuccino.drippyloadingscreen.DrippyLoadingScreen;
+import de.keksuccino.drippyloadingscreen.customization.helper.editor.elements.custombars.LayoutCustomBarBase;
+import de.keksuccino.drippyloadingscreen.customization.helper.ui.popup.FHNotificationPopup;
+import de.keksuccino.drippyloadingscreen.customization.helper.ui.popup.FHTextInputPopup;
+import de.keksuccino.drippyloadingscreen.customization.items.custombars.CustomBarCustomizationItemBase;
 import de.keksuccino.drippyloadingscreen.customization.items.visibilityrequirements.VisibilityRequirementContainer;
 import org.lwjgl.glfw.GLFW;
 
@@ -64,7 +68,8 @@ public abstract class LayoutElement extends AbstractGui {
 
 	protected AdvancedButton stretchXButton;
 	protected AdvancedButton stretchYButton;
-	
+
+	protected AdvancedButton oLoadingProgress;
 	protected AdvancedButton o1;
 	protected AdvancedButton o2;
 	protected AdvancedButton o3;
@@ -121,9 +126,123 @@ public abstract class LayoutElement extends AbstractGui {
 	}
 
 	public void init() {
-		
+
 		this.rightclickMenu = new FHContextMenu();
 		this.rightclickMenu.setAlwaysOnTop(true);
+
+		/** COPY ELEMENT ID **/
+		AdvancedButton copyIdButton = new AdvancedButton(0, 0, 0, 0, Locals.localize("drippyloadingscreen.helper.editor.items.copyid"), true, (press) -> {
+			Minecraft.getInstance().keyboardListener.setClipboardString(this.object.getActionId());
+		});
+		copyIdButton.setDescription(StringUtils.splitLines(Locals.localize("drippyloadingscreen.helper.editor.items.copyid.btn.desc"), "%n%"));
+		this.rightclickMenu.addContent(copyIdButton);
+
+		/** ORIENTATION **/
+		FHContextMenu orientationMenu = new FHContextMenu();
+		orientationMenu.setAutoclose(true);
+		this.rightclickMenu.addChild(orientationMenu);
+
+		oLoadingProgress = new AdvancedButton(0, 0, 0, 16, "loading-progress", (press) -> {
+			this.handler.setObjectFocused(this, false, true);
+			FHTextInputPopup pop = new FHTextInputPopup(new Color(0, 0, 0, 0), Locals.localize("drippyloadingscreen.helper.editor.items.orientation.loading-progress.setidentifier"), null, 240, (call) -> {
+				if (call != null) {
+					LayoutElement l = this.handler.getElementByActionId(call);
+					if (l != null) {
+						if (l instanceof LayoutCustomBarBase) {
+							this.handler.history.saveSnapshot(this.handler.history.createSnapshot());
+							this.object.orientationElementIdentifier = call;
+							this.object.orientationElement = l.object;
+							this.handler.history.setPreventSnapshotSaving(true);
+							this.setOrientation("loading-progress");
+							this.handler.history.setPreventSnapshotSaving(false);
+						} else {
+							PopupHandler.displayPopup(new FHNotificationPopup(300, new Color(0, 0, 0, 0), 240, null, Locals.localize("drippyloadingscreen.helper.editor.items.orientation.loading-progress.setidentifier.invalidtype")));
+						}
+					} else {
+						PopupHandler.displayPopup(new FHNotificationPopup(300, new Color(0, 0, 0, 0), 240, null, Locals.localize("drippyloadingscreen.helper.editor.items.orientation.loading-progress.setidentifier.identifiernotfound")));
+					}
+				}
+			});
+			if (this.object.orientationElementIdentifier != null) {
+				pop.setText(this.object.orientationElementIdentifier);
+			}
+			PopupHandler.displayPopup(pop);
+			orientationMenu.closeMenu();
+		});
+		oLoadingProgress.setDescription(StringUtils.splitLines(Locals.localize("drippyloadingscreen.helper.editor.items.orientation.loading-progress.btn.desc"), "%n%"));
+		orientationMenu.addContent(oLoadingProgress);
+
+		orientationMenu.addSeparator();
+
+		o1 = new AdvancedButton(0, 0, 0, 16, "top-left", (press) -> {
+			this.handler.setObjectFocused(this, false, true);
+			this.setOrientation("top-left");
+			orientationMenu.closeMenu();
+		});
+		orientationMenu.addContent(o1);
+
+		o2 = new AdvancedButton(0, 0, 0, 16, "mid-left", (press) -> {
+			this.handler.setObjectFocused(this, false, true);
+			this.setOrientation("mid-left");
+			orientationMenu.closeMenu();
+		});
+		orientationMenu.addContent(o2);
+
+		o3 = new AdvancedButton(0, 0, 0, 16, "bottom-left", (press) -> {
+			this.handler.setObjectFocused(this, false, true);
+			this.setOrientation("bottom-left");
+			orientationMenu.closeMenu();
+		});
+		orientationMenu.addContent(o3);
+
+		o4 = new AdvancedButton(0, 0, 0, 16, "top-centered", (press) -> {
+			this.handler.setObjectFocused(this, false, true);
+			this.setOrientation("top-centered");
+			orientationMenu.closeMenu();
+		});
+		orientationMenu.addContent(o4);
+
+		o5 = new AdvancedButton(0, 0, 0, 16, "mid-centered", (press) -> {
+			this.handler.setObjectFocused(this, false, true);
+			this.setOrientation("mid-centered");
+			orientationMenu.closeMenu();
+		});
+		orientationMenu.addContent(o5);
+
+		o6 = new AdvancedButton(0, 0, 0, 16, "bottom-centered", (press) -> {
+			this.handler.setObjectFocused(this, false, true);
+			this.setOrientation("bottom-centered");
+			orientationMenu.closeMenu();
+		});
+		orientationMenu.addContent(o6);
+
+		o7 = new AdvancedButton(0, 0, 0, 16, "top-right", (press) -> {
+			this.handler.setObjectFocused(this, false, true);
+			this.setOrientation("top-right");
+			orientationMenu.closeMenu();
+		});
+		orientationMenu.addContent(o7);
+
+		o8 = new AdvancedButton(0, 0, 0, 16, "mid-right", (press) -> {
+			this.handler.setObjectFocused(this, false, true);
+			this.setOrientation("mid-right");
+			orientationMenu.closeMenu();
+		});
+		orientationMenu.addContent(o8);
+
+		o9 = new AdvancedButton(0, 0, 0, 16, "bottom-right", (press) -> {
+			this.handler.setObjectFocused(this, false, true);
+			this.setOrientation("bottom-right");
+			orientationMenu.closeMenu();
+		});
+		orientationMenu.addContent(o9);
+
+		AdvancedButton orientationButton = new AdvancedButton(0, 0, 0, 0, Locals.localize("drippyloadingscreen.helper.creator.items.setorientation"), true, (press) -> {
+			orientationMenu.setParentButton((AdvancedButton) press);
+			orientationMenu.openMenuAt(0, press.y);
+		});
+		orientationButton.setDescription(StringUtils.splitLines(Locals.localize("drippyloadingscreen.helper.creator.items.orientation.btndesc"), "%n%"));
+		this.rightclickMenu.addContent(orientationButton);
 
 		/** LAYERS **/
 		FHContextMenu layersMenu = new FHContextMenu();
@@ -156,83 +275,6 @@ public abstract class LayoutElement extends AbstractGui {
 		});
 		this.rightclickMenu.addContent(layersButton);
 
-		this.rightclickMenu.addSeparator();
-		
-		/** ORIENTATION **/
-		FHContextMenu orientationMenu = new FHContextMenu();
-		orientationMenu.setAutoclose(true);
-		this.rightclickMenu.addChild(orientationMenu);
-		
-		o1 = new AdvancedButton(0, 0, 0, 16, "top-left", (press) -> {
-			this.handler.setObjectFocused(this, false, true);
-			this.setOrientation("top-left");
-			orientationMenu.closeMenu();
-		});
-		orientationMenu.addContent(o1);
-		
-		o2 = new AdvancedButton(0, 0, 0, 16, "mid-left", (press) -> {
-			this.handler.setObjectFocused(this, false, true);
-			this.setOrientation("mid-left");
-			orientationMenu.closeMenu();
-		});
-		orientationMenu.addContent(o2);
-		
-		o3 = new AdvancedButton(0, 0, 0, 16, "bottom-left", (press) -> {
-			this.handler.setObjectFocused(this, false, true);
-			this.setOrientation("bottom-left");
-			orientationMenu.closeMenu();
-		});
-		orientationMenu.addContent(o3);
-		
-		o4 = new AdvancedButton(0, 0, 0, 16, "top-centered", (press) -> {
-			this.handler.setObjectFocused(this, false, true);
-			this.setOrientation("top-centered");
-			orientationMenu.closeMenu();
-		});
-		orientationMenu.addContent(o4);
-		
-		o5 = new AdvancedButton(0, 0, 0, 16, "mid-centered", (press) -> {
-			this.handler.setObjectFocused(this, false, true);
-			this.setOrientation("mid-centered");
-			orientationMenu.closeMenu();
-		});
-		orientationMenu.addContent(o5);
-		
-		o6 = new AdvancedButton(0, 0, 0, 16, "bottom-centered", (press) -> {
-			this.handler.setObjectFocused(this, false, true);
-			this.setOrientation("bottom-centered");
-			orientationMenu.closeMenu();
-		});
-		orientationMenu.addContent(o6);
-		
-		o7 = new AdvancedButton(0, 0, 0, 16, "top-right", (press) -> {
-			this.handler.setObjectFocused(this, false, true);
-			this.setOrientation("top-right");
-			orientationMenu.closeMenu();
-		});
-		orientationMenu.addContent(o7);
-		
-		o8 = new AdvancedButton(0, 0, 0, 16, "mid-right", (press) -> {
-			this.handler.setObjectFocused(this, false, true);
-			this.setOrientation("mid-right");
-			orientationMenu.closeMenu();
-		});
-		orientationMenu.addContent(o8);
-		
-		o9 = new AdvancedButton(0, 0, 0, 16, "bottom-right", (press) -> {
-			this.handler.setObjectFocused(this, false, true);
-			this.setOrientation("bottom-right");
-			orientationMenu.closeMenu();
-		});
-		orientationMenu.addContent(o9);
-		
-		AdvancedButton orientationButton = new AdvancedButton(0, 0, 0, 0, Locals.localize("drippyloadingscreen.helper.creator.items.setorientation"), true, (press) -> {
-			orientationMenu.setParentButton((AdvancedButton) press);
-			orientationMenu.openMenuAt(0, press.y);
-		});
-		orientationButton.setDescription(StringUtils.splitLines(Locals.localize("drippyloadingscreen.helper.creator.items.orientation.btndesc"), "%n%"));
-		this.rightclickMenu.addContent(orientationButton);
-
 		/** STRETCH **/
 		FHContextMenu stretchMenu = new FHContextMenu();
 		stretchMenu.setAutoclose(true);
@@ -255,7 +297,7 @@ public abstract class LayoutElement extends AbstractGui {
 			}
 		});
 		stretchMenu.addContent(stretchYButton);
-		
+
 		AdvancedButton stretchButton = new AdvancedButton(0, 0, 0, 0, Locals.localize("drippyloadingscreen.helper.creator.object.stretch"), true, (press) -> {
 			stretchMenu.setParentButton((AdvancedButton) press);
 			stretchMenu.openMenuAt(0, press.y);
@@ -300,7 +342,7 @@ public abstract class LayoutElement extends AbstractGui {
 //		if (this.enableVisibilityRequirements) {
 //			this.rightclickMenu.addContent(visibilityRequirementsButton);
 //		}
-		
+
 		/** COPY **/
 		AdvancedButton copyButton = new AdvancedButton(0, 0, 0, 0, Locals.localize("drippyloadingscreen.helper.editor.ui.edit.copy"), (press) -> {
 			this.handler.copySelectedElements();
@@ -308,7 +350,7 @@ public abstract class LayoutElement extends AbstractGui {
 		if (this.copyable) {
 			this.rightclickMenu.addContent(copyButton);
 		}
-		
+
 		/** DESTROY **/
 		AdvancedButton destroyButton = new AdvancedButton(0, 0, 0, 0, Locals.localize("drippyloadingscreen.helper.creator.items.delete"), true, (press) -> {
 			this.destroyObject();
@@ -316,7 +358,7 @@ public abstract class LayoutElement extends AbstractGui {
 		if (this.destroyable) {
 			this.rightclickMenu.addContent(destroyButton);
 		}
-		
+
 		this.rightclickMenu.addSeparator();
 
 	}
@@ -425,6 +467,9 @@ public abstract class LayoutElement extends AbstractGui {
 				this.object.posY = 0;
 				this.object.height = Minecraft.getInstance().currentScreen.height;
 			}
+			if (this.stretchX || this.stretchY) {
+				this.oLoadingProgress.active = false;
+			}
 			if (this.stretchX && !this.stretchY) {
 				this.o1.active = true;
 				this.o2.active = true;
@@ -468,6 +513,7 @@ public abstract class LayoutElement extends AbstractGui {
 				this.o7.active = true;
 				this.o8.active = true;
 				this.o9.active = true;
+				this.oLoadingProgress.active = true;
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -826,6 +872,22 @@ public abstract class LayoutElement extends AbstractGui {
 				sY = this.startY - this.startHeight;
 			}
 		}
+		if (this.object.orientation.equals("loading-progress")) {
+			if ((this.object.orientationElement != null) && (this.object.orientationElement instanceof CustomBarCustomizationItemBase)) {
+				if (g == 0) { //left grabbed
+					sX = this.startX + ((CustomBarCustomizationItemBase) this.object.orientationElement).progressEndX;
+				}
+				if (g == 1) { //right grabbed
+					sX = this.startX + ((CustomBarCustomizationItemBase) this.object.orientationElement).progressEndX;
+				}
+				if (g == 2) { //top grabbed
+					sY = this.startY + ((CustomBarCustomizationItemBase) this.object.orientationElement).progressEndY;
+				}
+				if (g == 3) { //bottom grabbed
+					sY = this.startY + ((CustomBarCustomizationItemBase) this.object.orientationElement).progressEndY;
+				}
+			}
+		}
 		
 		//X difference
 		if (mouseX > sX) {
@@ -946,6 +1008,16 @@ public abstract class LayoutElement extends AbstractGui {
 			}
 			if (g == 3) { //bottom grabbed
 				newY = sY + diffY;
+			}
+		}
+		if (this.object.orientation.equals("loading-progress")) {
+			if ((this.object.orientationElement != null) && (this.object.orientationElement instanceof CustomBarCustomizationItemBase)) {
+				if (g == 0) { //left grabbed
+					newX = sX + diffX - ((CustomBarCustomizationItemBase) this.object.orientationElement).progressEndX;
+				}
+				if (g == 2) { //top grabbed
+					newY = sY + diffY - ((CustomBarCustomizationItemBase) this.object.orientationElement).progressEndY;
+				}
 			}
 		}
 

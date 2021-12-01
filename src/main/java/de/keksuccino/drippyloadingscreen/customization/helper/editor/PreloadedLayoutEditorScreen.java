@@ -326,7 +326,16 @@ public class PreloadedLayoutEditorScreen extends LayoutEditorScreen {
 		this.content.clear();
 		this.content.addAll(vanillaCon);
 		this.content.addAll(con);
-		
+
+		for (LayoutElement e : this.content) {
+			if (e.object.orientationElementIdentifier != null) {
+				LayoutElement oe = this.getElementByActionId(e.object.orientationElementIdentifier);
+				if (oe != null) {
+					e.object.orientationElement = oe.object;
+				}
+			}
+		}
+
 	}
 
 	/**

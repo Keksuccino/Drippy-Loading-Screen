@@ -58,4 +58,9 @@ public class ForgeTextSplashCustomizationItem extends VanillaSplashCustomization
 		super.render(matrix);
 	}
 
+	@Override
+	public String getActionId() {
+		return "vanilla:forgestatus";
+	}
+
 }

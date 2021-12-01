@@ -169,6 +169,14 @@ public class DynamicValueTextfield extends AdvancedTextField {
 		});
 		UIBase.colorizeButton(maxRam);
 		otherMenu.addContent(maxRam);
+
+		otherMenu.addSeparator();
+
+		AdvancedButton loadingProgress = new AdvancedButton(0, 0, 0, 0, Locals.localize("drippyloadingscreen.helper.ui.dynamicvariabletextfield.variables.loadingprogress"), true, (press) -> {
+			this.writeText("%loadingprogress%");
+		});
+		UIBase.colorizeButton(loadingProgress);
+		otherMenu.addContent(loadingProgress);
 		
 		otherMenu.addSeparator();
 		

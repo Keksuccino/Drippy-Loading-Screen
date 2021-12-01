@@ -15,6 +15,8 @@ import net.minecraftforge.fml.ModList;
 import net.minecraftforge.versions.mcp.MCPVersion;
 
 public class PlaceholderTextValueHelper {
+
+	public static String currentLoadingProgressValue = "0";
 	
 	public static String convertFromRaw(String in) {
 		try {
@@ -83,6 +85,8 @@ public class PlaceholderTextValueHelper {
 
 				in = in.replace("%maxram%", "" + bytesToMb(i));
 			}
+
+			in = in.replace("%loadingprogress%", currentLoadingProgressValue);
 
 			//Apply all custom values
 			for (PlaceholderValue v : PlaceholderTextValueRegistry.getInstance().getValuesAsList()) {
