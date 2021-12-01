@@ -1,10 +1,10 @@
 modLoader="javafml" #mandatory
 loaderVersion="[37,)" #mandatory This is typically bumped every Minecraft version by Forge. See our download page for lists of versions.
-license="KML (Keksuccino Mod License)"
+license="DSMSL (DON'T SNATCH MA STUFF LICENSE)"
 # A list of mods - how many allowed here is determined by the individual mod loader
 [[mods]] #mandatory
 modId="drippyloadingscreen" #mandatory
-version="1.3.1" #mandatory
+version="1.4.1" #mandatory
 displayName="Drippy Loading Screen" #mandatory
 authors="Keksuccino" #optional
 displayURL="https://www.curseforge.com/minecraft/mc-mods/drippy-loading-screen" #optional
@@ -13,8 +13,8 @@ description='''Damn, what a drippy loading screen!
 COPYRIGHT:
 
 > Drippy Loading Screen © Copyright 2021 Keksuccino.
-  Drippy Loading Screen is licensed under KML.
-  See https://github.com/Keksuccino/Drippy-Loading-Screen/blob/main/LICENSE.md for more informations about this license.'''
+  Drippy Loading Screen is licensed under DSMSL (DON'T SNATCH MA STUFF LICENSE).
+  See https://github.com/Keksuccino/Drippy-Loading-Screen/blob/main/LICENSE.md for more information about this license.'''
 
 [[dependencies.drippyloadingscreen]]
 modId="konkrete"

@@ -178,6 +178,8 @@ public class LayoutCustomBarBase extends LayoutElement {
 		
 		PropertiesSection s = new PropertiesSection("customization");
 
+		//TODO übernehmen
+		s.addEntry("actionid", this.object.getActionId());
 		if (this.stretchX) {
 			s.addEntry("x", "0");
 			s.addEntry("width", "%guiwidth%");
@@ -193,6 +195,10 @@ public class LayoutCustomBarBase extends LayoutElement {
 			s.addEntry("height", "" + this.object.height);
 		}
 		s.addEntry("orientation", this.getObject().orientation);
+		//TODO übernehmen
+		if (this.object.orientation.equals("loading-progress") && (this.object.orientationElementIdentifier != null)) {
+			s.addEntry("orientation_element", this.object.orientationElementIdentifier);
+		}
 		
 		s.addEntry("direction", this.getObject().direction.getName());
 		

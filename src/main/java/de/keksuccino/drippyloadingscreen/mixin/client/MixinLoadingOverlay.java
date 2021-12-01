@@ -3,6 +3,7 @@ package de.keksuccino.drippyloadingscreen.mixin.client;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.vertex.PoseStack;
 import de.keksuccino.drippyloadingscreen.DrippyLoadingScreen;
+import de.keksuccino.drippyloadingscreen.customization.placeholdervalues.PlaceholderTextValueHelper;
 import de.keksuccino.drippyloadingscreen.customization.rendering.splash.SplashCustomizationLayer;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
@@ -144,6 +145,9 @@ public abstract class MixinLoadingOverlay extends GuiComponent {
 		handler.currentProgress = this.currentProgressNotShadowed;
 		handler.fadeOutStart = this.fadeOutStartNotShadowed;
 		handler.fadeInStart = this.fadeInStartNotShadowed;
+
+		//TODO übernehmen
+		PlaceholderTextValueHelper.currentLoadingProgressValue = "" + (int)(this.currentProgressNotShadowed * 100.0F);
 
 		//Render the actual loading screen and all customization items
 		handler.renderLayer();

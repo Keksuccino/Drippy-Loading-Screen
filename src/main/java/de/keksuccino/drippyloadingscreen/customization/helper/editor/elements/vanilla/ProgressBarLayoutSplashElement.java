@@ -58,6 +58,10 @@ public class ProgressBarLayoutSplashElement extends VanillaLayoutSplashElement {
 		p.addEntry("action", "editprogressbar");
 		if (!this.getVanillaObject().isOriginalOrientation) {
 			p.addEntry("orientation", this.object.orientation);
+			//TODO übernehmen
+			if (this.object.orientation.equals("loading-progress") && (this.object.orientationElementIdentifier != null)) {
+				p.addEntry("orientation_element", this.object.orientationElementIdentifier);
+			}
 		}
 		if (!this.getVanillaObject().isOriginalPosX) {
 			p.addEntry("x", "" + this.object.posX);

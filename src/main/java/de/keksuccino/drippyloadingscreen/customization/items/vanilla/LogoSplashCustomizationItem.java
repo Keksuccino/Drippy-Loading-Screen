@@ -53,4 +53,10 @@ public class LogoSplashCustomizationItem extends VanillaSplashCustomizationItemB
 		super.render(matrix);
 	}
 
+	//TODO übernehmen
+	@Override
+	public String getActionId() {
+		return "vanilla:mojanglogo";
+	}
+
 }

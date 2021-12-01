@@ -40,15 +40,11 @@ public class CustomizationHelperEvents {
 				int btnwidth = (int) (88 * UIBase.getUIScale());
 				int btnheight = (int) (70 * UIBase.getUIScale());
 
-				//TODO übernehmen (handle = true)
 				this.openHelperButton = new AdvancedButton(0, 90 , btnwidth, btnheight, "", true, (press) -> {
 					Minecraft.getInstance().setScreen(new CustomizationHelperScreen());
 				});
 				this.openHelperButton.setBackgroundTexture(OPEN_HELPER_BUTTON_TEXTURE_IDLE, OPEN_HELPER_BUTTON_TEXTURE_HOVER);
 				this.openHelperButton.setDescription(StringUtils.splitLines(Locals.localize("drippyloadingscreen.helper.openhelper"), "%n%"));
-
-				//TODO übernehmen
-//				e.addWidget(openHelperButton);
 
 			}
 
@@ -56,7 +52,6 @@ public class CustomizationHelperEvents {
 		
 	}
 
-	//TODO übernehmen
 	@SubscribeEvent
 	public void onDrawScreen(GuiScreenEvent.DrawScreenEvent.Post e) {
 

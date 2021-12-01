@@ -34,6 +34,11 @@ public abstract class CustomBarCustomizationItemBase extends CustomizationItemBa
 	public String barEndTexturePath = null;
 
 	protected int currentPercentWidthHeight = 0;
+
+	//TODO übernehmen
+	public int progressEndX = 0;
+	public int progressEndY = 0;
+	//--------------------
 	
 	public CustomBarCustomizationItemBase(PropertiesSection item) {
 		super(item);
