@@ -20,7 +20,7 @@ import java.io.File;
 
 public class DrippyLoadingScreen implements ModInitializer {
 	
-	public static final String VERSION = "1.3.1";
+	public static final String VERSION = "1.4.1";
 	
 	public static final File HOME_DIR = new File("config/drippyloadingscreen");
 	public static final File CUSTOMIZATION_DIR = new File(HOME_DIR.getPath() + "/customization");

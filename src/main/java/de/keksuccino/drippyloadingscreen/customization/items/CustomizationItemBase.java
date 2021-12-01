@@ -1,5 +1,6 @@
 package de.keksuccino.drippyloadingscreen.customization.items;
 
+import de.keksuccino.drippyloadingscreen.customization.items.custombars.CustomBarCustomizationItemBase;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.util.math.MatrixStack;
 
@@ -27,6 +28,8 @@ public abstract class CustomizationItemBase extends DrawableHelper {
 	 */
 	public int posY = 0;
 	public String orientation = "top-left";
+	public String orientationElementIdentifier = null;
+	public CustomizationItemBase orientationElement = null;
 	public int width = -1;
 	public int height = -1;
 
@@ -70,6 +73,11 @@ public abstract class CustomizationItemBase extends DrawableHelper {
 		String o = properties.getEntryValue("orientation");
 		if (o != null) {
 			this.orientation = o;
+		}
+
+		String oe = properties.getEntryValue("orientation_element");
+		if (oe != null) {
+			this.orientationElementIdentifier = oe;
 		}
 
 		String w = properties.getEntryValue("width");
@@ -126,6 +134,12 @@ public abstract class CustomizationItemBase extends DrawableHelper {
 		if (orientation.equalsIgnoreCase("bottom-right")) {
 			x += w - this.width;
 		}
+
+		if (orientation.equalsIgnoreCase("loading-progress") && (this.orientationElement != null)) {
+			if (this.orientationElement instanceof CustomBarCustomizationItemBase) {
+				x += ((CustomBarCustomizationItemBase) this.orientationElement).progressEndX;
+			}
+		}
 		
 		return x;
 	}
@@ -159,6 +173,12 @@ public abstract class CustomizationItemBase extends DrawableHelper {
 		if (orientation.equalsIgnoreCase("bottom-right")) {
 			y += h - this.height;
 		}
+
+		if (orientation.equalsIgnoreCase("loading-progress") && (this.orientationElement != null)) {
+			if (this.orientationElement instanceof CustomBarCustomizationItemBase) {
+				y += ((CustomBarCustomizationItemBase) this.orientationElement).progressEndY;
+			}
+		}
 		
 		return y;
 	}
@@ -172,6 +192,10 @@ public abstract class CustomizationItemBase extends DrawableHelper {
 
 	public String getActionId() {
 		return this.actionId;
+	}
+
+	public void setActionId(String id) {
+		this.actionId = id;
 	}
 
 	protected static boolean isEditorActive() {

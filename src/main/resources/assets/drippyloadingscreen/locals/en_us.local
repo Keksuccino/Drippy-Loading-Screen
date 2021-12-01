@@ -519,4 +519,12 @@ drippyloadingscreen.helper.editor.layoutoptions.randommode.onlyfirsttime.on = Ra
 drippyloadingscreen.helper.editor.layoutoptions.randommode.onlyfirsttime.off = Randomize Only First Time: §cOff
 drippyloadingscreen.helper.editor.layoutoptions.randommode.onlyfirsttime.btn.desc = If layouts of this random group%n%should be random everytime the%n%menu gets opened or if only one layout%n%should be picked the first time%n%the menu gets opened.
 
+drippyloadingscreen.helper.editor.items.copyid = Copy Element ID
+drippyloadingscreen.helper.editor.items.copyid.btn.desc = Copy the ID of this element.
 
+drippyloadingscreen.helper.editor.items.orientation.loading-progress.setidentifier = Set Element ID
+drippyloadingscreen.helper.editor.items.orientation.loading-progress.setidentifier.identifiernotfound = §c§lError!%n%%n%No element found with this element ID!%n%%n%%n%%n%
+drippyloadingscreen.helper.editor.items.orientation.loading-progress.setidentifier.invalidtype = §c§lError!%n%%n%This element is not a Custom Progress Bar element!%n%%n%%n%%n%
+drippyloadingscreen.helper.editor.items.orientation.loading-progress.btn.desc = The positon of the §lprogress end §rof a%n%§lcustom §rprogress bar will be set%n%as orientation origin point, so%n%this element will always move with the%n%progress of said custom progress bar.%n%%n%§cYou need the element ID%n%§cof the parent element here.%n%§cYou can get the element ID%n%§cwhen you right-click an element.
+
+drippyloadingscreen.helper.ui.dynamicvariabletextfield.variables.loadingprogress = Loading Progress in %

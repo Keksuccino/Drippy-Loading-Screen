@@ -1,5 +1,6 @@
 package de.keksuccino.drippyloadingscreen.mixin.client;
 
+import de.keksuccino.drippyloadingscreen.customization.placeholdervalues.PlaceholderTextValueHelper;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.screen.SplashScreen;
 import net.minecraft.client.util.Window;
@@ -111,6 +112,8 @@ public abstract class MixinResourceLoadProgressGui extends DrawableHelper {
 		handler.progress = this.progress;
 		handler.reloadCompleteTime = this.applyCompleteTime;
 		handler.reloadStartTime = this.prepareCompleteTime;
+
+		PlaceholderTextValueHelper.currentLoadingProgressValue = "" + (int)(this.progress * 100.0F);
 
 		//Render the actual loading screen and all customization items
 		handler.renderLayer();
