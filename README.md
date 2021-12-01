@@ -11,8 +11,8 @@ Drippy Loading Screen is available on [CurseForge](https://www.curseforge.com/mi
 
 ## Licensing
 
-Drippy Loading Screen is licensed under KML (Keksuccino Mod License).<br>
-See `LICENSE.md` for more informations.
+Drippy Loading Screen is licensed under DSMSL (DON'T SNATCH MA STUFF LICENSE).<br>
+See `LICENSE.md` for more information.
 
 ## Copyright
 
