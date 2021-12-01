@@ -519,12 +519,37 @@ public class SplashCustomizationLayer extends DrawableHelper {
                 this.backgroundElements.add(new ProgressBarSplashCustomizationItem(this.progressBarSplashElement, dummySec, false));
             }
 
+            for (CustomizationItemBase i : this.foregroundElements) {
+                if (i.orientation.equals("loading-progress") && (i.orientationElementIdentifier != null)) {
+                    i.orientationElement = this.getItemByActionId(i.orientationElementIdentifier);
+                }
+            }
+            for (CustomizationItemBase i : this.backgroundElements) {
+                if (i.orientation.equals("loading-progress") && (i.orientationElementIdentifier != null)) {
+                    i.orientationElement = this.getItemByActionId(i.orientationElementIdentifier);
+                }
+            }
+
         } catch (Exception ex) {
             ex.printStackTrace();
         }
 
         this.isNewLoadingScreen = false;
 
+    }
+
+    protected CustomizationItemBase getItemByActionId(String actionId) {
+        for (CustomizationItemBase c : this.backgroundElements) {
+            if (c.getActionId().equals(actionId)) {
+                return c;
+            }
+        }
+        for (CustomizationItemBase c : this.foregroundElements) {
+            if (c.getActionId().equals(actionId)) {
+                return c;
+            }
+        }
+        return null;
     }
 
     private static int withAlpha(int color, int alpha) {

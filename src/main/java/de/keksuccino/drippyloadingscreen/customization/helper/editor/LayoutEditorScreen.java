@@ -884,6 +884,15 @@ public class LayoutEditorScreen extends Screen {
 		return this.topObject;
 	}
 
+	public LayoutElement getElementByActionId(String actionId) {
+		for (LayoutElement e : this.content) {
+			if (e.object.getActionId().equals(actionId)) {
+				return e;
+			}
+		}
+		return null;
+	}
+
 	public void saveLayout() {
 
 		if ((this instanceof PreloadedLayoutEditorScreen) && (((PreloadedLayoutEditorScreen)this).single != null)) {
@@ -973,6 +982,7 @@ public class LayoutEditorScreen extends Screen {
 			List<LayoutElement> l = new ArrayList<LayoutElement>();
 			for (LayoutElement e : pe.content) {
 				if (!(e instanceof VanillaLayoutSplashElement)) {
+					e.object.setActionId(CustomizationHandler.generateRandomActionId());
 					e.handler = this;
 					//Change the element position a bit to better see that the element was successfully pasted
 					e.object.posX += 1;
