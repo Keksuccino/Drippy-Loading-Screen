@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "package": "de.keksuccino.drippyloadingscreen.mixin.client",
+  "compatibilityLevel": "JAVA_16",
+  "minVersion": "0.8",
+  "client": [
+    "MixinResourceLoadProgressGui",
+    "MixinMinecraftClient"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "refmap": "drippyloadingscreen.mixin-refmap.json"
+}
