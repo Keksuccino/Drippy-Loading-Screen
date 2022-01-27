@@ -101,8 +101,14 @@ public class PreloadedLayoutEditorScreen extends LayoutEditorScreen {
 					this.splashLayer.backgroundImagePath = backgroundImageString;
 					ExternalTextureResourceLocation tex = TextureHandler.getResource(backgroundImageString);
 					tex.loadTexture();
+					this.splashLayer.backgroundImageSource = tex;
 					this.splashLayer.backgroundImage = tex.getResourceLocation();
 				}
+			}
+
+			String keepAspect = meta.getEntryValue("keepaspectratio");
+			if ((keepAspect != null) && keepAspect.equalsIgnoreCase("true")) {
+				this.splashLayer.keepBackgroundAspectRatio = true;
 			}
 
 			String biggerthanwidth = meta.getEntryValue("biggerthanwidth");

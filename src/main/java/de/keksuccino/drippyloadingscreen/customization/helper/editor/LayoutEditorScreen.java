@@ -56,6 +56,7 @@ import de.keksuccino.konkrete.input.MouseInput;
 import de.keksuccino.konkrete.input.StringUtils;
 import de.keksuccino.konkrete.properties.PropertiesSection;
 import de.keksuccino.konkrete.properties.PropertiesSet;
+import de.keksuccino.konkrete.rendering.CurrentScreenHandler;
 import de.keksuccino.konkrete.rendering.RenderUtils;
 import de.keksuccino.konkrete.web.WebUtils;
 import net.minecraft.client.MainWindow;
@@ -268,6 +269,8 @@ public class LayoutEditorScreen extends Screen {
 			meta.addEntry("autoscale_basewidth", "" + this.autoScalingWidth);
 			meta.addEntry("autoscale_baseheight", "" + this.autoScalingHeight);
 		}
+
+		meta.addEntry("keepaspectratio", "" + this.splashLayer.keepBackgroundAspectRatio);
 		
 		l.add(meta);
 		
@@ -456,40 +459,60 @@ public class LayoutEditorScreen extends Screen {
 
 	}
 
-	//TODO übernehmen
 	protected void drawGrid(MatrixStack matrix) {
 		if (DrippyLoadingScreen.config.getOrDefault("showgrid", false)) {
-			Color c = new Color(255, 255, 255, 100);
+
+			Color cNormal = new Color(255, 255, 255, 100);
+			Color cCenter = new Color(150, 105, 255, 100);
 			int gridSize = DrippyLoadingScreen.config.getOrDefault("gridsize", 10);
 			int lineThickness = 1;
-			int verticalLines = Minecraft.getInstance().getMainWindow().getScaledWidth() / gridSize;
-			int horizontalLines = Minecraft.getInstance().getMainWindow().getScaledHeight() / gridSize;
 
-			//Draw vertical lines
-			int i1 = 1;
-			int space1 = 0;
-			while (i1 <= verticalLines) {
-				int minX = (gridSize * i1) + space1;
-				int maxX = minX + lineThickness;
+			//Draw centered vertical line
+			fill(matrix, (this.width / 2) - 1, 0, (this.width / 2) + 1, this.height, cCenter.getRGB());
+
+			//Draw vertical lines center -> left
+			int linesVerticalToLeftPosX = (this.width / 2) - gridSize - 1;
+			while (linesVerticalToLeftPosX > 0) {
 				int minY = 0;
-				int maxY = Minecraft.getInstance().getMainWindow().getScaledHeight();
-				fill(matrix, minX, minY, maxX, maxY, c.getRGB());
-				i1++;
-				space1 += lineThickness;
+				int maxY = this.height;
+				int maxX = linesVerticalToLeftPosX + lineThickness;
+				fill(matrix, linesVerticalToLeftPosX, minY, maxX, maxY, cNormal.getRGB());
+				linesVerticalToLeftPosX -= gridSize;
 			}
 
-			//Draw horizontal lines
-			int i2 = 1;
-			int space2 = 0;
-			while (i2 <= horizontalLines) {
-				int minX = 0;
-				int maxX = Minecraft.getInstance().getMainWindow().getScaledWidth();
-				int minY = (gridSize * i2) + space2;
-				int maxY = minY + lineThickness;
-				fill(matrix, minX, minY, maxX, maxY, c.getRGB());
-				i2++;
-				space2 += lineThickness;
+			//Draw vertical lines center -> right
+			int linesVerticalToRightPosX = (this.width / 2) + gridSize;
+			while (linesVerticalToRightPosX < this.width) {
+				int minY = 0;
+				int maxY = this.height;
+				int maxX = linesVerticalToRightPosX + lineThickness;
+				fill(matrix, linesVerticalToRightPosX, minY, maxX, maxY, cNormal.getRGB());
+				linesVerticalToRightPosX += gridSize;
 			}
+
+			//Draw centered horizontal line
+			fill(matrix, 0, (this.height / 2) - 1, this.width, (this.height / 2) + 1, cCenter.getRGB());
+
+			//Draw horizontal lines center -> top
+			int linesHorizontalToTopPosY = (this.height / 2) - gridSize - 1;
+			while (linesHorizontalToTopPosY > 0) {
+				int minX = 0;
+				int maxX = this.width;
+				int maxY = linesHorizontalToTopPosY + lineThickness;
+				fill(matrix, minX, linesHorizontalToTopPosY, maxX, maxY, cNormal.getRGB());
+				linesHorizontalToTopPosY -= gridSize;
+			}
+
+			//Draw horizontal lines center -> bottom
+			int linesHorizontalToBottomPosY = (this.height / 2) + gridSize;
+			while (linesHorizontalToBottomPosY < this.height) {
+				int minX = 0;
+				int maxX = this.width;
+				int maxY = linesHorizontalToBottomPosY + lineThickness;
+				fill(matrix, minX, linesHorizontalToBottomPosY, maxX, maxY, cNormal.getRGB());
+				linesHorizontalToBottomPosY += gridSize;
+			}
+
 		}
 	}
 	
@@ -510,7 +533,24 @@ public class LayoutEditorScreen extends Screen {
 			Minecraft.getInstance().getTextureManager().bindTexture(this.splashLayer.backgroundImage);
 			RenderSystem.enableBlend();
 			RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-			blit(matrix, 0, 0, 0.0F, 0.0F, this.width, this.height, this.width, this.height);
+			if (!this.splashLayer.keepBackgroundAspectRatio) {
+				blit(matrix, 0, 0, 0.0F, 0.0F, this.width, this.height, this.width, this.height);
+			} else {
+				if (this.splashLayer.backgroundImageSource != null) {
+					int w = this.splashLayer.backgroundImageSource.getWidth();
+					int h = this.splashLayer.backgroundImageSource.getHeight();
+					double ratio = (double) w / (double) h;
+					int wfinal = (int)(this.height * ratio);
+					int screenCenterX = this.width / 2;
+					if (wfinal < this.width) {
+						blit(CurrentScreenHandler.getMatrixStack(), 0, 0, 1.0F, 1.0F, this.width + 1, this.height + 1, this.width + 1, this.height + 1);
+					} else {
+						blit(CurrentScreenHandler.getMatrixStack(), screenCenterX - (wfinal / 2), 0, 1.0F, 1.0F, wfinal + 1, this.height + 1, wfinal + 1, this.height + 1);
+					}
+				} else {
+					System.out.println("IMAGE SOURCE NULL IN EDITOR");
+				}
+			}
 			RenderSystem.disableBlend();
 		}
 	}

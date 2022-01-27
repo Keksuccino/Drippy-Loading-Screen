@@ -610,6 +610,7 @@ public class LayoutEditorUI extends UIBase {
 						}
 						if (call.replace(" ", "").equals("")) {
 							this.parent.splashLayer.backgroundImagePath = null;
+							this.parent.splashLayer.backgroundImageSource = null;
 							this.parent.splashLayer.backgroundImage = null;
 						} else {
 							File f = new File(call);
@@ -617,6 +618,7 @@ public class LayoutEditorUI extends UIBase {
 								this.parent.splashLayer.backgroundImagePath = call;
 								ExternalTextureResourceLocation tex = TextureHandler.getResource(call);
 								tex.loadTexture();
+								this.parent.splashLayer.backgroundImageSource = tex;
 								this.parent.splashLayer.backgroundImage = tex.getResourceLocation();
 							}
 						}
@@ -629,6 +631,22 @@ public class LayoutEditorUI extends UIBase {
 			});
 			backgroundImageButton.setDescription(StringUtils.splitLines(Locals.localize("drippyloadingscreen.helper.editor.backgroundimage.btn.desc"), "%n%"));
 			this.addContent(backgroundImageButton);
+
+			/** KEEP BACKGROUND ASPECT RATIO **/
+			String backgroundAspectLabel = Locals.localize("drippyloadingscreen.helper.editor.layoutoptions.backgroundoptions.keepaspect.on");
+			if (!this.parent.splashLayer.keepBackgroundAspectRatio) {
+				backgroundAspectLabel = Locals.localize("drippyloadingscreen.helper.editor.layoutoptions.backgroundoptions.keepaspect.off");
+			}
+			AdvancedButton backgroundAspectButton = new AdvancedButton(0, 0, 0, 16, backgroundAspectLabel, true, (press) -> {
+				if (this.parent.splashLayer.keepBackgroundAspectRatio) {
+					this.parent.splashLayer.keepBackgroundAspectRatio = false;
+					((AdvancedButton)press).setMessage(Locals.localize("drippyloadingscreen.helper.editor.layoutoptions.backgroundoptions.keepaspect.off"));
+				} else {
+					this.parent.splashLayer.keepBackgroundAspectRatio = true;
+					((AdvancedButton)press).setMessage(Locals.localize("drippyloadingscreen.helper.editor.layoutoptions.backgroundoptions.keepaspect.on"));
+				}
+			});
+			this.addContent(backgroundAspectButton);
 
 			//TODO übernehmen
 			this.addSeparator();
