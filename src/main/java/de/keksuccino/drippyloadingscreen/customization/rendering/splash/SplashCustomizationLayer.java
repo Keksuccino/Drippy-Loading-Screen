@@ -4,12 +4,14 @@ import de.keksuccino.drippyloadingscreen.api.item.CustomizationItem;
 import de.keksuccino.drippyloadingscreen.api.item.CustomizationItemContainer;
 import de.keksuccino.drippyloadingscreen.api.item.CustomizationItemRegistry;
 import de.keksuccino.drippyloadingscreen.customization.CustomizationPropertiesHandler;
+import de.keksuccino.drippyloadingscreen.customization.placeholdervalues.PlaceholderTextValueHelper;
 import de.keksuccino.drippyloadingscreen.events.CustomizationSystemReloadedEvent;
 import de.keksuccino.drippyloadingscreen.events.OverlayOpenEvent;
 import de.keksuccino.konkrete.Konkrete;
 import de.keksuccino.konkrete.events.EventPriority;
 import de.keksuccino.konkrete.events.SubscribeEvent;
 import de.keksuccino.konkrete.math.MathUtils;
+import de.keksuccino.konkrete.rendering.CurrentScreenHandler;
 import de.keksuccino.konkrete.resources.ExternalTextureResourceLocation;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.hud.BackgroundHelper;
@@ -54,8 +56,10 @@ public class SplashCustomizationLayer extends DrawableHelper {
     protected String lastCustomBackgroundHex = null;
     public Color customBackgroundColor;
 
+    public ExternalTextureResourceLocation backgroundImageSource = null;
     public Identifier backgroundImage = null;
     public String backgroundImagePath = null;
+    public boolean keepBackgroundAspectRatio = false;
 
     public boolean scaled = false;
     public boolean fadeOut = true;
@@ -94,6 +98,7 @@ public class SplashCustomizationLayer extends DrawableHelper {
         for (RandomLayoutContainer c : this.randomLayoutGroups.values()) {
             c.lastLayoutPath = null;
         }
+        PlaceholderTextValueHelper.randomTextIntervals.clear();
         this.updateCustomizations();
     }
 
@@ -166,7 +171,20 @@ public class SplashCustomizationLayer extends DrawableHelper {
                 } else {
                     RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
                 }
-                drawTexture(matrix, 0, 0, 0.0F, 0.0F, screenWidth, screenHeight, screenWidth, screenHeight);
+                if (!this.keepBackgroundAspectRatio) {
+                    drawTexture(matrix, 0, 0, 0.0F, 0.0F, screenWidth, screenHeight, screenWidth, screenHeight);
+                } else {
+                    int w = this.backgroundImageSource.getWidth();
+                    int h = this.backgroundImageSource.getHeight();
+                    double ratio = (double) w / (double) h;
+                    int wfinal = (int)(screenHeight * ratio);
+                    int screenCenterX = screenWidth / 2;
+                    if (wfinal < screenWidth) {
+                        drawTexture(CurrentScreenHandler.getMatrixStack(), 0, 0, 1.0F, 1.0F, screenWidth + 1, screenHeight + 1, screenWidth + 1, screenHeight + 1);
+                    } else {
+                        drawTexture(CurrentScreenHandler.getMatrixStack(), screenCenterX - (wfinal / 2), 0, 1.0F, 1.0F, wfinal + 1, screenHeight + 1, wfinal + 1, screenHeight + 1);
+                    }
+                }
                 RenderSystem.disableBlend();
             }
         }
@@ -229,8 +247,10 @@ public class SplashCustomizationLayer extends DrawableHelper {
             this.lastCustomBackgroundHex = null;
             this.customBackgroundColor = null;
 
+            this.backgroundImageSource = null;
             this.backgroundImage = null;
             this.backgroundImagePath = null;
+            this.keepBackgroundAspectRatio = false;
 
             this.foregroundElements.clear();
             this.backgroundElements.clear();
@@ -371,6 +391,11 @@ public class SplashCustomizationLayer extends DrawableHelper {
                     this.customBackgroundHex = cusBackColorString;
                 }
 
+                String keepAspect = metas.get(0).getEntryValue("keepaspectratio");
+                if ((keepAspect != null) && keepAspect.equalsIgnoreCase("true")) {
+                    this.keepBackgroundAspectRatio = true;
+                }
+
                 String backgroundImageString = metas.get(0).getEntryValue("backgroundimage");
                 if (backgroundImageString != null) {
                     File f = new File(backgroundImageString);
@@ -378,6 +403,7 @@ public class SplashCustomizationLayer extends DrawableHelper {
                         this.backgroundImagePath = backgroundImageString;
                         ExternalTextureResourceLocation tex = TextureHandler.getResource(backgroundImageString);
                         tex.loadTexture();
+                        this.backgroundImageSource = tex;
                         this.backgroundImage = tex.getResourceLocation();
                     }
                 }

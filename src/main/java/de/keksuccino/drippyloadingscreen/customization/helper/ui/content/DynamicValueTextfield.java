@@ -2,6 +2,7 @@ package de.keksuccino.drippyloadingscreen.customization.helper.ui.content;
 
 import java.util.List;
 
+import de.keksuccino.drippyloadingscreen.DrippyLoadingScreen;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 
@@ -117,7 +118,7 @@ public class DynamicValueTextfield extends AdvancedTextField {
 		otherMenu.addContent(mcVersion);
 		
 		AdvancedButton forgeVersion = new AdvancedButton(0, 0, 0, 0, Locals.localize("drippyloadingscreen.helper.ui.dynamicvariabletextfield.variables.forgeversion"), true, (press) -> {
-			this.write("%version:forge%");
+			this.write("%version:" + DrippyLoadingScreen.MOD_LOADER + "%");
 		});
 		forgeVersion.setDescription(StringUtils.splitLines(Locals.localize("drippyloadingscreen.helper.ui.dynamicvariabletextfield.variables.forgeversion.desc"), "%n%"));
 		UIBase.colorizeButton(forgeVersion);
@@ -177,6 +178,43 @@ public class DynamicValueTextfield extends AdvancedTextField {
 		});
 		UIBase.colorizeButton(loadingProgress);
 		otherMenu.addContent(loadingProgress);
+
+		AdvancedButton cpuInfo = new AdvancedButton(0, 0, 0, 0, Locals.localize("drippyloadingscreen.helper.ui.dynamicvariabletextfield.variables.cpuinfo"), true, (press) -> {
+			this.write("%cpuinfo%");
+		});
+		UIBase.colorizeButton(cpuInfo);
+		otherMenu.addContent(cpuInfo);
+
+		AdvancedButton gpuInfo = new AdvancedButton(0, 0, 0, 0, Locals.localize("drippyloadingscreen.helper.ui.dynamicvariabletextfield.variables.gpuinfo"), true, (press) -> {
+			this.write("%gpuinfo%");
+		});
+		UIBase.colorizeButton(gpuInfo);
+		otherMenu.addContent(gpuInfo);
+
+		AdvancedButton osName = new AdvancedButton(0, 0, 0, 0, Locals.localize("drippyloadingscreen.helper.ui.dynamicvariabletextfield.variables.osname"), true, (press) -> {
+			this.write("%osname%");
+		});
+		UIBase.colorizeButton(osName);
+		otherMenu.addContent(osName);
+
+		AdvancedButton openGlVersion = new AdvancedButton(0, 0, 0, 0, Locals.localize("drippyloadingscreen.helper.ui.dynamicvariabletextfield.variables.openglversion"), true, (press) -> {
+			this.write("%openglversion%");
+		});
+		UIBase.colorizeButton(openGlVersion);
+		otherMenu.addContent(openGlVersion);
+
+		AdvancedButton javaVersion = new AdvancedButton(0, 0, 0, 0, Locals.localize("drippyloadingscreen.helper.ui.dynamicvariabletextfield.variables.javaversion"), true, (press) -> {
+			this.write("%javaversion%");
+		});
+		UIBase.colorizeButton(javaVersion);
+		otherMenu.addContent(javaVersion);
+
+		AdvancedButton randomText = new AdvancedButton(0, 0, 0, 0, Locals.localize("drippyloadingscreen.helper.ui.dynamicvariabletextfield.variables.randomtext"), true, (press) -> {
+			this.write("%randomtext:<filepath>:<interval_sec>%");
+		});
+		randomText.setDescription(StringUtils.splitLines(Locals.localize("drippyloadingscreen.helper.ui.dynamicvariabletextfield.variables.randomtext.desc"), "%n%"));
+		UIBase.colorizeButton(randomText);
+		otherMenu.addContent(randomText);
 		
 		otherMenu.addSeparator();
 		

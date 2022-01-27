@@ -15,21 +15,25 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.util.Identifier;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 
 public class DrippyLoadingScreen implements ModInitializer {
 	
-	public static final String VERSION = "1.4.1";
+	public static final String VERSION = "1.5.0";
+	public static final String MOD_LOADER = "fabric";
 	
 	public static final File HOME_DIR = new File("config/drippyloadingscreen");
 	public static final File CUSTOMIZATION_DIR = new File(HOME_DIR.getPath() + "/customization");
 	public static final File SLIDESHOW_DIR = new File(HOME_DIR.getPath() + "/slideshows");
+
+	public static final Logger LOGGER = LogManager.getLogger();
 	
 	public static Config config;
 	
 	private static boolean fancymenuLoaded = false;
-	private static boolean optifineLoaded = false;
 
 	@Override
 	public void onInitialize() {
@@ -48,7 +52,7 @@ public class DrippyLoadingScreen implements ModInitializer {
 
 			try {
 				Class.forName("de.keksuccino.fancymenu.FancyMenu");
-				System.out.println("[DRIPPY LOADING SCREEN] FancyMenu found!");
+				LOGGER.info("[DRIPPY LOADING SCREEN] FancyMenu detected!");
 				fancymenuLoaded = true;
 			} catch (Exception e) {}
 
@@ -72,8 +76,12 @@ public class DrippyLoadingScreen implements ModInitializer {
 
 			Konkrete.addPostLoadingEvent("drippyloadingscreen", this::onClientSetup);
 
+			if (isOptifineCompatibilityMode()) {
+				LOGGER.info("[DRIPPY LOADING SCREEN] Optifine compatibility mode!");
+			}
+
 		} else {
-			System.out.println("## WARNING ## 'Drippy Loading Screen' is a client mod and has no effect when loaded on a server!");
+			LOGGER.warn("## WARNING ## 'Drippy Loading Screen' is a client mod and has no effect when loaded on a server!");
 		}
 
 	}
@@ -82,13 +90,6 @@ public class DrippyLoadingScreen implements ModInitializer {
 		try {
 
 			initLocals();
-
-        	try {
-                Class.forName("optifine.Installer");
-                optifineLoaded = true;
-                System.out.println("[DRIPPY LOADING SCREEN] Optifine found!");
-            }
-            catch (ClassNotFoundException e) {}
 	    	
 		} catch (Exception ex) {
 			ex.printStackTrace();
@@ -98,9 +99,14 @@ public class DrippyLoadingScreen implements ModInitializer {
 	public static boolean isFancyMenuLoaded() {
 		return fancymenuLoaded;
 	}
-	
+
+	@Deprecated
 	public static boolean isOptifineLoaded() {
-		return optifineLoaded;
+		return isOptifineCompatibilityMode();
+	}
+
+	public static boolean isOptifineCompatibilityMode() {
+		return Konkrete.isOptifineLoaded;
 	}
 	
 	public static void updateConfig() {
