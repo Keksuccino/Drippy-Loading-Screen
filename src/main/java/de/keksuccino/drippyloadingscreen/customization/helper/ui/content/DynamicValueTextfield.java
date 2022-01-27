@@ -2,6 +2,7 @@ package de.keksuccino.drippyloadingscreen.customization.helper.ui.content;
 
 import java.util.List;
 
+import de.keksuccino.drippyloadingscreen.DrippyLoadingScreen;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 
@@ -117,7 +118,7 @@ public class DynamicValueTextfield extends AdvancedTextField {
 		otherMenu.addContent(mcVersion);
 		
 		AdvancedButton forgeVersion = new AdvancedButton(0, 0, 0, 0, Locals.localize("drippyloadingscreen.helper.ui.dynamicvariabletextfield.variables.forgeversion"), true, (press) -> {
-			this.write("%version:forge%");
+			this.write("%version:" + DrippyLoadingScreen.MOD_LOADER + "%");
 		});
 		forgeVersion.setDescription(StringUtils.splitLines(Locals.localize("drippyloadingscreen.helper.ui.dynamicvariabletextfield.variables.forgeversion.desc"), "%n%"));
 		UIBase.colorizeButton(forgeVersion);

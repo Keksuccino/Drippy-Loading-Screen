@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import de.keksuccino.konkrete.rendering.CurrentScreenHandler;
 import net.minecraft.client.util.Window;
 import net.minecraft.client.util.math.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -255,6 +256,8 @@ public class LayoutEditorScreen extends Screen {
 			meta.addEntry("autoscale_basewidth", "" + this.autoScalingWidth);
 			meta.addEntry("autoscale_baseheight", "" + this.autoScalingHeight);
 		}
+
+		meta.addEntry("keepaspectratio", "" + this.splashLayer.keepBackgroundAspectRatio);
 		
 		l.add(meta);
 		
@@ -495,7 +498,20 @@ public class LayoutEditorScreen extends Screen {
 			RenderUtils.bindTexture(this.splashLayer.backgroundImage);
 			RenderSystem.enableBlend();
 			RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-			drawTexture(matrix, 0, 0, 0.0F, 0.0F, this.width, this.height, this.width, this.height);
+			if (!this.splashLayer.keepBackgroundAspectRatio) {
+				drawTexture(matrix, 0, 0, 0.0F, 0.0F, this.width, this.height, this.width, this.height);
+			} else {
+				int w = this.splashLayer.backgroundImageSource.getWidth();
+				int h = this.splashLayer.backgroundImageSource.getHeight();
+				double ratio = (double) w / (double) h;
+				int wfinal = (int)(this.height * ratio);
+				int screenCenterX = this.width / 2;
+				if (wfinal < this.width) {
+					drawTexture(CurrentScreenHandler.getMatrixStack(), 0, 0, 1.0F, 1.0F, this.width + 1, this.height + 1, this.width + 1, this.height + 1);
+				} else {
+					drawTexture(CurrentScreenHandler.getMatrixStack(), screenCenterX - (wfinal / 2), 0, 1.0F, 1.0F, wfinal + 1, this.height + 1, wfinal + 1, this.height + 1);
+				}
+			}
 			RenderSystem.disableBlend();
 		}
 	}
