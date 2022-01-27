@@ -4,7 +4,7 @@ license="DSMSL (DON'T SNATCH MA STUFF LICENSE)"
 # A list of mods - how many allowed here is determined by the individual mod loader
 [[mods]] #mandatory
 modId="drippyloadingscreen" #mandatory
-version="1.4.1" #mandatory
+version="1.5.0" #mandatory
 displayName="Drippy Loading Screen" #mandatory
 authors="Keksuccino" #optional
 displayURL="https://www.curseforge.com/minecraft/mc-mods/drippy-loading-screen" #optional
@@ -20,7 +20,7 @@ COPYRIGHT:
 modId="konkrete"
 mandatory=true
 ordering="NONE"
-versionRange="[1.3.0,)"
+versionRange="[1.3.3,)"
 side="BOTH"
 
 [[dependencies.drippyloadingscreen]]

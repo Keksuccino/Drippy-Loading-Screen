@@ -14,6 +14,7 @@ import de.keksuccino.drippyloadingscreen.customization.items.*;
 import de.keksuccino.drippyloadingscreen.customization.items.custombars.CustomProgressBarCustomizationItem;
 import de.keksuccino.drippyloadingscreen.customization.items.vanilla.LogoSplashCustomizationItem;
 import de.keksuccino.drippyloadingscreen.customization.items.vanilla.ProgressBarSplashCustomizationItem;
+import de.keksuccino.drippyloadingscreen.customization.placeholdervalues.PlaceholderTextValueHelper;
 import de.keksuccino.drippyloadingscreen.customization.rendering.splash.elements.LogoSplashElement;
 import de.keksuccino.drippyloadingscreen.customization.rendering.splash.elements.ProgressBarSplashElement;
 import de.keksuccino.drippyloadingscreen.events.CustomizationSystemReloadedEvent;
@@ -21,6 +22,7 @@ import de.keksuccino.drippyloadingscreen.events.OverlayOpenEvent;
 import de.keksuccino.konkrete.math.MathUtils;
 import de.keksuccino.konkrete.properties.PropertiesSection;
 import de.keksuccino.konkrete.properties.PropertiesSet;
+import de.keksuccino.konkrete.rendering.CurrentScreenHandler;
 import de.keksuccino.konkrete.rendering.RenderUtils;
 import de.keksuccino.konkrete.resources.ExternalTextureResourceLocation;
 import de.keksuccino.konkrete.resources.TextureHandler;
@@ -49,16 +51,16 @@ public class SplashCustomizationLayer extends GuiComponent {
     private static int backgroundColor2 = backgroundColor & 16777215;
 
     public final LogoSplashElement logoSplashElement = new LogoSplashElement(this);
-//    public final ForgeTextSplashElement forgeTextSplashElement = new ForgeTextSplashElement(this);
-//    public final ForgeMemoryInfoSplashElement forgeMemoryInfoSplashElement = new ForgeMemoryInfoSplashElement(this);
     public final ProgressBarSplashElement progressBarSplashElement = new ProgressBarSplashElement(this);
 
     public String customBackgroundHex = null;
     protected String lastCustomBackgroundHex = null;
     public Color customBackgroundColor;
 
+    public ExternalTextureResourceLocation backgroundImageSource = null;
     public ResourceLocation backgroundImage = null;
     public String backgroundImagePath = null;
+    public boolean keepBackgroundAspectRatio = false;
 
     public boolean scaled = false;
     public boolean fadeOut = true;
@@ -97,6 +99,8 @@ public class SplashCustomizationLayer extends GuiComponent {
         for (RandomLayoutContainer c : this.randomLayoutGroups.values()) {
             c.lastLayoutPath = null;
         }
+        //TODO übernehmen
+        PlaceholderTextValueHelper.randomTextIntervals.clear();
         this.updateCustomizations();
     }
 
@@ -168,7 +172,20 @@ public class SplashCustomizationLayer extends GuiComponent {
                 } else {
                     RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
                 }
-                blit(matrix, 0, 0, 0.0F, 0.0F, screenWidth, screenHeight, screenWidth, screenHeight);
+                if (!this.keepBackgroundAspectRatio) {
+                    blit(matrix, 0, 0, 0.0F, 0.0F, screenWidth, screenHeight, screenWidth, screenHeight);
+                } else {
+                    int w = this.backgroundImageSource.getWidth();
+                    int h = this.backgroundImageSource.getHeight();
+                    double ratio = (double) w / (double) h;
+                    int wfinal = (int)(screenHeight * ratio);
+                    int screenCenterX = screenWidth / 2;
+                    if (wfinal < screenWidth) {
+                        GuiComponent.blit(CurrentScreenHandler.getPoseStack(), 0, 0, 1.0F, 1.0F, screenWidth + 1, screenHeight + 1, screenWidth + 1, screenHeight + 1);
+                    } else {
+                        GuiComponent.blit(CurrentScreenHandler.getPoseStack(), screenCenterX - (wfinal / 2), 0, 1.0F, 1.0F, wfinal + 1, screenHeight + 1, wfinal + 1, screenHeight + 1);
+                    }
+                }
                 RenderSystem.disableBlend();
             }
         }
@@ -199,10 +216,6 @@ public class SplashCustomizationLayer extends GuiComponent {
 
         this.logoSplashElement.render(matrix, screenWidth, screenHeight, partial);
 
-//        this.forgeTextSplashElement.render(matrix, screenWidth, screenHeight, partial);
-
-//        this.forgeMemoryInfoSplashElement.render(matrix, screenWidth, screenHeight, partial);
-
         this.progressBarSplashElement.render(matrix, screenWidth, screenHeight, partial);
 
         RenderSystem.enableBlend();
@@ -229,16 +242,16 @@ public class SplashCustomizationLayer extends GuiComponent {
         try {
 
             this.logoSplashElement.onReloadCustomizations();
-//            this.forgeTextSplashElement.onReloadCustomizations();
-//            this.forgeMemoryInfoSplashElement.onReloadCustomizations();
             this.progressBarSplashElement.onReloadCustomizations();
 
             this.customBackgroundHex = null;
             this.lastCustomBackgroundHex = null;
             this.customBackgroundColor = null;
 
+            this.backgroundImageSource = null;
             this.backgroundImage = null;
             this.backgroundImagePath = null;
+            this.keepBackgroundAspectRatio = false;
 
             this.foregroundElements.clear();
             this.backgroundElements.clear();
@@ -381,6 +394,11 @@ public class SplashCustomizationLayer extends GuiComponent {
                     this.customBackgroundHex = cusBackColorString;
                 }
 
+                String keepAspect = metas.get(0).getEntryValue("keepaspectratio");
+                if ((keepAspect != null) && keepAspect.equalsIgnoreCase("true")) {
+                    this.keepBackgroundAspectRatio = true;
+                }
+
                 String backgroundImageString = metas.get(0).getEntryValue("backgroundimage");
                 if (backgroundImageString != null) {
                     File f = new File(backgroundImageString);
@@ -388,6 +406,7 @@ public class SplashCustomizationLayer extends GuiComponent {
                         this.backgroundImagePath = backgroundImageString;
                         ExternalTextureResourceLocation tex = TextureHandler.getResource(backgroundImageString);
                         tex.loadTexture();
+                        this.backgroundImageSource = tex;
                         this.backgroundImage = tex.getResourceLocation();
                     }
                 }
@@ -547,7 +566,6 @@ public class SplashCustomizationLayer extends GuiComponent {
                 this.backgroundElements.add(new ProgressBarSplashCustomizationItem(this.progressBarSplashElement, dummySec, false));
             }
 
-            //TODO übernehmen
             for (CustomizationItemBase i : this.foregroundElements) {
                 if (i.orientation.equals("loading-progress") && (i.orientationElementIdentifier != null)) {
                     i.orientationElement = this.getItemByActionId(i.orientationElementIdentifier);
@@ -558,7 +576,6 @@ public class SplashCustomizationLayer extends GuiComponent {
                     i.orientationElement = this.getItemByActionId(i.orientationElementIdentifier);
                 }
             }
-            //---------------------
 
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -568,7 +585,6 @@ public class SplashCustomizationLayer extends GuiComponent {
 
     }
 
-    //TODO übernehmen
     protected CustomizationItemBase getItemByActionId(String actionId) {
         for (CustomizationItemBase c : this.backgroundElements) {
             if (c.getActionId().equals(actionId)) {

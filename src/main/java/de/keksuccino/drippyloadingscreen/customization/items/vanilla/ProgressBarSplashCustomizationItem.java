@@ -58,7 +58,6 @@ public class ProgressBarSplashCustomizationItem extends VanillaSplashCustomizati
 		super.render(matrix);
 	}
 
-	//TODO übernehmen
 	@Override
 	public String getActionId() {
 		return "vanilla:progressbar";

@@ -1,14 +1,15 @@
 package de.keksuccino.drippyloadingscreen.customization.placeholdervalues;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
+import com.mojang.blaze3d.platform.GlUtil;
 import de.keksuccino.drippyloadingscreen.api.PlaceholderTextValueRegistry;
 import de.keksuccino.drippyloadingscreen.api.PlaceholderTextValueRegistry.PlaceholderValue;
+import de.keksuccino.konkrete.Konkrete;
+import de.keksuccino.konkrete.file.FileUtils;
 import de.keksuccino.konkrete.input.StringUtils;
+import de.keksuccino.konkrete.math.MathUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.fml.ModContainer;
 import net.minecraftforge.fml.ModList;
@@ -16,8 +17,12 @@ import net.minecraftforge.versions.mcp.MCPVersion;
 
 public class PlaceholderTextValueHelper {
 
-	//TODO übernehmen
 	public static String currentLoadingProgressValue = "0";
+	//TODO übernehmen
+	public static Map<String, RandomTextPackage> randomTextIntervals = new HashMap<>();
+	private static final File MOD_DIRECTORY = new File("mods");
+	private static int cachedTotalMods = -10;
+	//---------------------
 	
 	public static String convertFromRaw(String in) {
 		try {
@@ -87,8 +92,35 @@ public class PlaceholderTextValueHelper {
 				in = in.replace("%maxram%", "" + bytesToMb(i));
 			}
 
-			//TODO übernehmen
 			in = in.replace("%loadingprogress%", currentLoadingProgressValue);
+
+			//TODO übernehmen
+			in = in.replace("%cpuinfo%", GlUtil.getCpuInfo());
+
+			//TODO übernehmen
+			in = in.replace("%gpuinfo%", GlUtil.getRenderer());
+
+			//TODO übernehmen
+			String javaVersion = System.getProperty("java.version");
+			if (javaVersion == null) {
+				javaVersion = "0";
+			}
+			in = in.replace("%javaversion%", javaVersion);
+			//--------------------
+
+			//TODO übernehmen
+			String osName = System.getProperty("os.name");
+			if (osName == null) {
+				osName = "unknown";
+			}
+			in = in.replace("%osname%", osName);
+			//--------------------
+
+			//TODO übernehmen
+			in = in.replace("%openglversion%", GlUtil.getOpenGLVersion());
+
+			//TODO übernehmen
+			in = replaceRandomTextValue(in);
 
 			//Apply all custom values
 			for (PlaceholderValue v : PlaceholderTextValueRegistry.getInstance().getValuesAsList()) {
@@ -106,38 +138,69 @@ public class PlaceholderTextValueHelper {
 		String s = convertFromRaw(in);
 		return !s.equals(in);
 	}
-	
+
+	//TODO übernehmen
 	private static String replaceModVersionPlaceholder(String in) {
 		try {
-			if (in.contains("%version:")) {
-				List<String> l = new ArrayList<String>();
-				int index = -1;
-				int i = 0;
-				while (i < in.length()) {
-					String s = "" + in.charAt(i);
-					if (s.equals("%")) {
-						if (index == -1) {
-							index = i;
-						} else {
-							String sub = in.substring(index, i+1);
-							if (sub.startsWith("%version:") && sub.endsWith("%")) {
-								l.add(sub);
-							}
-							index = -1;
+			for (String s : getReplaceablesWithValue(in, "%version:")) {
+				if (s.contains(":")) {
+					String blank = s.substring(1, s.length()-1);
+					String mod = blank.split(":", 2)[1];
+					if (ModList.get().isLoaded(mod)) {
+						Optional<? extends ModContainer> o = ModList.get().getModContainerById(mod);
+						if (o.isPresent()) {
+							ModContainer c = o.get();
+							String version = c.getModInfo().getVersion().toString();
+							in = in.replace(s, version);
 						}
 					}
-					i++;
 				}
-				for (String s : l) {
-					if (s.contains(":")) {
-						String blank = s.substring(1, s.length()-1);
-						String mod = blank.split(":", 2)[1];
-						if (ModList.get().isLoaded(mod)) {
-							Optional<? extends ModContainer> o = ModList.get().getModContainerById(mod);
-							if (o.isPresent()) {
-								ModContainer c = o.get();
-								String version = c.getModInfo().getVersion().toString();
-								in = in.replace(s, version);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return in;
+	}
+
+	//TODO übernehmen
+	private static String replaceRandomTextValue(String in) {
+		try {
+			for (String s : getReplaceablesWithValue(in, "%randomtext:")) { // %randomtext:<filepath>:<change_interval_sec>%
+				if (s.contains(":")) {
+					String blank = s.substring(1, s.length()-1);
+					String value = blank.split(":", 2)[1];
+					if (value.contains(":")) {
+						String pathString = value.split(":", 2)[0];
+						File path = new File(pathString);
+						String intervalString = value.split(":", 2)[1];
+						if (MathUtils.isLong(intervalString) && path.isFile() && path.getPath().toLowerCase().endsWith(".txt")) {
+							long interval = Long.parseLong(intervalString) * 1000;
+							if (interval < 0L) {
+								interval = 0L;
+							}
+							long currentTime = System.currentTimeMillis();
+							RandomTextPackage p;
+							if (randomTextIntervals.containsKey(path.getPath())) {
+								p = randomTextIntervals.get(path.getPath());
+							} else {
+								p = new RandomTextPackage();
+								randomTextIntervals.put(path.getPath(), p);
+							}
+							if ((interval > 0) || (p.currentText == null)) {
+								if ((p.lastChange + interval) <= currentTime) {
+									p.lastChange = currentTime;
+									List<String> txtLines = FileUtils.getFileLines(path);
+									if (!txtLines.isEmpty()) {
+										p.currentText = txtLines.get(MathUtils.getRandomNumberInRange(0, txtLines.size()-1));
+									} else {
+										p.currentText = null;
+									}
+								}
+							}
+							if (p.currentText != null) {
+								in = in.replace(s, p.currentText);
+							} else {
+								in = in.replace(s, "");
 							}
 						}
 					}
@@ -149,26 +212,61 @@ public class PlaceholderTextValueHelper {
 		return in;
 	}
 
+	//TODO übernehmen
+	protected static List<String> getReplaceablesWithValue(String in, String placeholderBase) {
+		List<String> l = new ArrayList<String>();
+		try {
+			if (in.contains(placeholderBase)) {
+				int index = -1;
+				int i = 0;
+				while (i < in.length()) {
+					String s = "" + in.charAt(i);
+					if (s.equals("%")) {
+						if (index == -1) {
+							index = i;
+						} else {
+							String sub = in.substring(index, i+1);
+							if (sub.startsWith(placeholderBase) && sub.endsWith("%")) {
+								l.add(sub);
+							}
+							index = -1;
+						}
+					}
+					i++;
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return l;
+	}
+
+	//TODO übernehmen
 	private static int getTotalMods() {
-		File modDir = new File("mods");
-		if (modDir.exists()) {
-			int i = 0;
-			File[] modList = modDir.listFiles();
-			if (modList != null) {
-				for (File f : modList) {
+		if (cachedTotalMods == -10) {
+			if (MOD_DIRECTORY.exists()) {
+				int i = 0;
+				for (File f : MOD_DIRECTORY.listFiles()) {
 					if (f.isFile() && f.getName().toLowerCase().endsWith(".jar")) {
 						i++;
 					}
 				}
+				cachedTotalMods = i+2;
+			} else {
+				cachedTotalMods = -1;
 			}
-			return i+2;
 		}
-		return -1;
+		return cachedTotalMods;
 	}
 
+	//TODO übernehmen
 	private static int getLoadedMods() {
 		try {
-			return ModList.get().getMods().size();
+			int i = 0;
+			if (Konkrete.isOptifineLoaded) {
+				i++;
+			}
+			return ModList.get().getMods().size() + i;
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -185,6 +283,12 @@ public class PlaceholderTextValueHelper {
 	
 	private static long bytesToMb(long bytes) {
 		return bytes / 1024L / 1024L;
+	}
+
+	//TODO übernehmen
+	public static class RandomTextPackage {
+		public String currentText = null;
+		public long lastChange = 0L;
 	}
 
 }

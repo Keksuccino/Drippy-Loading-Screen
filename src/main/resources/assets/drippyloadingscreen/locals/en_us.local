@@ -300,8 +300,8 @@ drippyloadingscreen.helper.ui.dynamicvariabletextfield.variables.playeruuid = Pl
 drippyloadingscreen.helper.ui.dynamicvariabletextfield.variables.playeruuid.desc = Gets the player UUID.
 drippyloadingscreen.helper.ui.dynamicvariabletextfield.variables.mcversion = Minecraft Version
 drippyloadingscreen.helper.ui.dynamicvariabletextfield.variables.mcversion.desc = Gets the Minecraft version.
-drippyloadingscreen.helper.ui.dynamicvariabletextfield.variables.forgeversion = Forge Version
-drippyloadingscreen.helper.ui.dynamicvariabletextfield.variables.forgeversion.desc = Gets the Forge version.
+drippyloadingscreen.helper.ui.dynamicvariabletextfield.variables.forgeversion = Mod Loader Version
+drippyloadingscreen.helper.ui.dynamicvariabletextfield.variables.forgeversion.desc = Gets the mod loader version.
 drippyloadingscreen.helper.ui.dynamicvariabletextfield.variables.modversion = Mod Version
 drippyloadingscreen.helper.ui.dynamicvariabletextfield.variables.modversion.desc = Gets the version of a mod my its mod ID.%n%%n%Just replace '<modid>' in the placeholder%n%with an existing mod ID.
 drippyloadingscreen.helper.ui.dynamicvariabletextfield.variables.totalmods = Total Mods Count
@@ -528,3 +528,16 @@ drippyloadingscreen.helper.editor.items.orientation.loading-progress.setidentifi
 drippyloadingscreen.helper.editor.items.orientation.loading-progress.btn.desc = The positon of the §lprogress end §rof a%n%§lcustom §rprogress bar will be set%n%as orientation origin point, so%n%this element will always move with the%n%progress of said custom progress bar.%n%%n%§cYou need the element ID%n%§cof the parent element here.%n%§cYou can get the element ID%n%§cwhen you right-click an element.
 
 drippyloadingscreen.helper.ui.dynamicvariabletextfield.variables.loadingprogress = Loading Progress in %
+
+drippyloadingscreen.helper.editor.layoutoptions.backgroundoptions.keepaspect.on = Keep Background Aspect Ratio: §aOn
+drippyloadingscreen.helper.editor.layoutoptions.backgroundoptions.keepaspect.off = Keep Background Aspect Ratio: §cOff
+
+drippyloadingscreen.helper.ui.dynamicvariabletextfield.variables.cpuinfo = CPU Info
+drippyloadingscreen.helper.ui.dynamicvariabletextfield.variables.gpuinfo = GPU Info
+drippyloadingscreen.helper.ui.dynamicvariabletextfield.variables.javaversion = Java Version
+drippyloadingscreen.helper.ui.dynamicvariabletextfield.variables.osname = OS Name
+drippyloadingscreen.helper.ui.dynamicvariabletextfield.variables.openglversion = OpenGL Version
+drippyloadingscreen.helper.ui.dynamicvariabletextfield.variables.randomtext = Random Text From TXT File
+drippyloadingscreen.helper.ui.dynamicvariabletextfield.variables.randomtext.desc = Picks a random text from a TXT file.%n%%n%Supports custom change intervals for texts.%n%%n%Just replace '<filepath>' (remove the < >)%n%with the path to your TXT file%n%and replace '<interval_sec>' (remove the < >)%n%with the change interval in seconds.%n%An interval of 0 will make it%n%pick a text only once per session.%n%%n%§lExample:%n%%randomtext:path/to/file.txt:10%
+
+

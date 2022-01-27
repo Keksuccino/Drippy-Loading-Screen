@@ -20,24 +20,27 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.loading.FMLEnvironment;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 @Mod("drippyloadingscreen")
 public class DrippyLoadingScreen {
 
-	public static final String VERSION = "1.4.1";
+	//TODO übernehmen (+ min Konkrete auf 1.3.3 anheben)
+	public static final String VERSION = "1.5.0";
+	public static final String MOD_LOADER = "forge";
 	
 	public static final File HOME_DIR = new File("config/drippyloadingscreen");
 	public static final File CUSTOMIZATION_DIR = new File(HOME_DIR.getPath() + "/customization");
 	public static final File SLIDESHOW_DIR = new File(HOME_DIR.getPath() + "/slideshows");
+
+	public static final Logger LOGGER = LogManager.getLogger();
 	
 	public static Config config;
 	
 	private static boolean fancymenuLoaded = false;
-	private static boolean optifineLoaded = false;
 
 	public DrippyLoadingScreen() {
-		
-//		ModLoadingContext.get().registerExtensionPoint(ExtensionPoint.DISPLAYTEST, () -> Pair.of(() -> FMLNetworkConstants.IGNORESERVERONLY, (a, b) -> true));
 
 		if (FMLEnvironment.dist == Dist.CLIENT) {
 
@@ -52,7 +55,7 @@ public class DrippyLoadingScreen {
 			}
 
 			if (ModList.get().isLoaded("fancymenu")) {
-				System.out.println("[DRIPPY LOADING SCREEN] FancyMenu found!");
+				LOGGER.info("[DRIPPY LOADING SCREEN] FancyMenu detected!");
 				fancymenuLoaded = true;
 			}
 			
@@ -78,8 +81,12 @@ public class DrippyLoadingScreen {
 			
 			Konkrete.addPostLoadingEvent("drippyloadingscreen", this::onClientSetup);
 
+			if (isOptifineCompatibilityMode()) {
+				LOGGER.info("[DRIPPY LOADING SCREEN] Optifine compatibility mode!");
+			}
+
 		} else {
-			System.out.println("## WARNING ## 'Drippy Loading Screen' is a client mod and has no effect when loaded on a server!");
+			LOGGER.warn("## WARNING ## 'Drippy Loading Screen' is a client mod and has no effect when loaded on a server!");
 		}
 		
 	}
@@ -88,13 +95,6 @@ public class DrippyLoadingScreen {
 		try {
 
 			initLocals();
-
-        	try {
-                Class.forName("optifine.Installer");
-                optifineLoaded = true;
-                System.out.println("[DRIPPY LOADING SCREEN] Optifine found!");
-            }
-            catch (ClassNotFoundException e) {}
 	    	
 		} catch (Exception ex) {
 			ex.printStackTrace();
@@ -104,9 +104,14 @@ public class DrippyLoadingScreen {
 	public static boolean isFancyMenuLoaded() {
 		return fancymenuLoaded;
 	}
-	
+
+	@Deprecated
 	public static boolean isOptifineLoaded() {
-		return optifineLoaded;
+		return isOptifineCompatibilityMode();
+	}
+
+	public static boolean isOptifineCompatibilityMode() {
+		return Konkrete.isOptifineLoaded;
 	}
 	
 	public static void updateConfig() {
@@ -114,7 +119,7 @@ public class DrippyLoadingScreen {
 		try {
 			
 			config = new Config(HOME_DIR.getPath() + "/config.cfg");
-			
+
 			//---------------------
 			
 			config.registerValue("printwarnings", true, "logging");

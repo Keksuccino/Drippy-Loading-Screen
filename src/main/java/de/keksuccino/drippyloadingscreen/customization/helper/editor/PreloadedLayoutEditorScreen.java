@@ -94,8 +94,14 @@ public class PreloadedLayoutEditorScreen extends LayoutEditorScreen {
 					this.splashLayer.backgroundImagePath = backgroundImageString;
 					ExternalTextureResourceLocation tex = TextureHandler.getResource(backgroundImageString);
 					tex.loadTexture();
+					this.splashLayer.backgroundImageSource = tex;
 					this.splashLayer.backgroundImage = tex.getResourceLocation();
 				}
+			}
+
+			String keepAspect = meta.getEntryValue("keepaspectratio");
+			if ((keepAspect != null) && keepAspect.equalsIgnoreCase("true")) {
+				this.splashLayer.keepBackgroundAspectRatio = true;
 			}
 
 			String biggerthanwidth = meta.getEntryValue("biggerthanwidth");
@@ -320,7 +326,6 @@ public class PreloadedLayoutEditorScreen extends LayoutEditorScreen {
 		this.content.addAll(vanillaCon);
 		this.content.addAll(con);
 
-		//TODO übernehmen
 		for (LayoutElement e : this.content) {
 			if (e.object.orientationElementIdentifier != null) {
 				LayoutElement oe = this.getElementByActionId(e.object.orientationElementIdentifier);

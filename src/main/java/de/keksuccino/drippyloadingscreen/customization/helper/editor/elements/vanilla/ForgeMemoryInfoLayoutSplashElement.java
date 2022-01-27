@@ -58,7 +58,6 @@ public class ForgeMemoryInfoLayoutSplashElement extends VanillaLayoutSplashEleme
 		p.addEntry("action", "editforgememoryinfo");
 		if (!this.getVanillaObject().isOriginalOrientation) {
 			p.addEntry("orientation", this.object.orientation);
-			//TODO übernehmen
 			if (this.object.orientation.equals("loading-progress") && (this.object.orientationElementIdentifier != null)) {
 				p.addEntry("orientation_element", this.object.orientationElementIdentifier);
 			}

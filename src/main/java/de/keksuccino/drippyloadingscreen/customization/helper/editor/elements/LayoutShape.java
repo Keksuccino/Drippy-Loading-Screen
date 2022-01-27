@@ -85,7 +85,6 @@ public class LayoutShape extends LayoutElement {
 			s.addEntry("shape", this.getObject().shape.name);
 			s.addEntry("color", this.getObject().getColorString());
 			s.addEntry("orientation", this.object.orientation);
-			//TODO übernehmen
 			if (this.object.orientation.equals("loading-progress") && (this.object.orientationElementIdentifier != null)) {
 				s.addEntry("orientation_element", this.object.orientationElementIdentifier);
 			}

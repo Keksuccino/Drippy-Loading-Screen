@@ -28,10 +28,8 @@ public abstract class CustomizationItemBase extends GuiComponent {
 	 */
 	public int posY = 0;
 	public String orientation = "top-left";
-	//TODO übernehmen
 	public String orientationElementIdentifier = null;
 	public CustomizationItemBase orientationElement = null;
-	//-----------------
 	public int width = -1;
 	public int height = -1;
 
@@ -79,7 +77,6 @@ public abstract class CustomizationItemBase extends GuiComponent {
 			this.orientation = o;
 		}
 
-		//TODO übernehmen
 		String oe = properties.getEntryValue("orientation_element");
 		if (oe != null) {
 			this.orientationElementIdentifier = oe;
@@ -142,7 +139,6 @@ public abstract class CustomizationItemBase extends GuiComponent {
 			x += w - this.width;
 		}
 
-		//TODO übernehmen
 		if (orientation.equalsIgnoreCase("loading-progress") && (this.orientationElement != null)) {
 			if (this.orientationElement instanceof CustomBarCustomizationItemBase) {
 				x += ((CustomBarCustomizationItemBase) this.orientationElement).progressEndX;
@@ -182,7 +178,6 @@ public abstract class CustomizationItemBase extends GuiComponent {
 			y += h - this.height;
 		}
 
-		//TODO übernehmen
 		if (orientation.equalsIgnoreCase("loading-progress") && (this.orientationElement != null)) {
 			if (this.orientationElement instanceof CustomBarCustomizationItemBase) {
 				y += ((CustomBarCustomizationItemBase) this.orientationElement).progressEndY;
@@ -206,7 +201,6 @@ public abstract class CustomizationItemBase extends GuiComponent {
 		return this.actionId;
 	}
 
-	//TODO übernehmen
 	public void setActionId(String id) {
 		this.actionId = id;
 	}

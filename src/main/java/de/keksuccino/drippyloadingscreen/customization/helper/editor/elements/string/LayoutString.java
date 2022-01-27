@@ -211,7 +211,6 @@ public class LayoutString extends LayoutElement {
 		p1.addEntry("x", "" + this.object.posX);
 		p1.addEntry("y", "" + this.object.posY);
 		p1.addEntry("orientation", this.object.orientation);
-		//TODO übernehmen
 		if (this.object.orientation.equals("loading-progress") && (this.object.orientationElementIdentifier != null)) {
 			p1.addEntry("orientation_element", this.object.orientationElementIdentifier);
 		}

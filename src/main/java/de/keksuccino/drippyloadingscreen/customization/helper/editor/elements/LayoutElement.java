@@ -68,7 +68,6 @@ public abstract class LayoutElement extends GuiComponent {
 	protected AdvancedButton stretchXButton;
 	protected AdvancedButton stretchYButton;
 
-	//TODO übernehmen
 	protected AdvancedButton oLoadingProgress;
 	protected AdvancedButton o1;
 	protected AdvancedButton o2;
@@ -125,7 +124,6 @@ public abstract class LayoutElement extends GuiComponent {
 		this.init();
 	}
 
-	//TODO übernehmen
 	public void init() {
 		
 		this.rightclickMenu = new FHContextMenu();
@@ -468,7 +466,6 @@ public abstract class LayoutElement extends GuiComponent {
 				this.object.posY = 0;
 				this.object.height = Minecraft.getInstance().screen.height;
 			}
-			//TODO übernehmen 2
 			if (this.stretchX || this.stretchY) {
 				this.oLoadingProgress.active = false;
 			}
@@ -515,7 +512,6 @@ public abstract class LayoutElement extends GuiComponent {
 				this.o7.active = true;
 				this.o8.active = true;
 				this.o9.active = true;
-				//TODO übernehmen 2
 				this.oLoadingProgress.active = true;
 			}
 		} catch (Exception e) {
@@ -875,7 +871,6 @@ public abstract class LayoutElement extends GuiComponent {
 				sY = this.startY - this.startHeight;
 			}
 		}
-		//TODO übernehmen 2
 		if (this.object.orientation.equals("loading-progress")) {
 			if ((this.object.orientationElement != null) && (this.object.orientationElement instanceof CustomBarCustomizationItemBase)) {
 				if (g == 0) { //left grabbed
@@ -1014,7 +1009,6 @@ public abstract class LayoutElement extends GuiComponent {
 				newY = sY + diffY;
 			}
 		}
-		//TODO übernehmen 2
 		if (this.object.orientation.equals("loading-progress")) {
 			if ((this.object.orientationElement != null) && (this.object.orientationElement instanceof CustomBarCustomizationItemBase)) {
 				if (g == 0) { //left grabbed

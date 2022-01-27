@@ -3,6 +3,7 @@ package de.keksuccino.drippyloadingscreen.customization.helper.ui.content;
 import java.util.List;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import de.keksuccino.drippyloadingscreen.DrippyLoadingScreen;
 import de.keksuccino.drippyloadingscreen.api.PlaceholderTextValueRegistry;
 import de.keksuccino.drippyloadingscreen.api.PlaceholderTextValueRegistry.PlaceholderValue;
 import de.keksuccino.drippyloadingscreen.customization.helper.ui.UIBase;
@@ -116,7 +117,7 @@ public class DynamicValueTextfield extends AdvancedTextField {
 		otherMenu.addContent(mcVersion);
 		
 		AdvancedButton forgeVersion = new AdvancedButton(0, 0, 0, 0, Locals.localize("drippyloadingscreen.helper.ui.dynamicvariabletextfield.variables.forgeversion"), true, (press) -> {
-			this.insertText("%version:forge%");
+			this.insertText("%version:" + DrippyLoadingScreen.MOD_LOADER + "%");
 		});
 		forgeVersion.setDescription(StringUtils.splitLines(Locals.localize("drippyloadingscreen.helper.ui.dynamicvariabletextfield.variables.forgeversion.desc"), "%n%"));
 		UIBase.colorizeButton(forgeVersion);
@@ -169,16 +170,56 @@ public class DynamicValueTextfield extends AdvancedTextField {
 		UIBase.colorizeButton(maxRam);
 		otherMenu.addContent(maxRam);
 
-		//TODO übernehmen
 		otherMenu.addSeparator();
 
-		//TODO übernehmen
 		AdvancedButton loadingProgress = new AdvancedButton(0, 0, 0, 0, Locals.localize("drippyloadingscreen.helper.ui.dynamicvariabletextfield.variables.loadingprogress"), true, (press) -> {
 			this.insertText("%loadingprogress%");
 		});
 		UIBase.colorizeButton(loadingProgress);
 		otherMenu.addContent(loadingProgress);
-		//------------------
+
+		//TODO übernehmen
+		AdvancedButton cpuInfo = new AdvancedButton(0, 0, 0, 0, Locals.localize("drippyloadingscreen.helper.ui.dynamicvariabletextfield.variables.cpuinfo"), true, (press) -> {
+			this.insertText("%cpuinfo%");
+		});
+		UIBase.colorizeButton(cpuInfo);
+		otherMenu.addContent(cpuInfo);
+
+		//TODO übernehmen
+		AdvancedButton gpuInfo = new AdvancedButton(0, 0, 0, 0, Locals.localize("drippyloadingscreen.helper.ui.dynamicvariabletextfield.variables.gpuinfo"), true, (press) -> {
+			this.insertText("%gpuinfo%");
+		});
+		UIBase.colorizeButton(gpuInfo);
+		otherMenu.addContent(gpuInfo);
+
+		//TODO übernehmen
+		AdvancedButton osName = new AdvancedButton(0, 0, 0, 0, Locals.localize("drippyloadingscreen.helper.ui.dynamicvariabletextfield.variables.osname"), true, (press) -> {
+			this.insertText("%osname%");
+		});
+		UIBase.colorizeButton(osName);
+		otherMenu.addContent(osName);
+
+		//TODO übernehmen
+		AdvancedButton openGlVersion = new AdvancedButton(0, 0, 0, 0, Locals.localize("drippyloadingscreen.helper.ui.dynamicvariabletextfield.variables.openglversion"), true, (press) -> {
+			this.insertText("%openglversion%");
+		});
+		UIBase.colorizeButton(openGlVersion);
+		otherMenu.addContent(openGlVersion);
+
+		//TODO übernehmen
+		AdvancedButton javaVersion = new AdvancedButton(0, 0, 0, 0, Locals.localize("drippyloadingscreen.helper.ui.dynamicvariabletextfield.variables.javaversion"), true, (press) -> {
+			this.insertText("%javaversion%");
+		});
+		UIBase.colorizeButton(javaVersion);
+		otherMenu.addContent(javaVersion);
+
+		//TODO übernehmen
+		AdvancedButton randomText = new AdvancedButton(0, 0, 0, 0, Locals.localize("drippyloadingscreen.helper.ui.dynamicvariabletextfield.variables.randomtext"), true, (press) -> {
+			this.insertText("%randomtext:<filepath>:<interval_sec>%");
+		});
+		randomText.setDescription(StringUtils.splitLines(Locals.localize("drippyloadingscreen.helper.ui.dynamicvariabletextfield.variables.randomtext.desc"), "%n%"));
+		UIBase.colorizeButton(randomText);
+		otherMenu.addContent(randomText);
 		
 		otherMenu.addSeparator();
 		

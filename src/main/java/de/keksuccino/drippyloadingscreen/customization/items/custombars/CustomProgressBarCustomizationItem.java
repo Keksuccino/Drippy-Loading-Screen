@@ -62,7 +62,6 @@ public class CustomProgressBarCustomizationItem extends CustomBarCustomizationIt
 	@Override
 	protected void renderBar(PoseStack matrix) {
 
-		//TODO übernehmen
 		if (this.direction == BarDirection.RIGHT) {
 			this.progressEndX = this.getPosX() + this.currentPercentWidthHeight;
 			this.progressEndY = this.getPosY() + (this.height / 2);
@@ -79,7 +78,6 @@ public class CustomProgressBarCustomizationItem extends CustomBarCustomizationIt
 			this.progressEndX = this.getPosX() + (this.width / 2);
 			this.progressEndY = this.getPosY() + this.currentPercentWidthHeight;
 		}
-		//---------------------
 
 		if (this.barTexture == null) {
 
