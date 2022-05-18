@@ -1,13 +1,16 @@
 package de.keksuccino.drippyloadingscreen.api.item;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import de.keksuccino.drippyloadingscreen.logger.Logging;
-
 public class CustomizationItemRegistry {
+
+	private static final Logger LOGGER = LogManager.getLogger("drippyloadingscreen/CustomizationItemRegistry");
 	
 	private Map<String, CustomizationItemContainer> elements = new TreeMap<String, CustomizationItemContainer>();
 	
@@ -17,9 +20,8 @@ public class CustomizationItemRegistry {
 		if (!elements.containsKey(container.elementIdentifier)) {
 			this.elements.put(container.elementIdentifier, container);
 		} else {
-			Logging.error("CustomizationElementRegistry#register():",
-					"Invalid element identifier '" + container.elementIdentifier + "' found!",
-					"Customization element with the same identifier already exists!");
+			LOGGER.error("ERROR: Invalid element identifier '" + container.elementIdentifier + "' found!");
+			LOGGER.error("ERROR: Customization element with the same identifier already exists!");
 		}
 	}
 	

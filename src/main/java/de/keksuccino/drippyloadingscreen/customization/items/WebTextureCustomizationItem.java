@@ -1,25 +1,25 @@
 package de.keksuccino.drippyloadingscreen.customization.items;
 
 import java.awt.*;
-import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
-
+import net.minecraft.client.Minecraft;
 import com.mojang.blaze3d.systems.RenderSystem;
-
+import com.mojang.blaze3d.vertex.PoseStack;
 import de.keksuccino.drippyloadingscreen.DrippyLoadingScreen;
+import de.keksuccino.drippyloadingscreen.customization.CustomizationHandler;
 import de.keksuccino.drippyloadingscreen.customization.placeholdervalues.PlaceholderTextValueHelper;
 import de.keksuccino.konkrete.annotations.OptifineFix;
 import de.keksuccino.konkrete.properties.PropertiesSection;
 import de.keksuccino.konkrete.rendering.RenderUtils;
 import de.keksuccino.konkrete.resources.TextureHandler;
 import de.keksuccino.konkrete.resources.WebTextureResourceLocation;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.texture.TextureManager;
-import net.minecraft.client.util.math.MatrixStack;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class WebTextureCustomizationItem extends CustomizationItemBase {
+
+	private static final Logger LOGGER = LogManager.getLogger("drippyloadingscreen/WebTextureCustomizationItem");
 
 	public volatile WebTextureResourceLocation texture;
 	public String rawURL = "";
@@ -46,7 +46,7 @@ public class WebTextureCustomizationItem extends CustomizationItemBase {
 						if (isValidUrl(this.value)) {
 
 							this.texture = TextureHandler.getWebResource(this.value, false);
-							MinecraftClient.getInstance().execute(() -> {
+							CustomizationHandler.runTaskInMainThread(() -> {
 								try {
 									texture.loadTexture();
 								} catch (Exception e) {
@@ -73,7 +73,7 @@ public class WebTextureCustomizationItem extends CustomizationItemBase {
 
 							if ((this.texture != null) && (texture.getResourceLocation() == null)) {
 								this.texture = null;
-								DrippyLoadingScreen.LOGGER.error("[DRIPPY LOADING SCREEN] Web texture loaded but resource location was still null! Unable to use web texture!");
+								LOGGER.error("Web texture loaded but resource location was still null! Unable to use web texture!");
 							}
 
 							if ((this.texture == null) || !this.texture.isReady()) {
@@ -114,7 +114,7 @@ public class WebTextureCustomizationItem extends CustomizationItemBase {
 	}
 
 	@Override
-	public void render(MatrixStack matrix) {
+	public void render(PoseStack matrix) {
 		if (this.shouldRender()) {
 
 			int x = this.getPosX();
@@ -124,17 +124,17 @@ public class WebTextureCustomizationItem extends CustomizationItemBase {
 				RenderUtils.bindTexture(this.texture.getResourceLocation());
 				RenderSystem.enableBlend();
 				RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, this.opacity);
-				drawTexture(matrix, x, y, 0.0F, 0.0F, this.width, this.height, this.width, this.height);
+				blit(matrix, x, y, 0.0F, 0.0F, this.width, this.height, this.width, this.height);
 				RenderSystem.disableBlend();
 			} else if (isEditorActive()) {
 				fill(matrix, this.getPosX(), this.getPosY(), this.getPosX() + this.width, this.getPosY() + this.height, Color.MAGENTA.getRGB());
 				if (this.ready) {
-					drawCenteredText(matrix, MinecraftClient.getInstance().textRenderer, "§lMISSING", this.getPosX() + (this.width / 2), this.getPosY() + (this.height / 2) - (MinecraftClient.getInstance().textRenderer.fontHeight / 2), -1);
+					drawCenteredString(matrix, Minecraft.getInstance().font, "§lMISSING", this.getPosX() + (this.width / 2), this.getPosY() + (this.height / 2) - (Minecraft.getInstance().font.lineHeight / 2), -1);
 				}
 			}
 
 			if (!this.ready && isEditorActive()) {
-				drawCenteredText(matrix, MinecraftClient.getInstance().textRenderer, "§lLOADING TEXTURE..", this.getPosX() + (this.width / 2), this.getPosY() + (this.height / 2) - (MinecraftClient.getInstance().textRenderer.fontHeight / 2), -1);
+				drawCenteredString(matrix, Minecraft.getInstance().font, "§lLOADING TEXTURE..", this.getPosX() + (this.width / 2), this.getPosY() + (this.height / 2) - (Minecraft.getInstance().font.lineHeight / 2), -1);
 			}
 
 		}

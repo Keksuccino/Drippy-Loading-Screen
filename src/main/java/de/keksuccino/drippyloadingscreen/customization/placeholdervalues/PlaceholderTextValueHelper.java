@@ -2,8 +2,7 @@ package de.keksuccino.drippyloadingscreen.customization.placeholdervalues;
 
 import java.io.File;
 import java.util.*;
-
-import com.mojang.blaze3d.platform.GlDebugInfo;
+import com.mojang.blaze3d.platform.GlUtil;
 import de.keksuccino.drippyloadingscreen.api.PlaceholderTextValueRegistry;
 import de.keksuccino.drippyloadingscreen.api.PlaceholderTextValueRegistry.PlaceholderValue;
 import de.keksuccino.konkrete.Konkrete;
@@ -13,7 +12,7 @@ import de.keksuccino.konkrete.math.MathUtils;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import net.minecraft.SharedConstants;
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Minecraft;
 
 public class PlaceholderTextValueHelper {
 
@@ -25,7 +24,7 @@ public class PlaceholderTextValueHelper {
 	public static String convertFromRaw(String in) {
 		try {
 
-			MinecraftClient mc = MinecraftClient.getInstance();
+			Minecraft mc = Minecraft.getInstance();
 
 			if (mc == null) {
 				return in;
@@ -35,16 +34,16 @@ public class PlaceholderTextValueHelper {
 			in = StringUtils.convertFormatCodes(in, "&", "§");
 
 			//Only for internal use
-			in = in.replace("%guiwidth%", "" + MinecraftClient.getInstance().getWindow().getScaledWidth());
-			in = in.replace("%guiheight%", "" + MinecraftClient.getInstance().getWindow().getScaledHeight());
+			in = in.replace("%guiwidth%", "" + Minecraft.getInstance().getWindow().getGuiScaledWidth());
+			in = in.replace("%guiheight%", "" + Minecraft.getInstance().getWindow().getGuiScaledHeight());
 			//-------------
 
 			//Replace player name and uuid placeholders
-			in = in.replace("%playername%", mc.getSession().getUsername());
-			in = in.replace("%playeruuid%", mc.getSession().getUuid());
+			in = in.replace("%playername%", mc.getUser().getName());
+			in = in.replace("%playeruuid%", mc.getUser().getUuid());
 
 			//Replace mc version placeholder
-			in = in.replace("%mcversion%", SharedConstants.getGameVersion().getReleaseTarget());
+			in = in.replace("%mcversion%", SharedConstants.getCurrentVersion().getReleaseTarget());
 
 			//Replace mod version placeholder
 			in = replaceModVersionPlaceholder(in);
@@ -74,7 +73,7 @@ public class PlaceholderTextValueHelper {
 			}
 
 			if (in.contains("%fps%")) {
-				in = in.replace("%fps%", mc.fpsDebugString.split("[ ]", 2)[0]);
+				in = in.replace("%fps%", mc.fpsString.split("[ ]", 2)[0]);
 			}
 
 			if (in.contains("ram%")) {
@@ -92,9 +91,9 @@ public class PlaceholderTextValueHelper {
 
 			in = in.replace("%loadingprogress%", currentLoadingProgressValue);
 
-			in = in.replace("%cpuinfo%", GlDebugInfo.getCpuInfo());
+			in = in.replace("%cpuinfo%", GlUtil.getCpuInfo());
 
-			in = in.replace("%gpuinfo%", GlDebugInfo.getRenderer());
+			in = in.replace("%gpuinfo%", GlUtil.getRenderer());
 
 			String javaVersion = System.getProperty("java.version");
 			if (javaVersion == null) {
@@ -108,7 +107,7 @@ public class PlaceholderTextValueHelper {
 			}
 			in = in.replace("%osname%", osName);
 
-			in = in.replace("%openglversion%", GlDebugInfo.getVersion());
+			in = in.replace("%openglversion%", GlUtil.getOpenGLVersion());
 
 			in = replaceRandomTextValue(in);
 

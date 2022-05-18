@@ -13,11 +13,9 @@ import de.keksuccino.konkrete.events.SubscribeEvent;
 import de.keksuccino.konkrete.math.MathUtils;
 import de.keksuccino.konkrete.rendering.CurrentScreenHandler;
 import de.keksuccino.konkrete.resources.ExternalTextureResourceLocation;
-import net.minecraft.client.gui.DrawableHelper;
-import net.minecraft.client.gui.hud.BackgroundHelper;
-import net.minecraft.client.util.Window;
-import net.minecraft.client.util.math.MatrixStack;
+import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import de.keksuccino.drippyloadingscreen.DrippyLoadingScreen;
 import de.keksuccino.drippyloadingscreen.customization.CustomizationHandler;
 import de.keksuccino.drippyloadingscreen.customization.helper.CustomizationHelperScreen;
@@ -31,22 +29,24 @@ import de.keksuccino.konkrete.properties.PropertiesSection;
 import de.keksuccino.konkrete.properties.PropertiesSet;
 import de.keksuccino.konkrete.rendering.RenderUtils;
 import de.keksuccino.konkrete.resources.TextureHandler;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.resource.ResourceReload;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.MathHelper;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.Color;
 import java.io.File;
 import java.util.*;
 import java.util.function.Consumer;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.ReloadInstance;
+import net.minecraft.util.FastColor;
+import net.minecraft.util.Mth;
 
-public class SplashCustomizationLayer extends DrawableHelper {
+public class SplashCustomizationLayer extends GuiComponent {
 
     protected static SplashCustomizationLayer instance;
 
-    private static final int backgroundColor = BackgroundHelper.ColorMixer.getArgb(255, 239, 50, 61);
+    private static final int backgroundColor = FastColor.ARGB32.color(255, 239, 50, 61);
     private static final int backgroundColor2 = backgroundColor & 16777215;
 
     public final LogoSplashElement logoSplashElement = new LogoSplashElement(this);
@@ -57,7 +57,7 @@ public class SplashCustomizationLayer extends DrawableHelper {
     public Color customBackgroundColor;
 
     public ExternalTextureResourceLocation backgroundImageSource = null;
-    public Identifier backgroundImage = null;
+    public ResourceLocation backgroundImage = null;
     public String backgroundImagePath = null;
     public boolean keepBackgroundAspectRatio = false;
 
@@ -68,7 +68,7 @@ public class SplashCustomizationLayer extends DrawableHelper {
     public boolean isNewLoadingScreen = true;
 
     /** GETTER ONLY **/
-    public ResourceReload reload;
+    public ReloadInstance reload;
     /** GETTER ONLY **/
     public Consumer<Optional<Throwable>> exceptionHandler;
     /** GETTER ONLY **/
@@ -80,12 +80,12 @@ public class SplashCustomizationLayer extends DrawableHelper {
     /** GETTER ONLY **/
     public long reloadStartTime = -1L;
 
-    protected List<CustomizationItemBase> backgroundElements = new ArrayList<CustomizationItemBase>();
-    protected List<CustomizationItemBase> foregroundElements = new ArrayList<CustomizationItemBase>();
+    public List<CustomizationItemBase> backgroundElements = new ArrayList<CustomizationItemBase>();
+    public List<CustomizationItemBase> foregroundElements = new ArrayList<CustomizationItemBase>();
 
     protected Map<String, RandomLayoutContainer> randomLayoutGroups = new HashMap<String, RandomLayoutContainer>();
 
-    protected MinecraftClient mc = MinecraftClient.getInstance();
+    protected Minecraft mc = Minecraft.getInstance();
 
     public SplashCustomizationLayer(boolean isEditor) {
         this.isEditor = isEditor;
@@ -109,19 +109,30 @@ public class SplashCustomizationLayer extends DrawableHelper {
 
     public void renderLayer() {
 
+        List<Runnable> runs = new ArrayList<>();
+        runs.addAll(CustomizationHandler.mainThreadTasks);
+        for (Runnable r : runs) {
+            try {
+                r.run();
+                CustomizationHandler.mainThreadTasks.remove(r);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+
         if ((this.customBackgroundHex != null) && !this.customBackgroundHex.equals(this.lastCustomBackgroundHex)) {
             this.customBackgroundColor = RenderUtils.getColorFromHexString(this.customBackgroundHex);
         }
         this.lastCustomBackgroundHex = this.customBackgroundHex;
 
-        if ((MinecraftClient.getInstance() == null) || (MinecraftClient.getInstance().getWindow() == null)) {
+        if ((Minecraft.getInstance() == null) || (Minecraft.getInstance().getWindow() == null)) {
             return;
         }
 
-        MatrixStack matrix = new MatrixStack();
-        float partial = MinecraftClient.getInstance().getTickDelta();
-        int screenWidth = this.mc.getWindow().getScaledWidth();
-        int screenHeight = this.mc.getWindow().getScaledHeight();
+        PoseStack matrix = new PoseStack();
+        float partial = Minecraft.getInstance().getFrameTime();
+        int screenWidth = this.mc.getWindow().getGuiScaledWidth();
+        int screenHeight = this.mc.getWindow().getGuiScaledHeight();
 
         float elementOpacity = 1.0F;
 
@@ -134,15 +145,15 @@ public class SplashCustomizationLayer extends DrawableHelper {
                 f = 1.0F;
             }
             if (f >= 1.0F) {
-                int l = MathHelper.ceil((1.0F - MathHelper.clamp(f - 1.0F, 0.0F, 1.0F)) * 255.0F);
+                int l = Mth.ceil((1.0F - Mth.clamp(f - 1.0F, 0.0F, 1.0F)) * 255.0F);
                 if (this.customBackgroundColor != null) {
                     fill(matrix, 0, 0, screenWidth, screenHeight, withAlpha(this.customBackgroundColor.getRGB(), l));
                 } else {
                     fill(matrix, 0, 0, screenWidth, screenHeight, withAlpha(backgroundColor2, l));
                 }
-                elementOpacity = (1.0F - MathHelper.clamp(f - 1.0F, 0.0F, 1.0F));
+                elementOpacity = (1.0F - Mth.clamp(f - 1.0F, 0.0F, 1.0F));
             } else if (this.reloading) {
-                int i2 = MathHelper.ceil(MathHelper.clamp(f1, 0.15D, 1.0D) * 255.0D);
+                int i2 = Mth.ceil(Mth.clamp(f1, 0.15D, 1.0D) * 255.0D);
                 if (this.customBackgroundColor != null) {
                     fill(matrix, 0, 0, screenWidth, screenHeight, withAlpha(this.customBackgroundColor.getRGB(), i2));
                 } else {
@@ -172,7 +183,7 @@ public class SplashCustomizationLayer extends DrawableHelper {
                     RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
                 }
                 if (!this.keepBackgroundAspectRatio) {
-                    drawTexture(matrix, 0, 0, 0.0F, 0.0F, screenWidth, screenHeight, screenWidth, screenHeight);
+                    blit(matrix, 0, 0, 0.0F, 0.0F, screenWidth, screenHeight, screenWidth, screenHeight);
                 } else {
                     int w = this.backgroundImageSource.getWidth();
                     int h = this.backgroundImageSource.getHeight();
@@ -180,9 +191,9 @@ public class SplashCustomizationLayer extends DrawableHelper {
                     int wfinal = (int)(screenHeight * ratio);
                     int screenCenterX = screenWidth / 2;
                     if (wfinal < screenWidth) {
-                        drawTexture(CurrentScreenHandler.getMatrixStack(), 0, 0, 1.0F, 1.0F, screenWidth + 1, screenHeight + 1, screenWidth + 1, screenHeight + 1);
+                        blit(CurrentScreenHandler.getMatrixStack(), 0, 0, 1.0F, 1.0F, screenWidth + 1, screenHeight + 1, screenWidth + 1, screenHeight + 1);
                     } else {
-                        drawTexture(CurrentScreenHandler.getMatrixStack(), screenCenterX - (wfinal / 2), 0, 1.0F, 1.0F, wfinal + 1, screenHeight + 1, wfinal + 1, screenHeight + 1);
+                        blit(CurrentScreenHandler.getMatrixStack(), screenCenterX - (wfinal / 2), 0, 1.0F, 1.0F, wfinal + 1, screenHeight + 1, wfinal + 1, screenHeight + 1);
                     }
                 }
                 RenderSystem.disableBlend();
@@ -340,17 +351,17 @@ public class SplashCustomizationLayer extends DrawableHelper {
                     renderInBackground = true;
                 }
 
-                Window w = MinecraftClient.getInstance().getWindow();
+                Window w = Minecraft.getInstance().getWindow();
                 String scaleString = metas.get(0).getEntryValue("scale");
                 if ((scaleString != null) && (MathUtils.isInteger(scaleString.replace(" ", "")) || MathUtils.isDouble(scaleString.replace(" ", "")))) {
                     int newscale = (int) Double.parseDouble(scaleString.replace(" ", ""));
                     if (newscale <= 0) {
                         newscale = 1;
                     }
-                    w.setScaleFactor((double)newscale);
-                    if (mc.currentScreen != null) {
-                        mc.currentScreen.width = w.getScaledWidth();
-                        mc.currentScreen.height = w.getScaledHeight();
+                    w.setGuiScale((double)newscale);
+                    if (mc.screen != null) {
+                        mc.screen.width = w.getGuiScaledWidth();
+                        mc.screen.height = w.getGuiScaledHeight();
                     }
                     this.scaled = true;
                 }
@@ -365,18 +376,18 @@ public class SplashCustomizationLayer extends DrawableHelper {
                     autoScaleBaseHeight = Integer.parseInt(baseHeight);
                 }
                 if ((autoScaleBaseWidth != 0) && (autoScaleBaseHeight != 0)) {
-                    double guiWidth = w.getWidth();
-                    double guiHeight = w.getHeight();
+                    double guiWidth = w.getScreenWidth();
+                    double guiHeight = w.getScreenHeight();
                     double percentX = (guiWidth / (double)autoScaleBaseWidth) * 100.0D;
                     double percentY = (guiHeight / (double)autoScaleBaseHeight) * 100.0D;
-                    double newScaleX = (percentX / 100.0D) * w.getScaleFactor();
-                    double newScaleY = (percentY / 100.0D) * w.getScaleFactor();
+                    double newScaleX = (percentX / 100.0D) * w.getGuiScale();
+                    double newScaleY = (percentY / 100.0D) * w.getGuiScale();
                     double newScale = Math.min(newScaleX, newScaleY);
 
-                    w.setScaleFactor(newScale);
-                    if (mc.currentScreen != null) {
-                        mc.currentScreen.width = w.getScaledWidth();
-                        mc.currentScreen.height = w.getScaledHeight();
+                    w.setGuiScale(newScale);
+                    if (mc.screen != null) {
+                        mc.screen.width = w.getGuiScaledWidth();
+                        mc.screen.height = w.getGuiScaledHeight();
                     }
                     this.scaled = true;
                 }
@@ -515,7 +526,7 @@ public class SplashCustomizationLayer extends DrawableHelper {
 
                         /** ################## CUSTOM ITEMS ################## **/
 
-                        if (action.startsWith("add_")) {
+                        if (action.startsWith("add_")) { //OLD API
                             String id = action.split("[_]", 2)[1];
                             CustomizationItemContainer c = CustomizationItemRegistry.getInstance().getElement(id);
                             if (c != null) {
@@ -527,6 +538,20 @@ public class SplashCustomizationLayer extends DrawableHelper {
                                     foregroundElements.add(i);
                                 }
 
+                            }
+                        }
+
+                        /** CUSTOM ITEMS (API) **/
+                        if (action.startsWith("custom_layout_element:")) {
+                            String cusId = action.split("[:]", 2)[1];
+                            de.keksuccino.drippyloadingscreen.api.item.v2.CustomizationItemContainer cusItem = de.keksuccino.drippyloadingscreen.api.item.v2.CustomizationItemRegistry.getItem(cusId);
+                            if (cusItem != null) {
+                                de.keksuccino.drippyloadingscreen.api.item.v2.CustomizationItem cusItemInstance = cusItem.constructCustomizedItemInstance(sec);
+                                if (renderInBackground) {
+                                    backgroundElements.add(cusItemInstance);
+                                } else {
+                                    foregroundElements.add(cusItemInstance);
+                                }
                             }
                         }
 
@@ -583,7 +608,7 @@ public class SplashCustomizationLayer extends DrawableHelper {
     }
 
     public static boolean isCustomizationHelperScreen() {
-        return (MinecraftClient.getInstance().currentScreen instanceof CustomizationHelperScreen);
+        return (Minecraft.getInstance().screen instanceof CustomizationHelperScreen);
     }
 
     public static SplashCustomizationLayer getInstance() {

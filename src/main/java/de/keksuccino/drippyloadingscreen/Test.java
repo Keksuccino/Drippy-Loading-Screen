@@ -4,7 +4,6 @@ import de.keksuccino.drippyloadingscreen.customization.rendering.SimpleTextRende
 import de.keksuccino.konkrete.events.SubscribeEvent;
 import de.keksuccino.konkrete.events.client.ClientTickEvent;
 import de.keksuccino.konkrete.events.client.GuiScreenEvent;
-import net.minecraft.client.MinecraftClient;
 
 public class Test {
 

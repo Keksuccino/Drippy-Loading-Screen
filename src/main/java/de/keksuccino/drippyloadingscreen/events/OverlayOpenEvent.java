@@ -1,7 +1,7 @@
 package de.keksuccino.drippyloadingscreen.events;
 
 import de.keksuccino.konkrete.events.EventBase;
-import net.minecraft.client.gui.screen.Overlay;
+import net.minecraft.client.gui.screens.Overlay;
 
 public class OverlayOpenEvent extends EventBase {
 

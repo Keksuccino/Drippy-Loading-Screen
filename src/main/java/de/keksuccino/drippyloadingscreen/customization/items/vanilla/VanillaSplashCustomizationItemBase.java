@@ -1,15 +1,17 @@
 package de.keksuccino.drippyloadingscreen.customization.items.vanilla;
 
-import net.minecraft.client.util.math.MatrixStack;
-
+import com.mojang.blaze3d.vertex.PoseStack;
 import de.keksuccino.drippyloadingscreen.customization.items.CustomizationItemBase;
 import de.keksuccino.drippyloadingscreen.customization.rendering.splash.elements.SplashElementBase;
-import de.keksuccino.drippyloadingscreen.logger.Logging;
 import de.keksuccino.konkrete.math.MathUtils;
 import de.keksuccino.konkrete.properties.PropertiesSection;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
 public class VanillaSplashCustomizationItemBase extends CustomizationItemBase {
+
+	private static final Logger LOGGER = LogManager.getLogger("drippyloadingscreen/VanillaSplashCustomizationItemBase");
 
 	public SplashElementBase element;
 	public boolean isSecondItemOfThisType;
@@ -31,12 +33,12 @@ public class VanillaSplashCustomizationItemBase extends CustomizationItemBase {
 		this.value = elementDisplayName;
 		
 		if (props == null) {
-			Logging.error("VanillaCustomizationItem: props null");
+			LOGGER.error("ERROR: Properties parameter is NULL!");
 			return;
 		}
 		
 		if (element == null) {
-			Logging.error("VanillaCustomizationItem: element null");
+			LOGGER.error("ERROR: Element parameter is NULL!");
 			return;
 		}
 
@@ -85,10 +87,10 @@ public class VanillaSplashCustomizationItemBase extends CustomizationItemBase {
 	}
 
 	@Override
-	public void render(MatrixStack matrix) {
+	public void render(PoseStack matrix) {
 		
 		if (this.element == null) {
-			Logging.error("VanillaCustomizationItem: element null");
+			LOGGER.error("ERROR: Element field is NULL!");
 			return;
 		}
 		

@@ -1,17 +1,16 @@
 package de.keksuccino.drippyloadingscreen.customization.items;
 
 import de.keksuccino.drippyloadingscreen.customization.items.custombars.CustomBarCustomizationItemBase;
-import net.minecraft.client.gui.DrawableHelper;
-import net.minecraft.client.util.math.MatrixStack;
-
+import com.mojang.blaze3d.vertex.PoseStack;
 import de.keksuccino.drippyloadingscreen.customization.CustomizationHandler;
 import de.keksuccino.drippyloadingscreen.customization.placeholdervalues.PlaceholderTextValueHelper;
 import de.keksuccino.drippyloadingscreen.customization.helper.editor.LayoutEditorScreen;
 import de.keksuccino.konkrete.math.MathUtils;
 import de.keksuccino.konkrete.properties.PropertiesSection;
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiComponent;
 
-public abstract class CustomizationItemBase extends DrawableHelper {
+public abstract class CustomizationItemBase extends GuiComponent {
 	
 	/**
 	 * This value CANNOT BE NULL!<br>
@@ -104,7 +103,7 @@ public abstract class CustomizationItemBase extends DrawableHelper {
 
 	}
 
-	public abstract void render(MatrixStack matrix);
+	public abstract void render(PoseStack matrix);
 	
 	/**
 	 * Should be used to get the REAL and final X-position of this item.<br>
@@ -112,7 +111,7 @@ public abstract class CustomizationItemBase extends DrawableHelper {
 	 */
 	public int getPosX() {
 		
-		int w = MinecraftClient.getInstance().getWindow().getScaledWidth();
+		int w = Minecraft.getInstance().getWindow().getGuiScaledWidth();
 		int x = this.posX;
 
 		if (orientation.equalsIgnoreCase("top-centered")) {
@@ -150,7 +149,7 @@ public abstract class CustomizationItemBase extends DrawableHelper {
 	 */
 	public int getPosY() {
 		
-		int h = MinecraftClient.getInstance().getWindow().getScaledHeight();
+		int h = Minecraft.getInstance().getWindow().getGuiScaledHeight();
 		int y = this.posY;
 
 		if (orientation.equalsIgnoreCase("mid-left")) {
@@ -199,7 +198,7 @@ public abstract class CustomizationItemBase extends DrawableHelper {
 	}
 
 	protected static boolean isEditorActive() {
-		return (MinecraftClient.getInstance().currentScreen instanceof LayoutEditorScreen);
+		return (Minecraft.getInstance().screen instanceof LayoutEditorScreen);
 	}
 
 	public static enum Alignment {

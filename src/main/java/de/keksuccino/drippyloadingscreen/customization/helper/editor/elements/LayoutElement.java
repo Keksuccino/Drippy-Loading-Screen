@@ -5,18 +5,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
-
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiComponent;
+import com.mojang.blaze3d.vertex.PoseStack;
 import de.keksuccino.drippyloadingscreen.DrippyLoadingScreen;
 import de.keksuccino.drippyloadingscreen.customization.helper.editor.elements.custombars.LayoutCustomBarBase;
 import de.keksuccino.drippyloadingscreen.customization.helper.ui.popup.FHNotificationPopup;
 import de.keksuccino.drippyloadingscreen.customization.helper.ui.popup.FHTextInputPopup;
 import de.keksuccino.drippyloadingscreen.customization.items.custombars.CustomBarCustomizationItemBase;
-import net.minecraft.client.gui.DrawableHelper;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
-
-import net.minecraft.client.util.math.MatrixStack;
-
 import de.keksuccino.konkrete.localization.Locals;
 import de.keksuccino.drippyloadingscreen.customization.helper.editor.EditHistory.Snapshot;
 import de.keksuccino.drippyloadingscreen.customization.helper.ui.UIBase;
@@ -33,9 +31,8 @@ import de.keksuccino.konkrete.input.MouseInput;
 import de.keksuccino.konkrete.input.StringUtils;
 import de.keksuccino.konkrete.properties.PropertiesSection;
 import de.keksuccino.konkrete.rendering.RenderUtils;
-import net.minecraft.client.MinecraftClient;
 
-public abstract class LayoutElement extends DrawableHelper {
+public abstract class LayoutElement extends GuiComponent {
 	
 	public CustomizationItemBase object;
 	public LayoutEditorScreen handler;
@@ -130,7 +127,7 @@ public abstract class LayoutElement extends DrawableHelper {
 
 		/** COPY ELEMENT ID **/
 		AdvancedButton copyIdButton = new AdvancedButton(0, 0, 0, 0, Locals.localize("drippyloadingscreen.helper.editor.items.copyid"), true, (press) -> {
-			MinecraftClient.getInstance().keyboard.setClipboard(this.object.getActionId());
+			Minecraft.getInstance().keyboardHandler.setClipboard(this.object.getActionId());
 		});
 		copyIdButton.setDescription(StringUtils.splitLines(Locals.localize("drippyloadingscreen.helper.editor.items.copyid.btn.desc"), "%n%"));
 		this.rightclickMenu.addContent(copyIdButton);
@@ -256,8 +253,8 @@ public abstract class LayoutElement extends DrawableHelper {
 				if (label == null) {
 					label = "Element";
 				} else {
-					if (MinecraftClient.getInstance().textRenderer.getWidth(label) > 200) {
-						label = MinecraftClient.getInstance().textRenderer.trimToWidth(label, 200) + "..";
+					if (Minecraft.getInstance().font.width(label) > 200) {
+						label = Minecraft.getInstance().font.plainSubstrByWidth(label, 200) + "..";
 					}
 				}
 				AdvancedButton btn = new AdvancedButton(0, 0, 0, 0, label, (press2) -> {
@@ -459,11 +456,11 @@ public abstract class LayoutElement extends DrawableHelper {
 		try {
 			if (this.stretchX) {
 				this.object.posX = 0;
-				this.object.width = MinecraftClient.getInstance().currentScreen.width;
+				this.object.width = Minecraft.getInstance().screen.width;
 			}
 			if (this.stretchY) {
 				this.object.posY = 0;
-				this.object.height = MinecraftClient.getInstance().currentScreen.height;
+				this.object.height = Minecraft.getInstance().screen.height;
 			}
 			if (this.stretchX || this.stretchY) {
 				this.oLoadingProgress.active = false;
@@ -518,7 +515,7 @@ public abstract class LayoutElement extends DrawableHelper {
 		}
 	}
 	
-	public void render(MatrixStack matrix, int mouseX, int mouseY) {
+	public void render(PoseStack matrix, int mouseX, int mouseY) {
 		this.updateHovered(mouseX, mouseY);
 
 		//Render the customization item
@@ -543,7 +540,7 @@ public abstract class LayoutElement extends DrawableHelper {
 		
 		//Reset cursor to default
 		if ((this.activeGrabber == -1) && (!MouseInput.isLeftMouseDown() || PopupHandler.isPopupActive())) {
-			GLFW.glfwSetCursor(MinecraftClient.getInstance().getWindow().getHandle(), NORMAL_CURSOR);
+			GLFW.glfwSetCursor(Minecraft.getInstance().getWindow().getWindow(), NORMAL_CURSOR);
 		}
 				
 		//Update dragging state
@@ -651,7 +648,7 @@ public abstract class LayoutElement extends DrawableHelper {
         
 	}
 	
-	protected void renderBorder(MatrixStack matrix, int mouseX, int mouseY) {
+	protected void renderBorder(PoseStack matrix, int mouseX, int mouseY) {
 		//horizontal line top
 		fill(matrix, this.object.getPosX(), this.object.getPosY(), this.object.getPosX() + this.object.width, this.object.getPosY() + 1, Color.BLUE.getRGB());
 		//horizontal line bottom
@@ -688,28 +685,28 @@ public abstract class LayoutElement extends DrawableHelper {
 		//Update cursor and active grabber when grabber is hovered
 		if ((mouseX >= xHorizontalLeft) && (mouseX <= xHorizontalLeft + w) && (mouseY >= yHorizontal) && (mouseY <= yHorizontal + h)) {
 			if (!this.stretchX && this.resizable) {
-				GLFW.glfwSetCursor(MinecraftClient.getInstance().getWindow().getHandle(), H_RESIZE_CURSOR);
+				GLFW.glfwSetCursor(Minecraft.getInstance().getWindow().getWindow(), H_RESIZE_CURSOR);
 				this.activeGrabber = 0;
 			} else {
 				this.activeGrabber = -1;
 			}
 		} else if ((mouseX >= xHorizontalRight) && (mouseX <= xHorizontalRight + w) && (mouseY >= yHorizontal) && (mouseY <= yHorizontal + h)) {
 			if (!this.stretchX && this.resizable) {
-				GLFW.glfwSetCursor(MinecraftClient.getInstance().getWindow().getHandle(), H_RESIZE_CURSOR);
+				GLFW.glfwSetCursor(Minecraft.getInstance().getWindow().getWindow(), H_RESIZE_CURSOR);
 				this.activeGrabber = 1;
 			} else {
 				this.activeGrabber = -1;
 			}
 		} else if ((mouseX >= xVertical) && (mouseX <= xVertical + w) && (mouseY >= yVerticalTop) && (mouseY <= yVerticalTop + h)) {
 			if (!this.stretchY && this.resizable) {
-				GLFW.glfwSetCursor(MinecraftClient.getInstance().getWindow().getHandle(), V_RESIZE_CURSOR);
+				GLFW.glfwSetCursor(Minecraft.getInstance().getWindow().getWindow(), V_RESIZE_CURSOR);
 				this.activeGrabber = 2;
 			} else {
 				this.activeGrabber = -1;
 			}
 		} else if ((mouseX >= xVertical) && (mouseX <= xVertical + w) && (mouseY >= yVerticalBottom) && (mouseY <= yVerticalBottom + h)) {
 			if (!this.stretchY && this.resizable) {
-				GLFW.glfwSetCursor(MinecraftClient.getInstance().getWindow().getHandle(), V_RESIZE_CURSOR);
+				GLFW.glfwSetCursor(Minecraft.getInstance().getWindow().getWindow(), V_RESIZE_CURSOR);
 				this.activeGrabber = 3;
 			} else {
 				this.activeGrabber = -1;
@@ -720,16 +717,16 @@ public abstract class LayoutElement extends DrawableHelper {
 		
 		//Render pos and size values
 		RenderUtils.setScale(matrix, 0.5F);
-		drawStringWithShadow(matrix, MinecraftClient.getInstance().textRenderer, Locals.localize("drippyloadingscreen.helper.creator.items.border.orientation") + ": " + this.object.orientation, this.object.getPosX()*2, (this.object.getPosY()*2) - 26, Color.WHITE.getRGB());
-		drawStringWithShadow(matrix, MinecraftClient.getInstance().textRenderer, Locals.localize("drippyloadingscreen.helper.creator.items.border.posx") + ": " + this.object.getPosX(), this.object.getPosX()*2, (this.object.getPosY()*2) - 17, Color.WHITE.getRGB());
-		drawStringWithShadow(matrix, MinecraftClient.getInstance().textRenderer, Locals.localize("drippyloadingscreen.helper.creator.items.border.width") + ": " + this.object.width, this.object.getPosX()*2, (this.object.getPosY()*2) - 8, Color.WHITE.getRGB());
+		drawString(matrix, Minecraft.getInstance().font, Locals.localize("drippyloadingscreen.helper.creator.items.border.orientation") + ": " + this.object.orientation, this.object.getPosX()*2, (this.object.getPosY()*2) - 26, Color.WHITE.getRGB());
+		drawString(matrix, Minecraft.getInstance().font, Locals.localize("drippyloadingscreen.helper.creator.items.border.posx") + ": " + this.object.getPosX(), this.object.getPosX()*2, (this.object.getPosY()*2) - 17, Color.WHITE.getRGB());
+		drawString(matrix, Minecraft.getInstance().font, Locals.localize("drippyloadingscreen.helper.creator.items.border.width") + ": " + this.object.width, this.object.getPosX()*2, (this.object.getPosY()*2) - 8, Color.WHITE.getRGB());
 		
-		drawStringWithShadow(matrix, MinecraftClient.getInstance().textRenderer, Locals.localize("drippyloadingscreen.helper.creator.items.border.posy") + ": " + this.object.getPosY(), ((this.object.getPosX() + this.object.width)*2)+3, ((this.object.getPosY() + this.object.height)*2) - 14, Color.WHITE.getRGB());
-		drawStringWithShadow(matrix, MinecraftClient.getInstance().textRenderer, Locals.localize("drippyloadingscreen.helper.creator.items.border.height") + ": " + this.object.height, ((this.object.getPosX() + this.object.width)*2)+3, ((this.object.getPosY() + this.object.height)*2) - 5, Color.WHITE.getRGB());
+		drawString(matrix, Minecraft.getInstance().font, Locals.localize("drippyloadingscreen.helper.creator.items.border.posy") + ": " + this.object.getPosY(), ((this.object.getPosX() + this.object.width)*2)+3, ((this.object.getPosY() + this.object.height)*2) - 14, Color.WHITE.getRGB());
+		drawString(matrix, Minecraft.getInstance().font, Locals.localize("drippyloadingscreen.helper.creator.items.border.height") + ": " + this.object.height, ((this.object.getPosX() + this.object.width)*2)+3, ((this.object.getPosY() + this.object.height)*2) - 5, Color.WHITE.getRGB());
 		RenderUtils.postScale(matrix);
 	}
 	
-	protected void renderHighlightBorder(MatrixStack matrix) {
+	protected void renderHighlightBorder(PoseStack matrix) {
 		Color c = new Color(0, 200, 255, 255);
 		
 		//horizontal line top

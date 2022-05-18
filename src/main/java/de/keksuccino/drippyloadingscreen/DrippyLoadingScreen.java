@@ -4,17 +4,17 @@ import de.keksuccino.drippyloadingscreen.api.PlaceholderTextValueRegistry;
 import de.keksuccino.drippyloadingscreen.api.item.CustomizationItemRegistry;
 import de.keksuccino.drippyloadingscreen.customization.CustomizationHandler;
 import de.keksuccino.drippyloadingscreen.customization.helper.CustomizationHelper;
+import de.keksuccino.drippyloadingscreen.customization.items.v2.Items;
 import de.keksuccino.drippyloadingscreen.customization.rendering.SimpleTextRenderer;
 import de.keksuccino.drippyloadingscreen.customization.rendering.slideshow.SlideshowHandler;
 import de.keksuccino.drippyloadingscreen.keybinding.Keybinding;
-import de.keksuccino.drippyloadingscreen.logger.Logging;
 import de.keksuccino.konkrete.Konkrete;
 import de.keksuccino.konkrete.config.Config;
 import de.keksuccino.konkrete.localization.Locals;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -22,14 +22,14 @@ import java.io.File;
 
 public class DrippyLoadingScreen implements ModInitializer {
 	
-	public static final String VERSION = "1.5.0";
+	public static final String VERSION = "1.6.0";
 	public static final String MOD_LOADER = "fabric";
+
+	private static final Logger LOGGER = LogManager.getLogger("drippyloadingscreen/DrippyLoadingScreen");
 	
 	public static final File HOME_DIR = new File("config/drippyloadingscreen");
 	public static final File CUSTOMIZATION_DIR = new File(HOME_DIR.getPath() + "/customization");
 	public static final File SLIDESHOW_DIR = new File(HOME_DIR.getPath() + "/slideshows");
-
-	public static final Logger LOGGER = LogManager.getLogger();
 	
 	public static Config config;
 	
@@ -58,7 +58,7 @@ public class DrippyLoadingScreen implements ModInitializer {
 
 			updateConfig();
 
-			Logging.init();
+			Items.registerItems();
 
 			SlideshowHandler.init();
 
@@ -77,11 +77,11 @@ public class DrippyLoadingScreen implements ModInitializer {
 			Konkrete.addPostLoadingEvent("drippyloadingscreen", this::onClientSetup);
 
 			if (isOptifineCompatibilityMode()) {
-				LOGGER.info("[DRIPPY LOADING SCREEN] Optifine compatibility mode!");
+				LOGGER.info("Optifine compatibility mode!");
 			}
 
 		} else {
-			LOGGER.warn("## WARNING ## 'Drippy Loading Screen' is a client mod and has no effect when loaded on a server!");
+			LOGGER.warn("WARNING: Drippy Loading Screen is a client mod and has no effect when loaded on a server!");
 		}
 
 	}
@@ -147,7 +147,7 @@ public class DrippyLoadingScreen implements ModInitializer {
 			f.mkdirs();
 		}
 
-		Locals.copyLocalsFileToDir(new Identifier("drippyloadingscreen", baseresdir + "en_us.local"), "en_us", f.getPath());
+		Locals.copyLocalsFileToDir(new ResourceLocation("drippyloadingscreen", baseresdir + "en_us.local"), "en_us", f.getPath());
 		
 		Locals.getLocalsFromDir(f.getPath());
 	}

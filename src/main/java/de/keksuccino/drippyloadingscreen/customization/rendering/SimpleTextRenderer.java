@@ -2,17 +2,16 @@
 package de.keksuccino.drippyloadingscreen.customization.rendering;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import de.keksuccino.konkrete.rendering.RenderUtils;
-import net.minecraft.client.gui.DrawableHelper;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.Identifier;
-
 import java.util.HashMap;
 import java.util.Map;
+import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.resources.ResourceLocation;
 
 public class SimpleTextRenderer {
 
-    private static final Identifier DEFAULT_FONT = new Identifier("textures/font/ascii.png");
+    private static final ResourceLocation DEFAULT_FONT = new ResourceLocation("textures/font/ascii.png");
     private static final Map<Character, Integer> CHARACTER_X_OFFSET = new HashMap<Character, Integer>();
     private static final Map<Character, Integer> CHARACTER_HEIGHT_OFFSET = new HashMap<Character, Integer>();
 
@@ -55,7 +54,7 @@ public class SimpleTextRenderer {
 
     }
 
-    public static void drawString(MatrixStack matrix, String text, int x, int y, int rgbColor, float alpha, float scale) {
+    public static void drawString(PoseStack matrix, String text, int x, int y, int rgbColor, float alpha, float scale) {
 
         float[] color = getColor(rgbColor);
 
@@ -72,23 +71,23 @@ public class SimpleTextRenderer {
                 heightOffset = CHARACTER_HEIGHT_OFFSET.get(c);
             }
             RenderUtils.bindTexture(DEFAULT_FONT, true);
-            matrix.push();
+            matrix.pushPose();
             RenderSystem.enableBlend();
             RenderSystem.setShaderColor(color[0], color[1], color[2], alpha);
             matrix.translate((x + ((i * 6) * scale)) + (xOffset * scale), y, 0);
             matrix.scale(scale, scale, 0);
-            DrawableHelper.drawTexture(matrix, 0, 0, charX, charY, 6, 7 + heightOffset, 128, 128); //charX  charY  6  7  128  128
+            GuiComponent.blit(matrix, 0, 0, charX, charY, 6, 7 + heightOffset, 128, 128); //charX  charY  6  7  128  128
             //Apply char offset for next char
             if (CHARACTER_X_OFFSET.containsKey(c)) {
                 xOffset += CHARACTER_X_OFFSET.get(c);
             }
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-            matrix.pop();
+            matrix.popPose();
         }
 
     }
 
-    public static void drawStringWithShadow(MatrixStack matrix, String text, int x, int y, int rgbColor, float alpha, float scale) {
+    public static void drawStringWithShadow(PoseStack matrix, String text, int x, int y, int rgbColor, float alpha, float scale) {
         //draw shadow
         drawString(matrix, text, x + Math.max((int)(1 * scale), 1), y + Math.max((int)(1 * scale), 1), 0, alpha / 2.0F, scale);
         //draw normal text

@@ -3,11 +3,10 @@ package de.keksuccino.drippyloadingscreen.customization.helper.editor.elements.s
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
-
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.util.math.MatrixStack;
-
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
 import de.keksuccino.konkrete.localization.Locals;
+import com.mojang.blaze3d.vertex.PoseStack;
 import de.keksuccino.drippyloadingscreen.customization.helper.editor.LayoutEditorScreen;
 import de.keksuccino.drippyloadingscreen.customization.helper.editor.elements.LayoutElement;
 import de.keksuccino.drippyloadingscreen.customization.helper.ui.popup.DynamicValueInputPopup;
@@ -20,7 +19,6 @@ import de.keksuccino.konkrete.input.StringUtils;
 import de.keksuccino.konkrete.math.MathUtils;
 import de.keksuccino.konkrete.properties.PropertiesSection;
 import de.keksuccino.konkrete.rendering.RenderUtils;
-import net.minecraft.client.MinecraftClient;
 
 public class LayoutString extends LayoutElement {
 
@@ -93,7 +91,7 @@ public class LayoutString extends LayoutElement {
 	}
 	
 	@Override
-	protected void renderBorder(MatrixStack matrix, int mouseX, int mouseY) {
+	protected void renderBorder(PoseStack matrix, int mouseX, int mouseY) {
 		//horizontal line top
 		fill(matrix, this.getStringPosX(), this.getStringPosY(), this.getStringPosX() + this.object.width, this.getStringPosY() + 1, Color.BLUE.getRGB());
 		//horizontal line bottom
@@ -104,15 +102,15 @@ public class LayoutString extends LayoutElement {
 		fill(matrix, this.getStringPosX() + this.object.width, this.getStringPosY(), this.getStringPosX() + this.object.width + 1, this.getStringPosY() + this.object.height, Color.BLUE.getRGB());
 	
 		//Render pos and size values
-		TextRenderer font = MinecraftClient.getInstance().textRenderer;
+		Font font = Minecraft.getInstance().font;
 		RenderUtils.setScale(matrix, 0.5F);
-		font.drawWithShadow(matrix, Locals.localize("drippyloadingscreen.helper.creator.items.border.orientation")+ ": " + this.object.orientation, this.getStringPosX()*2, (this.getStringPosY()*2) - 44, Color.WHITE.getRGB());
-		font.drawWithShadow(matrix, Locals.localize("drippyloadingscreen.helper.creator.items.string.border.scale") + ": " + this.getStringScale(), this.getStringPosX()*2, (this.getStringPosY()*2) - 35, Color.WHITE.getRGB());
-		font.drawWithShadow(matrix, Locals.localize("drippyloadingscreen.helper.creator.items.string.border.alignment") + ": " + this.getObject().alignment.key, this.getStringPosX()*2, (this.getStringPosY()*2) - 26, Color.WHITE.getRGB());
-		font.drawWithShadow(matrix, Locals.localize("drippyloadingscreen.helper.creator.items.border.posx") + ": " + this.getStringPosX(), this.getStringPosX()*2, (this.getStringPosY()*2) - 17, Color.WHITE.getRGB());
-		font.drawWithShadow(matrix, Locals.localize("drippyloadingscreen.helper.creator.items.border.width") + ": " + this.object.width, this.getStringPosX()*2, (this.getStringPosY()*2) - 8, Color.WHITE.getRGB());
-		font.drawWithShadow(matrix, Locals.localize("drippyloadingscreen.helper.creator.items.border.posy") + ": " + this.getStringPosY(), ((this.getStringPosX() + this.object.width)*2)+3, ((this.getStringPosY() + this.object.height)*2) - 14, Color.WHITE.getRGB());
-		font.drawWithShadow(matrix, Locals.localize("drippyloadingscreen.helper.creator.items.border.height") + ": " + this.object.height, ((this.getStringPosX() + this.object.width)*2)+3, ((this.getStringPosY() + this.object.height)*2) - 5, Color.WHITE.getRGB());
+		font.drawShadow(matrix, Locals.localize("drippyloadingscreen.helper.creator.items.border.orientation")+ ": " + this.object.orientation, this.getStringPosX()*2, (this.getStringPosY()*2) - 44, Color.WHITE.getRGB());
+		font.drawShadow(matrix, Locals.localize("drippyloadingscreen.helper.creator.items.string.border.scale") + ": " + this.getStringScale(), this.getStringPosX()*2, (this.getStringPosY()*2) - 35, Color.WHITE.getRGB());
+		font.drawShadow(matrix, Locals.localize("drippyloadingscreen.helper.creator.items.string.border.alignment") + ": " + this.getObject().alignment.key, this.getStringPosX()*2, (this.getStringPosY()*2) - 26, Color.WHITE.getRGB());
+		font.drawShadow(matrix, Locals.localize("drippyloadingscreen.helper.creator.items.border.posx") + ": " + this.getStringPosX(), this.getStringPosX()*2, (this.getStringPosY()*2) - 17, Color.WHITE.getRGB());
+		font.drawShadow(matrix, Locals.localize("drippyloadingscreen.helper.creator.items.border.width") + ": " + this.object.width, this.getStringPosX()*2, (this.getStringPosY()*2) - 8, Color.WHITE.getRGB());
+		font.drawShadow(matrix, Locals.localize("drippyloadingscreen.helper.creator.items.border.posy") + ": " + this.getStringPosY(), ((this.getStringPosX() + this.object.width)*2)+3, ((this.getStringPosY() + this.object.height)*2) - 14, Color.WHITE.getRGB());
+		font.drawShadow(matrix, Locals.localize("drippyloadingscreen.helper.creator.items.border.height") + ": " + this.object.height, ((this.getStringPosX() + this.object.width)*2)+3, ((this.getStringPosY() + this.object.height)*2) - 5, Color.WHITE.getRGB());
 		RenderUtils.postScale(matrix);
 	}
 	

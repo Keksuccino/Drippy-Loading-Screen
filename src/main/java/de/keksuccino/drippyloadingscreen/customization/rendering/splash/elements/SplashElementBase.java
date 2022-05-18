@@ -1,12 +1,11 @@
 package de.keksuccino.drippyloadingscreen.customization.rendering.splash.elements;
 
-import net.minecraft.client.gui.DrawableHelper;
-import net.minecraft.client.util.math.MatrixStack;
-
+import com.mojang.blaze3d.vertex.PoseStack;
 import de.keksuccino.drippyloadingscreen.customization.rendering.splash.SplashCustomizationLayer;
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiComponent;
 
-public abstract class SplashElementBase extends DrawableHelper {
+public abstract class SplashElementBase extends GuiComponent {
 
     protected SplashCustomizationLayer handler;
 
@@ -21,13 +20,13 @@ public abstract class SplashElementBase extends DrawableHelper {
     public float rotation = 0.0F;
     public float opacity = 1.0F;
 
-    protected MinecraftClient mc = MinecraftClient.getInstance();
+    protected Minecraft mc = Minecraft.getInstance();
 
     public SplashElementBase(SplashCustomizationLayer handler) {
         this.handler = handler;
     }
 
-    public abstract void render(MatrixStack matrix, int scaledWidth, int scaledHeight, float partialTicks);
+    public abstract void render(PoseStack matrix, int scaledWidth, int scaledHeight, float partialTicks);
 
     public SplashCustomizationLayer getHandler() {
         return this.handler;

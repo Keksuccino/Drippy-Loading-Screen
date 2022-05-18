@@ -6,10 +6,11 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
-import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.resources.ResourceLocation;
 import com.mojang.blaze3d.systems.RenderSystem;
-
+import com.mojang.blaze3d.vertex.PoseStack;
 import de.keksuccino.drippyloadingscreen.customization.helper.ui.UIBase;
 import de.keksuccino.drippyloadingscreen.customization.helper.ui.screens.FHConfigScreen;
 import de.keksuccino.konkrete.gui.content.AdvancedButton;
@@ -19,15 +20,12 @@ import de.keksuccino.konkrete.input.MouseInput;
 import de.keksuccino.konkrete.input.StringUtils;
 import de.keksuccino.konkrete.localization.Locals;
 import de.keksuccino.konkrete.rendering.RenderUtils;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.util.Identifier;
 
 public class MenuBar extends UIBase {
 	
-	public static final Identifier FH_LOGO_TEXTURE = new Identifier("drippyloadingscreen", "dl_pixel_logo.png");
-	public static final Identifier SHRINK_BTN_TEXTURE = new Identifier("drippyloadingscreen", "shrink_btn.png");
-	public static final Identifier EXPAND_BTN_TEXTURE = new Identifier("drippyloadingscreen", "expand_btn.png");
+	public static final ResourceLocation FH_LOGO_TEXTURE = new ResourceLocation("drippyloadingscreen", "dl_pixel_logo.png");
+	public static final ResourceLocation SHRINK_BTN_TEXTURE = new ResourceLocation("drippyloadingscreen", "shrink_btn.png");
+	public static final ResourceLocation EXPAND_BTN_TEXTURE = new ResourceLocation("drippyloadingscreen", "expand_btn.png");
 	
 	protected Map<String, AdvancedButton> leftElements = new LinkedHashMap<String, AdvancedButton>();
 	protected Map<String, AdvancedButton> rightElements = new LinkedHashMap<String, AdvancedButton>();
@@ -47,11 +45,11 @@ public class MenuBar extends UIBase {
 		//Add default drippyloadingscreen button
 		AdvancedButton fhBtn = new AdvancedImageButton(0, 0, 0, 0, FH_LOGO_TEXTURE, true, (press) -> {
 
-			MinecraftClient.getInstance().setScreen(new FHConfigScreen(MinecraftClient.getInstance().currentScreen));
+			Minecraft.getInstance().setScreen(new FHConfigScreen(Minecraft.getInstance().screen));
 
 		}) {
 			@Override
-			public void render(MatrixStack matrix, int mouseX, int mouseY, float partialTicks) {
+			public void render(PoseStack matrix, int mouseX, int mouseY, float partialTicks) {
 				this.width = this.height;
 				super.render(matrix, mouseX, mouseY, partialTicks);
 			}
@@ -71,7 +69,7 @@ public class MenuBar extends UIBase {
 			}
 		}) {
 			@Override
-			public void render(MatrixStack matrix, int mouseX, int mouseY, float partialTicks) {
+			public void render(PoseStack matrix, int mouseX, int mouseY, float partialTicks) {
 				this.width = this.height;
 				super.render(matrix, mouseX, mouseY, partialTicks);
 			}
@@ -244,7 +242,7 @@ public class MenuBar extends UIBase {
 		return false;
 	}
 	
-	public void render(MatrixStack matrix, Screen screen) {
+	public void render(PoseStack matrix, Screen screen) {
 
 		if (screen != null) {
 
@@ -261,7 +259,7 @@ public class MenuBar extends UIBase {
 				int mouseX = MouseInput.getMouseX();
 				int mouseY = MouseInput.getMouseY();
 				int width = screen.width;
-				float partialTicks = MinecraftClient.getInstance().getTickDelta();
+				float partialTicks = Minecraft.getInstance().getFrameTime();
 
 				MouseInput.resetRenderScale();
 
@@ -289,7 +287,7 @@ public class MenuBar extends UIBase {
 						if (b.visible) {
 							b.setHeight(this.height);
 							if (!(b instanceof AdvancedImageButton)) {
-								int i = MinecraftClient.getInstance().textRenderer.getWidth(b.getMessageString());
+								int i = Minecraft.getInstance().font.width(b.getMessageString());
 								b.setWidth(i + 12);
 							}
 							b.x = xl;
@@ -306,7 +304,7 @@ public class MenuBar extends UIBase {
 						if (b.visible) {
 							b.setHeight(this.height);
 							if (!(b instanceof AdvancedImageButton)) {
-								int i = MinecraftClient.getInstance().textRenderer.getWidth(b.getMessageString());
+								int i = Minecraft.getInstance().font.width(b.getMessageString());
 								b.setWidth(i + 12);
 							}
 							xr -= b.getWidth();
@@ -341,7 +339,7 @@ public class MenuBar extends UIBase {
 		
 	}
 	
-	protected void renderBackground(MatrixStack matrix, Screen screen) {
+	protected void renderBackground(PoseStack matrix, Screen screen) {
 		if (this.expanded) {
 			if ((screen != null) && (this.barColor != null)) {
 				RenderUtils.fill(matrix, 0, 0, screen.width / this.getScale(), this.height, this.barColor.getRGB(), this.barOpacity);
@@ -350,13 +348,13 @@ public class MenuBar extends UIBase {
 	}
 	
 	public boolean isHovered() {
-		if (MinecraftClient.getInstance().currentScreen == null) {
+		if (Minecraft.getInstance().screen == null) {
 			return false;
 		}
 		
 		MouseInput.setRenderScale(this.getScale());
 		
-		int width = MinecraftClient.getInstance().currentScreen.width;
+		int width = Minecraft.getInstance().screen.width;
 		int mX = MouseInput.getMouseX();
 		int mY = MouseInput.getMouseY();
 		

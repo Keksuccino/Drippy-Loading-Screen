@@ -1,12 +1,11 @@
 package de.keksuccino.drippyloadingscreen.customization.helper;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.util.Window;
-import net.minecraft.client.util.math.MatrixStack;
-
+import com.mojang.blaze3d.platform.Window;
+import com.mojang.blaze3d.vertex.PoseStack;
 import de.keksuccino.drippyloadingscreen.customization.rendering.splash.SplashCustomizationLayer;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.text.LiteralText;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.TextComponent;
 
 public class CustomizationHelperScreen extends Screen {
 
@@ -15,7 +14,7 @@ public class CustomizationHelperScreen extends Screen {
 	public static boolean renderBackgroundOverlay = false;
 	
 	public CustomizationHelperScreen() {
-		super(new LiteralText(""));
+		super(new TextComponent(""));
 		splashLayer.isNewLoadingScreen = true;
 	}
 	
@@ -36,11 +35,11 @@ public class CustomizationHelperScreen extends Screen {
 	@Override
 	public void onClose() {
 		CustomizationHelperScreen.resetScale();
-		MinecraftClient.getInstance().setScreen(null);
+		Minecraft.getInstance().setScreen(null);
 	}
 
 	@Override
-	public void render(MatrixStack matrix, int mouseX, int mouseY, float partialTicks) {
+	public void render(PoseStack matrix, int mouseX, int mouseY, float partialTicks) {
 
 		splashLayer.renderLayer();
 		
@@ -53,11 +52,11 @@ public class CustomizationHelperScreen extends Screen {
 	public static void resetScale() {
 		if (splashLayer.scaled) {
 
-			MinecraftClient mc = MinecraftClient.getInstance();
+			Minecraft mc = Minecraft.getInstance();
 			Window w = mc.getWindow();
-			int mcScale = w.calculateScaleFactor(mc.options.guiScale, mc.forcesUnicodeFont());
+			int mcScale = w.calculateScale(mc.options.guiScale, mc.isEnforceUnicode());
 
-			w.setScaleFactor((double)mcScale);
+			w.setGuiScale((double)mcScale);
 
 			splashLayer.scaled = false;
 

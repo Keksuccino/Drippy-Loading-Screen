@@ -1,12 +1,10 @@
 package de.keksuccino.drippyloadingscreen.customization.items;
 
 import java.awt.Color;
-
-import net.minecraft.client.util.math.MatrixStack;
-
+import net.minecraft.util.Mth;
+import com.mojang.blaze3d.vertex.PoseStack;
 import de.keksuccino.konkrete.properties.PropertiesSection;
 import de.keksuccino.konkrete.rendering.RenderUtils;
-import net.minecraft.util.math.MathHelper;
 
 public class ShapeCustomizationItem extends CustomizationItemBase {
 
@@ -35,13 +33,13 @@ public class ShapeCustomizationItem extends CustomizationItemBase {
 	}
 
 	@Override
-	public void render(MatrixStack matrix) {
+	public void render(PoseStack matrix) {
 
 		if (this.shouldRender()) {
 			if (this.shape != null) {
 				
 				int alpha = this.color.getAlpha();
-				int i = MathHelper.ceil(this.opacity * 255.0F);
+				int i = Mth.ceil(this.opacity * 255.0F);
 				if (i < alpha) {
 					alpha = i;
 				}

@@ -49,7 +49,7 @@ public class CustomizationPropertiesHandler {
 						if (!isVersionCompatible(s4, s5, DrippyLoadingScreen.VERSION)) {
 							continue;
 						}
-						if (!isVersionCompatible(s6, s7, SharedConstants.getGameVersion().getReleaseTarget())) {
+						if (!isVersionCompatible(s6, s7, SharedConstants.getCurrentVersion().getReleaseTarget())) {
 							continue;
 						}
 						if (!allRequiredModsLoaded(s3)) {

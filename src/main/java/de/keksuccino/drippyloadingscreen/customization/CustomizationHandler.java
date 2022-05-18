@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
-
+import net.minecraft.client.Minecraft;
 import com.google.common.io.Files;
 
 import de.keksuccino.drippyloadingscreen.DrippyLoadingScreen;
@@ -19,7 +19,6 @@ import de.keksuccino.konkrete.properties.PropertiesSection;
 import de.keksuccino.konkrete.properties.PropertiesSerializer;
 import de.keksuccino.konkrete.properties.PropertiesSet;
 import de.keksuccino.konkrete.sound.SoundHandler;
-import net.minecraft.client.MinecraftClient;
 
 public class CustomizationHandler {
 	
@@ -28,6 +27,8 @@ public class CustomizationHandler {
 	
 	private static boolean isLightmode = false;
 	private static boolean lightModeCached = false;
+
+	public static List<Runnable> mainThreadTasks = new ArrayList<>();
 	
 	public static void init() {
 		if (!initDone) {
@@ -95,7 +96,7 @@ public class CustomizationHandler {
 			String url = f.toURI().toURL().toString();
 			String s = System.getProperty("os.name").toLowerCase(Locale.ROOT);
 			URL u = new URL(url);
-			if (!MinecraftClient.IS_SYSTEM_MAC) {
+			if (!Minecraft.ON_OSX) {
 				if (s.contains("win")) {
 					Runtime.getRuntime().exec(new String[]{"rundll32", "url.dll,FileProtocolHandler", url});
 				} else {
@@ -130,7 +131,7 @@ public class CustomizationHandler {
 					meta.get(0).addEntry("path", layout.getPath());
 					
 					LayoutEditorScreen.isActive = true;
-					MinecraftClient.getInstance().setScreen(new PreloadedLayoutEditorScreen(set));
+					Minecraft.getInstance().setScreen(new PreloadedLayoutEditorScreen(set));
 					stopSounds();
 					resetSounds();
 					
@@ -223,6 +224,10 @@ public class CustomizationHandler {
 			e.printStackTrace();
 		}
 		return false;
+	}
+
+	public static void runTaskInMainThread(Runnable task) {
+		mainThreadTasks.add(task);
 	}
 	
 }

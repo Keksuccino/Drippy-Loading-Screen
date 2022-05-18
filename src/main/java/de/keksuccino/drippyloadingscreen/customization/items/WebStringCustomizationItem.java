@@ -10,8 +10,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.util.math.MatrixStack;
-
+import com.mojang.blaze3d.vertex.PoseStack;
 import de.keksuccino.drippyloadingscreen.customization.placeholdervalues.PlaceholderTextValueHelper;
 import de.keksuccino.drippyloadingscreen.customization.rendering.SimpleTextRenderer;
 import de.keksuccino.konkrete.input.StringUtils;
@@ -83,7 +82,7 @@ public class WebStringCustomizationItem extends CustomizationItemBase {
 	}
 
 	@Override
-	public void render(MatrixStack matrix) {
+	public void render(PoseStack matrix) {
 
 		if (!this.shouldRender()) {
 			return;

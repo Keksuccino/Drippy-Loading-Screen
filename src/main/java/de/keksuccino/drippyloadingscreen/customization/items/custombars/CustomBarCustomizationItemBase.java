@@ -1,6 +1,6 @@
 package de.keksuccino.drippyloadingscreen.customization.items.custombars;
 
-import net.minecraft.client.util.math.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import de.keksuccino.drippyloadingscreen.customization.helper.editor.LayoutEditorScreen;
 import de.keksuccino.drippyloadingscreen.customization.items.CustomizationItemBase;
 import de.keksuccino.konkrete.math.MathUtils;
@@ -8,11 +8,10 @@ import de.keksuccino.konkrete.properties.PropertiesSection;
 import de.keksuccino.konkrete.rendering.RenderUtils;
 import de.keksuccino.konkrete.resources.ExternalTextureResourceLocation;
 import de.keksuccino.konkrete.resources.TextureHandler;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.util.Identifier;
-
 import java.awt.*;
 import java.io.File;
+import net.minecraft.client.Minecraft;
+import net.minecraft.resources.ResourceLocation;
 
 public abstract class CustomBarCustomizationItemBase extends CustomizationItemBase {
 	
@@ -21,9 +20,9 @@ public abstract class CustomBarCustomizationItemBase extends CustomizationItemBa
 	public Color barColor = new Color(0, 0, 0);
 	public Color backgroundColor = new Color(0, 0, 0, 50);
 	
-	public Identifier barTexture = null;
-	public Identifier backgroundTexture = null;
-	public Identifier barEndTexture = null;
+	public ResourceLocation barTexture = null;
+	public ResourceLocation backgroundTexture = null;
+	public ResourceLocation barEndTexture = null;
 	public int barEndTextureWidth = 10;
 	public int barEndTextureHeight = 10;
 	
@@ -70,9 +69,9 @@ public abstract class CustomBarCustomizationItemBase extends CustomizationItemBa
 		
 	}
 
-	protected abstract void renderBar(MatrixStack matrix);
+	protected abstract void renderBar(PoseStack matrix);
 
-	protected abstract void renderBarBackground(MatrixStack matrix);
+	protected abstract void renderBarBackground(PoseStack matrix);
 	
 	public void updateItem() {
 		
@@ -132,7 +131,7 @@ public abstract class CustomBarCustomizationItemBase extends CustomizationItemBa
 	}
 	
 	protected boolean isEditor() {
-		return (MinecraftClient.getInstance().currentScreen instanceof LayoutEditorScreen);
+		return (Minecraft.getInstance().screen instanceof LayoutEditorScreen);
 	}
 	
 	public static enum BarDirection {

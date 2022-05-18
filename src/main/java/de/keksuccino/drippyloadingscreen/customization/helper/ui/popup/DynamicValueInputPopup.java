@@ -2,10 +2,9 @@ package de.keksuccino.drippyloadingscreen.customization.helper.ui.popup;
 
 import java.awt.Color;
 import java.util.function.Consumer;
-
+import net.minecraft.client.Minecraft;
 import de.keksuccino.drippyloadingscreen.customization.helper.ui.content.DynamicValueTextfield;
 import de.keksuccino.konkrete.input.CharacterFilter;
-import net.minecraft.client.MinecraftClient;
 
 public class DynamicValueInputPopup extends FHTextInputPopup {
 
@@ -22,8 +21,8 @@ public class DynamicValueInputPopup extends FHTextInputPopup {
 		
 		super.init(color, title, filter, callback);
 		
-		this.textField = new DynamicValueTextfield(MinecraftClient.getInstance().textRenderer, 0, 0, 200, 20, true, filter);
-		this.textField.setFocusUnlocked(true);
+		this.textField = new DynamicValueTextfield(Minecraft.getInstance().font, 0, 0, 200, 20, true, filter);
+		this.textField.setCanLoseFocus(true);
 		this.textField.setFocused(false);
 		this.textField.setMaxLength(1000);
 		

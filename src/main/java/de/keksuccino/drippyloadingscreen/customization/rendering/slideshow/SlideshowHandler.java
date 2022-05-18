@@ -8,11 +8,14 @@ import java.util.Map;
 
 import de.keksuccino.drippyloadingscreen.DrippyLoadingScreen;
 import de.keksuccino.drippyloadingscreen.events.CustomizationSystemReloadedEvent;
-import de.keksuccino.drippyloadingscreen.logger.Logging;
 import de.keksuccino.konkrete.Konkrete;
 import de.keksuccino.konkrete.events.SubscribeEvent;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class SlideshowHandler {
+
+	private static final Logger LOGGER = LogManager.getLogger("drippyloadingscreen/SlideshowHandler");
 	
 	private static Map<String, ExternalTextureSlideshowRenderer> slideshows = new HashMap<String, ExternalTextureSlideshowRenderer>();
 	
@@ -41,7 +44,7 @@ public class SlideshowHandler {
 						render.prepareSlideshow();
 						slideshows.put(name, render);
 					} else {
-						Logging.error("Invalid slideshow found: " + f2.getPath());
+						LOGGER.error("ERROR: Invalid slideshow found: " + f2.getPath());
 					}
 				}
 			}

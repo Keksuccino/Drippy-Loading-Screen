@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
   "id": "drippyloadingscreen",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "name": "Drippy Loading Screen",
-  "description": "Drippy Loading Screen © Copyright 2021 Keksuccino. Drippy Loading Screen is licensed under DSMSL (DON'T SNATCH MA STUFF LICENSE). See https://github.com/Keksuccino/Drippy-Loading-Screen/blob/main/LICENSE.md for more information about this license.",
+  "description": "Drippy Loading Screen © Copyright 2021-2022 Keksuccino. Drippy Loading Screen is licensed under DSMSL (DON'T SNATCH MA STUFF LICENSE). See https://github.com/Keksuccino/Drippy-Loading-Screen/blob/main/LICENSE.md for more information about this license.",
   "environment": "client",
   "authors": [
     "Keksuccino"
@@ -25,6 +25,7 @@
   "depends": {
     "fabricloader": ">=0.12.6",
     "konkrete": ">=1.3.3",
+    "auudio": ">=1.0.3",
     "fabric": "*",
 	"minecraft": "1.18.x",
     "java": ">=17"

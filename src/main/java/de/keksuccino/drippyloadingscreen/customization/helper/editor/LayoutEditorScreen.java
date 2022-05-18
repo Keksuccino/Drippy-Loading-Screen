@@ -6,12 +6,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.TextComponent;
 import de.keksuccino.konkrete.rendering.CurrentScreenHandler;
-import net.minecraft.client.util.Window;
-import net.minecraft.client.util.math.MatrixStack;
+import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
-
+import com.mojang.blaze3d.vertex.PoseStack;
 import de.keksuccino.drippyloadingscreen.customization.helper.editor.elements.vanilla.*;
 import de.keksuccino.drippyloadingscreen.customization.items.vanilla.ProgressBarSplashCustomizationItem;
 import de.keksuccino.drippyloadingscreen.customization.rendering.splash.SplashCustomizationLayer;
@@ -58,9 +59,6 @@ import de.keksuccino.konkrete.properties.PropertiesSection;
 import de.keksuccino.konkrete.properties.PropertiesSet;
 import de.keksuccino.konkrete.rendering.RenderUtils;
 import de.keksuccino.konkrete.web.WebUtils;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.text.LiteralText;
 
 public class LayoutEditorScreen extends Screen {
 	
@@ -123,7 +121,7 @@ public class LayoutEditorScreen extends Screen {
 	
 	public LayoutEditorScreen() {
 		
-		super(new LiteralText(""));
+		super(new TextComponent(""));
 
 		if (!initDone) {
 			KeyboardHandler.addKeyPressedListener(LayoutEditorScreen::onShortcutPressed);
@@ -165,29 +163,29 @@ public class LayoutEditorScreen extends Screen {
 		this.focusChangeBlocker.clear();
 
 		//Handle force scale
-		Window w = MinecraftClient.getInstance().getWindow();
+		Window w = Minecraft.getInstance().getWindow();
 		if (this.scale > 0) {
-			w.setScaleFactor(this.scale);
+			w.setGuiScale(this.scale);
 		} else {
-			int mcScale = w.calculateScaleFactor(MinecraftClient.getInstance().options.guiScale, MinecraftClient.getInstance().forcesUnicodeFont());
-			w.setScaleFactor(mcScale);
+			int mcScale = w.calculateScale(Minecraft.getInstance().options.guiScale, Minecraft.getInstance().isEnforceUnicode());
+			w.setGuiScale(mcScale);
 		}
-		this.width = w.getScaledWidth();
-		this.height = w.getScaledHeight();
+		this.width = w.getGuiScaledWidth();
+		this.height = w.getGuiScaledHeight();
 
 		//Handle auto scaling
 		if ((this.autoScalingWidth != 0) && (this.autoScalingHeight != 0)) {
-			double guiWidth = this.width * w.getScaleFactor();
-			double guiHeight = this.height * w.getScaleFactor();
+			double guiWidth = this.width * w.getGuiScale();
+			double guiHeight = this.height * w.getGuiScale();
 			double percentX = (guiWidth / (double)this.autoScalingWidth) * 100.0D;
 			double percentY = (guiHeight / (double)this.autoScalingHeight) * 100.0D;
-			double newScaleX = (percentX / 100.0D) * w.getScaleFactor();
-			double newScaleY = (percentY / 100.0D) * w.getScaleFactor();
+			double newScaleX = (percentX / 100.0D) * w.getGuiScale();
+			double newScaleY = (percentY / 100.0D) * w.getGuiScale();
 			double newScale = Math.min(newScaleX, newScaleY);
 
-			w.setScaleFactor(newScale);
-			this.width = w.getScaledWidth();
-			this.height = w.getScaledHeight();
+			w.setGuiScale(newScale);
+			this.width = w.getGuiScaledWidth();
+			this.height = w.getGuiScaledHeight();
 		}
 		
 	}
@@ -296,7 +294,7 @@ public class LayoutEditorScreen extends Screen {
 	}
 
 	@Override
-	public void render(MatrixStack matrix, int mouseX, int mouseY, float partialTicks) {
+	public void render(PoseStack matrix, int mouseX, int mouseY, float partialTicks) {
 		
 		//Handle object focus and update the top hovered object
 		if (!MouseInput.isVanillaInputBlocked()) {
@@ -445,7 +443,7 @@ public class LayoutEditorScreen extends Screen {
 
 	}
 
-	protected void drawGrid(MatrixStack matrix) {
+	protected void drawGrid(PoseStack matrix) {
 		if (DrippyLoadingScreen.config.getOrDefault("showgrid", false)) {
 
 			Color cNormal = new Color(255, 255, 255, 100);
@@ -502,13 +500,13 @@ public class LayoutEditorScreen extends Screen {
 		}
 	}
 	
-	protected void renderVanillaElements(MatrixStack matrix, float partial) {
+	protected void renderVanillaElements(PoseStack matrix, float partial) {
 		
 		this.splashLayer.renderLayer();
 		
 	}
 
-	protected void renderEditorBackground(MatrixStack matrix) {
+	protected void renderEditorBackground(PoseStack matrix) {
 		RenderSystem.enableBlend();
 		Color c = new Color(239, 50, 61);
 		if (this.splashLayer.customBackgroundColor != null) {
@@ -520,7 +518,7 @@ public class LayoutEditorScreen extends Screen {
 			RenderSystem.enableBlend();
 			RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 			if (!this.splashLayer.keepBackgroundAspectRatio) {
-				drawTexture(matrix, 0, 0, 0.0F, 0.0F, this.width, this.height, this.width, this.height);
+				blit(matrix, 0, 0, 0.0F, 0.0F, this.width, this.height, this.width, this.height);
 			} else {
 				int w = this.splashLayer.backgroundImageSource.getWidth();
 				int h = this.splashLayer.backgroundImageSource.getHeight();
@@ -528,9 +526,9 @@ public class LayoutEditorScreen extends Screen {
 				int wfinal = (int)(this.height * ratio);
 				int screenCenterX = this.width / 2;
 				if (wfinal < this.width) {
-					drawTexture(CurrentScreenHandler.getMatrixStack(), 0, 0, 1.0F, 1.0F, this.width + 1, this.height + 1, this.width + 1, this.height + 1);
+					blit(CurrentScreenHandler.getMatrixStack(), 0, 0, 1.0F, 1.0F, this.width + 1, this.height + 1, this.width + 1, this.height + 1);
 				} else {
-					drawTexture(CurrentScreenHandler.getMatrixStack(), screenCenterX - (wfinal / 2), 0, 1.0F, 1.0F, wfinal + 1, this.height + 1, wfinal + 1, this.height + 1);
+					blit(CurrentScreenHandler.getMatrixStack(), screenCenterX - (wfinal / 2), 0, 1.0F, 1.0F, wfinal + 1, this.height + 1, wfinal + 1, this.height + 1);
 				}
 			}
 			RenderSystem.disableBlend();
@@ -944,7 +942,7 @@ public class LayoutEditorScreen extends Screen {
 				this.history.editor = neweditor;
 				neweditor.single = ((PreloadedLayoutEditorScreen)this).single;
 
-				MinecraftClient.getInstance().setScreen(neweditor);
+				Minecraft.getInstance().setScreen(neweditor);
 			}
 
 		} else {
@@ -973,7 +971,7 @@ public class LayoutEditorScreen extends Screen {
 							this.history.editor = neweditor;
 							neweditor.single = file;
 
-							MinecraftClient.getInstance().setScreen(neweditor);
+							Minecraft.getInstance().setScreen(neweditor);
 						}
 					} else {
 						PopupHandler.displayPopup(new FHNotificationPopup(300, new Color(0, 0, 0, 0), 240, null, Locals.localize("drippyloadingscreen.helper.editor.ui.layout.saveas.failed")));
@@ -1042,7 +1040,7 @@ public class LayoutEditorScreen extends Screen {
 	}
 
 	protected static void onShortcutPressed(KeyboardData d) {
-		Screen c = MinecraftClient.getInstance().currentScreen;
+		Screen c = Minecraft.getInstance().screen;
 		
 		if (c instanceof LayoutEditorScreen) {
 			
@@ -1114,7 +1112,7 @@ public class LayoutEditorScreen extends Screen {
 	}
 	
 	protected static void onArrowKeysPressed(KeyboardData d) {
-		Screen c = MinecraftClient.getInstance().currentScreen;
+		Screen c = Minecraft.getInstance().screen;
 		
 		if (c instanceof LayoutEditorScreen) {
 			
@@ -1174,7 +1172,7 @@ public class LayoutEditorScreen extends Screen {
 		neweditor.single = single;
 		neweditor.history.editor = neweditor;
 
-		MinecraftClient.getInstance().setScreen(neweditor);
+		Minecraft.getInstance().setScreen(neweditor);
 	}
 
 }

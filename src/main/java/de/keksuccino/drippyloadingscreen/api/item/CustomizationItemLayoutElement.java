@@ -6,10 +6,13 @@ import java.util.Map;
 
 import de.keksuccino.drippyloadingscreen.customization.helper.editor.LayoutEditorScreen;
 import de.keksuccino.drippyloadingscreen.customization.helper.editor.elements.LayoutElement;
-import de.keksuccino.drippyloadingscreen.logger.Logging;
 import de.keksuccino.konkrete.properties.PropertiesSection;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class CustomizationItemLayoutElement extends LayoutElement {
+
+	private static final Logger LOGGER = LogManager.getLogger("drippyloadingscreen/CustomizationItemLayoutElement");
 
 	public CustomizationItemContainer container;
 	
@@ -57,9 +60,8 @@ public class CustomizationItemLayoutElement extends LayoutElement {
 	}
 	
 	protected void printPropertiesKeyError(String key) {
-		Logging.error("CustomizationLayoutElement#getProperties():",
-				"Invalid properties key '" + key + "' found for customization element '" + this.container.elementIdentifier + "'!",
-				"This key already exists or is reserved by the system and can't be used!");
+		LOGGER.error("ERROR: Invalid properties key '" + key + "' found for customization element '" + this.container.elementIdentifier + "'!");
+		LOGGER.error("ERROR: This key already exists or is reserved by the system and can't be used!");
 	}
 	
 	protected CustomizationItem getCustomizationElement() {

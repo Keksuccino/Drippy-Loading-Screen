@@ -1,7 +1,6 @@
 package de.keksuccino.drippyloadingscreen.customization.items;
 
-import net.minecraft.client.util.math.MatrixStack;
-
+import com.mojang.blaze3d.vertex.PoseStack;
 import de.keksuccino.drippyloadingscreen.DrippyLoadingScreen;
 import de.keksuccino.drippyloadingscreen.customization.rendering.slideshow.ExternalTextureSlideshowRenderer;
 import de.keksuccino.drippyloadingscreen.customization.rendering.slideshow.SlideshowHandler;
@@ -28,7 +27,7 @@ public class SlideshowCustomizationItem extends CustomizationItemBase {
 		}
 	}
 
-	public void render(MatrixStack matrix) {
+	public void render(PoseStack matrix) {
 
 		if (!this.shouldRender()) {
 			return;
