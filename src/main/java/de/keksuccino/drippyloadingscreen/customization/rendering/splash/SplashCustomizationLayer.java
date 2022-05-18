@@ -88,8 +88,8 @@ public class SplashCustomizationLayer extends AbstractGui {
     /** GETTER ONLY **/
     public float progress;
 
-    protected List<CustomizationItemBase> backgroundElements = new ArrayList<CustomizationItemBase>();
-    protected List<CustomizationItemBase> foregroundElements = new ArrayList<CustomizationItemBase>();
+    public List<CustomizationItemBase> backgroundElements = new ArrayList<CustomizationItemBase>();
+    public List<CustomizationItemBase> foregroundElements = new ArrayList<CustomizationItemBase>();
 
     protected Map<String, RandomLayoutContainer> randomLayoutGroups = new HashMap<String, RandomLayoutContainer>();
 
@@ -116,6 +116,17 @@ public class SplashCustomizationLayer extends AbstractGui {
     }
 
     public void renderLayer() {
+
+        List<Runnable> runs = new ArrayList<>();
+        runs.addAll(CustomizationHandler.mainThreadTasks);
+        for (Runnable r : runs) {
+            try {
+                r.run();
+                CustomizationHandler.mainThreadTasks.remove(r);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
 
         if ((this.customBackgroundHex != null) && !this.customBackgroundHex.equals(this.lastCustomBackgroundHex)) {
             this.customBackgroundColor = RenderUtils.getColorFromHexString(this.customBackgroundHex);
@@ -545,7 +556,7 @@ public class SplashCustomizationLayer extends AbstractGui {
 
                         /** ################## CUSTOM ITEMS ################## **/
 
-                        if (action.startsWith("add_")) {
+                        if (action.startsWith("add_")) { //OLD API
                             String id = action.split("[_]", 2)[1];
                             CustomizationItemContainer c = CustomizationItemRegistry.getInstance().getElement(id);
                             if (c != null) {
@@ -557,6 +568,20 @@ public class SplashCustomizationLayer extends AbstractGui {
                                     foregroundElements.add(i);
                                 }
 
+                            }
+                        }
+
+                        /** CUSTOM ITEMS (API) **/
+                        if (action.startsWith("custom_layout_element:")) {
+                            String cusId = action.split("[:]", 2)[1];
+                            de.keksuccino.drippyloadingscreen.api.item.v2.CustomizationItemContainer cusItem = de.keksuccino.drippyloadingscreen.api.item.v2.CustomizationItemRegistry.getItem(cusId);
+                            if (cusItem != null) {
+                                de.keksuccino.drippyloadingscreen.api.item.v2.CustomizationItem cusItemInstance = cusItem.constructCustomizedItemInstance(sec);
+                                if (renderInBackground) {
+                                    backgroundElements.add(cusItemInstance);
+                                } else {
+                                    foregroundElements.add(cusItemInstance);
+                                }
                             }
                         }
 

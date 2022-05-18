@@ -878,7 +878,7 @@ public class LayoutEditorUI extends UIBase {
 			
 			this.addSeparator();
 			
-			/** CUSTOM ITEMS **/
+			/** CUSTOM ITEMS **/ //OLD API
 			for (CustomizationItemContainer c : CustomizationItemRegistry.getInstance().getElements().values()) {
 				
 				AdvancedButton newCustomItemButton = new AdvancedButton(0, 0, 0, 20, c.displayName, (press) -> {
@@ -886,6 +886,20 @@ public class LayoutEditorUI extends UIBase {
 				});
 				this.addContent(newCustomItemButton);
 				
+			}
+
+			/** CUSTOM ITEMS (API) **/
+			for (de.keksuccino.drippyloadingscreen.api.item.v2.CustomizationItemContainer c : de.keksuccino.drippyloadingscreen.api.item.v2.CustomizationItemRegistry.getItems()) {
+
+				AdvancedButton cusItemButton = new AdvancedButton(0, 0, 0, 20, c.getDisplayName(), (press) -> {
+					this.parent.addContent(c.constructEditorElementInstance(c.constructDefaultItemInstance(), this.parent));
+				});
+				String[] desc = c.getDescription();
+				if ((desc != null) && (desc.length > 0)) {
+					cusItemButton.setDescription(desc);
+				}
+				this.addContent(cusItemButton);
+
 			}
 			
 			super.openMenuAt(x, y, screenWidth, screenHeight);

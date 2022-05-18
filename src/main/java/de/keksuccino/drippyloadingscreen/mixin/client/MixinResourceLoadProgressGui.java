@@ -2,6 +2,7 @@ package de.keksuccino.drippyloadingscreen.mixin.client;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import de.keksuccino.drippyloadingscreen.DrippyLoadingScreen;
+import de.keksuccino.drippyloadingscreen.customization.items.v2.audio.ACIHandler;
 import de.keksuccino.drippyloadingscreen.customization.placeholdervalues.PlaceholderTextValueHelper;
 import de.keksuccino.drippyloadingscreen.customization.rendering.splash.SplashCustomizationLayer;
 import net.minecraft.client.MainWindow;
@@ -41,6 +42,8 @@ public abstract class MixinResourceLoadProgressGui extends AbstractGui {
 	protected void onRender(MatrixStack matrix, int mouseX, int mouseY, float partialTicks, CallbackInfo info) {
 
 		SplashCustomizationLayer handler = SplashCustomizationLayer.getInstance();
+
+		ACIHandler.onRenderOverlay(handler);
 
 		int screenWidth = this.mc.getMainWindow().getScaledWidth();
 		int screenHeight = this.mc.getMainWindow().getScaledHeight();

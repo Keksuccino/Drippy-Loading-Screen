@@ -2,6 +2,7 @@ package de.keksuccino.drippyloadingscreen;
 
 import java.io.File;
 
+import de.keksuccino.drippyloadingscreen.customization.items.v2.Items;
 import de.keksuccino.drippyloadingscreen.customization.items.visibilityrequirements.VisibilityRequirementHandler;
 import de.keksuccino.drippyloadingscreen.customization.rendering.SimpleTextRenderer;
 import org.apache.commons.lang3.tuple.Pair;
@@ -31,7 +32,7 @@ import org.apache.logging.log4j.Logger;
 @Mod("drippyloadingscreen")
 public class DrippyLoadingScreen {
 
-	public static final String VERSION = "1.5.0";
+	public static final String VERSION = "1.6.0";
 	public static final String MOD_LOADER = "forge";
 	
 	public static final File HOME_DIR = new File("config/drippyloadingscreen");
@@ -68,6 +69,8 @@ public class DrippyLoadingScreen {
 			updateConfig();
 			
 			Logging.init();
+
+			Items.registerItems();
 			
 			SlideshowHandler.init();
 
