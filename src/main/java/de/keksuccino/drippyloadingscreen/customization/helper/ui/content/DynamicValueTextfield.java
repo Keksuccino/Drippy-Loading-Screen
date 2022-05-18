@@ -178,42 +178,36 @@ public class DynamicValueTextfield extends AdvancedTextField {
 		UIBase.colorizeButton(loadingProgress);
 		otherMenu.addContent(loadingProgress);
 
-		//TODO übernehmen
 		AdvancedButton cpuInfo = new AdvancedButton(0, 0, 0, 0, Locals.localize("drippyloadingscreen.helper.ui.dynamicvariabletextfield.variables.cpuinfo"), true, (press) -> {
 			this.insertText("%cpuinfo%");
 		});
 		UIBase.colorizeButton(cpuInfo);
 		otherMenu.addContent(cpuInfo);
 
-		//TODO übernehmen
 		AdvancedButton gpuInfo = new AdvancedButton(0, 0, 0, 0, Locals.localize("drippyloadingscreen.helper.ui.dynamicvariabletextfield.variables.gpuinfo"), true, (press) -> {
 			this.insertText("%gpuinfo%");
 		});
 		UIBase.colorizeButton(gpuInfo);
 		otherMenu.addContent(gpuInfo);
 
-		//TODO übernehmen
 		AdvancedButton osName = new AdvancedButton(0, 0, 0, 0, Locals.localize("drippyloadingscreen.helper.ui.dynamicvariabletextfield.variables.osname"), true, (press) -> {
 			this.insertText("%osname%");
 		});
 		UIBase.colorizeButton(osName);
 		otherMenu.addContent(osName);
 
-		//TODO übernehmen
 		AdvancedButton openGlVersion = new AdvancedButton(0, 0, 0, 0, Locals.localize("drippyloadingscreen.helper.ui.dynamicvariabletextfield.variables.openglversion"), true, (press) -> {
 			this.insertText("%openglversion%");
 		});
 		UIBase.colorizeButton(openGlVersion);
 		otherMenu.addContent(openGlVersion);
 
-		//TODO übernehmen
 		AdvancedButton javaVersion = new AdvancedButton(0, 0, 0, 0, Locals.localize("drippyloadingscreen.helper.ui.dynamicvariabletextfield.variables.javaversion"), true, (press) -> {
 			this.insertText("%javaversion%");
 		});
 		UIBase.colorizeButton(javaVersion);
 		otherMenu.addContent(javaVersion);
 
-		//TODO übernehmen
 		AdvancedButton randomText = new AdvancedButton(0, 0, 0, 0, Locals.localize("drippyloadingscreen.helper.ui.dynamicvariabletextfield.variables.randomtext"), true, (press) -> {
 			this.insertText("%randomtext:<filepath>:<interval_sec>%");
 		});

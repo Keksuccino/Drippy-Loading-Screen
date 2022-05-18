@@ -18,11 +18,9 @@ import net.minecraftforge.versions.mcp.MCPVersion;
 public class PlaceholderTextValueHelper {
 
 	public static String currentLoadingProgressValue = "0";
-	//TODO übernehmen
 	public static Map<String, RandomTextPackage> randomTextIntervals = new HashMap<>();
 	private static final File MOD_DIRECTORY = new File("mods");
 	private static int cachedTotalMods = -10;
-	//---------------------
 	
 	public static String convertFromRaw(String in) {
 		try {
@@ -94,32 +92,24 @@ public class PlaceholderTextValueHelper {
 
 			in = in.replace("%loadingprogress%", currentLoadingProgressValue);
 
-			//TODO übernehmen
 			in = in.replace("%cpuinfo%", GlUtil.getCpuInfo());
 
-			//TODO übernehmen
 			in = in.replace("%gpuinfo%", GlUtil.getRenderer());
 
-			//TODO übernehmen
 			String javaVersion = System.getProperty("java.version");
 			if (javaVersion == null) {
 				javaVersion = "0";
 			}
 			in = in.replace("%javaversion%", javaVersion);
-			//--------------------
 
-			//TODO übernehmen
 			String osName = System.getProperty("os.name");
 			if (osName == null) {
 				osName = "unknown";
 			}
 			in = in.replace("%osname%", osName);
-			//--------------------
 
-			//TODO übernehmen
 			in = in.replace("%openglversion%", GlUtil.getOpenGLVersion());
 
-			//TODO übernehmen
 			in = replaceRandomTextValue(in);
 
 			//Apply all custom values
@@ -139,7 +129,6 @@ public class PlaceholderTextValueHelper {
 		return !s.equals(in);
 	}
 
-	//TODO übernehmen
 	private static String replaceModVersionPlaceholder(String in) {
 		try {
 			for (String s : getReplaceablesWithValue(in, "%version:")) {
@@ -162,7 +151,6 @@ public class PlaceholderTextValueHelper {
 		return in;
 	}
 
-	//TODO übernehmen
 	private static String replaceRandomTextValue(String in) {
 		try {
 			for (String s : getReplaceablesWithValue(in, "%randomtext:")) { // %randomtext:<filepath>:<change_interval_sec>%
@@ -212,7 +200,6 @@ public class PlaceholderTextValueHelper {
 		return in;
 	}
 
-	//TODO übernehmen
 	protected static List<String> getReplaceablesWithValue(String in, String placeholderBase) {
 		List<String> l = new ArrayList<String>();
 		try {
@@ -241,7 +228,6 @@ public class PlaceholderTextValueHelper {
 		return l;
 	}
 
-	//TODO übernehmen
 	private static int getTotalMods() {
 		if (cachedTotalMods == -10) {
 			if (MOD_DIRECTORY.exists()) {
@@ -259,7 +245,6 @@ public class PlaceholderTextValueHelper {
 		return cachedTotalMods;
 	}
 
-	//TODO übernehmen
 	private static int getLoadedMods() {
 		try {
 			int i = 0;
@@ -285,7 +270,6 @@ public class PlaceholderTextValueHelper {
 		return bytes / 1024L / 1024L;
 	}
 
-	//TODO übernehmen
 	public static class RandomTextPackage {
 		public String currentText = null;
 		public long lastChange = 0L;

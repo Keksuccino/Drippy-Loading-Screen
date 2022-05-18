@@ -1,4 +1,3 @@
-//TODO übernehmen
 package de.keksuccino.drippyloadingscreen.customization.items;
 
 import java.net.HttpURLConnection;
@@ -8,6 +7,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import de.keksuccino.drippyloadingscreen.DrippyLoadingScreen;
+import de.keksuccino.drippyloadingscreen.customization.CustomizationHandler;
 import de.keksuccino.drippyloadingscreen.customization.placeholdervalues.PlaceholderTextValueHelper;
 import de.keksuccino.konkrete.annotations.OptifineFix;
 import de.keksuccino.konkrete.properties.PropertiesSection;
@@ -45,7 +45,7 @@ public class WebTextureCustomizationItem extends CustomizationItemBase {
 						if (isValidUrl(this.value)) {
 
 							this.texture = TextureHandler.getWebResource(this.value, false);
-							Minecraft.getInstance().execute(() -> {
+							CustomizationHandler.runTaskInMainThread(() -> {
 								try {
 									texture.loadTexture();
 								} catch (Exception e) {

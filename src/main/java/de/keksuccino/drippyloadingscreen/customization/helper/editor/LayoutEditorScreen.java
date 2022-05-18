@@ -453,7 +453,6 @@ public class LayoutEditorScreen extends Screen {
 
 	}
 
-	//TODO übernehmen
 	protected void drawGrid(PoseStack matrix) {
 		if (DrippyLoadingScreen.config.getOrDefault("showgrid", false)) {
 

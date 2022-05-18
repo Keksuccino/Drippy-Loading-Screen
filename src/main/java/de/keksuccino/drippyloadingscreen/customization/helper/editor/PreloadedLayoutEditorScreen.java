@@ -289,7 +289,7 @@ public class PreloadedLayoutEditorScreen extends LayoutEditorScreen {
 				
 				/** ########################### CUSTOM ITEM HANDLING ########################### **/
 				
-				if (action.startsWith("add_")) {
+				if (action.startsWith("add_")) { //DEPRECATED OLD API
 					String id = action.split("[_]", 2)[1];
 					CustomizationItemContainer c = CustomizationItemRegistry.getInstance().getElement(id);
 					
@@ -298,6 +298,17 @@ public class PreloadedLayoutEditorScreen extends LayoutEditorScreen {
 						CustomizationItem i = c.constructWithProperties(sec);
 						con.add(new CustomizationItemLayoutElement(c, i, this));
 						
+					}
+				}
+
+				//TODO übernehmen
+				/** CUSTOM ITEMS (API) **/
+				if (action.startsWith("custom_layout_element:")) {
+					String cusId = action.split("[:]", 2)[1];
+					de.keksuccino.drippyloadingscreen.api.item.v2.CustomizationItemContainer cusItem = de.keksuccino.drippyloadingscreen.api.item.v2.CustomizationItemRegistry.getItem(cusId);
+					if (cusItem != null) {
+						de.keksuccino.drippyloadingscreen.api.item.v2.CustomizationItem cusItemInstance = cusItem.constructCustomizedItemInstance(sec);
+						con.add(cusItem.constructEditorElementInstance(cusItemInstance, this));
 					}
 				}
 

@@ -2,6 +2,7 @@ package de.keksuccino.drippyloadingscreen;
 
 import java.io.File;
 
+import de.keksuccino.drippyloadingscreen.customization.items.v2.Items;
 import de.keksuccino.drippyloadingscreen.customization.items.visibilityrequirements.VisibilityRequirementHandler;
 import de.keksuccino.drippyloadingscreen.customization.rendering.SimpleTextRenderer;
 
@@ -26,8 +27,8 @@ import org.apache.logging.log4j.Logger;
 @Mod("drippyloadingscreen")
 public class DrippyLoadingScreen {
 
-	//TODO übernehmen (+ min Konkrete auf 1.3.3 anheben)
-	public static final String VERSION = "1.5.0";
+	//TODO übernehmen (+ auudio als dependency adden; + locals updaten)
+	public static final String VERSION = "1.6.0";
 	public static final String MOD_LOADER = "forge";
 	
 	public static final File HOME_DIR = new File("config/drippyloadingscreen");
@@ -62,6 +63,9 @@ public class DrippyLoadingScreen {
 			updateConfig();
 			
 			Logging.init();
+
+			//TODO übernehmen
+			Items.registerItems();
 			
 			SlideshowHandler.init();
 
@@ -86,7 +90,7 @@ public class DrippyLoadingScreen {
 			}
 
 		} else {
-			LOGGER.warn("## WARNING ## 'Drippy Loading Screen' is a client mod and has no effect when loaded on a server!");
+			LOGGER.warn("WARNING: 'Drippy Loading Screen' is a client mod and has no effect when loaded on a server!");
 		}
 		
 	}

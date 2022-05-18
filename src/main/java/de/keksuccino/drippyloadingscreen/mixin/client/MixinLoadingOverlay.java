@@ -2,6 +2,7 @@ package de.keksuccino.drippyloadingscreen.mixin.client;
 
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.vertex.PoseStack;
+import de.keksuccino.drippyloadingscreen.customization.items.v2.audio.ACIHandler;
 import de.keksuccino.drippyloadingscreen.customization.placeholdervalues.PlaceholderTextValueHelper;
 import de.keksuccino.drippyloadingscreen.DrippyLoadingScreen;
 import de.keksuccino.drippyloadingscreen.customization.rendering.splash.SplashCustomizationLayer;
@@ -41,6 +42,9 @@ public abstract class MixinLoadingOverlay extends GuiComponent {
 	protected void onRender(PoseStack matrices, int mouseX, int mouseY, float delta, CallbackInfo info) {
 
 		SplashCustomizationLayer handler = SplashCustomizationLayer.getInstance();
+
+		//TODO übernehmen
+		ACIHandler.onRenderOverlay(handler);
 
 		int screenWidth = this.mc.getWindow().getGuiScaledWidth();
 		int screenHeight = this.mc.getWindow().getGuiScaledHeight();

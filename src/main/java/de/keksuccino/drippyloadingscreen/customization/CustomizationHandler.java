@@ -28,6 +28,8 @@ public class CustomizationHandler {
 	
 	private static boolean isLightmode = false;
 	private static boolean lightModeCached = false;
+
+	public static List<Runnable> mainThreadTasks = new ArrayList<>();
 	
 	public static void init() {
 		if (!initDone) {
@@ -223,6 +225,10 @@ public class CustomizationHandler {
 			e.printStackTrace();
 		}
 		return false;
+	}
+
+	public static void runTaskInMainThread(Runnable task) {
+		mainThreadTasks.add(task);
 	}
 	
 }

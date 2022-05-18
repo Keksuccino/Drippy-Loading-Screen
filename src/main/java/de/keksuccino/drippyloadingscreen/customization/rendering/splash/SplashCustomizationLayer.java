@@ -81,8 +81,10 @@ public class SplashCustomizationLayer extends GuiComponent {
     /** GETTER ONLY **/
     public float currentProgress;
 
-    protected List<CustomizationItemBase> backgroundElements = new ArrayList<CustomizationItemBase>();
-    protected List<CustomizationItemBase> foregroundElements = new ArrayList<CustomizationItemBase>();
+    //TODO übernehmen
+    public List<CustomizationItemBase> backgroundElements = new ArrayList<CustomizationItemBase>();
+    //TODO übernehmen
+    public List<CustomizationItemBase> foregroundElements = new ArrayList<CustomizationItemBase>();
 
     protected Map<String, RandomLayoutContainer> randomLayoutGroups = new HashMap<String, RandomLayoutContainer>();
 
@@ -99,7 +101,6 @@ public class SplashCustomizationLayer extends GuiComponent {
         for (RandomLayoutContainer c : this.randomLayoutGroups.values()) {
             c.lastLayoutPath = null;
         }
-        //TODO übernehmen
         PlaceholderTextValueHelper.randomTextIntervals.clear();
         this.updateCustomizations();
     }
@@ -110,6 +111,17 @@ public class SplashCustomizationLayer extends GuiComponent {
     }
 
     public void renderLayer() {
+
+        List<Runnable> runs = new ArrayList<>();
+        runs.addAll(CustomizationHandler.mainThreadTasks);
+        for (Runnable r : runs) {
+            try {
+                r.run();
+                CustomizationHandler.mainThreadTasks.remove(r);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
 
         if ((this.customBackgroundHex != null) && !this.customBackgroundHex.equals(this.lastCustomBackgroundHex)) {
             this.customBackgroundColor = RenderUtils.getColorFromHexString(this.customBackgroundHex);
@@ -530,7 +542,7 @@ public class SplashCustomizationLayer extends GuiComponent {
 
                         /** ################## CUSTOM ITEMS ################## **/
 
-                        if (action.startsWith("add_")) {
+                        if (action.startsWith("add_")) { //DEPRECATED OLD API
                             String id = action.split("[_]", 2)[1];
                             CustomizationItemContainer c = CustomizationItemRegistry.getInstance().getElement(id);
                             if (c != null) {
@@ -542,6 +554,21 @@ public class SplashCustomizationLayer extends GuiComponent {
                                     foregroundElements.add(i);
                                 }
 
+                            }
+                        }
+
+                        //TODO übernehmen
+                        /** CUSTOM ITEMS (API) **/
+                        if (action.startsWith("custom_layout_element:")) {
+                            String cusId = action.split("[:]", 2)[1];
+                            de.keksuccino.drippyloadingscreen.api.item.v2.CustomizationItemContainer cusItem = de.keksuccino.drippyloadingscreen.api.item.v2.CustomizationItemRegistry.getItem(cusId);
+                            if (cusItem != null) {
+                                de.keksuccino.drippyloadingscreen.api.item.v2.CustomizationItem cusItemInstance = cusItem.constructCustomizedItemInstance(sec);
+                                if (renderInBackground) {
+                                    backgroundElements.add(cusItemInstance);
+                                } else {
+                                    foregroundElements.add(cusItemInstance);
+                                }
                             }
                         }
 
