@@ -301,7 +301,6 @@ public class PreloadedLayoutEditorScreen extends LayoutEditorScreen {
 					}
 				}
 
-				//TODO übernehmen
 				/** CUSTOM ITEMS (API) **/
 				if (action.startsWith("custom_layout_element:")) {
 					String cusId = action.split("[:]", 2)[1];

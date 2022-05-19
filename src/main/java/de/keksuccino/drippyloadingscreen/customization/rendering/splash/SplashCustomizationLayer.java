@@ -81,9 +81,7 @@ public class SplashCustomizationLayer extends GuiComponent {
     /** GETTER ONLY **/
     public float currentProgress;
 
-    //TODO übernehmen
     public List<CustomizationItemBase> backgroundElements = new ArrayList<CustomizationItemBase>();
-    //TODO übernehmen
     public List<CustomizationItemBase> foregroundElements = new ArrayList<CustomizationItemBase>();
 
     protected Map<String, RandomLayoutContainer> randomLayoutGroups = new HashMap<String, RandomLayoutContainer>();
@@ -557,7 +555,6 @@ public class SplashCustomizationLayer extends GuiComponent {
                             }
                         }
 
-                        //TODO übernehmen
                         /** CUSTOM ITEMS (API) **/
                         if (action.startsWith("custom_layout_element:")) {
                             String cusId = action.split("[:]", 2)[1];

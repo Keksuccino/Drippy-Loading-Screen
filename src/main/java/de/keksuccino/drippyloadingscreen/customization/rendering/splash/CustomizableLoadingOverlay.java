@@ -3,6 +3,7 @@ package de.keksuccino.drippyloadingscreen.customization.rendering.splash;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.vertex.PoseStack;
 import de.keksuccino.drippyloadingscreen.DrippyLoadingScreen;
+import de.keksuccino.drippyloadingscreen.customization.items.v2.audio.ACIHandler;
 import de.keksuccino.drippyloadingscreen.customization.placeholdervalues.PlaceholderTextValueHelper;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
@@ -43,6 +44,9 @@ public class CustomizableLoadingOverlay extends LoadingOverlay {
 
         Minecraft mc = Minecraft.getInstance();
         SplashCustomizationLayer handler = SplashCustomizationLayer.getInstance();
+
+        //TODO übernehmen
+        ACIHandler.onRenderOverlay(handler);
 
         int screenWidth = mc.getWindow().getGuiScaledWidth();
         int screenHeight = mc.getWindow().getGuiScaledHeight();

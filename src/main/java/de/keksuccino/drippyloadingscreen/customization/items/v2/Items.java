@@ -1,4 +1,3 @@
-//TODO übernehmen
 package de.keksuccino.drippyloadingscreen.customization.items.v2;
 
 import de.keksuccino.drippyloadingscreen.api.item.v2.CustomizationItemRegistry;

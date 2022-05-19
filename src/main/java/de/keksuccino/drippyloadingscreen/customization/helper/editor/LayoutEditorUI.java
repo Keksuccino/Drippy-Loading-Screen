@@ -884,7 +884,6 @@ public class LayoutEditorUI extends UIBase {
 				
 			}
 
-			//TODO übernehmen
 			/** CUSTOM ITEMS (API) **/
 			for (de.keksuccino.drippyloadingscreen.api.item.v2.CustomizationItemContainer c : de.keksuccino.drippyloadingscreen.api.item.v2.CustomizationItemRegistry.getItems()) {
 

@@ -43,7 +43,6 @@ public abstract class MixinLoadingOverlay extends GuiComponent {
 
 		SplashCustomizationLayer handler = SplashCustomizationLayer.getInstance();
 
-		//TODO übernehmen
 		ACIHandler.onRenderOverlay(handler);
 
 		int screenWidth = this.mc.getWindow().getGuiScaledWidth();

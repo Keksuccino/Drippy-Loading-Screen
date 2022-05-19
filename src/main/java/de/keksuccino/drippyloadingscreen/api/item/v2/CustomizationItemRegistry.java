@@ -1,4 +1,3 @@
-//TODO übernehmen
 package de.keksuccino.drippyloadingscreen.api.item.v2;
 
 import org.apache.logging.log4j.LogManager;

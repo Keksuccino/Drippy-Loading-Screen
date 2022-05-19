@@ -1,4 +1,3 @@
-//TODO übernehmen
 package de.keksuccino.drippyloadingscreen.utils;
 
 import net.minecraft.sounds.SoundSource;

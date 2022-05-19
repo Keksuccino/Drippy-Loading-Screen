@@ -1,4 +1,3 @@
-//TODO übernehmen
 package de.keksuccino.drippyloadingscreen.api.item.v2.example;
 
 import de.keksuccino.drippyloadingscreen.api.item.v2.LayoutEditorElement;

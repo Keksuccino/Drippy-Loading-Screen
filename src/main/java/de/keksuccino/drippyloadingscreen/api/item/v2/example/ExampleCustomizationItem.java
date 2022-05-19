@@ -1,4 +1,3 @@
-//TODO übernehmen
 package de.keksuccino.drippyloadingscreen.api.item.v2.example;
 
 import com.mojang.blaze3d.systems.RenderSystem;

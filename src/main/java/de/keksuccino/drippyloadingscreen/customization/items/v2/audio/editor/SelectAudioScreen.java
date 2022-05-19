@@ -1,4 +1,3 @@
-//TODO übernehmen
 package de.keksuccino.drippyloadingscreen.customization.items.v2.audio.editor;
 
 import com.mojang.blaze3d.systems.RenderSystem;
