@@ -6,7 +6,8 @@
   "client": [
     "MixinLoadingOverlay",
     "MixinMinecraftClient",
-    "IMixinLoadingOverlay"
+    "IMixinLoadingOverlay",
+    "MixinSoundEngine"
   ],
   "injectors": {
     "defaultRequire": 1

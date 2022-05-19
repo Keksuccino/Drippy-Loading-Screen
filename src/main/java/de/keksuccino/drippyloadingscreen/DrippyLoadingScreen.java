@@ -22,7 +22,7 @@ import java.io.File;
 
 public class DrippyLoadingScreen implements ModInitializer {
 	
-	public static final String VERSION = "1.6.0";
+	public static final String VERSION = "1.6.1";
 	public static final String MOD_LOADER = "fabric";
 
 	private static final Logger LOGGER = LogManager.getLogger("drippyloadingscreen/DrippyLoadingScreen");
@@ -125,6 +125,8 @@ public class DrippyLoadingScreen implements ModInitializer {
 			
 			config.registerValue("showcustomizationcontrols", true, "customization");
 			config.registerValue("enablekeybinds", true, "customization");
+
+			config.registerValue("custom_sound_engine_reloading", true, "loading_behaviour");
 			
 			config.registerValue("uiscale", 1.0F, "ui");
 			

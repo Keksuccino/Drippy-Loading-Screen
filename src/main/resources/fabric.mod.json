@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "drippyloadingscreen",
-  "version": "1.6.0",
+  "version": "1.6.1",
   "name": "Drippy Loading Screen",
   "description": "Drippy Loading Screen © Copyright 2021-2022 Keksuccino. Drippy Loading Screen is licensed under DSMSL (DON'T SNATCH MA STUFF LICENSE). See https://github.com/Keksuccino/Drippy-Loading-Screen/blob/main/LICENSE.md for more information about this license.",
   "environment": "client",
