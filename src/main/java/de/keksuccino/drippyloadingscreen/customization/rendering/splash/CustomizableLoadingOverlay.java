@@ -2,6 +2,7 @@ package de.keksuccino.drippyloadingscreen.customization.rendering.splash;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import de.keksuccino.drippyloadingscreen.DrippyLoadingScreen;
+import de.keksuccino.drippyloadingscreen.customization.items.v2.audio.ACIHandler;
 import de.keksuccino.drippyloadingscreen.customization.placeholdervalues.PlaceholderTextValueHelper;
 import net.minecraft.client.MainWindow;
 import net.minecraft.client.Minecraft;
@@ -43,6 +44,8 @@ public class CustomizableLoadingOverlay extends ResourceLoadProgressGui {
 
         Minecraft mc = Minecraft.getInstance();
         SplashCustomizationLayer handler = SplashCustomizationLayer.getInstance();
+
+        ACIHandler.onRenderOverlay(handler);
 
         int screenWidth = mc.getMainWindow().getScaledWidth();
         int screenHeight = mc.getMainWindow().getScaledHeight();

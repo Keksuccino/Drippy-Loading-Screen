@@ -32,7 +32,7 @@ import org.apache.logging.log4j.Logger;
 @Mod("drippyloadingscreen")
 public class DrippyLoadingScreen {
 
-	public static final String VERSION = "1.6.0";
+	public static final String VERSION = "1.6.1";
 	public static final String MOD_LOADER = "forge";
 	
 	public static final File HOME_DIR = new File("config/drippyloadingscreen");
@@ -141,6 +141,8 @@ public class DrippyLoadingScreen {
 			
 			config.registerValue("showcustomizationcontrols", true, "customization");
 			config.registerValue("enablekeybinds", true, "customization");
+
+			config.registerValue("custom_sound_engine_reloading", true, "loading_behaviour");
 			
 			config.registerValue("uiscale", 1.0F, "ui");
 			

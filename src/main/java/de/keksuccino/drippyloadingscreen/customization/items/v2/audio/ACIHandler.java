@@ -3,6 +3,7 @@ package de.keksuccino.drippyloadingscreen.customization.items.v2.audio;
 
 import de.keksuccino.auudio.audio.AudioClip;
 import de.keksuccino.auudio.audio.VanillaSoundUtils;
+import de.keksuccino.drippyloadingscreen.DrippyLoadingScreen;
 import de.keksuccino.drippyloadingscreen.audio.AudioHandler;
 import de.keksuccino.drippyloadingscreen.customization.helper.CustomizationHelperScreen;
 import de.keksuccino.drippyloadingscreen.customization.helper.editor.LayoutEditorScreen;
@@ -30,6 +31,9 @@ public class ACIHandler {
 
     private static final Logger LOGGER = LogManager.getLogger("drippyloadingscreen/ACIHandler");
 
+    public static volatile boolean allowSoundEngineReload = false;
+    public static volatile boolean earlySoungEngineReload = true;
+
     public static List<String> lastPlayingAudioSources = new ArrayList<>();
 
     public static Map<String, AudioCustomizationItem> currentNonLoopItems = new HashMap<>();
@@ -38,6 +42,8 @@ public class ACIHandler {
     protected static LoadingGui lastOverlay = null;
     protected static Screen lastScreen = null;
     protected static SoundHandler lastSoundManager = null;
+
+    protected static List<Runnable> mainThreadTaskQueue = new ArrayList<>();
 
     public static void init() {
         MinecraftForge.EVENT_BUS.register(new ACIHandler());
@@ -55,12 +61,16 @@ public class ACIHandler {
                     List<AudioClip> clips = getAuudioClips();
                     if (clips != null) {
                         AudioHandler.stopAll();
-                        engine.reload();
-                        for (AudioClip c : clips) {
-                            c.prepare();
+                        if (DrippyLoadingScreen.config.getOrDefault("custom_sound_engine_reloading", false)) {
+                            allowSoundEngineReload = true;
+                            engine.reload();
+                            allowSoundEngineReload = false;
+                            for (AudioClip c : clips) {
+                                c.prepare();
+                            }
+                            reloadItems();
+                            LOGGER.info("Sounds reloaded early, because MC sound manager already loaded!");
                         }
-                        reloadItems();
-                        LOGGER.info("Sounds reloaded early, because MC sound manager already loaded!");
                     }
                 }
             }
@@ -103,11 +113,22 @@ public class ACIHandler {
     @SubscribeEvent
     public void onTick(TickEvent.ClientTickEvent e) {
 
+        List<Runnable> tasks = new ArrayList<>();
+        tasks.addAll(mainThreadTaskQueue);
+        for (Runnable r : tasks) {
+            r.run();
+            mainThreadTaskQueue.remove(r);
+        }
+
         LoadingGui curOverlay = Minecraft.getInstance().getLoadingGui();
         if ((curOverlay == null) && (lastOverlay != null)) {
             lastPlayingAudioSources.clear();
             currentNonLoopItems.clear();
-            fadeOutSounds();
+            allowSoundEngineReload = true;
+            fadeOutSounds(true);
+        }
+        if ((curOverlay != null) && (lastOverlay == null)) {
+            allowSoundEngineReload = false;
         }
         lastOverlay = curOverlay;
 
@@ -115,7 +136,7 @@ public class ACIHandler {
         if ((lastScreen instanceof CustomizationHelperScreen) && !(curScreen instanceof CustomizationHelperScreen)) {
             lastPlayingAudioSources.clear();
             currentNonLoopItems.clear();
-            fadeOutSounds();
+            fadeOutSounds(false);
         }
         lastScreen = curScreen;
 
@@ -132,7 +153,7 @@ public class ACIHandler {
         return null;
     }
 
-    protected static void fadeOutSounds() {
+    protected static void fadeOutSounds(boolean reloadEngine) {
         new Thread(() -> {
             Map<AudioClip, Integer> volumes = new HashMap<>();
             for (AudioClip c : AudioHandler.getCachedAudios()) {
@@ -147,6 +168,17 @@ public class ACIHandler {
                 }
                 vol = vol - 2;
                 if (vol <= 0) {
+                    if (reloadEngine) {
+                        if (DrippyLoadingScreen.config.getOrDefault("custom_sound_engine_reloading", false)) {
+                            allowSoundEngineReload = true;
+                            SoundEngine engine = VanillaSoundUtils.getSoundEngine();
+                            if (engine != null) {
+                                mainThreadTaskQueue.add(() -> {
+                                    engine.reload();
+                                });
+                            }
+                        }
+                    }
                     break;
                 }
                 try {

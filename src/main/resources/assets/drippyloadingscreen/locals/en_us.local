@@ -573,3 +573,9 @@ drippyloadingscreen.audio.volume.desc = The volume of this audio.
 drippyloadingscreen.audio.item = Audio
 drippyloadingscreen.audio.item.desc = Add an audio handler to your layout.%n%%n%Can be used to play background sounds.%n%Can hold multiple sounds at once.%n%%n%§cThis element is only visible%n%§cin the editor!%n%§cIt will be invisible in the actual menu.
 
+drippyloadingscreen.config.categories.loading_behaviour = Loading Behaviour
+
+drippyloadingscreen.config.custom_sound_engine_reloading = Custom Sound Reloading
+drippyloadingscreen.config.custom_sound_engine_reloading.desc = If the reloading behaviour of%n%the sound engine should be%n%changed, so sounds can play in%n%the loading screen.
+
+
