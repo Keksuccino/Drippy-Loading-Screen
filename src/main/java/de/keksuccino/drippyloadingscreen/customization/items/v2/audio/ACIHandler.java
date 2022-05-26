@@ -54,31 +54,33 @@ public class ACIHandler {
 
     public static void onRenderOverlay(SplashCustomizationLayer handler) {
 
-        Overlay curOverlay = Minecraft.getInstance().getOverlay();
-        SoundManager curSoundManager = Minecraft.getInstance().getSoundManager();
-        SoundEngine engine = VanillaSoundUtils.getSoundEngine();
-        if (engine != null) {
-            if ((curSoundManager != null) && (lastSoundManager == null)) {
-                if (curOverlay != null) {
-                    List<AudioClip> clips = getAuudioClips();
-                    if (clips != null) {
-                        AudioHandler.stopAll();
-                        //TODO übernehmen
-                        if (DrippyLoadingScreen.config.getOrDefault("custom_sound_engine_reloading", false)) {
-                            allowSoundEngineReload = true;
-                            engine.reload();
-                            allowSoundEngineReload = false;
-                            for (AudioClip c : clips) {
-                                c.prepare();
+        if (DrippyLoadingScreen.config != null) {
+
+            Overlay curOverlay = Minecraft.getInstance().getOverlay();
+            SoundManager curSoundManager = Minecraft.getInstance().getSoundManager();
+            SoundEngine engine = VanillaSoundUtils.getSoundEngine();
+            if (engine != null) {
+                if ((curSoundManager != null) && (lastSoundManager == null)) {
+                    if (curOverlay != null) {
+                        List<AudioClip> clips = getAuudioClips();
+                        if (clips != null) {
+                            AudioHandler.stopAll();
+                            if (DrippyLoadingScreen.config.getOrDefault("custom_sound_engine_reloading", false)) {
+                                allowSoundEngineReload = true;
+                                engine.reload();
+                                allowSoundEngineReload = false;
+                                for (AudioClip c : clips) {
+                                    c.prepare();
+                                }
+                                reloadItems();
+                                LOGGER.info("Sounds reloaded early, because MC sound manager already loaded!");
                             }
-                            reloadItems();
-                            LOGGER.info("Sounds reloaded early, because MC sound manager already loaded!");
                         }
-                        //-----------------------
                     }
                 }
+                lastSoundManager = curSoundManager;
             }
-            lastSoundManager = curSoundManager;
+
         }
 
     }
