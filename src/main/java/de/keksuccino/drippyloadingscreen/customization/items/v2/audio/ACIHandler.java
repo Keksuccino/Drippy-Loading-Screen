@@ -171,7 +171,7 @@ public class ACIHandler {
                 }
                 vol = vol - 2;
                 if (vol <= 0) {
-                    if (reloadEngine) {
+                    if (reloadEngine && (DrippyLoadingScreen.config != null)) {
                         if (DrippyLoadingScreen.config.getOrDefault("custom_sound_engine_reloading", false)) {
                             allowSoundEngineReload = true;
                             SoundEngine engine = VanillaSoundUtils.getSoundEngine();
@@ -181,6 +181,9 @@ public class ACIHandler {
                                 });
                             }
                         }
+                    }
+                    if (DrippyLoadingScreen.config == null) {
+                        LOGGER.error("Error! Drippy config was null!");
                     }
                     break;
                 }
