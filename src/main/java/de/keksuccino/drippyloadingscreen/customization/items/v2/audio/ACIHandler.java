@@ -30,10 +30,8 @@ public class ACIHandler {
 
     private static final Logger LOGGER = LogManager.getLogger("drippyloadingscreen/ACIHandler");
 
-    //TODO übernehmen
     public static volatile boolean allowSoundEngineReload = false;
     public static volatile boolean earlySoungEngineReload = true;
-    //-------------------
 
     public static List<String> lastPlayingAudioSources = new ArrayList<>();
 
@@ -44,7 +42,6 @@ public class ACIHandler {
     protected static Screen lastScreen = null;
     protected static SoundManager lastSoundManager = null;
 
-    //TODO übernehmen
     protected static List<Runnable> mainThreadTaskQueue = new ArrayList<>();
 
     public static void init() {
@@ -119,28 +116,23 @@ public class ACIHandler {
     @SubscribeEvent
     public void onTick(TickEvent.ClientTickEvent e) {
 
-        //TODO übernehmen
         List<Runnable> tasks = new ArrayList<>();
         tasks.addAll(mainThreadTaskQueue);
         for (Runnable r : tasks) {
             r.run();
             mainThreadTaskQueue.remove(r);
         }
-        //-----------------
 
         Overlay curOverlay = Minecraft.getInstance().getOverlay();
         if ((curOverlay == null) && (lastOverlay != null)) {
             lastPlayingAudioSources.clear();
             currentNonLoopItems.clear();
-            //TODO übernehmen
             allowSoundEngineReload = true;
             fadeOutSounds(true);
         }
-        //TODO übernehmen
         if ((curOverlay != null) && (lastOverlay == null)) {
             allowSoundEngineReload = false;
         }
-        //---------------
         lastOverlay = curOverlay;
 
         Screen curScreen = Minecraft.getInstance().screen;
@@ -164,7 +156,6 @@ public class ACIHandler {
         return null;
     }
 
-    //TODO übernehmen (param)
     protected static void fadeOutSounds(boolean reloadEngine) {
         new Thread(() -> {
             Map<AudioClip, Integer> volumes = new HashMap<>();
@@ -180,8 +171,8 @@ public class ACIHandler {
                 }
                 vol = vol - 2;
                 if (vol <= 0) {
-                    //TODO übernehmen
-                    if (reloadEngine) {
+                    //TODO übernehmen 1.6.3
+                    if (reloadEngine && (DrippyLoadingScreen.config != null)) {
                         if (DrippyLoadingScreen.config.getOrDefault("custom_sound_engine_reloading", false)) {
                             allowSoundEngineReload = true;
                             SoundEngine engine = VanillaSoundUtils.getSoundEngine();
@@ -191,6 +182,9 @@ public class ACIHandler {
                                 });
                             }
                         }
+                    }
+                    if (DrippyLoadingScreen.config == null) {
+                        LOGGER.error("Error! Drippy config was null!");
                     }
                     //-------------
                     break;

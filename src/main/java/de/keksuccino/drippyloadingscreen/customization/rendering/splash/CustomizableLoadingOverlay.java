@@ -45,7 +45,6 @@ public class CustomizableLoadingOverlay extends LoadingOverlay {
         Minecraft mc = Minecraft.getInstance();
         SplashCustomizationLayer handler = SplashCustomizationLayer.getInstance();
 
-        //TODO übernehmen
         ACIHandler.onRenderOverlay(handler);
 
         int screenWidth = mc.getWindow().getGuiScaledWidth();
@@ -62,8 +61,6 @@ public class CustomizableLoadingOverlay extends LoadingOverlay {
             handler.updateCustomizations();
             isUpdated = true;
         }
-
-        //-------------------------------------
 
         if (this.fadeIn && this.fadeInStart == -1L) {
             this.fadeInStart = time;
