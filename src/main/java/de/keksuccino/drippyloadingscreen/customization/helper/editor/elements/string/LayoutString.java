@@ -1,0 +1,229 @@
+package de.keksuccino.drippyloadingscreen.customization.helper.editor.elements.string;
+
+import java.awt.Color;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.mojang.blaze3d.vertex.PoseStack;
+import de.keksuccino.konkrete.localization.Locals;
+import de.keksuccino.drippyloadingscreen.customization.helper.editor.LayoutEditorScreen;
+import de.keksuccino.drippyloadingscreen.customization.helper.editor.elements.LayoutElement;
+import de.keksuccino.drippyloadingscreen.customization.helper.ui.popup.DynamicValueInputPopup;
+import de.keksuccino.drippyloadingscreen.customization.helper.ui.popup.FHTextInputPopup;
+import de.keksuccino.drippyloadingscreen.customization.items.StringCustomizationItem;
+import de.keksuccino.konkrete.gui.content.AdvancedButton;
+import de.keksuccino.konkrete.gui.screens.popup.PopupHandler;
+import de.keksuccino.konkrete.input.CharacterFilter;
+import de.keksuccino.konkrete.input.StringUtils;
+import de.keksuccino.konkrete.math.MathUtils;
+import de.keksuccino.konkrete.properties.PropertiesSection;
+import de.keksuccino.konkrete.rendering.RenderUtils;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+
+public class LayoutString extends LayoutElement {
+
+	protected AdvancedButton alignmentLeftBtn;
+	protected AdvancedButton alignmentRightBtn;
+	protected AdvancedButton alignmentCenteredBtn;
+	
+	public LayoutString(StringCustomizationItem parent, LayoutEditorScreen handler) {
+		super(parent, true, handler);
+		this.setScale(this.getStringScale());
+	}
+	
+	@Override
+	public void init() {
+		super.init();
+		
+		AdvancedButton scaleB = new AdvancedButton(0, 0, 0, 16, Locals.localize("drippyloadingscreen.helper.creator.items.string.setscale"), true, (press) -> {
+			PopupHandler.displayPopup(new FHTextInputPopup(new Color(0, 0, 0, 0), "§l" + Locals.localize("drippyloadingscreen.helper.creator.items.string.setscale") + ":", CharacterFilter.getDoubleCharacterFiler(), 240, this::setScaleCallback));
+		});
+		this.rightclickMenu.addContent(scaleB);
+		
+		String sLabel = Locals.localize("drippyloadingscreen.helper.creator.items.string.setshadow");
+		if (this.getObject().shadow) {
+			sLabel = Locals.localize("drippyloadingscreen.helper.creator.items.string.setnoshadow");
+		}
+		AdvancedButton shadowB = new AdvancedButton(0, 0, 0, 16, sLabel, true, (press) -> {
+			if (this.getObject().shadow) {
+				((AdvancedButton)press).setMessage(Locals.localize("drippyloadingscreen.helper.creator.items.string.setshadow"));
+				this.handler.history.saveSnapshot(this.handler.history.createSnapshot());
+				
+				this.getObject().shadow = false;
+			} else {
+				((AdvancedButton)press).setMessage(Locals.localize("drippyloadingscreen.helper.creator.items.string.setnoshadow"));
+				this.handler.history.saveSnapshot(this.handler.history.createSnapshot());
+				
+				this.getObject().shadow = true;
+			}
+		});
+		this.rightclickMenu.addContent(shadowB);
+
+		/** TEXT COLOR **/
+		AdvancedButton textColorButton = new AdvancedButton(0, 0, 0, 0, Locals.localize("drippyloadingscreen.helper.editor.elements.text.color"), (press) -> {
+			FHTextInputPopup pop = new FHTextInputPopup(new Color(0, 0, 0, 0), Locals.localize("drippyloadingscreen.helper.editor.elements.text.color"), null, 240, (call) -> {
+				if (call != null) {
+					if (!call.equals(this.getObject().textColorHex)) {
+						this.handler.history.saveSnapshot(this.handler.history.createSnapshot());
+					}
+					this.getObject().textColorHex = call;
+					this.getObject().textColor = RenderUtils.getColorFromHexString(call);
+				}
+			});
+			if (this.getObject().textColorHex != null) {
+				pop.setText(this.getObject().textColorHex);
+			}
+			PopupHandler.displayPopup(pop);
+		});
+		textColorButton.setDescription(StringUtils.splitLines(Locals.localize("drippyloadingscreen.helper.editor.elements.text.color.btn.desc"), "%n%"));
+		this.rightclickMenu.addContent(textColorButton);
+		
+		AdvancedButton editTextB = new AdvancedButton(0, 0, 0, 16, Locals.localize("drippyloadingscreen.helper.creator.items.string.edit"), true, (press) -> {
+			DynamicValueInputPopup i = new DynamicValueInputPopup(new Color(0, 0, 0, 0), "§l" + Locals.localize("drippyloadingscreen.helper.creator.items.string.edit") + ":", null, 240, this::setTextCallback);
+			i.setText(StringUtils.convertFormatCodes(this.object.value, "§", "&"));
+			PopupHandler.displayPopup(i);
+		});
+		editTextB.setDescription(StringUtils.splitLines(Locals.localize("drippyloadingscreen.helper.editor.elements.text.onlybasicchars"), "%n%"));
+		this.rightclickMenu.addContent(editTextB);
+		
+		this.rightclickMenu.addSeparator();
+
+	}
+	
+	@Override
+	protected void renderBorder(PoseStack matrix, int mouseX, int mouseY) {
+		//horizontal line top
+		fill(matrix, this.getStringPosX(), this.getStringPosY(), this.getStringPosX() + this.object.width, this.getStringPosY() + 1, Color.BLUE.getRGB());
+		//horizontal line bottom
+		fill(matrix, this.getStringPosX(), this.getStringPosY() + this.object.height, this.getStringPosX() + this.object.width + 1, this.getStringPosY() + this.object.height + 1, Color.BLUE.getRGB());
+		//vertical line left
+		fill(matrix, this.getStringPosX(), this.getStringPosY(), this.getStringPosX() + 1, this.getStringPosY() + this.object.height, Color.BLUE.getRGB());
+		//vertical line right
+		fill(matrix, this.getStringPosX() + this.object.width, this.getStringPosY(), this.getStringPosX() + this.object.width + 1, this.getStringPosY() + this.object.height, Color.BLUE.getRGB());
+	
+		//Render pos and size values
+		Font font = Minecraft.getInstance().font;
+		RenderUtils.setScale(matrix, 0.5F);
+		font.draw(matrix, Locals.localize("drippyloadingscreen.helper.creator.items.border.orientation")+ ": " + this.object.orientation, this.getStringPosX()*2, (this.getStringPosY()*2) - 44, Color.WHITE.getRGB());
+		font.draw(matrix, Locals.localize("drippyloadingscreen.helper.creator.items.string.border.scale") + ": " + this.getStringScale(), this.getStringPosX()*2, (this.getStringPosY()*2) - 35, Color.WHITE.getRGB());
+		font.draw(matrix, Locals.localize("drippyloadingscreen.helper.creator.items.string.border.alignment") + ": " + this.getObject().alignment.key, this.getStringPosX()*2, (this.getStringPosY()*2) - 26, Color.WHITE.getRGB());
+		font.draw(matrix, Locals.localize("drippyloadingscreen.helper.creator.items.border.posx") + ": " + this.getStringPosX(), this.getStringPosX()*2, (this.getStringPosY()*2) - 17, Color.WHITE.getRGB());
+		font.draw(matrix, Locals.localize("drippyloadingscreen.helper.creator.items.border.width") + ": " + this.object.width, this.getStringPosX()*2, (this.getStringPosY()*2) - 8, Color.WHITE.getRGB());
+		font.draw(matrix, Locals.localize("drippyloadingscreen.helper.creator.items.border.posy") + ": " + this.getStringPosY(), ((this.getStringPosX() + this.object.width)*2)+3, ((this.getStringPosY() + this.object.height)*2) - 14, Color.WHITE.getRGB());
+		font.draw(matrix, Locals.localize("drippyloadingscreen.helper.creator.items.border.height") + ": " + this.object.height, ((this.getStringPosX() + this.object.width)*2)+3, ((this.getStringPosY() + this.object.height)*2) - 5, Color.WHITE.getRGB());
+		RenderUtils.postScale(matrix);
+	}
+	
+	private int getStringPosX() {
+//		return (int)(this.object.getPosX() * this.getStringScale());
+		return this.object.getPosX();
+	}
+	
+	private int getStringPosY() {
+//		return (int)(this.object.getPosY() * this.getStringScale());
+		return this.object.getPosY();
+	}
+	
+	private float getStringScale() {
+		return ((StringCustomizationItem)this.object).scale;
+	}
+	
+	public StringCustomizationItem getObject() {
+		return ((StringCustomizationItem)this.object);
+	}
+	
+	@Override
+	public boolean isGrabberPressed() {
+		return false;
+	}
+	
+	@Override
+	public int getActiveResizeGrabber() {
+		return -1;
+	}
+	
+	public void setScale(float scale) {
+		if (this.getObject().scale != scale) {
+			this.handler.history.saveSnapshot(this.handler.history.createSnapshot());
+		}
+		((StringCustomizationItem)this.object).scale = scale;
+	}
+	
+	public void setText(String text) {
+		if (!this.getObject().valueRaw.equals(text)) {
+			this.handler.history.saveSnapshot(this.handler.history.createSnapshot());
+		}
+		
+		this.getObject().valueRaw = text;
+		this.getObject().value = text;
+		this.setScale(this.getStringScale());
+	}
+	
+	private void setTextCallback(String text) {
+		if (text == null) {
+			return;
+		}
+		if (text.length() > 0) {
+			this.setText(StringUtils.convertFormatCodes(text, "&", "§"));
+		} else {
+			LayoutEditorScreen.displayNotification("§c§l" + Locals.localize("drippyloadingscreen.helper.creator.texttooshort.title"), "", Locals.localize("drippyloadingscreen.helper.creator.texttooshort.desc"), "", "", "", "");
+		}
+	}
+	
+	private void setScaleCallback(String scale) {
+		if (scale == null) {
+			return;
+		}
+		if (MathUtils.isFloat(scale)) {
+			this.setScale(Float.valueOf(scale));
+		} else {
+			LayoutEditorScreen.displayNotification("§c§l" + Locals.localize("drippyloadingscreen.helper.creator.items.string.scale.invalidvalue.title"), "", Locals.localize("drippyloadingscreen.helper.creator.items.string.scale.invalidvalue.desc"), "", "", "", "", "");
+		}
+	}
+	
+	@Override
+	protected void updateHovered(int mouseX, int mouseY) {
+		if ((mouseX >= this.getStringPosX()) && (mouseX <= this.getStringPosX() + this.object.width) && (mouseY >= this.getStringPosY()) && mouseY <= this.getStringPosY() + this.object.height) {
+			this.hovered = true;
+		} else {
+			this.hovered = false;
+		}
+	}
+	
+	@Override
+	public List<PropertiesSection> getProperties() {
+		List<PropertiesSection> l = new ArrayList<PropertiesSection>();
+		
+		PropertiesSection p1 = new PropertiesSection("customization");
+		p1.addEntry("action", "addtext");
+		p1.addEntry("actionid", this.object.getActionId());
+		if (this.object.delayAppearance) {
+			p1.addEntry("delayappearance", "true");
+			p1.addEntry("delayappearanceeverytime", "" + this.object.delayAppearanceEverytime);
+			p1.addEntry("delayappearanceseconds", "" + this.object.delayAppearanceSec);
+			if (this.object.fadeIn) {
+				p1.addEntry("fadein", "true");
+				p1.addEntry("fadeinspeed", "" + this.object.fadeInSpeed);
+			}
+		}
+		p1.addEntry("value", this.object.value);
+		p1.addEntry("x", "" + this.object.posX);
+		p1.addEntry("y", "" + this.object.posY);
+		p1.addEntry("orientation", this.object.orientation);
+		if (this.object.orientation.equals("loading-progress") && (this.object.orientationElementIdentifier != null)) {
+			p1.addEntry("orientation_element", this.object.orientationElementIdentifier);
+		}
+		p1.addEntry("scale", "" + this.getObject().scale);
+		p1.addEntry("shadow", "" + this.getObject().shadow);
+		p1.addEntry("alignment", "" + this.getObject().alignment.key);
+		p1.addEntry("textcolor", this.getObject().textColorHex);
+
+		this.addVisibilityPropertiesTo(p1);
+		
+		l.add(p1);
+		
+		return l;
+	}
+
+}
