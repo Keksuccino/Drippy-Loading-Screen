@@ -31,7 +31,7 @@ public class CustomizationHelperEvents {
 	}
 	
 	@SubscribeEvent
-	public void onInitScreenPost(ScreenEvent.InitScreenEvent.Post e) {
+	public void onInitScreenPost(ScreenEvent.Init.Post e) {
 		
 		if (e.getScreen() instanceof TitleScreen) {
 
@@ -53,7 +53,7 @@ public class CustomizationHelperEvents {
 	}
 
 	@SubscribeEvent
-	public void onDrawScreen(ScreenEvent.DrawScreenEvent.Post e) {
+	public void onDrawScreen(ScreenEvent.Render.Post e) {
 
 		if (e.getScreen() instanceof TitleScreen) {
 			if (DrippyLoadingScreen.config.getOrDefault("showcustomizationcontrols", true)) {

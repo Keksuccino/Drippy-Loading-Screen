@@ -1,7 +1,6 @@
 package de.keksuccino.drippyloadingscreen.customization.items.visibilityrequirements;
 
 import net.minecraft.client.Minecraft;
-import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
@@ -66,11 +65,11 @@ public class VisibilityRequirementHandler {
 
     }
 
-    @SubscribeEvent
-    public void onRenderGameOverlayPre(RenderGameOverlayEvent.Pre e) {
-        if (e.getType() == RenderGameOverlayEvent.ElementType.ALL) {
-            tick();
-        }
-    }
+//    @SubscribeEvent
+//    public void onRenderGameOverlayPre(RenderGameOverlayEvent.Pre e) {
+//        if (e.getType() == RenderGameOverlayEvent.ElementType.ALL) {
+//            tick();
+//        }
+//    }
 
 }

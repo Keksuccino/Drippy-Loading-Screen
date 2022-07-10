@@ -206,7 +206,7 @@ public class SplashTextCustomizationItem extends CustomizationItemBase {
 	}
 	
 	@SubscribeEvent
-	public static void onInitScreenPre(ScreenEvent.InitScreenEvent.Pre e) {
+	public static void onInitScreenPre(ScreenEvent.Init.Pre e) {
 		Screen s = Minecraft.getInstance().screen;
 		if (s != null) {
 			if ((lastScreen == null) || !lastScreen.getClass().getName().equals(s.getClass().getName())) {

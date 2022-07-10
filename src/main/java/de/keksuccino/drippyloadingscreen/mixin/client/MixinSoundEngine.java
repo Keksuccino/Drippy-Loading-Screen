@@ -22,7 +22,6 @@ public abstract class MixinSoundEngine {
 
     @Inject(at = @At("HEAD"), method = "reload", cancellable = true)
     private void onReload(CallbackInfo info) {
-        //TODO übernehmen 1.6.3
         if (DrippyLoadingScreen.config != null) {
             if (DrippyLoadingScreen.config.getOrDefault("custom_sound_engine_reloading", false)) {
                 if (!ACIHandler.allowSoundEngineReload) {

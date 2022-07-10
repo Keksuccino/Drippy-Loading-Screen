@@ -137,7 +137,10 @@ public abstract class MixinLoadingOverlay extends GuiComponent {
 			int screenWidth = w.getGuiScaledWidth();
 			int screenHeight = w.getGuiScaledHeight();
 
-			mc.screen.init(mc, screenWidth, screenHeight);
+			//TODO übernehmen
+			if (mc.screen != null) {
+				mc.screen.init(mc, screenWidth, screenHeight);
+			}
 
 			handler.scaled = false;
 

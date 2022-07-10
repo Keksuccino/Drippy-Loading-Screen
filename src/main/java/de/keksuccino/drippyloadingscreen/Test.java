@@ -14,7 +14,7 @@ public class Test extends GuiComponent {
     });
 
     @SubscribeEvent
-    public void onDrawScreenPost(ScreenEvent.DrawScreenEvent.Post e) {
+    public void onDrawScreenPost(ScreenEvent.Render.Post e) {
         b.render(e.getPoseStack(), e.getMouseX(), e.getMouseY(), e.getPartialTick());
     }
 

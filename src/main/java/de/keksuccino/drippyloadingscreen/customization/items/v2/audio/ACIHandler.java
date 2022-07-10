@@ -171,7 +171,6 @@ public class ACIHandler {
                 }
                 vol = vol - 2;
                 if (vol <= 0) {
-                    //TODO übernehmen 1.6.3
                     if (reloadEngine && (DrippyLoadingScreen.config != null)) {
                         if (DrippyLoadingScreen.config.getOrDefault("custom_sound_engine_reloading", false)) {
                             allowSoundEngineReload = true;
@@ -186,7 +185,6 @@ public class ACIHandler {
                     if (DrippyLoadingScreen.config == null) {
                         LOGGER.error("Error! Drippy config was null!");
                     }
-                    //-------------
                     break;
                 }
                 try {
