@@ -644,6 +644,9 @@ public class SplashCustomizationLayer extends AbstractGui {
     }
 
     public static boolean isCustomizationHelperScreen() {
+        if (Minecraft.getInstance().currentScreen == null) {
+            return false;
+        }
         return (Minecraft.getInstance().currentScreen instanceof CustomizationHelperScreen);
     }
 

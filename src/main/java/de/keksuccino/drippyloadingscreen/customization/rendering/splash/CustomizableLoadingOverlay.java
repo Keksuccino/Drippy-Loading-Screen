@@ -135,7 +135,9 @@ public class CustomizableLoadingOverlay extends ResourceLoadProgressGui {
             int screenWidth = w.getScaledWidth();
             int screenHeight = w.getScaledHeight();
 
-            mc.currentScreen.init(mc, screenWidth, screenHeight);
+            if (mc.currentScreen != null) {
+                mc.currentScreen.init(mc, screenWidth, screenHeight);
+            }
 
             handler.scaled = false;
 
