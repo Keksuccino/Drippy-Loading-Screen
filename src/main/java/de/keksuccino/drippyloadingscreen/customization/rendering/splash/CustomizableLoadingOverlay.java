@@ -135,7 +135,9 @@ public class CustomizableLoadingOverlay extends LoadingOverlay {
             int screenWidth = w.getGuiScaledWidth();
             int screenHeight = w.getGuiScaledHeight();
 
-            mc.screen.init(mc, screenWidth, screenHeight);
+            if (mc.screen != null) {
+                mc.screen.init(mc, screenWidth, screenHeight);
+            }
 
             handler.scaled = false;
 

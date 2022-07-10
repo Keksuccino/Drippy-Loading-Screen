@@ -628,6 +628,9 @@ public class SplashCustomizationLayer extends GuiComponent {
     }
 
     public static boolean isCustomizationHelperScreen() {
+        if (Minecraft.getInstance().screen == null) {
+            return false;
+        }
         return (Minecraft.getInstance().screen instanceof CustomizationHelperScreen);
     }
 
