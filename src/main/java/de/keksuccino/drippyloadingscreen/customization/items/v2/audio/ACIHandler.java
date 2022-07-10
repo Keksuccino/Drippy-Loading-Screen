@@ -48,7 +48,6 @@ public class ACIHandler {
         Konkrete.getEventHandler().registerEventsFrom(new ACIHandler());
     }
 
-
     public static void onRenderOverlay(SplashCustomizationLayer handler) {
 
         if (DrippyLoadingScreen.config != null) {
