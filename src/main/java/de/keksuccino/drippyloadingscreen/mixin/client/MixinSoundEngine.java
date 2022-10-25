@@ -22,26 +22,28 @@ public abstract class MixinSoundEngine {
 
     @Inject(at = @At("HEAD"), method = "reload", cancellable = true)
     private void onReload(CallbackInfo info) {
-        if (DrippyLoadingScreen.config != null) {
-            if (DrippyLoadingScreen.config.getOrDefault("custom_sound_engine_reloading", false)) {
-                if (!ACIHandler.allowSoundEngineReload) {
-                    MIXIN_LOGGER.info("Sound engine reload blocked to play sounds in loading screen!");
-                    info.cancel();
+        if (DrippyLoadingScreen.isAuudioLoaded()) {
+            if (DrippyLoadingScreen.config != null) {
+                if (DrippyLoadingScreen.config.getOrDefault("custom_sound_engine_reloading", false)) {
+                    if (!ACIHandler.allowSoundEngineReload) {
+                        MIXIN_LOGGER.info("Sound engine reload blocked to play sounds in loading screen!");
+                        info.cancel();
+                    } else {
+                        MIXIN_LOGGER.info("Reloading sound engine..");
+                    }
+                    if (ACIHandler.earlySoungEngineReload) {
+                        MIXIN_LOGGER.info("Early sound engine reload! Skipping MC sound registration and Forge event hooks!");
+                        info.cancel();
+                        this.destroy();
+                        this.loadLibrary();
+                        ACIHandler.earlySoungEngineReload = false;
+                    }
                 } else {
-                    MIXIN_LOGGER.info("Reloading sound engine..");
-                }
-                if (ACIHandler.earlySoungEngineReload) {
-                    MIXIN_LOGGER.info("Early sound engine reload! Skipping MC sound registration and Forge event hooks!");
-                    info.cancel();
-                    this.destroy();
-                    this.loadLibrary();
                     ACIHandler.earlySoungEngineReload = false;
                 }
             } else {
-                ACIHandler.earlySoungEngineReload = false;
+                MIXIN_LOGGER.error("Error! Drippy config was null!");
             }
-        } else {
-            MIXIN_LOGGER.error("Error! Drippy config was null!");
         }
     }
 

@@ -578,4 +578,8 @@ drippyloadingscreen.config.categories.loading_behaviour = Loading Behaviour
 drippyloadingscreen.config.custom_sound_engine_reloading = Custom Sound Reloading
 drippyloadingscreen.config.custom_sound_engine_reloading.desc = If the reloading behaviour of%n%the sound engine should be%n%changed, so sounds can play in%n%the loading screen.
 
+drippyloadingscreen.editor.extension.dummy.audio.btn.desc = §6You need to install %n%§6§lAuudio §r§6to use this%n%§6element.%n%%n%§cClick on the button to%n%§copen the download page.
+
+
+
 
