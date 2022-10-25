@@ -2,13 +2,16 @@ package de.keksuccino.drippyloadingscreen.customization.helper.editor;
 
 import java.awt.Color;
 import java.io.File;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.function.Consumer;
 
 import com.google.common.io.Files;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import de.keksuccino.drippyloadingscreen.DrippyLoadingScreen;
 import de.keksuccino.drippyloadingscreen.api.item.CustomizationItemContainer;
 import de.keksuccino.drippyloadingscreen.api.item.CustomizationItemRegistry;
 import de.keksuccino.drippyloadingscreen.customization.CustomizationHandler;
@@ -29,6 +32,7 @@ import de.keksuccino.drippyloadingscreen.customization.helper.ui.popup.FHYesNoPo
 import de.keksuccino.drippyloadingscreen.customization.items.ShapeCustomizationItem.Shape;
 import de.keksuccino.drippyloadingscreen.customization.items.custombars.CustomProgressBarCustomizationItem;
 import de.keksuccino.drippyloadingscreen.customization.rendering.slideshow.SlideshowHandler;
+import de.keksuccino.drippyloadingscreen.utils.WebUtils;
 import de.keksuccino.konkrete.gui.content.AdvancedButton;
 import de.keksuccino.konkrete.gui.content.AdvancedImageButton;
 import de.keksuccino.konkrete.gui.screens.popup.PopupHandler;
@@ -854,7 +858,8 @@ public class LayoutEditorUI extends UIBase {
 			});
 			this.addContent(shapesButton);
 
-			this.addSeparator();
+			//TODO übernehmen
+//			this.addSeparator();
 
 			/** CUSTOM PROGRESS BAR **/
 			AdvancedButton progressBarButton = new AdvancedButton(0, 0, 0, 20, Locals.localize("drippyloadingscreen.helper.creator.add.customprogressbar"), (press) -> {
@@ -871,8 +876,23 @@ public class LayoutEditorUI extends UIBase {
 				this.parent.addContent(new LayoutCustomProgressBar(i, this.parent));
 			});
 			this.addContent(progressBarButton);
-			
-			this.addSeparator();
+
+			//TODO übernehmen
+//			this.addSeparator();
+
+			//TODO übernehmen
+			/** DUMMY ELEMENT: INSTALL AUUDIO TO USE AUDIO ELEMENT **/
+			if (!DrippyLoadingScreen.isAuudioLoaded()) {
+				AdvancedButton dummyAudioElementButton = new AdvancedButton(0, 0, 0, 20, Locals.localize("drippyloadingscreen.audio.item"), (press) -> {
+					String link = "https://www.curseforge.com/minecraft/mc-mods/drippy-loading-screen";
+					if (DrippyLoadingScreen.MOD_LOADER.equals("fabric")) {
+						link += "-fabric";
+					}
+					WebUtils.openWebLink(link);
+				});
+				dummyAudioElementButton.setDescription(StringUtils.splitLines(Locals.localize("drippyloadingscreen.editor.extension.dummy.audio.btn.desc"), "%n%"));
+				this.addContent(dummyAudioElementButton);
+			}
 			
 			/** CUSTOM ITEMS **/ //DEPRECATED OLD API !!!!!!!!!!!!!!
 			for (CustomizationItemContainer c : CustomizationItemRegistry.getInstance().getElements().values()) {

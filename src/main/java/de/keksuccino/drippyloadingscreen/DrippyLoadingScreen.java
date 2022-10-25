@@ -27,8 +27,8 @@ import org.apache.logging.log4j.Logger;
 @Mod("drippyloadingscreen")
 public class DrippyLoadingScreen {
 
-	//TODO übernehmen
-	public static final String VERSION = "1.6.4";
+	//TODO übernehmen (+ locals)
+	public static final String VERSION = "1.6.5";
 	public static final String MOD_LOADER = "forge";
 	
 	public static final File HOME_DIR = new File("config/drippyloadingscreen");
@@ -178,6 +178,15 @@ public class DrippyLoadingScreen {
 	 */
 	public static CustomizationItemRegistry getCustomizationItemRegistry() {
 		return CustomizationItemRegistry.getInstance();
+	}
+
+	//TODO übernehmen
+	public static boolean isAuudioLoaded() {
+		try {
+			Class.forName("de.keksuccino.auudio.Auudio");
+			return true;
+		} catch (Exception e) {}
+		return false;
 	}
 	
 }

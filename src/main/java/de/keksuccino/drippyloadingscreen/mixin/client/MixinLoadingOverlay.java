@@ -43,7 +43,10 @@ public abstract class MixinLoadingOverlay extends GuiComponent {
 
 		SplashCustomizationLayer handler = SplashCustomizationLayer.getInstance();
 
-		ACIHandler.onRenderOverlay(handler);
+		//TODO übernehmen (if)
+		if (DrippyLoadingScreen.isAuudioLoaded()) {
+			ACIHandler.onRenderOverlay(handler);
+		}
 
 		int screenWidth = this.mc.getWindow().getGuiScaledWidth();
 		int screenHeight = this.mc.getWindow().getGuiScaledHeight();
@@ -137,7 +140,6 @@ public abstract class MixinLoadingOverlay extends GuiComponent {
 			int screenWidth = w.getGuiScaledWidth();
 			int screenHeight = w.getGuiScaledHeight();
 
-			//TODO übernehmen
 			if (mc.screen != null) {
 				mc.screen.init(mc, screenWidth, screenHeight);
 			}

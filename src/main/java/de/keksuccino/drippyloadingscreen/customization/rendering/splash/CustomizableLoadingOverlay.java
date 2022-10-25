@@ -45,7 +45,10 @@ public class CustomizableLoadingOverlay extends LoadingOverlay {
         Minecraft mc = Minecraft.getInstance();
         SplashCustomizationLayer handler = SplashCustomizationLayer.getInstance();
 
-        ACIHandler.onRenderOverlay(handler);
+        //TODO übernehmen (if)
+        if (DrippyLoadingScreen.isAuudioLoaded()) {
+            ACIHandler.onRenderOverlay(handler);
+        }
 
         int screenWidth = mc.getWindow().getGuiScaledWidth();
         int screenHeight = mc.getWindow().getGuiScaledHeight();
@@ -135,7 +138,6 @@ public class CustomizableLoadingOverlay extends LoadingOverlay {
             int screenWidth = w.getGuiScaledWidth();
             int screenHeight = w.getGuiScaledHeight();
 
-            //TODO übernehmen
             if (mc.screen != null) {
                 mc.screen.init(mc, screenWidth, screenHeight);
             }

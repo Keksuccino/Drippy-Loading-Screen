@@ -627,7 +627,6 @@ public class SplashCustomizationLayer extends GuiComponent {
         return color & 16777215 | alpha << 24;
     }
 
-    //TODO übernehmen
     public static boolean isCustomizationHelperScreen() {
         if (Minecraft.getInstance().screen == null) {
             return false;
