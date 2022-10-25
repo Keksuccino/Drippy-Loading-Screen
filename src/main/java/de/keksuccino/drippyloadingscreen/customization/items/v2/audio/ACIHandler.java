@@ -54,8 +54,8 @@ public class ACIHandler {
 
         if (DrippyLoadingScreen.config != null) {
 
-            LoadingGui curOverlay = Minecraft.getInstance().getLoadingGui();
-            SoundHandler curSoundManager = Minecraft.getInstance().getSoundHandler();
+            LoadingGui curOverlay = Minecraft.getInstance().getOverlay();
+            SoundHandler curSoundManager = Minecraft.getInstance().getSoundManager();
             SoundEngine engine = VanillaSoundUtils.getSoundEngine();
             if (engine != null) {
                 if ((curSoundManager != null) && (lastSoundManager == null)) {
@@ -124,7 +124,7 @@ public class ACIHandler {
             mainThreadTaskQueue.remove(r);
         }
 
-        LoadingGui curOverlay = Minecraft.getInstance().getLoadingGui();
+        LoadingGui curOverlay = Minecraft.getInstance().getOverlay();
         if ((curOverlay == null) && (lastOverlay != null)) {
             lastPlayingAudioSources.clear();
             currentNonLoopItems.clear();
@@ -136,7 +136,7 @@ public class ACIHandler {
         }
         lastOverlay = curOverlay;
 
-        Screen curScreen = Minecraft.getInstance().currentScreen;
+        Screen curScreen = Minecraft.getInstance().screen;
         if ((lastScreen instanceof CustomizationHelperScreen) && !(curScreen instanceof CustomizationHelperScreen)) {
             lastPlayingAudioSources.clear();
             currentNonLoopItems.clear();
@@ -202,10 +202,10 @@ public class ACIHandler {
     }
 
     public static boolean canPlaySounds() {
-        if ((Minecraft.getInstance().getLoadingGui() == null) && !(Minecraft.getInstance().currentScreen instanceof CustomizationHelperScreen)) {
+        if ((Minecraft.getInstance().getOverlay() == null) && !(Minecraft.getInstance().screen instanceof CustomizationHelperScreen)) {
             return false;
         }
-        if (Minecraft.getInstance().currentScreen instanceof LayoutEditorScreen) {
+        if (Minecraft.getInstance().screen instanceof LayoutEditorScreen) {
             return false;
         }
         return true;

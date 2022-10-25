@@ -69,7 +69,7 @@ public class VisibilityRequirementHandler {
             PlayerInventory inv = p.inventory;
             if (inv != null) {
                 int slot = 0;
-                for (ItemStack i : inv.mainInventory) {
+                for (ItemStack i : inv.items) {
                     if ((i != ItemStack.EMPTY) && !(i.getItem() instanceof AirItem)) {
                         inventoryItemNames.put(slot, getItemName(i));
                     } else {
@@ -77,7 +77,7 @@ public class VisibilityRequirementHandler {
                     }
                     slot++;
                 }
-                for (ItemStack i : inv.armorInventory) {
+                for (ItemStack i : inv.armor) {
                     if ((i != ItemStack.EMPTY) && !(i.getItem() instanceof AirItem)) {
                         inventoryItemNames.put(slot, getItemName(i));
                     } else {
@@ -85,7 +85,7 @@ public class VisibilityRequirementHandler {
                     }
                     slot++;
                 }
-                for (ItemStack i : inv.offHandInventory) {
+                for (ItemStack i : inv.offhand) {
                     if ((i != ItemStack.EMPTY) && !(i.getItem() instanceof AirItem)) {
                         inventoryItemNames.put(slot, getItemName(i));
                     } else {
@@ -99,14 +99,14 @@ public class VisibilityRequirementHandler {
         //VR: Active Slot
         if (p != null) {
             if (p.inventory != null) {
-                activeSlot = p.inventory.currentItem;
+                activeSlot = p.inventory.selected;
             }
         }
 
         //VR: Is Item In Main Hand
         if (p != null) {
             if (p.inventory != null) {
-                ItemStack i = p.getHeldItemMainhand();
+                ItemStack i = p.getMainHandItem();
                 isItemInMainHand = (i != ItemStack.EMPTY) && !(i.getItem() instanceof AirItem);
             }
         }
@@ -114,18 +114,18 @@ public class VisibilityRequirementHandler {
         //VR: Is Item In Off Hand
         if (p != null) {
             if (p.inventory != null) {
-                ItemStack i = p.getHeldItemOffhand();
+                ItemStack i = p.getOffhandItem();
                 isItemInOffHand = (i != ItemStack.EMPTY) && !(i.getItem() instanceof AirItem);
             }
         }
 
         //VR: Active Item Name
         if (p != null) {
-            activeItemName = inventoryItemNames.get(p.inventory.currentItem);
+            activeItemName = inventoryItemNames.get(p.inventory.selected);
         }
 
         //VR: Is Singleplayer & Is Multiplayer
-        isSingleplayer = Minecraft.getInstance().isSingleplayer();
+        isSingleplayer = Minecraft.getInstance().hasSingleplayerServer();
 
         //VR: Player On Ground
         if (p != null) {
@@ -134,17 +134,17 @@ public class VisibilityRequirementHandler {
 
         //VR: Player Underwater
         if (p != null) {
-            isPlayerUnderwater = p.areEyesInFluid(FluidTags.WATER);
+            isPlayerUnderwater = p.isEyeInFluid(FluidTags.WATER);
         }
 
         //VR: Player Is Riding Horse
         if (p != null) {
-            isPlayerRidingHorse = p.isRidingHorse();
+            isPlayerRidingHorse = p.isRidingJumpable();
         }
 
         //VR: Player Is Riding Entity
         if (p != null) {
-            isPlayerRidingEntity = ((p.getRidingEntity() != null) && (p.getRidingEntity() instanceof LivingEntity));
+            isPlayerRidingEntity = ((p.getVehicle() != null) && (p.getVehicle() instanceof LivingEntity));
         }
 
         //VR: Player Is In Water
@@ -158,16 +158,16 @@ public class VisibilityRequirementHandler {
         }
 
         //VR: Is Debug Open
-        isDebugOpen = Minecraft.getInstance().gameSettings.showDebugInfo;
+        isDebugOpen = Minecraft.getInstance().options.renderDebug;
 
         //VR: Is Game Paused
-        isGamePaused = Minecraft.getInstance().isGamePaused();
+        isGamePaused = Minecraft.getInstance().isPaused();
 
-        if (Minecraft.getInstance().world != null) {
+        if (Minecraft.getInstance().level != null) {
 
-            isRaining = Minecraft.getInstance().world.isRaining();
+            isRaining = Minecraft.getInstance().level.isRaining();
 
-            isThundering = Minecraft.getInstance().world.isThundering();
+            isThundering = Minecraft.getInstance().level.isThundering();
 
         }
 
@@ -177,23 +177,23 @@ public class VisibilityRequirementHandler {
 
             playerHealthPercent = (p.getHealth() / p.getMaxHealth()) * 100.0F;
 
-            playerFood = p.getFoodStats().getFoodLevel();
+            playerFood = p.getFoodData().getFoodLevel();
 
-            playerFoodPercent = ((float)p.getFoodStats().getFoodLevel() / 20.0F) * 100.0F;
+            playerFoodPercent = ((float)p.getFoodData().getFoodLevel() / 20.0F) * 100.0F;
 
-            isPlayerWithered = p.isPotionActive(Effects.WITHER);
+            isPlayerWithered = p.hasEffect(Effects.WITHER);
 
-            isSurvival = (Minecraft.getInstance().playerController.getCurrentGameType() == GameType.SURVIVAL);
+            isSurvival = (Minecraft.getInstance().gameMode.getPlayerMode() == GameType.SURVIVAL);
 
-            isCreative = (Minecraft.getInstance().playerController.getCurrentGameType() == GameType.CREATIVE);
+            isCreative = (Minecraft.getInstance().gameMode.getPlayerMode() == GameType.CREATIVE);
 
-            isAdventure = (Minecraft.getInstance().playerController.getCurrentGameType() == GameType.ADVENTURE);
+            isAdventure = (Minecraft.getInstance().gameMode.getPlayerMode() == GameType.ADVENTURE);
 
-            isSpectator = (Minecraft.getInstance().playerController.getCurrentGameType() == GameType.SPECTATOR);
+            isSpectator = (Minecraft.getInstance().gameMode.getPlayerMode() == GameType.SPECTATOR);
 
-            isPlayerPoisoned = p.isPotionActive(Effects.POISON);
+            isPlayerPoisoned = p.hasEffect(Effects.POISON);
 
-            hasPlayerBadStomach = p.isPotionActive(Effects.HUNGER);
+            hasPlayerBadStomach = p.hasEffect(Effects.HUNGER);
 
         }
 
@@ -225,7 +225,7 @@ public class VisibilityRequirementHandler {
     }
 
     private static long getDayTime() {
-        ClientWorld w = Minecraft.getInstance().world;
+        ClientWorld w = Minecraft.getInstance().level;
         if (w != null) {
             return w.getDayTime();
         }

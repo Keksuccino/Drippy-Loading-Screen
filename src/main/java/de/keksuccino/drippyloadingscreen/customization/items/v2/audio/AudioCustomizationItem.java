@@ -182,7 +182,7 @@ public class AudioCustomizationItem extends CustomizationItem {
             if (isEditorActive()) {
 
                 RenderSystem.enableBlend();
-                Minecraft.getInstance().textureManager.bindTexture(AUDIO_ELEMENT_TEXTURE);
+                Minecraft.getInstance().textureManager.bind(AUDIO_ELEMENT_TEXTURE);
                 RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
                 blit(poseStack, this.getPosX(), this.getPosY(), 1.0F, 1.0F, this.width, this.height, this.width, this.height);
 
@@ -219,8 +219,8 @@ public class AudioCustomizationItem extends CustomizationItem {
                 }
 
                 //Update volumes of audios in case MC volume should get changed while audios are playing
-                float masterVol = Minecraft.getInstance().gameSettings.getSoundLevel(SoundCategory.MASTER);
-                float itemChannelVol = Minecraft.getInstance().gameSettings.getSoundLevel(this.channel);
+                float masterVol = Minecraft.getInstance().options.getSoundSourceVolume(SoundCategory.MASTER);
+                float itemChannelVol = Minecraft.getInstance().options.getSoundSourceVolume(this.channel);
                 if ((this.cachedMasterChannelVolume != masterVol) || (this.cachedItemChannelVolume != itemChannelVol)) {
                     for (MenuAudio a : this.audios) {
                         a.setVolume(a.volume);
@@ -433,7 +433,7 @@ public class AudioCustomizationItem extends CustomizationItem {
             float newVolFloat = this.volume;
 
             if (this.parent.channel != SoundCategory.MASTER) {
-                float mcVol = Minecraft.getInstance().gameSettings.getSoundLevel(this.parent.channel) * 100.0F;
+                float mcVol = Minecraft.getInstance().options.getSoundSourceVolume(this.parent.channel) * 100.0F;
                 float clipVolOnePercent = ((float)this.volume) / 100.0F;
                 newVolFloat = clipVolOnePercent * mcVol;
             }

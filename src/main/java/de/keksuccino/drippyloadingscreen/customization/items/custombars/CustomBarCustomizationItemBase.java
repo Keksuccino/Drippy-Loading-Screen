@@ -132,7 +132,7 @@ public abstract class CustomBarCustomizationItemBase extends CustomizationItemBa
 	}
 	
 	protected boolean isEditor() {
-		return (Minecraft.getInstance().currentScreen instanceof LayoutEditorScreen);
+		return (Minecraft.getInstance().screen instanceof LayoutEditorScreen);
 	}
 	
 	public static enum BarDirection {

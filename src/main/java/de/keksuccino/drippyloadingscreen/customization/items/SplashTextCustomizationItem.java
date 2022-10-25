@@ -171,7 +171,7 @@ public class SplashTextCustomizationItem extends CustomizationItemBase {
 			
 			float f = basescale;
 			if (this.bounce) {
-				f = f - MathHelper.abs(MathHelper.sin((float) (Util.milliTime() % 1000L) / 1000.0F * ((float) Math.PI * 2F)) * 0.1F);
+				f = f - MathHelper.abs(MathHelper.sin((float) (Util.getMillis() % 1000L) / 1000.0F * ((float) Math.PI * 2F)) * 0.1F);
 			}
 			f = f * 100.0F / (float) (SimpleTextRenderer.getStringWidth(splash) + 32);
 			
@@ -209,7 +209,7 @@ public class SplashTextCustomizationItem extends CustomizationItemBase {
 	
 	@SubscribeEvent
 	public static void onInitScreenPre(GuiScreenEvent.InitGuiEvent.Pre e) {
-		Screen s = Minecraft.getInstance().currentScreen;
+		Screen s = Minecraft.getInstance().screen;
 		if (s != null) {
 			if ((lastScreen == null) || !lastScreen.getClass().getName().equals(s.getClass().getName())) {
 				isNewMenu = true;

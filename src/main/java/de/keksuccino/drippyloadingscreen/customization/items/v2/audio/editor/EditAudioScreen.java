@@ -27,6 +27,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
+import de.keksuccino.drippyloadingscreen.customization.helper.ui.screens.ScrollableScreen.ButtonEntry;
+import de.keksuccino.drippyloadingscreen.customization.helper.ui.screens.ScrollableScreen.EmptySpaceEntry;
+import de.keksuccino.drippyloadingscreen.customization.helper.ui.screens.ScrollableScreen.TextEntry;
+import de.keksuccino.drippyloadingscreen.customization.helper.ui.screens.ScrollableScreen.TextFieldEntry;
+
 public class EditAudioScreen extends ScrollableScreen {
 
     protected AudioCustomizationItem.MenuAudio audio;
@@ -123,17 +128,17 @@ public class EditAudioScreen extends ScrollableScreen {
         TextEntry indexLabelEntry = new TextEntry(this.scrollArea, Locals.localize("drippyloadingscreen.audio.index"), true);
         indexLabelEntry.setDescription(StringUtils.splitLines(Locals.localize("drippyloadingscreen.audio.index.desc"), "%n%"));
         this.scrollArea.addEntry(indexLabelEntry);
-        AdvancedTextField indexTextField = new AdvancedTextField(Minecraft.getInstance().fontRenderer, 0, 0, 200, 20, true, CharacterFilter.getIntegerCharacterFiler()) {
+        AdvancedTextField indexTextField = new AdvancedTextField(Minecraft.getInstance().font, 0, 0, 200, 20, true, CharacterFilter.getIntegerCharacterFiler()) {
             @Override
             public void render(MatrixStack p_93657_, int p_93658_, int p_93659_, float p_93660_) {
                 super.render(p_93657_, p_93658_, p_93659_, p_93660_);
-                if (MathUtils.isInteger(this.getText().replace(" ", ""))) {
-                    audio.index = Integer.parseInt(this.getText().replace(" ", ""));
+                if (MathUtils.isInteger(this.getValue().replace(" ", ""))) {
+                    audio.index = Integer.parseInt(this.getValue().replace(" ", ""));
                 }
             }
         };
-        indexTextField.setMaxStringLength(10000);
-        indexTextField.setText("" + audio.index);
+        indexTextField.setMaxLength(10000);
+        indexTextField.setValue("" + audio.index);
         TextFieldEntry indexFieldEntry = new TextFieldEntry(this.scrollArea, indexTextField);
         indexFieldEntry.setDescription(StringUtils.splitLines(Locals.localize("drippyloadingscreen.audio.index.desc"), "%n%"));
         this.scrollArea.addEntry(indexFieldEntry);
@@ -143,17 +148,17 @@ public class EditAudioScreen extends ScrollableScreen {
         TextEntry volumeLabelEntry = new TextEntry(this.scrollArea, Locals.localize("drippyloadingscreen.audio.volume"), true);
         volumeLabelEntry.setDescription(StringUtils.splitLines(Locals.localize("drippyloadingscreen.audio.volume.desc"), "%n%"));
         this.scrollArea.addEntry(volumeLabelEntry);
-        AdvancedTextField volumeTextField = new AdvancedTextField(Minecraft.getInstance().fontRenderer, 0, 0, 200, 20, true, CharacterFilter.getIntegerCharacterFiler()) {
+        AdvancedTextField volumeTextField = new AdvancedTextField(Minecraft.getInstance().font, 0, 0, 200, 20, true, CharacterFilter.getIntegerCharacterFiler()) {
             @Override
             public void render(MatrixStack p_93657_, int p_93658_, int p_93659_, float p_93660_) {
                 super.render(p_93657_, p_93658_, p_93659_, p_93660_);
-                if (MathUtils.isInteger(this.getText().replace(" ", ""))) {
-                    audio.volume = Integer.parseInt(this.getText().replace(" ", ""));
+                if (MathUtils.isInteger(this.getValue().replace(" ", ""))) {
+                    audio.volume = Integer.parseInt(this.getValue().replace(" ", ""));
                 }
             }
         };
-        volumeTextField.setMaxStringLength(10000);
-        volumeTextField.setText("" + audio.volume);
+        volumeTextField.setMaxLength(10000);
+        volumeTextField.setValue("" + audio.volume);
         TextFieldEntry volumeFieldEntry = new TextFieldEntry(this.scrollArea, volumeTextField);
         volumeFieldEntry.setDescription(StringUtils.splitLines(Locals.localize("drippyloadingscreen.audio.volume.desc"), "%n%"));
         this.scrollArea.addEntry(volumeFieldEntry);
@@ -161,13 +166,13 @@ public class EditAudioScreen extends ScrollableScreen {
 
         this.doneButton = new AdvancedButton(0, 0, 95, 20, Locals.localize("drippyloadingscreen.done"), true, (press) -> {
             this.onDone();
-            Minecraft.getInstance().displayGuiScreen(this.parent);
+            Minecraft.getInstance().setScreen(this.parent);
         });
         UIBase.colorizeButton(this.doneButton);
 
         this.cancelButton = new AdvancedButton(0, 0, 95, 20, Locals.localize("drippyloadingscreen.cancel"), true, (press) -> {
             this.onCancel();
-            Minecraft.getInstance().displayGuiScreen(this.parent);
+            Minecraft.getInstance().setScreen(this.parent);
         });
         UIBase.colorizeButton(this.cancelButton);
 
@@ -202,14 +207,14 @@ public class EditAudioScreen extends ScrollableScreen {
     }
 
     @Override
-    public void closeScreen() {
+    public void onClose() {
         if (!PopupHandler.isPopupActive()) {
             if (this.isNewAudio) {
                 this.onCancel();
             } else {
                 this.onDone();
             }
-            super.onClose();
+            super.removed();
         }
     }
 

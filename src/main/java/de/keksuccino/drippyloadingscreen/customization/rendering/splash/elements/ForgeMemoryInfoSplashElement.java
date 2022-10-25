@@ -61,7 +61,7 @@ public class ForgeMemoryInfoSplashElement extends SplashElementBase {
         this.width = (int) (STBEasyFont.stb_easy_font_width(currentText) * this.scale);
         this.height = (int) (10 * this.scale);
 
-        final int i = MathHelper.hsvToRGB((1.0f - (float)Math.pow(pctmemory, 1.5f)) / 3f, 1.0f, 0.5f);
+        final int i = MathHelper.hsvToRgb((1.0f - (float)Math.pow(pctmemory, 1.5f)) / 3f, 1.0f, 0.5f);
         MEM_COLOR[2] = ((i) & 0xFF) / 255.0f;
         MEM_COLOR[1] = ((i >> 8 ) & 0xFF) / 255.0f;
         MEM_COLOR[0] = ((i >> 16 ) & 0xFF) / 255.0f;
@@ -69,7 +69,7 @@ public class ForgeMemoryInfoSplashElement extends SplashElementBase {
     }
 
     protected void renderMessage(final String message, float[] color, int x, int y, float alpha) {
-        GlStateManager.enableClientState(GL11.GL_VERTEX_ARRAY);
+        GlStateManager._enableClientState(GL11.GL_VERTEX_ARRAY);
         ByteBuffer charBuffer = MemoryUtil.memAlloc(message.length() * 270);
         int quads = STBEasyFont.stb_easy_font_print(0, 0, message, null, charBuffer);
         GL14.glVertexPointer(2, GL11.GL_FLOAT, 16, charBuffer);
@@ -90,7 +90,7 @@ public class ForgeMemoryInfoSplashElement extends SplashElementBase {
         RenderSystem.popMatrix();
 
         RenderSystem.enableCull();
-        GlStateManager.disableClientState(GL11.GL_VERTEX_ARRAY);
+        GlStateManager._disableClientState(GL11.GL_VERTEX_ARRAY);
         MemoryUtil.memFree(charBuffer);
     }
 

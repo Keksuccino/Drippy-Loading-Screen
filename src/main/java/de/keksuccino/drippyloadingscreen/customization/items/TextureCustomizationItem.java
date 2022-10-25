@@ -96,7 +96,7 @@ public class TextureCustomizationItem extends CustomizationItemBase {
 				
 			} else if (this.texture != null) {
 				
-				Minecraft.getInstance().getTextureManager().bindTexture(this.texture.getResourceLocation());
+				Minecraft.getInstance().getTextureManager().bind(this.texture.getResourceLocation());
 				RenderSystem.enableBlend();
 				RenderSystem.color4f(1.0F, 1.0F, 1.0F, this.opacity);
 				blit(matrix, x, y, 0.0F, 0.0F, this.width, this.height, this.width, this.height);

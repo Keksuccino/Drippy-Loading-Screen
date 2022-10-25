@@ -35,13 +35,13 @@ public class PlaceholderTextValueHelper {
 			in = StringUtils.convertFormatCodes(in, "&", "§");
 
 			//Only for internal use
-			in = in.replace("%guiwidth%", "" + Minecraft.getInstance().getMainWindow().getScaledWidth());
-			in = in.replace("%guiheight%", "" + Minecraft.getInstance().getMainWindow().getScaledHeight());
+			in = in.replace("%guiwidth%", "" + Minecraft.getInstance().getWindow().getGuiScaledWidth());
+			in = in.replace("%guiheight%", "" + Minecraft.getInstance().getWindow().getGuiScaledHeight());
 			//-------------
 
 			//Replace player name and uuid placeholders
-			in = in.replace("%playername%", mc.getSession().getUsername());
-			in = in.replace("%playeruuid%", mc.getSession().getPlayerID());
+			in = in.replace("%playername%", mc.getUser().getName());
+			in = in.replace("%playeruuid%", mc.getUser().getUuid());
 
 			//Replace mc version placeholder
 			in = in.replace("%mcversion%", MCPVersion.getMCVersion());
@@ -74,7 +74,7 @@ public class PlaceholderTextValueHelper {
 			}
 
 			if (in.contains("%fps%")) {
-				in = in.replace("%fps%", mc.debug.split("[ ]", 2)[0]);
+				in = in.replace("%fps%", mc.fpsString.split("[ ]", 2)[0]);
 			}
 
 			if (in.contains("ram%")) {
@@ -94,7 +94,7 @@ public class PlaceholderTextValueHelper {
 
 			in = in.replace("%cpuinfo%", PlatformDescriptors.getCpuInfo());
 
-			in = in.replace("%gpuinfo%", PlatformDescriptors.getGlRenderer());
+			in = in.replace("%gpuinfo%", PlatformDescriptors.getRenderer());
 
 			String javaVersion = System.getProperty("java.version");
 			if (javaVersion == null) {
@@ -108,7 +108,7 @@ public class PlaceholderTextValueHelper {
 			}
 			in = in.replace("%osname%", osName);
 
-			in = in.replace("%openglversion%", PlatformDescriptors.getGlVersion());
+			in = in.replace("%openglversion%", PlatformDescriptors.getOpenGLVersion());
 
 			in = replaceRandomTextValue(in);
 

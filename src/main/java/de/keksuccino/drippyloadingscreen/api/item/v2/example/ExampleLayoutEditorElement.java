@@ -11,6 +11,8 @@ import de.keksuccino.konkrete.rendering.RenderUtils;
 
 import java.awt.*;
 
+import de.keksuccino.drippyloadingscreen.api.item.v2.LayoutEditorElement.SimplePropertiesSection;
+
 public class ExampleLayoutEditorElement extends LayoutEditorElement {
 
     public ExampleLayoutEditorElement(ExampleCustomizationItemContainer parentContainer, ExampleCustomizationItem customizationItemInstance, LayoutEditorScreen handler) {

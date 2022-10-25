@@ -10,8 +10,8 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 public class Test extends AbstractGui {
 
     AdvancedButton b = new AdvancedButton(20, 20,100, 20, "Open Editor DL", true, (press) -> {
-        Minecraft.getInstance().displayGuiScreen(new LayoutEditorScreen());
-        Minecraft.getInstance().displayGuiScreen(new LayoutEditorScreen());
+        Minecraft.getInstance().setScreen(new LayoutEditorScreen());
+        Minecraft.getInstance().setScreen(new LayoutEditorScreen());
     });
 
     @SubscribeEvent

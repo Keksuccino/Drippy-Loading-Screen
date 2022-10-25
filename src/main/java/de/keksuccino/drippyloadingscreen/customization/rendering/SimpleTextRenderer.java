@@ -140,8 +140,8 @@ public class SimpleTextRenderer {
             if (CHARACTER_HEIGHT_OFFSET.containsKey(c)) {
                 heightOffset = CHARACTER_HEIGHT_OFFSET.get(c);
             }
-            Minecraft.getInstance().textureManager.bindTexture(DEFAULT_FONT);
-            matrix.push();
+            Minecraft.getInstance().textureManager.bind(DEFAULT_FONT);
+            matrix.pushPose();
             RenderSystem.enableBlend();
             RenderSystem.color4f(color[0], color[1], color[2], alpha);
             matrix.translate((x + ((i * 6) * scale)) + (xOffset * scale), y, 0);
@@ -152,7 +152,7 @@ public class SimpleTextRenderer {
                 xOffset += CHARACTER_X_OFFSET.get(c);
             }
             RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-            matrix.pop();
+            matrix.popPose();
         }
 
     }

@@ -18,8 +18,8 @@ public class LogoSplashElement extends SplashElementBase {
         super(handler);
 
         //TODO übernehmen
-        if ((Minecraft.getInstance() != null) && (Minecraft.getInstance().getMainWindow() != null)) {
-            double d0 = Math.min((double)this.mc.getMainWindow().getScaledWidth() * 0.75D, this.mc.getMainWindow().getScaledHeight()) * 0.25D;
+        if ((Minecraft.getInstance() != null) && (Minecraft.getInstance().getWindow() != null)) {
+            double d0 = Math.min((double)this.mc.getWindow().getGuiScaledWidth() * 0.75D, this.mc.getWindow().getGuiScaledHeight()) * 0.25D;
             double d1 = d0 * 4.0D;
             int k1 = (int)(d1 * 0.5D);
             this.width = (int) (k1 * 2.0D);
@@ -38,10 +38,10 @@ public class LogoSplashElement extends SplashElementBase {
 
     protected void renderLogo(MatrixStack matrix) {
 
-        double d0 = Math.min((double)this.mc.getMainWindow().getScaledWidth() * 0.75D, this.mc.getMainWindow().getScaledHeight()) * 0.25D;
+        double d0 = Math.min((double)this.mc.getWindow().getGuiScaledWidth() * 0.75D, this.mc.getWindow().getGuiScaledHeight()) * 0.25D;
         double d1 = d0 * 4.0D;
         int k1 = (int)(d1 * 0.5D);
-        long time = Util.milliTime();
+        long time = Util.getMillis();
         float f = handler.fadeOutStart > -1L ? (float)(time - handler.fadeOutStart) / 1000.0F : -1.0F;
         float f1 = handler.fadeInStart > -1L ? (float)(time - handler.fadeInStart) / 500.0F : -1.0F;
         float f2;
@@ -60,7 +60,7 @@ public class LogoSplashElement extends SplashElementBase {
         this.width = (int) (k1 * 2.0D);
         this.height = (int) d0;
 
-        this.mc.getTextureManager().bindTexture(MOJANG_LOGO_TEXTURE);
+        this.mc.getTextureManager().bind(MOJANG_LOGO_TEXTURE);
         RenderSystem.enableBlend();
         RenderSystem.blendEquation(32774);
         RenderSystem.blendFunc(770, 1);

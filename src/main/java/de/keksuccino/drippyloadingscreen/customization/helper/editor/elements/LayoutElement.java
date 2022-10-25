@@ -132,7 +132,7 @@ public abstract class LayoutElement extends AbstractGui {
 
 		/** COPY ELEMENT ID **/
 		AdvancedButton copyIdButton = new AdvancedButton(0, 0, 0, 0, Locals.localize("drippyloadingscreen.helper.editor.items.copyid"), true, (press) -> {
-			Minecraft.getInstance().keyboardListener.setClipboardString(this.object.getActionId());
+			Minecraft.getInstance().keyboardHandler.setClipboard(this.object.getActionId());
 		});
 		copyIdButton.setDescription(StringUtils.splitLines(Locals.localize("drippyloadingscreen.helper.editor.items.copyid.btn.desc"), "%n%"));
 		this.rightclickMenu.addContent(copyIdButton);
@@ -258,8 +258,8 @@ public abstract class LayoutElement extends AbstractGui {
 				if (label == null) {
 					label = "Element";
 				} else {
-					if (Minecraft.getInstance().fontRenderer.getStringWidth(label) > 200) {
-						label = Minecraft.getInstance().fontRenderer.trimStringToWidth(label, 200) + "..";
+					if (Minecraft.getInstance().font.width(label) > 200) {
+						label = Minecraft.getInstance().font.plainSubstrByWidth(label, 200) + "..";
 					}
 				}
 				AdvancedButton btn = new AdvancedButton(0, 0, 0, 0, label, (press2) -> {
@@ -461,11 +461,11 @@ public abstract class LayoutElement extends AbstractGui {
 		try {
 			if (this.stretchX) {
 				this.object.posX = 0;
-				this.object.width = Minecraft.getInstance().currentScreen.width;
+				this.object.width = Minecraft.getInstance().screen.width;
 			}
 			if (this.stretchY) {
 				this.object.posY = 0;
-				this.object.height = Minecraft.getInstance().currentScreen.height;
+				this.object.height = Minecraft.getInstance().screen.height;
 			}
 			if (this.stretchX || this.stretchY) {
 				this.oLoadingProgress.active = false;
@@ -545,7 +545,7 @@ public abstract class LayoutElement extends AbstractGui {
 		
 		//Reset cursor to default
 		if ((this.activeGrabber == -1) && (!MouseInput.isLeftMouseDown() || PopupHandler.isPopupActive())) {
-			GLFW.glfwSetCursor(Minecraft.getInstance().getMainWindow().getHandle(), NORMAL_CURSOR);
+			GLFW.glfwSetCursor(Minecraft.getInstance().getWindow().getWindow(), NORMAL_CURSOR);
 		}
 				
 		//Update dragging state
@@ -690,28 +690,28 @@ public abstract class LayoutElement extends AbstractGui {
 		//Update cursor and active grabber when grabber is hovered
 		if ((mouseX >= xHorizontalLeft) && (mouseX <= xHorizontalLeft + w) && (mouseY >= yHorizontal) && (mouseY <= yHorizontal + h)) {
 			if (!this.stretchX && this.resizable) {
-				GLFW.glfwSetCursor(Minecraft.getInstance().getMainWindow().getHandle(), H_RESIZE_CURSOR);
+				GLFW.glfwSetCursor(Minecraft.getInstance().getWindow().getWindow(), H_RESIZE_CURSOR);
 				this.activeGrabber = 0;
 			} else {
 				this.activeGrabber = -1;
 			}
 		} else if ((mouseX >= xHorizontalRight) && (mouseX <= xHorizontalRight + w) && (mouseY >= yHorizontal) && (mouseY <= yHorizontal + h)) {
 			if (!this.stretchX && this.resizable) {
-				GLFW.glfwSetCursor(Minecraft.getInstance().getMainWindow().getHandle(), H_RESIZE_CURSOR);
+				GLFW.glfwSetCursor(Minecraft.getInstance().getWindow().getWindow(), H_RESIZE_CURSOR);
 				this.activeGrabber = 1;
 			} else {
 				this.activeGrabber = -1;
 			}
 		} else if ((mouseX >= xVertical) && (mouseX <= xVertical + w) && (mouseY >= yVerticalTop) && (mouseY <= yVerticalTop + h)) {
 			if (!this.stretchY && this.resizable) {
-				GLFW.glfwSetCursor(Minecraft.getInstance().getMainWindow().getHandle(), V_RESIZE_CURSOR);
+				GLFW.glfwSetCursor(Minecraft.getInstance().getWindow().getWindow(), V_RESIZE_CURSOR);
 				this.activeGrabber = 2;
 			} else {
 				this.activeGrabber = -1;
 			}
 		} else if ((mouseX >= xVertical) && (mouseX <= xVertical + w) && (mouseY >= yVerticalBottom) && (mouseY <= yVerticalBottom + h)) {
 			if (!this.stretchY && this.resizable) {
-				GLFW.glfwSetCursor(Minecraft.getInstance().getMainWindow().getHandle(), V_RESIZE_CURSOR);
+				GLFW.glfwSetCursor(Minecraft.getInstance().getWindow().getWindow(), V_RESIZE_CURSOR);
 				this.activeGrabber = 3;
 			} else {
 				this.activeGrabber = -1;
@@ -722,12 +722,12 @@ public abstract class LayoutElement extends AbstractGui {
 		
 		//Render pos and size values
 		RenderUtils.setScale(matrix, 0.5F);
-		AbstractGui.drawString(matrix, Minecraft.getInstance().fontRenderer, Locals.localize("drippyloadingscreen.helper.creator.items.border.orientation") + ": " + this.object.orientation, this.object.getPosX()*2, (this.object.getPosY()*2) - 26, Color.WHITE.getRGB());
-		AbstractGui.drawString(matrix, Minecraft.getInstance().fontRenderer, Locals.localize("drippyloadingscreen.helper.creator.items.border.posx") + ": " + this.object.getPosX(), this.object.getPosX()*2, (this.object.getPosY()*2) - 17, Color.WHITE.getRGB());
-		AbstractGui.drawString(matrix, Minecraft.getInstance().fontRenderer, Locals.localize("drippyloadingscreen.helper.creator.items.border.width") + ": " + this.object.width, this.object.getPosX()*2, (this.object.getPosY()*2) - 8, Color.WHITE.getRGB());
+		AbstractGui.drawString(matrix, Minecraft.getInstance().font, Locals.localize("drippyloadingscreen.helper.creator.items.border.orientation") + ": " + this.object.orientation, this.object.getPosX()*2, (this.object.getPosY()*2) - 26, Color.WHITE.getRGB());
+		AbstractGui.drawString(matrix, Minecraft.getInstance().font, Locals.localize("drippyloadingscreen.helper.creator.items.border.posx") + ": " + this.object.getPosX(), this.object.getPosX()*2, (this.object.getPosY()*2) - 17, Color.WHITE.getRGB());
+		AbstractGui.drawString(matrix, Minecraft.getInstance().font, Locals.localize("drippyloadingscreen.helper.creator.items.border.width") + ": " + this.object.width, this.object.getPosX()*2, (this.object.getPosY()*2) - 8, Color.WHITE.getRGB());
 		
-		AbstractGui.drawString(matrix, Minecraft.getInstance().fontRenderer, Locals.localize("drippyloadingscreen.helper.creator.items.border.posy") + ": " + this.object.getPosY(), ((this.object.getPosX() + this.object.width)*2)+3, ((this.object.getPosY() + this.object.height)*2) - 14, Color.WHITE.getRGB());
-		AbstractGui.drawString(matrix, Minecraft.getInstance().fontRenderer, Locals.localize("drippyloadingscreen.helper.creator.items.border.height") + ": " + this.object.height, ((this.object.getPosX() + this.object.width)*2)+3, ((this.object.getPosY() + this.object.height)*2) - 5, Color.WHITE.getRGB());
+		AbstractGui.drawString(matrix, Minecraft.getInstance().font, Locals.localize("drippyloadingscreen.helper.creator.items.border.posy") + ": " + this.object.getPosY(), ((this.object.getPosX() + this.object.width)*2)+3, ((this.object.getPosY() + this.object.height)*2) - 14, Color.WHITE.getRGB());
+		AbstractGui.drawString(matrix, Minecraft.getInstance().font, Locals.localize("drippyloadingscreen.helper.creator.items.border.height") + ": " + this.object.height, ((this.object.getPosX() + this.object.width)*2)+3, ((this.object.getPosY() + this.object.height)*2) - 5, Color.WHITE.getRGB());
 		RenderUtils.postScale(matrix);
 	}
 	

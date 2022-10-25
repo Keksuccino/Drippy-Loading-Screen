@@ -27,12 +27,12 @@ public abstract class MixinResourceLoadProgressGui extends AbstractGui {
 
 	protected Minecraft mc = Minecraft.getInstance();
 
-	@Shadow @Final private IAsyncReloader asyncReloader;
-	@Shadow @Final private Consumer<Optional<Throwable>> completedCallback;
-	@Shadow @Final private boolean reloading;
+	@Shadow @Final private IAsyncReloader reload;
+	@Shadow @Final private Consumer<Optional<Throwable>> onFinish;
+	@Shadow @Final private boolean fadeIn;
 	@Shadow private long fadeOutStart;
 	@Shadow private long fadeInStart;
-	@Shadow private float progress;
+	@Shadow private float currentProgress;
 
 	protected boolean isUpdated = false;
 	protected int lastWidth = 0;
@@ -43,11 +43,13 @@ public abstract class MixinResourceLoadProgressGui extends AbstractGui {
 
 		SplashCustomizationLayer handler = SplashCustomizationLayer.getInstance();
 
-		ACIHandler.onRenderOverlay(handler);
+		if (DrippyLoadingScreen.isAuudioLoaded()) {
+			ACIHandler.onRenderOverlay(handler);
+		}
 
-		int screenWidth = this.mc.getMainWindow().getScaledWidth();
-		int screenHeight = this.mc.getMainWindow().getScaledHeight();
-		long time = Util.milliTime();
+		int screenWidth = this.mc.getWindow().getGuiScaledWidth();
+		int screenHeight = this.mc.getWindow().getGuiScaledHeight();
+		long time = Util.getMillis();
 
 		//Handle customization update on window resize
 		if ((lastWidth != screenWidth) || (lastHeight != screenHeight)) {
@@ -64,59 +66,59 @@ public abstract class MixinResourceLoadProgressGui extends AbstractGui {
 
 		//--------------------------------------
 
-		if (this.reloading && (this.asyncReloader.asyncPartDone() || this.mc.currentScreen != null) && this.fadeInStart == -1L) {
+		if (this.fadeIn && (this.reload.isApplying() || this.mc.screen != null) && this.fadeInStart == -1L) {
 			this.fadeInStart = time;
 		}
 
 		float f = this.fadeOutStart > -1L ? (float)(time - this.fadeOutStart) / 1000.0F : -1.0F;
 		float f1 = this.fadeInStart > -1L ? (float)(time - this.fadeInStart) / 500.0F : -1.0F;
 		if (f >= 1.0F) {
-			if (this.mc.currentScreen != null) {
+			if (this.mc.screen != null) {
 				if (!DrippyLoadingScreen.isFancyMenuLoaded() && handler.fadeOut) {
-					this.mc.currentScreen.render(matrix, 0, 0, partialTicks);
+					this.mc.screen.render(matrix, 0, 0, partialTicks);
 				}
 			}
-		} else if (this.reloading) {
-			if (this.mc.currentScreen != null && f1 < 1.0F) {
+		} else if (this.fadeIn) {
+			if (this.mc.screen != null && f1 < 1.0F) {
 				if (!DrippyLoadingScreen.isFancyMenuLoaded() && handler.fadeOut) {
-					this.mc.currentScreen.render(matrix, mouseX, mouseY, partialTicks);
+					this.mc.screen.render(matrix, mouseX, mouseY, partialTicks);
 				}
 			}
 		}
 
-		float f3 = this.asyncReloader.estimateExecutionSpeed();
-		this.progress = MathHelper.clamp(this.progress * 0.95F + f3 * 0.050000012F, 0.0F, 1.0F);
+		float f3 = this.reload.getActualProgress();
+		this.currentProgress = MathHelper.clamp(this.currentProgress * 0.95F + f3 * 0.050000012F, 0.0F, 1.0F);
 
 		if (f >= 2.0F) {
 			this.resetScale(handler);
-			this.mc.setLoadingGui(null);
+			this.mc.setOverlay(null);
 		}
 
-		if (this.fadeOutStart == -1L && this.asyncReloader.fullyDone() && (!this.reloading || f1 >= 2.0F)) {
-			this.fadeOutStart = Util.milliTime();
+		if (this.fadeOutStart == -1L && this.reload.isDone() && (!this.fadeIn || f1 >= 2.0F)) {
+			this.fadeOutStart = Util.getMillis();
 			try {
-				this.asyncReloader.join();
-				this.completedCallback.accept(Optional.empty());
+				this.reload.checkExceptions();
+				this.onFinish.accept(Optional.empty());
 			} catch (Throwable throwable) {
-				this.completedCallback.accept(Optional.of(throwable));
+				this.onFinish.accept(Optional.of(throwable));
 			}
 
-			if (this.mc.currentScreen != null) {
-				this.mc.currentScreen.init(this.mc, screenWidth, screenHeight);
+			if (this.mc.screen != null) {
+				this.mc.screen.init(this.mc, screenWidth, screenHeight);
 			}
 		}
 
 		//---------------------------------
 
 		//Give all important fields to the handler so elements can use them (only as getter ofc)
-		handler.asyncReloader = this.asyncReloader;
-		handler.completedCallback = this.completedCallback;
-		handler.reloading = this.reloading;
+		handler.asyncReloader = this.reload;
+		handler.completedCallback = this.onFinish;
+		handler.reloading = this.fadeIn;
 		handler.fadeOutStart = this.fadeOutStart;
 		handler.fadeInStart = this.fadeInStart;
-		handler.progress = this.progress;
+		handler.progress = this.currentProgress;
 
-		PlaceholderTextValueHelper.currentLoadingProgressValue = "" + (int)(this.progress * 100.0F);
+		PlaceholderTextValueHelper.currentLoadingProgressValue = "" + (int)(this.currentProgress * 100.0F);
 
 		//Render the actual loading screen and all customization items
 		handler.renderLayer();
@@ -127,16 +129,16 @@ public abstract class MixinResourceLoadProgressGui extends AbstractGui {
 		if (handler.scaled) {
 
 			Minecraft mc = Minecraft.getInstance();
-			MainWindow w = mc.getMainWindow();
-			int mcScale = w.calcGuiScale(mc.gameSettings.guiScale, mc.getForceUnicodeFont());
+			MainWindow w = mc.getWindow();
+			int mcScale = w.calculateScale(mc.options.guiScale, mc.isEnforceUnicode());
 
 			w.setGuiScale((double)mcScale);
 
-			int screenWidth = w.getScaledWidth();
-			int screenHeight = w.getScaledHeight();
+			int screenWidth = w.getGuiScaledWidth();
+			int screenHeight = w.getGuiScaledHeight();
 
-			if (mc.currentScreen != null) {
-				mc.currentScreen.init(mc, screenWidth, screenHeight);
+			if (mc.screen != null) {
+				mc.screen.init(mc, screenWidth, screenHeight);
 			}
 
 			handler.scaled = false;

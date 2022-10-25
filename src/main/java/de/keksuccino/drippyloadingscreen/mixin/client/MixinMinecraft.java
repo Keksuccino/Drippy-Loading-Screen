@@ -16,16 +16,16 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(Minecraft.class)
 public class MixinMinecraft {
 
-    @Shadow private LoadingGui loadingGui;
+    @Shadow private LoadingGui overlay;
 
-    @Inject(at = @At("HEAD"), method = "setLoadingGui", cancellable = true)
+    @Inject(at = @At("HEAD"), method = "setOverlay", cancellable = true)
     private void onSetOverlay(LoadingGui overlay, CallbackInfo info) {
 
         if (overlay != null) {
             if (DrippyLoadingScreen.isOptifineCompatibilityMode() && (overlay instanceof ResourceLoadProgressGui)) {
                 info.cancel();
-                this.loadingGui = new CustomizableLoadingOverlay((ResourceLoadProgressGui) overlay);
-                MinecraftForge.EVENT_BUS.post(new OverlayOpenEvent(this.loadingGui));
+                this.overlay = new CustomizableLoadingOverlay((ResourceLoadProgressGui) overlay);
+                MinecraftForge.EVENT_BUS.post(new OverlayOpenEvent(this.overlay));
             } else {
                 MinecraftForge.EVENT_BUS.post(new OverlayOpenEvent(overlay));
             }

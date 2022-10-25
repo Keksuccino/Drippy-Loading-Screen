@@ -9,6 +9,7 @@ import java.util.function.Consumer;
 import com.google.common.io.Files;
 import com.mojang.blaze3d.matrix.MatrixStack;
 
+import de.keksuccino.drippyloadingscreen.DrippyLoadingScreen;
 import de.keksuccino.drippyloadingscreen.api.item.CustomizationItemContainer;
 import de.keksuccino.drippyloadingscreen.api.item.CustomizationItemRegistry;
 import de.keksuccino.drippyloadingscreen.customization.CustomizationHandler;
@@ -29,6 +30,7 @@ import de.keksuccino.drippyloadingscreen.customization.helper.ui.popup.FHYesNoPo
 import de.keksuccino.drippyloadingscreen.customization.items.ShapeCustomizationItem.Shape;
 import de.keksuccino.drippyloadingscreen.customization.items.custombars.CustomProgressBarCustomizationItem;
 import de.keksuccino.drippyloadingscreen.customization.rendering.slideshow.SlideshowHandler;
+import de.keksuccino.drippyloadingscreen.utils.WebUtils;
 import de.keksuccino.konkrete.gui.content.AdvancedButton;
 import de.keksuccino.konkrete.gui.content.AdvancedImageButton;
 import de.keksuccino.konkrete.gui.screens.popup.PopupHandler;
@@ -79,7 +81,7 @@ public class LayoutEditorUI extends UIBase {
 			AdvancedButton newLayoutButton = new AdvancedButton(0, 0, 0, 0, Locals.localize("drippyloadingscreen.helper.editor.ui.layout.new"), true, (press) -> {
 				this.displayUnsavedWarning((call) -> {
 					if (call) {
-						Minecraft.getInstance().displayGuiScreen(new LayoutEditorScreen());
+						Minecraft.getInstance().setScreen(new LayoutEditorScreen());
 					}
 				});
 			});
@@ -134,7 +136,7 @@ public class LayoutEditorUI extends UIBase {
 			AdvancedButton undoButton = new AdvancedButton(0, 0, 0, 0, Locals.localize("drippyloadingscreen.helper.editor.ui.edit.undo"), true, (press) -> {
 				this.parent.history.stepBack();
 				try {
-					((LayoutEditorScreen)Minecraft.getInstance().currentScreen).ui.bar.getChild("fm.editor.ui.tab.edit").openMenuAt(editMenu.getX(), editMenu.getY());
+					((LayoutEditorScreen)Minecraft.getInstance().screen).ui.bar.getChild("fm.editor.ui.tab.edit").openMenuAt(editMenu.getX(), editMenu.getY());
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -144,7 +146,7 @@ public class LayoutEditorUI extends UIBase {
 			AdvancedButton redoButton = new AdvancedButton(0, 0, 0, 0, Locals.localize("drippyloadingscreen.helper.editor.ui.edit.redo"), true, (press) -> {
 				this.parent.history.stepForward();
 				try {
-					((LayoutEditorScreen)Minecraft.getInstance().currentScreen).ui.bar.getChild("fm.editor.ui.tab.edit").openMenuAt(editMenu.getX(), editMenu.getY());
+					((LayoutEditorScreen)Minecraft.getInstance().screen).ui.bar.getChild("fm.editor.ui.tab.edit").openMenuAt(editMenu.getX(), editMenu.getY());
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -253,11 +255,11 @@ public class LayoutEditorUI extends UIBase {
 				CustomizationHandler.resetSounds();
 				CustomizationHandler.reloadSystem();
 
-				Minecraft.getInstance().getMainWindow().setGuiScale(Minecraft.getInstance().getMainWindow().calcGuiScale(Minecraft.getInstance().gameSettings.guiScale, Minecraft.getInstance().getForceUnicodeFont()));
-				this.parent.height = Minecraft.getInstance().getMainWindow().getScaledHeight();
-				this.parent.width = Minecraft.getInstance().getMainWindow().getScaledWidth();
+				Minecraft.getInstance().getWindow().setGuiScale(Minecraft.getInstance().getWindow().calculateScale(Minecraft.getInstance().options.guiScale, Minecraft.getInstance().isEnforceUnicode()));
+				this.parent.height = Minecraft.getInstance().getWindow().getGuiScaledHeight();
+				this.parent.width = Minecraft.getInstance().getWindow().getGuiScaledWidth();
 				
-				Minecraft.getInstance().displayGuiScreen(new CustomizationHelperScreen());
+				Minecraft.getInstance().setScreen(new CustomizationHelperScreen());
 				
 			}
 		});
@@ -690,12 +692,12 @@ public class LayoutEditorUI extends UIBase {
 					((AdvancedButton)press).setMessage(Locals.localize("drippyloadingscreen.helper.editor.properties.autoscale.off"));
 					this.parent.autoScalingWidth = 0;
 					this.parent.autoScalingHeight = 0;
-					this.parent.init(Minecraft.getInstance(), Minecraft.getInstance().getMainWindow().getScaledWidth(), Minecraft.getInstance().getMainWindow().getScaledHeight());
+					this.parent.init(Minecraft.getInstance(), Minecraft.getInstance().getWindow().getGuiScaledWidth(), Minecraft.getInstance().getWindow().getGuiScaledHeight());
 				} else {
 					PopupHandler.displayPopup(new AutoScalingPopup(this.parent, (call) -> {
 						if (call) {
 							((AdvancedButton)press).setMessage(Locals.localize("drippyloadingscreen.helper.editor.properties.autoscale.on"));
-							this.parent.init(Minecraft.getInstance(), Minecraft.getInstance().getMainWindow().getScaledWidth(), Minecraft.getInstance().getMainWindow().getScaledHeight());
+							this.parent.init(Minecraft.getInstance(), Minecraft.getInstance().getWindow().getGuiScaledWidth(), Minecraft.getInstance().getWindow().getGuiScaledHeight());
 						}
 					}));
 				}
@@ -824,8 +826,8 @@ public class LayoutEditorUI extends UIBase {
 			
 			for (String s : SlideshowHandler.getSlideshowNames()) {
 				String name = s;
-				if (Minecraft.getInstance().fontRenderer.getStringWidth(name) > 90) {
-					name = Minecraft.getInstance().fontRenderer.trimStringToWidth(name, 90) + "..";
+				if (Minecraft.getInstance().font.width(name) > 90) {
+					name = Minecraft.getInstance().font.plainSubstrByWidth(name, 90) + "..";
 				}
 				
 				AdvancedButton slideshowB = new AdvancedButton(0, 0, 0, 20, name, true, (press) -> {
@@ -858,8 +860,6 @@ public class LayoutEditorUI extends UIBase {
 			});
 			this.addContent(shapesButton);
 
-			this.addSeparator();
-
 			/** CUSTOM PROGRESS BAR **/
 			AdvancedButton progressBarButton = new AdvancedButton(0, 0, 0, 20, Locals.localize("drippyloadingscreen.helper.creator.add.customprogressbar"), (press) -> {
 				this.parent.history.saveSnapshot(this.parent.history.createSnapshot());
@@ -875,8 +875,19 @@ public class LayoutEditorUI extends UIBase {
 				this.parent.addContent(new LayoutCustomProgressBar(i, this.parent));
 			});
 			this.addContent(progressBarButton);
-			
-			this.addSeparator();
+
+			/** DUMMY ELEMENT: INSTALL AUUDIO TO USE AUDIO ELEMENT **/
+			if (!DrippyLoadingScreen.isAuudioLoaded()) {
+				AdvancedButton dummyAudioElementButton = new AdvancedButton(0, 0, 0, 20, Locals.localize("drippyloadingscreen.audio.item"), (press) -> {
+					String link = "https://www.curseforge.com/minecraft/mc-mods/drippy-loading-screen";
+					if (DrippyLoadingScreen.MOD_LOADER.equals("fabric")) {
+						link += "-fabric";
+					}
+					WebUtils.openWebLink(link);
+				});
+				dummyAudioElementButton.setDescription(StringUtils.splitLines(Locals.localize("drippyloadingscreen.editor.extension.dummy.audio.btn.desc"), "%n%"));
+				this.addContent(dummyAudioElementButton);
+			}
 			
 			/** CUSTOM ITEMS **/ //OLD API
 			for (CustomizationItemContainer c : CustomizationItemRegistry.getInstance().getElements().values()) {

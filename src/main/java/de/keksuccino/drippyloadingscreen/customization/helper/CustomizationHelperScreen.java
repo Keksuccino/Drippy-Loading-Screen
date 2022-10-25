@@ -34,9 +34,9 @@ public class CustomizationHelperScreen extends Screen {
 	}
 
 	@Override
-	public void closeScreen() {
+	public void onClose() {
 		CustomizationHelperScreen.resetScale();
-		Minecraft.getInstance().displayGuiScreen(null);
+		Minecraft.getInstance().setScreen(null);
 	}
 
 	@Override
@@ -55,8 +55,8 @@ public class CustomizationHelperScreen extends Screen {
 		if (splashLayer.scaled) {
 
 			Minecraft mc = Minecraft.getInstance();
-			MainWindow w = mc.getMainWindow();
-			int mcScale = w.calcGuiScale(mc.gameSettings.guiScale, mc.getForceUnicodeFont());
+			MainWindow w = mc.getWindow();
+			int mcScale = w.calculateScale(mc.options.guiScale, mc.isEnforceUnicode());
 
 			w.setGuiScale((double)mcScale);
 

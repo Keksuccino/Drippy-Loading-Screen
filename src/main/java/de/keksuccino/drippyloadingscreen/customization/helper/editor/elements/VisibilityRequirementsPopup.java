@@ -687,7 +687,7 @@ public class VisibilityRequirementsPopup extends FHPopup {
             descLines.add("");
             descLines.add(Locals.localize("drippyloadingscreen.helper.creator.items.visibilityrequirements.toggle.btn.desc"));
             this.enableRequirementButton.setDescription(descLines.toArray(new String[0]));
-            this.preRenderTasks.add(() -> enableRequirementButton.setWidth(Minecraft.getInstance().fontRenderer.getStringPropertyWidth(enableRequirementButton.getMessage()) + 10));
+            this.preRenderTasks.add(() -> enableRequirementButton.setWidth(Minecraft.getInstance().font.width(enableRequirementButton.getMessage()) + 10));
             this.addButton(this.enableRequirementButton);
 
             /** Show If Button **/
@@ -719,12 +719,12 @@ public class VisibilityRequirementsPopup extends FHPopup {
             this.addButton(this.showIfNotButton);
 
             if ((this.valueCallback != null) && (this.valueName != null)) {
-                this.valueTextField = new AdvancedTextField(Minecraft.getInstance().fontRenderer, 0, 0, 150, 20, true, this.valueFilter);
+                this.valueTextField = new AdvancedTextField(Minecraft.getInstance().font, 0, 0, 150, 20, true, this.valueFilter);
                 this.valueTextField.setCanLoseFocus(true);
-                this.valueTextField.setFocused2(false);
-                this.valueTextField.setMaxStringLength(1000);
+                this.valueTextField.setFocus(false);
+                this.valueTextField.setMaxLength(1000);
                 if (this.valueString != null) {
-                    this.valueTextField.setText(this.valueString);
+                    this.valueTextField.setValue(this.valueString);
                 }
             }
 
@@ -736,11 +736,11 @@ public class VisibilityRequirementsPopup extends FHPopup {
                 r.run();
             }
 
-            float partial = Minecraft.getInstance().getRenderPartialTicks();
+            float partial = Minecraft.getInstance().getFrameTime();
             int centerX = renderIn.width / 2;
             int centerY = renderIn.height / 2;
 
-            drawCenteredString(matrix, Minecraft.getInstance().fontRenderer, Locals.localize("drippyloadingscreen.helper.creator.items.visibilityrequirements.requirement") + ":", centerX, centerY - 83, -1);
+            drawCenteredString(matrix, Minecraft.getInstance().font, Locals.localize("drippyloadingscreen.helper.creator.items.visibilityrequirements.requirement") + ":", centerX, centerY - 83, -1);
             this.enableRequirementButton.x = centerX - (this.enableRequirementButton.getWidth() / 2);
             this.enableRequirementButton.y = centerY - 70;
 
@@ -753,15 +753,15 @@ public class VisibilityRequirementsPopup extends FHPopup {
             this.showIfButton.active = this.enabled;
 
             if (this.valueTextField != null) {
-                drawCenteredString(matrix, Minecraft.getInstance().fontRenderer, this.valueName + ":", centerX, centerY - 10, -1);
+                drawCenteredString(matrix, Minecraft.getInstance().font, this.valueName + ":", centerX, centerY - 10, -1);
 
                 this.valueTextField.x = centerX - (this.valueTextField.getWidth() / 2);
                 this.valueTextField.y = centerY + 3;
                 this.valueTextField.render(matrix, mouseX, mouseY, partial);
                 this.valueTextField.active = this.enabled;
-                this.valueTextField.setEnabled(this.enabled);
-                this.valueCallback.accept(this.valueTextField.getText());
-                this.valueString = this.valueTextField.getText();
+                this.valueTextField.setEditable(this.enabled);
+                this.valueCallback.accept(this.valueTextField.getValue());
+                this.valueString = this.valueTextField.getValue();
             }
 
             this.renderButtons(matrix, mouseX, mouseY, partial);

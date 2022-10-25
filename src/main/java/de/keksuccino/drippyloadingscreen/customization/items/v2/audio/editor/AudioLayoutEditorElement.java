@@ -12,6 +12,8 @@ import de.keksuccino.konkrete.localization.Locals;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.SoundCategory;
 
+import de.keksuccino.drippyloadingscreen.api.item.v2.LayoutEditorElement.SimplePropertiesSection;
+
 public class AudioLayoutEditorElement extends LayoutEditorElement {
 
     public AudioLayoutEditorElement(CustomizationItemContainer parentContainer, CustomizationItem customizationItemInstance, boolean destroyable, LayoutEditorScreen handler) {
@@ -29,7 +31,7 @@ public class AudioLayoutEditorElement extends LayoutEditorElement {
 
         AdvancedButton manageAudiosButton = new AdvancedButton(0, 0, 0, 0, Locals.localize("drippyloadingscreen.audio.manage"), (press) -> {
             ManageAudiosScreen s = new ManageAudiosScreen(this.handler, this);
-            Minecraft.getInstance().displayGuiScreen(s);
+            Minecraft.getInstance().setScreen(s);
             this.rightclickMenu.closeMenu();
         });
         manageAudiosButton.setDescription(StringUtils.splitLines(Locals.localize("drippyloadingscreen.audio.manage.desc"), "%n%"));

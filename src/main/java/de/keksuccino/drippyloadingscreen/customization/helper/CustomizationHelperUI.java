@@ -81,7 +81,7 @@ public class CustomizationHelperUI extends UIBase {
 			
 			CustomizationButton newLayoutButton = new CustomizationButton(0, 0, 0, 0, Locals.localize("drippyloadingscreen.helper.ui.hud.layouts.new"), true, (press) -> {
 				LayoutEditorScreen.isActive = true;
-				Minecraft.getInstance().displayGuiScreen(new LayoutEditorScreen());
+				Minecraft.getInstance().setScreen(new LayoutEditorScreen());
 			});
 			newLayoutButton.setDescription(StringUtils.splitLines(Locals.localize("drippyloadingscreen.helper.ui.hud.layouts.new.desc"), "%n%"));
 			layoutsMenu.addContent(newLayoutButton);
@@ -114,7 +114,7 @@ public class CustomizationHelperUI extends UIBase {
 			AdvancedImageButton closeGuiButtonTab = new AdvancedImageButton(20, 20, 20, 20, CLOSE_BUTTON_TEXTURE, true, (press) -> {
 				//TODO übernehmen
 				CustomizationHelperScreen.resetScale();
-				Minecraft.getInstance().displayGuiScreen(null);
+				Minecraft.getInstance().setScreen(null);
 			}) {
 				@Override
 				public void render(MatrixStack matrix, int mouseX, int mouseY, float partialTicks) {
@@ -185,12 +185,12 @@ public class CustomizationHelperUI extends UIBase {
 	}
 	
 	protected static void renderUnicodeWarning(MatrixStack matrix, Screen screen) {
-		if (Minecraft.getInstance().gameSettings.forceUnicodeFont) {
+		if (Minecraft.getInstance().options.forceUnicodeFont) {
 			String title = Locals.localize("drippyloadingscreen.helper.ui.warning");
-			int w = Minecraft.getInstance().fontRenderer.getStringWidth(title);
+			int w = Minecraft.getInstance().font.width(title);
 			String[] lines = StringUtils.splitLines(Locals.localize("drippyloadingscreen.helper.ui.warning.unicode"), "%n%");
 			for (String s : lines) {
-				int w2 = Minecraft.getInstance().fontRenderer.getStringWidth(s);
+				int w2 = Minecraft.getInstance().font.width(s);
 				if (w2 > w) {
 					w = w2;
 				}
@@ -207,11 +207,11 @@ public class CustomizationHelperUI extends UIBase {
 			}
 			fill(matrix, x - 4, y, x + w + 2, y + h, new Color(230, 15, 0, 240).getRGB());
 
-			drawString(matrix, Minecraft.getInstance().fontRenderer, title, x, y + 2, Color.WHITE.getRGB());
+			drawString(matrix, Minecraft.getInstance().font, title, x, y + 2, Color.WHITE.getRGB());
 			
 			int i = 0;
 			for (String s : lines) {
-				drawString(matrix, Minecraft.getInstance().fontRenderer, s, x, y + 13 + i, Color.WHITE.getRGB());
+				drawString(matrix, Minecraft.getInstance().font, s, x, y + 13 + i, Color.WHITE.getRGB());
 				i += 10;
 			}
 			

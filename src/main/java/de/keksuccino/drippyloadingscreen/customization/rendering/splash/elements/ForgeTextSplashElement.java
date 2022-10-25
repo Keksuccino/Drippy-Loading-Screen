@@ -69,7 +69,7 @@ public class ForgeTextSplashElement extends SplashElementBase {
     }
 
     private void renderMessage(final String message, float[] color, int line, float alpha) {
-        GlStateManager.enableClientState(GL11.GL_VERTEX_ARRAY);
+        GlStateManager._enableClientState(GL11.GL_VERTEX_ARRAY);
         ByteBuffer charBuffer = MemoryUtil.memAlloc(message.length() * 270);
         int quads = STBEasyFont.stb_easy_font_print(0, 0, message, null, charBuffer);
         GL14.glVertexPointer(2, GL11.GL_FLOAT, 16, charBuffer);
@@ -91,7 +91,7 @@ public class ForgeTextSplashElement extends SplashElementBase {
         RenderSystem.popMatrix();
 
         RenderSystem.enableCull();
-        GlStateManager.disableClientState(GL11.GL_VERTEX_ARRAY);
+        GlStateManager._disableClientState(GL11.GL_VERTEX_ARRAY);
         MemoryUtil.memFree(charBuffer);
     }
 

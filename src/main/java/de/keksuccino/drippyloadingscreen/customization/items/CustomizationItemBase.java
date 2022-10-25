@@ -117,7 +117,7 @@ public abstract class CustomizationItemBase extends AbstractGui {
 	 */
 	public int getPosX() {
 		
-		int w = Minecraft.getInstance().getMainWindow().getScaledWidth();
+		int w = Minecraft.getInstance().getWindow().getGuiScaledWidth();
 		int x = this.posX;
 
 		if (orientation.equalsIgnoreCase("top-centered")) {
@@ -155,7 +155,7 @@ public abstract class CustomizationItemBase extends AbstractGui {
 	 */
 	public int getPosY() {
 		
-		int h = Minecraft.getInstance().getMainWindow().getScaledHeight();
+		int h = Minecraft.getInstance().getWindow().getGuiScaledHeight();
 		int y = this.posY;
 
 		if (orientation.equalsIgnoreCase("mid-left")) {
@@ -207,7 +207,7 @@ public abstract class CustomizationItemBase extends AbstractGui {
 	}
 
 	protected static boolean isEditorActive() {
-		return (Minecraft.getInstance().currentScreen instanceof LayoutEditorScreen);
+		return (Minecraft.getInstance().screen instanceof LayoutEditorScreen);
 	}
 
 	protected boolean visibilityRequirementsMet() {

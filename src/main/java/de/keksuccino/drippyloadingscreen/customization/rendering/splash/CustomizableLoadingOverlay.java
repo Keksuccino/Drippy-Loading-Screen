@@ -45,11 +45,13 @@ public class CustomizableLoadingOverlay extends ResourceLoadProgressGui {
         Minecraft mc = Minecraft.getInstance();
         SplashCustomizationLayer handler = SplashCustomizationLayer.getInstance();
 
-        ACIHandler.onRenderOverlay(handler);
+        if (DrippyLoadingScreen.isAuudioLoaded()) {
+            ACIHandler.onRenderOverlay(handler);
+        }
 
-        int screenWidth = mc.getMainWindow().getScaledWidth();
-        int screenHeight = mc.getMainWindow().getScaledHeight();
-        long time = Util.milliTime();
+        int screenWidth = mc.getWindow().getGuiScaledWidth();
+        int screenHeight = mc.getWindow().getGuiScaledHeight();
+        long time = Util.getMillis();
 
         //Handle customization update on window resize
         if ((lastWidth != screenWidth) || (lastHeight != screenHeight)) {
@@ -64,45 +66,45 @@ public class CustomizableLoadingOverlay extends ResourceLoadProgressGui {
 
         //--------------------------------------
 
-        if (this.reloading && (this.asyncReloader.asyncPartDone() || mc.currentScreen != null) && this.fadeInStart == -1L) {
+        if (this.reloading && (this.asyncReloader.isApplying() || mc.screen != null) && this.fadeInStart == -1L) {
             this.fadeInStart = time;
         }
 
         float f = this.fadeOutStart > -1L ? (float)(time - this.fadeOutStart) / 1000.0F : -1.0F;
         float f1 = this.fadeInStart > -1L ? (float)(time - this.fadeInStart) / 500.0F : -1.0F;
         if (f >= 1.0F) {
-            if (mc.currentScreen != null) {
+            if (mc.screen != null) {
                 if (!DrippyLoadingScreen.isFancyMenuLoaded() && handler.fadeOut) {
-                    mc.currentScreen.render(matrices, 0, 0, delta);
+                    mc.screen.render(matrices, 0, 0, delta);
                 }
             }
         } else if (this.reloading) {
-            if (mc.currentScreen != null && f1 < 1.0F) {
+            if (mc.screen != null && f1 < 1.0F) {
                 if (!DrippyLoadingScreen.isFancyMenuLoaded() && handler.fadeOut) {
-                    mc.currentScreen.render(matrices, mouseX, mouseY, delta);
+                    mc.screen.render(matrices, mouseX, mouseY, delta);
                 }
             }
         }
 
-        float f3 = this.asyncReloader.estimateExecutionSpeed();
+        float f3 = this.asyncReloader.getActualProgress();
         this.progress = MathHelper.clamp(this.progress * 0.95F + f3 * 0.050000012F, 0.0F, 1.0F);
 
         if (f >= 2.0F) {
             this.resetScale(handler);
-            mc.setLoadingGui(null);
+            mc.setOverlay(null);
         }
 
-        if (this.fadeOutStart == -1L && this.asyncReloader.fullyDone() && (!this.reloading || f1 >= 2.0F)) {
-            this.fadeOutStart = Util.milliTime();
+        if (this.fadeOutStart == -1L && this.asyncReloader.isDone() && (!this.reloading || f1 >= 2.0F)) {
+            this.fadeOutStart = Util.getMillis();
             try {
-                this.asyncReloader.join();
+                this.asyncReloader.checkExceptions();
                 this.completedCallback.accept(Optional.empty());
             } catch (Throwable throwable) {
                 this.completedCallback.accept(Optional.of(throwable));
             }
 
-            if (mc.currentScreen != null) {
-                mc.currentScreen.init(mc, screenWidth, screenHeight);
+            if (mc.screen != null) {
+                mc.screen.init(mc, screenWidth, screenHeight);
             }
         }
 
@@ -127,16 +129,16 @@ public class CustomizableLoadingOverlay extends ResourceLoadProgressGui {
         if (handler.scaled) {
 
             Minecraft mc = Minecraft.getInstance();
-            MainWindow w = mc.getMainWindow();
-            int mcScale = w.calcGuiScale(mc.gameSettings.guiScale, mc.getForceUnicodeFont());
+            MainWindow w = mc.getWindow();
+            int mcScale = w.calculateScale(mc.options.guiScale, mc.isEnforceUnicode());
 
             w.setGuiScale((double)mcScale);
 
-            int screenWidth = w.getScaledWidth();
-            int screenHeight = w.getScaledHeight();
+            int screenWidth = w.getGuiScaledWidth();
+            int screenHeight = w.getGuiScaledHeight();
 
-            if (mc.currentScreen != null) {
-                mc.currentScreen.init(mc, screenWidth, screenHeight);
+            if (mc.screen != null) {
+                mc.screen.init(mc, screenWidth, screenHeight);
             }
 
             handler.scaled = false;
@@ -146,7 +148,7 @@ public class CustomizableLoadingOverlay extends ResourceLoadProgressGui {
 
     private static IAsyncReloader getReloadInstance(ResourceLoadProgressGui from) {
         try {
-            Field f = ObfuscationReflectionHelper.findField(ResourceLoadProgressGui.class, "field_212975_c");
+            Field f = ObfuscationReflectionHelper.findField(ResourceLoadProgressGui.class, "reload");
             return (IAsyncReloader) f.get(from);
         } catch (Exception e) {
             e.printStackTrace();
@@ -156,7 +158,7 @@ public class CustomizableLoadingOverlay extends ResourceLoadProgressGui {
 
     private static Consumer<Optional<Throwable>> getOnFinish(ResourceLoadProgressGui from) {
         try {
-            Field f = ObfuscationReflectionHelper.findField(ResourceLoadProgressGui.class, "field_212976_d");
+            Field f = ObfuscationReflectionHelper.findField(ResourceLoadProgressGui.class, "onFinish");
             return (Consumer<Optional<Throwable>>) f.get(from);
         } catch (Exception e) {
             e.printStackTrace();
@@ -166,7 +168,7 @@ public class CustomizableLoadingOverlay extends ResourceLoadProgressGui {
 
     private static boolean getFadeIn(ResourceLoadProgressGui from) {
         try {
-            Field f = ObfuscationReflectionHelper.findField(ResourceLoadProgressGui.class, "field_212977_e");
+            Field f = ObfuscationReflectionHelper.findField(ResourceLoadProgressGui.class, "fadeIn");
             return (boolean) f.get(from);
         } catch (Exception e) {
             e.printStackTrace();
@@ -176,7 +178,7 @@ public class CustomizableLoadingOverlay extends ResourceLoadProgressGui {
 
     private static float getCurrentProgress(ResourceLoadProgressGui from) {
         try {
-            Field f = ObfuscationReflectionHelper.findField(ResourceLoadProgressGui.class, "field_212978_f");
+            Field f = ObfuscationReflectionHelper.findField(ResourceLoadProgressGui.class, "currentProgress");
             return (float) f.get(from);
         } catch (Exception e) {
             e.printStackTrace();
@@ -186,7 +188,7 @@ public class CustomizableLoadingOverlay extends ResourceLoadProgressGui {
 
     private static long getFadeOutStart(ResourceLoadProgressGui from) {
         try {
-            Field f = ObfuscationReflectionHelper.findField(ResourceLoadProgressGui.class, "field_212979_g");
+            Field f = ObfuscationReflectionHelper.findField(ResourceLoadProgressGui.class, "fadeOutStart");
             return (long) f.get(from);
         } catch (Exception e) {
             e.printStackTrace();
@@ -196,7 +198,7 @@ public class CustomizableLoadingOverlay extends ResourceLoadProgressGui {
 
     private static long getFadeInStart(ResourceLoadProgressGui from) {
         try {
-            Field f = ObfuscationReflectionHelper.findField(ResourceLoadProgressGui.class, "field_212980_h");
+            Field f = ObfuscationReflectionHelper.findField(ResourceLoadProgressGui.class, "fadeInStart");
             return (long) f.get(from);
         } catch (Exception e) {
             e.printStackTrace();

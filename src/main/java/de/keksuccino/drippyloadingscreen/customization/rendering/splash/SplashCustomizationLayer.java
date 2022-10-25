@@ -52,7 +52,7 @@ public class SplashCustomizationLayer extends AbstractGui {
 
     protected static SplashCustomizationLayer instance;
 
-    private static int backgroundColor = ColorHelper.PackedColor.packColor(255, 239, 50, 61);
+    private static int backgroundColor = ColorHelper.PackedColor.color(255, 239, 50, 61);
     private static int backgroundColor2 = backgroundColor & 16777215;
 
     public final LogoSplashElement logoSplashElement = new LogoSplashElement(this);
@@ -133,20 +133,20 @@ public class SplashCustomizationLayer extends AbstractGui {
         }
         this.lastCustomBackgroundHex = this.customBackgroundHex;
 
-        if ((Minecraft.getInstance() == null) || (Minecraft.getInstance().getMainWindow() == null)) {
+        if ((Minecraft.getInstance() == null) || (Minecraft.getInstance().getWindow() == null)) {
             return;
         }
 
         MatrixStack matrix = new MatrixStack();
-        float partial = Minecraft.getInstance().getRenderPartialTicks();
-        int screenWidth = this.mc.getMainWindow().getScaledWidth();
-        int screenHeight = this.mc.getMainWindow().getScaledHeight();
+        float partial = Minecraft.getInstance().getFrameTime();
+        int screenWidth = this.mc.getWindow().getGuiScaledWidth();
+        int screenHeight = this.mc.getWindow().getGuiScaledHeight();
 
         float elementOpacity = 1.0F;
 
         //Render background
         if (!this.isEditor) {
-            long time = Util.milliTime();
+            long time = Util.getMillis();
             float f = this.fadeOutStart > -1L ? (float)(time - this.fadeOutStart) / 1000.0F : -1.0F;
             float f1 = this.fadeInStart > -1L ? (float)(time - this.fadeInStart) / 500.0F : -1.0F;
             if (isCustomizationHelperScreen() || DrippyLoadingScreen.isFancyMenuLoaded() || !this.fadeOut) {
@@ -183,7 +183,7 @@ public class SplashCustomizationLayer extends AbstractGui {
                 elementOpacity = 0.0F;
             }
             if (this.backgroundImage != null) {
-                Minecraft.getInstance().getTextureManager().bindTexture(this.backgroundImage);
+                Minecraft.getInstance().getTextureManager().bind(this.backgroundImage);
                 RenderSystem.enableBlend();
                 if (!SplashCustomizationLayer.isCustomizationHelperScreen()) {
                     RenderSystem.color4f(1.0F, 1.0F, 1.0F, elementOpacity);
@@ -369,7 +369,7 @@ public class SplashCustomizationLayer extends AbstractGui {
                     renderInBackground = true;
                 }
 
-                MainWindow w = Minecraft.getInstance().getMainWindow();
+                MainWindow w = Minecraft.getInstance().getWindow();
                 String scaleString = metas.get(0).getEntryValue("scale");
                 if ((scaleString != null) && (MathUtils.isInteger(scaleString.replace(" ", "")) || MathUtils.isDouble(scaleString.replace(" ", "")))) {
                     int newscale = (int) Double.parseDouble(scaleString.replace(" ", ""));
@@ -377,9 +377,9 @@ public class SplashCustomizationLayer extends AbstractGui {
                         newscale = 1;
                     }
                     w.setGuiScale((double)newscale);
-                    if (mc.currentScreen != null) {
-                        mc.currentScreen.width = w.getScaledWidth();
-                        mc.currentScreen.height = w.getScaledHeight();
+                    if (mc.screen != null) {
+                        mc.screen.width = w.getGuiScaledWidth();
+                        mc.screen.height = w.getGuiScaledHeight();
                     }
                     this.scaled = true;
                 }
@@ -394,18 +394,18 @@ public class SplashCustomizationLayer extends AbstractGui {
                     autoScaleBaseHeight = Integer.parseInt(baseHeight);
                 }
                 if ((autoScaleBaseWidth != 0) && (autoScaleBaseHeight != 0)) {
-                    double guiWidth = w.getWidth();
-                    double guiHeight = w.getHeight();
+                    double guiWidth = w.getScreenWidth();
+                    double guiHeight = w.getScreenHeight();
                     double percentX = (guiWidth / (double)autoScaleBaseWidth) * 100.0D;
                     double percentY = (guiHeight / (double)autoScaleBaseHeight) * 100.0D;
-                    double newScaleX = (percentX / 100.0D) * w.getGuiScaleFactor();
-                    double newScaleY = (percentY / 100.0D) * w.getGuiScaleFactor();
+                    double newScaleX = (percentX / 100.0D) * w.getGuiScale();
+                    double newScaleY = (percentY / 100.0D) * w.getGuiScale();
                     double newScale = Math.min(newScaleX, newScaleY);
 
                     w.setGuiScale(newScale);
-                    if (mc.currentScreen != null) {
-                        mc.currentScreen.width = w.getScaledWidth();
-                        mc.currentScreen.height = w.getScaledHeight();
+                    if (mc.screen != null) {
+                        mc.screen.width = w.getGuiScaledWidth();
+                        mc.screen.height = w.getGuiScaledHeight();
                     }
                     this.scaled = true;
                 }
@@ -644,10 +644,10 @@ public class SplashCustomizationLayer extends AbstractGui {
     }
 
     public static boolean isCustomizationHelperScreen() {
-        if (Minecraft.getInstance().currentScreen == null) {
+        if (Minecraft.getInstance().screen == null) {
             return false;
         }
-        return (Minecraft.getInstance().currentScreen instanceof CustomizationHelperScreen);
+        return (Minecraft.getInstance().screen instanceof CustomizationHelperScreen);
     }
 
     public static SplashCustomizationLayer getInstance() {

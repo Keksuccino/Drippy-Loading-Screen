@@ -21,9 +21,9 @@ public class ProgressBarSplashElement extends SplashElementBase {
         super(handler);
 
         //TODO übernehmen
-        if ((Minecraft.getInstance() != null) && (Minecraft.getInstance().getMainWindow() != null)) {
-            int screenWidth = this.mc.getMainWindow().getScaledWidth();
-            int screenHeight = this.mc.getMainWindow().getScaledHeight();
+        if ((Minecraft.getInstance() != null) && (Minecraft.getInstance().getWindow() != null)) {
+            int screenWidth = this.mc.getWindow().getGuiScaledWidth();
+            int screenHeight = this.mc.getWindow().getGuiScaledHeight();
             double d0 = Math.min((double) screenWidth * 0.75D, screenHeight) * 0.25D;
             double d1 = d0 * 4.0D;
             int k1 = (int) (d1 * 0.5D);
@@ -56,10 +56,10 @@ public class ProgressBarSplashElement extends SplashElementBase {
     }
 
     protected void renderProgressBar(MatrixStack matrix) {
-        long time = Util.milliTime();
+        long time = Util.getMillis();
         float f = handler.fadeOutStart > -1L ? (float)(time - handler.fadeOutStart) / 1000.0F : -1.0F;
-        int screenWidth = this.mc.getMainWindow().getScaledWidth();
-        int screenHeight = this.mc.getMainWindow().getScaledHeight();
+        int screenWidth = this.mc.getWindow().getGuiScaledWidth();
+        int screenHeight = this.mc.getWindow().getGuiScaledHeight();
         double d0 = Math.min((double)screenWidth * 0.75D, screenHeight) * 0.25D;
         double d1 = d0 * 4.0D;
         int k1 = (int)(d1 * 0.5D);
@@ -83,9 +83,9 @@ public class ProgressBarSplashElement extends SplashElementBase {
         if (this.handler.isEditor || SplashCustomizationLayer.isCustomizationHelperScreen() || DrippyLoadingScreen.isFancyMenuLoaded()) {
             j = 255;
         }
-        int k = ColorHelper.PackedColor.packColor(j, 255, 255, 255);
+        int k = ColorHelper.PackedColor.color(j, 255, 255, 255);
         if (this.customBarColor != null) {
-            k = ColorHelper.PackedColor.packColor(j, this.customBarColor.getRed(), this.customBarColor.getGreen(), this.customBarColor.getBlue());
+            k = ColorHelper.PackedColor.color(j, this.customBarColor.getRed(), this.customBarColor.getGreen(), this.customBarColor.getBlue());
         }
         fill(matrix, minX + 1, minY, maxX - 1, minY + 1, k);
         fill(matrix, minX + 1, maxY, maxX - 1, maxY - 1, k);

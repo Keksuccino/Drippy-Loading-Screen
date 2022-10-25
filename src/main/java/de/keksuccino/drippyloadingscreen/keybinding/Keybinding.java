@@ -25,7 +25,7 @@ public class Keybinding {
 
 		KeyboardHandler.addKeyPressedListener((c) -> {
 
-			if ((KeyToggleHelper.getKey().getKeyCode() == c.keycode) && KeyboardHandler.isCtrlPressed() && KeyboardHandler.isAltPressed()) {
+			if ((KeyToggleHelper.getKey().getValue() == c.keycode) && KeyboardHandler.isCtrlPressed() && KeyboardHandler.isAltPressed()) {
 				try {
 					if (DrippyLoadingScreen.config.getOrDefault("showcustomizationcontrols", true)) {
 						DrippyLoadingScreen.config.setValue("showcustomizationcontrols", false);
@@ -33,8 +33,8 @@ public class Keybinding {
 						DrippyLoadingScreen.config.setValue("showcustomizationcontrols", true);
 					}
 					DrippyLoadingScreen.config.syncConfig();
-					if (Minecraft.getInstance().currentScreen != null) {
-						Minecraft.getInstance().displayGuiScreen(Minecraft.getInstance().currentScreen);
+					if (Minecraft.getInstance().screen != null) {
+						Minecraft.getInstance().setScreen(Minecraft.getInstance().screen);
 					}
 				} catch (InvalidValueException e) {
 					e.printStackTrace();

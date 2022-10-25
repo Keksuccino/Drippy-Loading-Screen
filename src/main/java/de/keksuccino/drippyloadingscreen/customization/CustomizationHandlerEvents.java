@@ -15,8 +15,8 @@ public class CustomizationHandlerEvents {
 	public void onTick(ClientTickEvent e) {
 		
 		/** WINDOW RESIZE EVENT HANDLER **/
-		int width = Minecraft.getInstance().getMainWindow().getScaledWidth();
-		int height = Minecraft.getInstance().getMainWindow().getScaledHeight();
+		int width = Minecraft.getInstance().getWindow().getGuiScaledWidth();
+		int height = Minecraft.getInstance().getWindow().getGuiScaledHeight();
 		if ((lastWindowWidth != -1) && ((lastWindowWidth != width) || (lastWindowHeight != height))) {
 			WindowResizedEvent event = new WindowResizedEvent(width, height);
 			MinecraftForge.EVENT_BUS.post(event);

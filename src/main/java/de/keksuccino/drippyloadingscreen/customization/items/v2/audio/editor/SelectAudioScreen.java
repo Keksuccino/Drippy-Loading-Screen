@@ -51,7 +51,7 @@ public class SelectAudioScreen extends Screen {
 
         this.backButton = new AdvancedButton(0, 0, 200, 20, Locals.localize("drippyloadingscreen.back"), true, (press) -> {
             this.onCancel();
-            Minecraft.getInstance().displayGuiScreen(this.parent);
+            Minecraft.getInstance().setScreen(this.parent);
         });
         UIBase.colorizeButton(this.backButton);
 
@@ -91,9 +91,9 @@ public class SelectAudioScreen extends Screen {
 
     //On Esc
     @Override
-    public void closeScreen() {
+    public void onClose() {
         this.onCancel();
-        Minecraft.getInstance().displayGuiScreen(this.parent);
+        Minecraft.getInstance().setScreen(this.parent);
     }
 
     @Override
@@ -151,7 +151,7 @@ public class SelectAudioScreen extends Screen {
             int height = 10;
             //Getting the longest string from the list to render the background with the correct width
             for (String s : desc) {
-                int i = Minecraft.getInstance().fontRenderer.getStringWidth(s) + 10;
+                int i = Minecraft.getInstance().font.width(s) + 10;
                 if (i > width) {
                     width = i;
                 }
@@ -159,10 +159,10 @@ public class SelectAudioScreen extends Screen {
             }
             mouseX += 5;
             mouseY += 5;
-            if (Minecraft.getInstance().currentScreen.width < mouseX + width) {
+            if (Minecraft.getInstance().screen.width < mouseX + width) {
                 mouseX -= width + 10;
             }
-            if (Minecraft.getInstance().currentScreen.height < mouseY + height) {
+            if (Minecraft.getInstance().screen.height < mouseY + height) {
                 mouseY -= height + 10;
             }
             RenderUtils.setZLevelPre(matrix, 600);
@@ -170,7 +170,7 @@ public class SelectAudioScreen extends Screen {
             RenderSystem.enableBlend();
             int i2 = 5;
             for (String s : desc) {
-                drawString(matrix, Minecraft.getInstance().fontRenderer, s, mouseX + 5, mouseY + i2, Color.WHITE.getRGB());
+                drawString(matrix, Minecraft.getInstance().font, s, mouseX + 5, mouseY + i2, Color.WHITE.getRGB());
                 i2 += 10;
             }
             RenderUtils.setZLevelPost(matrix);
@@ -189,7 +189,7 @@ public class SelectAudioScreen extends Screen {
     public static class AudioScrollAreaEntry extends ScrollAreaEntry {
 
         protected AudioCustomizationItem.MenuAudio audio;
-        protected FontRenderer font = Minecraft.getInstance().fontRenderer;
+        protected FontRenderer font = Minecraft.getInstance().font;
         protected SelectAudioScreen parentScreen;
 
         protected boolean isMouseDown = false;
@@ -212,9 +212,9 @@ public class SelectAudioScreen extends Screen {
             }
 
             String sourceString = this.audio.path;
-            if (font.getStringWidth(sourceString) > this.getWidth() - 30) {
+            if (font.width(sourceString) > this.getWidth() - 30) {
                 sourceString = new StringBuilder(sourceString).reverse().toString();
-                sourceString = font.trimStringToWidth(sourceString, this.getWidth() - 30);
+                sourceString = font.plainSubstrByWidth(sourceString, this.getWidth() - 30);
                 sourceString = new StringBuilder(sourceString).reverse().toString();
                 sourceString = ".." + sourceString;
             }

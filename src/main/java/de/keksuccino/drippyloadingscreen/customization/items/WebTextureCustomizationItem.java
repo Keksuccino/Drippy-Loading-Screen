@@ -118,9 +118,9 @@ public class WebTextureCustomizationItem extends CustomizationItemBase {
 			int y = this.getPosY();
 
 			if (this.isTextureReady()) {
-				Minecraft.getInstance().textureManager.bindTexture(this.texture.getResourceLocation());
+				Minecraft.getInstance().textureManager.bind(this.texture.getResourceLocation());
 			} else if (isEditorActive()) {
-				Minecraft.getInstance().textureManager.bindTexture(TextureManager.RESOURCE_LOCATION_EMPTY);
+				Minecraft.getInstance().textureManager.bind(TextureManager.INTENTIONAL_MISSING_TEXTURE);
 			}
 
 			if (this.isTextureReady() || isEditorActive()) {
@@ -131,7 +131,7 @@ public class WebTextureCustomizationItem extends CustomizationItemBase {
 			}
 
 			if (!this.ready && isEditorActive()) {
-				drawCenteredString(matrix, Minecraft.getInstance().fontRenderer, "§lLOADING TEXTURE..", this.getPosX() + (this.width / 2), this.getPosY() + (this.height / 2) - (Minecraft.getInstance().fontRenderer.FONT_HEIGHT / 2), -1);
+				drawCenteredString(matrix, Minecraft.getInstance().font, "§lLOADING TEXTURE..", this.getPosX() + (this.width / 2), this.getPosY() + (this.height / 2) - (Minecraft.getInstance().font.lineHeight / 2), -1);
 			}
 
 		}

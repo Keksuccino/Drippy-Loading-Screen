@@ -97,7 +97,7 @@ public class CustomizationHandler {
 			String url = f.toURI().toURL().toString();
 			String s = System.getProperty("os.name").toLowerCase(Locale.ROOT);
 			URL u = new URL(url);
-			if (!Minecraft.IS_RUNNING_ON_MAC) {
+			if (!Minecraft.ON_OSX) {
 				if (s.contains("win")) {
 					Runtime.getRuntime().exec(new String[]{"rundll32", "url.dll,FileProtocolHandler", url});
 				} else {
@@ -132,7 +132,7 @@ public class CustomizationHandler {
 					meta.get(0).addEntry("path", layout.getPath());
 					
 					LayoutEditorScreen.isActive = true;
-					Minecraft.getInstance().displayGuiScreen(new PreloadedLayoutEditorScreen(set));
+					Minecraft.getInstance().setScreen(new PreloadedLayoutEditorScreen(set));
 					stopSounds();
 					resetSounds();
 					

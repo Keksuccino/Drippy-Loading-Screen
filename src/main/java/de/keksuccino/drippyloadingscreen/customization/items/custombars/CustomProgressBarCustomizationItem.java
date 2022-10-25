@@ -100,7 +100,7 @@ public class CustomProgressBarCustomizationItem extends CustomBarCustomizationIt
 			
 		} else {
 			
-			Minecraft.getInstance().textureManager.bindTexture(this.barTexture);
+			Minecraft.getInstance().textureManager.bind(this.barTexture);
 			RenderSystem.enableBlend();
 			RenderSystem.color4f(1.0F, 1.0F, 1.0F, this.opacity);
 			
@@ -136,7 +136,7 @@ public class CustomProgressBarCustomizationItem extends CustomBarCustomizationIt
 		
 		} else {
 			
-			Minecraft.getInstance().textureManager.bindTexture(this.backgroundTexture);
+			Minecraft.getInstance().textureManager.bind(this.backgroundTexture);
 			RenderSystem.enableBlend();
 			RenderSystem.color4f(1.0F, 1.0F, 1.0F, this.opacity);
 			blit(matrix, this.getPosX(), this.getPosY(), 0.0F, 0.0F, this.width, this.height, this.width, this.height);

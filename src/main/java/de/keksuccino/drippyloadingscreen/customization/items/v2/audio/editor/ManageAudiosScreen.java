@@ -43,7 +43,7 @@ public class ManageAudiosScreen extends Screen {
                     }
                 }
             });
-            Minecraft.getInstance().displayGuiScreen(s);
+            Minecraft.getInstance().setScreen(s);
         });
         UIBase.colorizeButton(this.addAudioButton);
 
@@ -53,13 +53,13 @@ public class ManageAudiosScreen extends Screen {
                     FHYesNoPopup p = new FHYesNoPopup(300, new Color(0, 0, 0, 0), 240, (call2) -> {
                         if (call2) {
                             this.getItem().audios.remove(call);
-                            Minecraft.getInstance().displayGuiScreen(this);
+                            Minecraft.getInstance().setScreen(this);
                         }
                     }, StringUtils.splitLines(Locals.localize("drippyloadingscreen.audio.remove.confirm"), "%n%"));
                     PopupHandler.displayPopup(p);
                 }
             });
-            Minecraft.getInstance().displayGuiScreen(s);
+            Minecraft.getInstance().setScreen(s);
         });
         UIBase.colorizeButton(this.removeAudioButton);
 
@@ -68,15 +68,15 @@ public class ManageAudiosScreen extends Screen {
                 if (call != null) {
                     //Do nothing with callback, since audio is already part of the element
                     EditAudioScreen s2 = new EditAudioScreen(this, this.element, call, (call2) -> {});
-                    Minecraft.getInstance().displayGuiScreen(s2);
+                    Minecraft.getInstance().setScreen(s2);
                 }
             });
-            Minecraft.getInstance().displayGuiScreen(s);
+            Minecraft.getInstance().setScreen(s);
         });
         UIBase.colorizeButton(this.editAudioButton);
 
         this.backButton = new AdvancedButton(0, 0, 200, 20, Locals.localize("drippyloadingscreen.back"), true, (press) -> {
-            Minecraft.getInstance().displayGuiScreen(this.handler);
+            Minecraft.getInstance().setScreen(this.handler);
             this.handler.history.saveSnapshot(this.handler.history.createSnapshot());
         });
         UIBase.colorizeButton(this.backButton);
@@ -118,8 +118,8 @@ public class ManageAudiosScreen extends Screen {
     }
 
     @Override
-    public void closeScreen() {
-        Minecraft.getInstance().displayGuiScreen(this.handler);
+    public void onClose() {
+        Minecraft.getInstance().setScreen(this.handler);
         this.handler.history.saveSnapshot(this.handler.history.createSnapshot());
     }
 
