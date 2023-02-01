@@ -16,4 +16,4 @@ See `LICENSE.md` for more information.
 
 ## Copyright
 
-- Drippy Loading Screen Copyright © 2021 Keksuccino.<br>
+- Drippy Loading Screen Copyright © 2021-2023 Keksuccino.<br>
