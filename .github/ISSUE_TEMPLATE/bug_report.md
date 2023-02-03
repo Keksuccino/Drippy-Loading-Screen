@@ -1,6 +1,6 @@
 ---
-name: Bug report
-about: Create a report to help me improve Drippy Loading Screen
+name: Bug Report
+about: Found a bug? Please tell me, so I can fix it!
 title: ''
 labels: bug
 assignees: ''
@@ -8,10 +8,10 @@ assignees: ''
 ---
 
 **Describe the bug**
-A clear and concise description of what the bug is.
+A clear and detailed description of what the bug is.
 
 **To Reproduce**
-Steps to reproduce the behavior:
+Steps to reproduce the behavior (e.g.):
 1. Go to '...'
 2. Click on '....'
 3. Scroll down to '....'
@@ -20,15 +20,17 @@ Steps to reproduce the behavior:
 **Expected behavior**
 A clear and detailed description of what you expected to happen.
 
-**Crash Log**
-If the bug includes a crash, please paste or link it here.
+**Game Log**
+Please always include your `.minecraft/logs/latest.log` file **right after the issue happened**.
+Please don't send the whole log as plain text here. Upload the file to https://gist.github.com and send the link.
+DON'T SEND LOG SNIPPETS OR CRASH LOGS, PLEASE SEND THE WHOLE LATEST.LOG FILE!
 
 **Screenshots**
-If applicable, add screenshots to help explain your problem.
+If screenshots would help to explain the issue, please include these.
 
 **Basic Informations (please complete the following information):**
  - OS: [e.g. Windows]
- - Drippy Loading Screen Version [e.g. 0.2]
+ - Drippy Version [e.g. 0.2]
  - Forge/Fabric Version [e.g. 31.2.24]
  - Minecraft Version [e.g. 1.15.1]
  - Active Mods [e.g. Optifine, 5zig, TooManyItems]
