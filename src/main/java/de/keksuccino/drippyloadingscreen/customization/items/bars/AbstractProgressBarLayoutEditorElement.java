@@ -131,6 +131,7 @@ public abstract class AbstractProgressBarLayoutEditorElement extends LayoutEdito
         });
         setBackgroundTextureButton.setDescription(StringUtils.splitLines(I18n.get("drippyloadingscreen.items.progress_bar.set_background_texture.desc"), "\n"));
         this.rightclickMenu.addContent(setBackgroundTextureButton);
+        //-------------------
 
         this.rightclickMenu.addSeparator();
 

@@ -237,6 +237,7 @@ public class MixinLoadingOverlay {
         }
     }
 
+    //TODO übernehmen 2.1.1
     private void loadFonts() {
         try {
             MixinCache.gameThreadRunnables.add(() -> {

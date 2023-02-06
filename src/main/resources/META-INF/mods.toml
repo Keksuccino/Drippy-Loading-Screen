@@ -1,5 +1,5 @@
 modLoader="javafml" #mandatory
-loaderVersion="[41,)" #mandatory This is typically bumped every Minecraft version by Forge. See our download page for lists of versions.
+loaderVersion="[44,)" #mandatory This is typically bumped every Minecraft version by Forge. See our download page for lists of versions.
 license="DSMSL (DON'T SNATCH MA STUFF LICENSE)"
 # A list of mods - how many allowed here is determined by the individual mod loader
 [[mods]] #mandatory
@@ -40,6 +40,6 @@ side="CLIENT"
 [[dependencies.drippyloadingscreen]]
 modId="minecraft"
 mandatory=true
-versionRange="[1.19.1,1.19.3)"
+versionRange="[1.19.3,)"
 ordering="NONE"
 side="CLIENT"

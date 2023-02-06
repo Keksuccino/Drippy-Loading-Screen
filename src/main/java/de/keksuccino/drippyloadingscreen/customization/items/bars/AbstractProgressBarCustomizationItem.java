@@ -8,7 +8,6 @@ import de.keksuccino.fancymenu.menu.fancy.MenuCustomization;
 import de.keksuccino.konkrete.properties.PropertiesSection;
 import de.keksuccino.konkrete.rendering.RenderUtils;
 import de.keksuccino.konkrete.resources.TextureHandler;
-import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.resources.ResourceLocation;
 
@@ -78,6 +77,7 @@ public abstract class AbstractProgressBarCustomizationItem extends Customization
                 this.backgroundTexture = TextureHandler.getResource(f.getAbsolutePath()).getResourceLocation();
             }
         }
+        //---------------
 
         String barDirection = item.getEntryValue("direction");
         if (barDirection != null) {
@@ -138,7 +138,7 @@ public abstract class AbstractProgressBarCustomizationItem extends Customization
         if (this.backgroundTexture != null) {
             RenderUtils.bindTexture(this.backgroundTexture);
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, this.opacity);
-            GuiComponent.blit(matrix, this.getPosX(menu), this.getPosY(menu), 0.0F, 0.0F, this.getWidth(), this.getHeight(), this.getWidth(), this.getHeight());
+            blit(matrix, this.getPosX(menu), this.getPosY(menu), 0.0F, 0.0F, this.getWidth(), this.getHeight(), this.getWidth(), this.getHeight());
         } else if (this.barColor != null) {
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
             RenderUtils.fill(matrix, this.getPosX(menu), this.getPosY(menu), this.getPosX(menu) + this.getWidth(), this.getPosY(menu) + this.getHeight(), this.backgroundColor.getRGB(), this.opacity);

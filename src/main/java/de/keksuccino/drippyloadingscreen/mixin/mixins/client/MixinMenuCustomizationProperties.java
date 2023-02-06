@@ -12,7 +12,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import java.util.ArrayList;
 import java.util.List;
 
-//TODO übernehmen
 @Mixin(MenuCustomizationProperties.class)
 public class MixinMenuCustomizationProperties {
 

@@ -12,7 +12,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Arrays;
 import java.util.List;
 
-//TODO übernehmen
 public class GpuInfoPlaceholder extends Placeholder {
 
     public GpuInfoPlaceholder() {

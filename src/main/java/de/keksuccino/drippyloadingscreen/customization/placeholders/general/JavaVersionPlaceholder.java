@@ -11,7 +11,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Arrays;
 import java.util.List;
 
-//TODO übernehmen
 public class JavaVersionPlaceholder extends Placeholder {
 
     public JavaVersionPlaceholder() {
