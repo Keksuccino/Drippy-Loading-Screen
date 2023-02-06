@@ -1,5 +1,5 @@
 plugins {
-	id 'fabric-loom' version '0.10-SNAPSHOT'
+	id 'fabric-loom' version '1.1-SNAPSHOT'
 	id 'maven-publish'
 }
 
@@ -34,6 +34,10 @@ dependencies {
 	
 	implementation fileTree('libs') { include '*.jar' }
 	
+}
+
+loom {
+	accessWidenerPath = file("src/main/resources/drippyloadingscreen.accessWidener")
 }
 
 processResources {
