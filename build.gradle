@@ -36,6 +36,10 @@ dependencies {
 	
 }
 
+loom {
+	accessWidenerPath = file("src/main/resources/drippyloadingscreen.accessWidener")
+}
+
 processResources {
 	inputs.property "version", project.version
 
