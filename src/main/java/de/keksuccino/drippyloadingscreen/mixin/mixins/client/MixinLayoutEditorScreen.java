@@ -32,7 +32,7 @@ public abstract class MixinLayoutEditorScreen {
             if ((i != null) && (i.hexColor != null)) {
                 return i.hexColor.getRGB();
             }
-            return MixinCache.originalLoadingScreenBackgroundColorSupplier.getAsInt();
+            return IMixinLoadingOverlay.getBrandBackgroundDrippy().getAsInt();
         }
         return instance.getRGB();
     }

@@ -23,9 +23,10 @@ public class DrippyOverlayMenuHandler extends MenuHandlerBase {
 
     private static final Logger LOGGER = LogManager.getLogger();
 
-    public boolean showLogo = true;
-    public boolean showProgressBar = true;
-    public Color customProgressBarColor = null;
+    //TODO übernehmen
+//    public boolean showLogo = true;
+//    public boolean showProgressBar = true;
+//    public Color customProgressBarColor = null;
     public Color customBackgroundColor = null;
 
     public OverlayProgressBarItem progressBarItem = null;
@@ -33,6 +34,7 @@ public class DrippyOverlayMenuHandler extends MenuHandlerBase {
 
     public DrippyOverlayMenuHandler() {
         super(DrippyOverlayScreen.class.getName());
+        this.forceDisableCustomMenuTitle = true;
     }
 
     @Override
@@ -43,9 +45,9 @@ public class DrippyOverlayMenuHandler extends MenuHandlerBase {
                 try {
 
                     //Reset all deep customization fields
-                    this.showLogo = true;
-                    this.showProgressBar = true;
-                    this.customProgressBarColor = null;
+//                    this.showLogo = true;
+//                    this.showProgressBar = true;
+//                    this.customProgressBarColor = null;
                     this.customBackgroundColor = null;
                     this.logoItem = (OverlayLogoItem) DeepCustomizationLayerRegistry.getLayerByMenuIdentifier(this.getMenuIdentifier()).getElementByIdentifier("drippy_overlay_logo").constructDefaultItemInstance();
                     this.progressBarItem = (OverlayProgressBarItem) DeepCustomizationLayerRegistry.getLayerByMenuIdentifier(this.getMenuIdentifier()).getElementByIdentifier("drippy_overlay_progress_bar").constructDefaultItemInstance();
@@ -88,25 +90,17 @@ public class DrippyOverlayMenuHandler extends MenuHandlerBase {
                         if (i != null) {
 
                             if (elementId.equals("drippy_overlay_logo")) {
-                                this.showLogo = !(i.hidden);
+//                                this.showLogo = !(i.hidden);
                                 this.logoItem = (OverlayLogoItem) i;
                             }
                             if (elementId.equals("drippy_overlay_progress_bar")) {
-                                this.showProgressBar = !(i.hidden);
-                                this.customProgressBarColor = ((OverlayProgressBarItem)i).hexColor;
+//                                this.showProgressBar = !(i.hidden);
+//                                this.customProgressBarColor = ((OverlayProgressBarItem)i).hexColor;
                                 this.progressBarItem = (OverlayProgressBarItem) i;
                             }
                             if (elementId.equals("drippy_overlay_background")) {
                                 this.customBackgroundColor = ((OverlayBackgroundItem)i).hexColor;
                             }
-
-                            //Forge -------------->
-//                            if (elementId.equals("title_screen_forge_copyright")) {
-//                                this.showForgeNotificationCopyright = !(i.hidden);
-//                            }
-//                            if (elementId.equals("title_screen_forge_top")) {
-//                                this.showForgeNotificationTop = !(i.hidden);
-//                            }
 
                         }
                     }

@@ -10,7 +10,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.ArrayList;
 import java.util.List;
 
-//TODO übernehmen 2.1.1
 @Mixin(Minecraft.class)
 public class MixinMinecraft {
 

@@ -1,11 +1,13 @@
 package de.keksuccino.drippyloadingscreen.customization.deepcustomization.overlay.progressbar;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import de.keksuccino.drippyloadingscreen.mixin.mixins.client.IMixinLoadingOverlay;
 import de.keksuccino.fancymenu.menu.fancy.menuhandler.deepcustomizationlayer.DeepCustomizationElement;
 import de.keksuccino.fancymenu.menu.fancy.menuhandler.deepcustomizationlayer.DeepCustomizationItem;
 import de.keksuccino.konkrete.properties.PropertiesSection;
 import de.keksuccino.konkrete.rendering.RenderUtils;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.LoadingOverlay;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.util.FastColor;
 import net.minecraft.util.Mth;
@@ -16,6 +18,8 @@ public class OverlayProgressBarItem extends DeepCustomizationItem {
 
     public String hexColorString = "#RRGGBB";
     public Color hexColor = null;
+    //TODO übernehmen
+    public boolean useOriginalSizeAndPosCalculation = true;
 
     public OverlayProgressBarItem(DeepCustomizationElement parentElement, PropertiesSection item) {
 
@@ -30,8 +34,15 @@ public class OverlayProgressBarItem extends DeepCustomizationItem {
             }
         }
 
+        //TODO übernehmen
+        String oriPosSizeCalc = item.getEntryValue("original_pos_size_calculation");
+        if ((oriPosSizeCalc != null) && oriPosSizeCalc.equals("false")) {
+            this.useOriginalSizeAndPosCalculation = false;
+        }
+
     }
 
+    //TODO übernehmen
     @Override
     public void render(PoseStack matrix, Screen menu) {
 
@@ -42,28 +53,51 @@ public class OverlayProgressBarItem extends DeepCustomizationItem {
         int j1 = (int)(d0 * 0.5D);
         int k1 = (int)((double)mc.getWindow().getGuiScaledHeight() * 0.8325D);
         float currentProgress = 0.5F;
+        if (!isEditorActive() && (Minecraft.getInstance().getOverlay() != null) && (Minecraft.getInstance().getOverlay() instanceof LoadingOverlay)) {
+            currentProgress = ((IMixinLoadingOverlay)Minecraft.getInstance().getOverlay()).getCurrentProgressDrippy();
+        }
 
-        this.posX = i / 2 - j1;
-        this.posY = k1 - 5;
-        this.width = j1 * 2;
-        this.height = 10;
+        int posX = i / 2 - j1;
+        int posY = k1 - 5;
+        int w = j1 * 2;
+        int h = 10;
 
-        this.drawProgressBar(matrix, i / 2 - j1, k1 - 5, i / 2 + j1, k1 + 5, this.opacity, currentProgress);
+        if (this.useOriginalSizeAndPosCalculation) {
+            this.posX = posX;
+            this.posY = posY;
+            this.width = w;
+            this.height = h;
+        } else {
+            posX = this.getPosX(menu);
+            posY = this.getPosY(menu);
+            w = this.getWidth();
+            h = this.getHeight();
+        }
+
+        if (this.shouldRender()) {
+            this.drawProgressBar(matrix, posX, posY, posX + w, posY + h, this.opacity, currentProgress);
+        }
 
     }
 
-    private void drawProgressBar(PoseStack matrix, int i1, int i2, int i3, int i4, float opacity, float currentProgress) {
-        int i = Mth.ceil((float)(i3 - i1 - 2) * currentProgress);
+    //TODO übernehmen
+    @Override
+    public boolean shouldRender() {
+        return super.shouldRender() && !this.hidden;
+    }
+
+    private void drawProgressBar(PoseStack matrix, int xMin, int yMin, int xMax, int yMax, float opacity, float currentProgress) {
+        int i = Mth.ceil((float)(xMax - xMin - 2) * currentProgress);
         int j = Math.round(opacity * 255.0F);
         int k = FastColor.ARGB32.color(j, 255, 255, 255);
         if (this.hexColor != null) {
             k = FastColor.ARGB32.color(j, this.hexColor.getRed(), this.hexColor.getGreen(), this.hexColor.getBlue());
         }
-        fill(matrix, i1 + 2, i2 + 2, i1 + i, i4 - 2, k);
-        fill(matrix, i1 + 1, i2, i3 - 1, i2 + 1, k);
-        fill(matrix, i1 + 1, i4, i3 - 1, i4 - 1, k);
-        fill(matrix, i1, i2, i1 + 1, i4, k);
-        fill(matrix, i3, i2, i3 - 1, i4, k);
+        fill(matrix, xMin + 2, yMin + 2, xMin + i, yMax - 2, k);
+        fill(matrix, xMin + 1, yMin, xMax - 1, yMin + 1, k);
+        fill(matrix, xMin + 1, yMax, xMax - 1, yMax - 1, k);
+        fill(matrix, xMin, yMin, xMin + 1, yMax, k);
+        fill(matrix, xMax, yMin, xMax - 1, yMax, k);
     }
 
 }

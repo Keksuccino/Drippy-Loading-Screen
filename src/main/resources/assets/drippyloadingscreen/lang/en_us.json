@@ -1,8 +1,14 @@
 {
-  "drippyloadingscreen.edit_loading_screen.desc": "Customize Loading Screen",
+  "drippyloadingscreen.edit_loading_screen.desc": "Customize Loading Screen\n\n§cYou can hide this button by using\n§cFancyMenu's Toggle Overlay keybind.\n§cThe keybind is §nCTRL + ALT + C§r §cby default.\n§cPress it again to bring it back.",
   "drippyloadingscreen.legacy_support.old_layouts": "§c§lOld Drippy Layouts Found!\n\nLayouts made with old versions of Drippy Loading Screen (1.X.X)\nwill not work with the version you have installed.\n\nYou will need to §cremake your layouts§r.\nI'm sorry for the inconvenience.\n\n\n\n",
   "drippyloadingscreen.deepcustomization.overlay.logo.display_name": "Mojang Logo",
+  "drippyloadingscreen.deepcustomization.overlay.logo.original_size_pos_calc.on": "Vanilla Size & Position Calculation: §aOn",
+  "drippyloadingscreen.deepcustomization.overlay.logo.original_size_pos_calc.off": "Vanilla Size & Position Calculation: §cOff",
+  "drippyloadingscreen.deepcustomization.overlay.logo.original_size_pos_calc.desc": "If the logo's original size and position\ncalculation should be used.\n\n§cTurning this OFF will enable you to\n§cmanually move and resize the element.",
   "drippyloadingscreen.deepcustomization.overlay.progress_bar.display_name": "Vanilla Progress Bar",
+  "drippyloadingscreen.deepcustomization.overlay.progress_bar.original_size_pos_calc.on": "Vanilla Size & Position Calculation: §aOn",
+  "drippyloadingscreen.deepcustomization.overlay.progress_bar.original_size_pos_calc.off": "Vanilla Size & Position Calculation: §cOff",
+  "drippyloadingscreen.deepcustomization.overlay.progress_bar.original_size_pos_calc.desc": "If the bar's original size and position\ncalculation should be used.\n\n§cTurning this OFF will enable you to\n§cmanually move and resize the element.",
   "drippyloadingscreen.deepcustomization.overlay.forge_memory.display_name": "Forge Memory",
   "drippyloadingscreen.deepcustomization.overlay.forge_log.display_name": "Forge Log",
   "drippyloadingscreen.deepcustomization.overlay.progress_bar.set_color": "Color [HEX]",
@@ -63,5 +69,7 @@
   "drippyloadingscreen.config.button.desc": "Lets you configure Drippy Loading Screen.",
   "drippyloadingscreen.config.categories.general": "GENERAL",
   "drippyloadingscreen.config.allow_universal_layouts": "Allow Universal Layouts",
-  "drippyloadingscreen.config.allow_universal_layouts.desc": "If universal layouts should get%%n%%applied to the loading screen."
+  "drippyloadingscreen.config.allow_universal_layouts.desc": "If universal layouts should get%%n%%applied to the loading screen.",
+  "drippyloadingscreen.config.early_fade_out_elements": "Early Fade-Out Elements",
+  "drippyloadingscreen.config.early_fade_out_elements.desc": "If elements should start fading out earlier%%n%%than the loading screen background."
 }

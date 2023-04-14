@@ -11,11 +11,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(AnimationHandler.class)
 public class MixinAnimationHandler {
 
-    @Inject(at = @At("HEAD"), method = "isReady", cancellable = true, remap = false)
-    private static void onIsReady(CallbackInfoReturnable<Boolean> info) {
-        if ((Minecraft.getInstance().screen != null) && (Minecraft.getInstance().screen instanceof DrippyOverlayScreen)) {
-            info.setReturnValue(true);
-        }
-    }
+    //TODO übernehmen
+//    @Inject(at = @At("HEAD"), method = "isReady", cancellable = true, remap = false)
+//    private static void onIsReady(CallbackInfoReturnable<Boolean> info) {
+//        if ((Minecraft.getInstance().screen != null) && (Minecraft.getInstance().screen instanceof DrippyOverlayScreen)) {
+//            info.setReturnValue(true);
+//        }
+//    }
 
 }

@@ -3,6 +3,7 @@ package de.keksuccino.drippyloadingscreen.customization;
 import com.mojang.blaze3d.vertex.PoseStack;
 import de.keksuccino.drippyloadingscreen.DrippyConfigScreen;
 import de.keksuccino.drippyloadingscreen.mixin.MixinCache;
+import de.keksuccino.drippyloadingscreen.mixin.mixins.client.IMixinLoadingOverlay;
 import de.keksuccino.fancymenu.menu.fancy.MenuCustomization;
 import de.keksuccino.fancymenu.menu.fancy.helper.CustomizationHelperUI;
 import de.keksuccino.fancymenu.menu.fancy.helper.ui.FMContextMenu;
@@ -56,12 +57,12 @@ public class DrippyOverlayScreen extends Screen {
     }
 
     @Override
-    public void renderDirtBackground(int i) {
+    public void renderDirtBackground(PoseStack matrix) {
         DrippyOverlayMenuHandler handler = (DrippyOverlayMenuHandler) MenuHandlerRegistry.getHandlerFor(this);
         if (handler.customBackgroundColor != null) {
             fill(this.cachedStack, 0, 0, this.width, this.height, handler.customBackgroundColor.getRGB());
         } else {
-            fill(this.cachedStack, 0, 0, this.width, this.height, MixinCache.originalLoadingScreenBackgroundColorSupplier.getAsInt());
+            fill(this.cachedStack, 0, 0, this.width, this.height, IMixinLoadingOverlay.getBrandBackgroundDrippy().getAsInt());
         }
         net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new net.minecraftforge.client.event.ScreenEvent.BackgroundRendered(this, new PoseStack()));
     }

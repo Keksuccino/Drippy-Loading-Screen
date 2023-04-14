@@ -15,8 +15,8 @@ import org.apache.logging.log4j.Logger;
 @Mod("drippyloadingscreen")
 public class DrippyLoadingScreen {
 
-	//TODO übernehmen 2.1.1
-	public static final String VERSION = "2.1.1";
+	//TODO übernehmen (+ locals)
+	public static final String VERSION = "2.2.0";
 	public static final String MOD_LOADER = "forge";
 	
 	public static final File MOD_DIR = new File(FancyMenu.getGameDirectory(), "/config/drippyloadingscreen");
@@ -62,6 +62,7 @@ public class DrippyLoadingScreen {
 			config = new Config(MOD_DIR.getPath() + "/config.cfg");
 
 			config.registerValue("allow_universal_layouts", false, "general");
+			config.registerValue("early_fade_out_elements", true, "general");
 			
 			config.syncConfig();
 			
