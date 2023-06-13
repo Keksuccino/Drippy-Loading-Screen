@@ -1,6 +1,6 @@
 package de.keksuccino.drippyloadingscreen;
 
-import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
 import de.keksuccino.drippyloadingscreen.customization.DrippyOverlayScreen;
 import de.keksuccino.fancymenu.FancyMenu;
 import de.keksuccino.fancymenu.menu.fancy.helper.ui.UIBase;
@@ -22,7 +22,7 @@ public class EventHandler {
         Minecraft.getInstance().setScreen(new DrippyOverlayScreen());
     }) {
         @Override
-        public void render(PoseStack matrix, int mouseX, int mouseY, float partialTicks) {
+        public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
             this.setDescription(StringUtils.splitLines(I18n.get("drippyloadingscreen.edit_loading_screen.desc"), "\n"));
             UIBase.colorizeButton(this);
             if (this.isHoveredOrFocused()) {
@@ -30,7 +30,7 @@ public class EventHandler {
             } else {
                 this.setX(-30);
             }
-            super.render(matrix, mouseX, mouseY, partialTicks);
+            super.render(graphics, mouseX, mouseY, partialTicks);
         }
     };
 
@@ -38,7 +38,7 @@ public class EventHandler {
     public void onDrawScreenPost(GuiScreenEvent.DrawScreenEvent.Post e) {
         if (e.getGui() instanceof TitleScreen) {
             if (FancyMenu.config.getOrDefault("showcustomizationbuttons", true)) {
-                editLoadingScreenButton.render(e.getMatrixStack(), e.getMouseX(), e.getMouseY(), e.getRenderPartialTicks());
+                editLoadingScreenButton.render(e.getGuiGraphics(), e.getMouseX(), e.getMouseY(), e.getRenderPartialTicks());
             }
         }
     }

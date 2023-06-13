@@ -1,13 +1,10 @@
 package de.keksuccino.drippyloadingscreen.customization;
 
-import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
 import de.keksuccino.drippyloadingscreen.customization.deepcustomization.overlay.background.OverlayBackgroundItem;
 import de.keksuccino.drippyloadingscreen.customization.deepcustomization.overlay.logo.OverlayLogoItem;
 import de.keksuccino.drippyloadingscreen.customization.deepcustomization.overlay.progressbar.OverlayProgressBarItem;
-import de.keksuccino.fancymenu.events.PlayWidgetClickSoundEvent;
-import de.keksuccino.fancymenu.events.RenderGuiListBackgroundEvent;
-import de.keksuccino.fancymenu.events.RenderWidgetBackgroundEvent;
-import de.keksuccino.fancymenu.events.SoftMenuReloadEvent;
+import de.keksuccino.fancymenu.events.*;
 import de.keksuccino.fancymenu.menu.button.ButtonCachedEvent;
 import de.keksuccino.fancymenu.menu.fancy.MenuCustomization;
 import de.keksuccino.fancymenu.menu.fancy.helper.MenuReloadedEvent;
@@ -30,9 +27,6 @@ public class DrippyOverlayMenuHandler extends MenuHandlerBase {
 
     private static final Logger LOGGER = LogManager.getLogger();
 
-    public boolean showLogo = true;
-    public boolean showProgressBar = true;
-    public Color customProgressBarColor = null;
     public Color customBackgroundColor = null;
 
     public OverlayProgressBarItem progressBarItem = null;
@@ -40,6 +34,7 @@ public class DrippyOverlayMenuHandler extends MenuHandlerBase {
 
     public DrippyOverlayMenuHandler() {
         super(DrippyOverlayScreen.class.getName());
+        this.forceDisableCustomMenuTitle = true;
     }
 
     @Override
@@ -51,9 +46,6 @@ public class DrippyOverlayMenuHandler extends MenuHandlerBase {
                 try {
 
                     //Reset all deep customization fields
-                    this.showLogo = true;
-                    this.showProgressBar = true;
-                    this.customProgressBarColor = null;
                     this.customBackgroundColor = null;
                     this.logoItem = (OverlayLogoItem) DeepCustomizationLayerRegistry.getLayerByMenuIdentifier(this.getMenuIdentifier()).getElementByIdentifier("drippy_overlay_logo").constructDefaultItemInstance();
                     this.progressBarItem = (OverlayProgressBarItem) DeepCustomizationLayerRegistry.getLayerByMenuIdentifier(this.getMenuIdentifier()).getElementByIdentifier("drippy_overlay_progress_bar").constructDefaultItemInstance();
@@ -96,25 +88,14 @@ public class DrippyOverlayMenuHandler extends MenuHandlerBase {
                         if (i != null) {
 
                             if (elementId.equals("drippy_overlay_logo")) {
-                                this.showLogo = !(i.hidden);
                                 this.logoItem = (OverlayLogoItem) i;
                             }
                             if (elementId.equals("drippy_overlay_progress_bar")) {
-                                this.showProgressBar = !(i.hidden);
-                                this.customProgressBarColor = ((OverlayProgressBarItem)i).hexColor;
                                 this.progressBarItem = (OverlayProgressBarItem) i;
                             }
                             if (elementId.equals("drippy_overlay_background")) {
                                 this.customBackgroundColor = ((OverlayBackgroundItem)i).hexColor;
                             }
-
-                            //Forge -------------->
-//                            if (elementId.equals("title_screen_forge_copyright")) {
-//                                this.showForgeNotificationCopyright = !(i.hidden);
-//                            }
-//                            if (elementId.equals("title_screen_forge_top")) {
-//                                this.showForgeNotificationTop = !(i.hidden);
-//                            }
 
                         }
                     }
@@ -127,18 +108,18 @@ public class DrippyOverlayMenuHandler extends MenuHandlerBase {
     }
 
     @Override
-    protected void renderBackground(PoseStack matrix, Screen s) {
-        super.renderBackground(matrix, s);
+    protected void renderBackground(GuiGraphics graphics, Screen s) {
+        super.renderBackground(graphics, s);
         if (Minecraft.getInstance().getOverlay() == null) {
             if (this.shouldCustomize(s)) {
                 if (!MenuCustomization.isMenuCustomizable(s)) {
                     return;
                 }
                 if ((this.logoItem != null) && !this.logoItem.hidden) {
-                    this.logoItem.render(matrix, s);
+                    this.logoItem.render(graphics, s);
                 }
                 if ((this.progressBarItem != null) && !this.progressBarItem.hidden) {
-                    this.progressBarItem.render(matrix, s);
+                    this.progressBarItem.render(graphics, s);
                 }
             }
         }
@@ -158,7 +139,7 @@ public class DrippyOverlayMenuHandler extends MenuHandlerBase {
 
     @Override
     @SubscribeEvent
-    public void onInitPre(GuiScreenEvent.InitGuiEvent.Pre e) {
+    public void onInitPre(InitOrResizeScreenEvent.Pre e) {
         super.onInitPre(e);
     }
 

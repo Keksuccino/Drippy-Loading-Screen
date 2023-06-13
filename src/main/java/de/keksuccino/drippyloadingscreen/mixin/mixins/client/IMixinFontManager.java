@@ -8,6 +8,6 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 @Mixin(FontManager.class)
 public interface IMixinFontManager {
 
-    @Accessor("reloadListener") PreparableReloadListener getReloadListenerDrippy();
+//    @Accessor("reloadListener") PreparableReloadListener getReloadListenerDrippy();
 
 }
