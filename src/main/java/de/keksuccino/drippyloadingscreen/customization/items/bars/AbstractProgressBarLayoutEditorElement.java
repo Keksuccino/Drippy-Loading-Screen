@@ -1,6 +1,6 @@
 package de.keksuccino.drippyloadingscreen.customization.items.bars;
 
-import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
 import de.keksuccino.fancymenu.api.item.CustomizationItemContainer;
 import de.keksuccino.fancymenu.api.item.LayoutEditorElement;
 import de.keksuccino.fancymenu.menu.fancy.MenuCustomization;
@@ -148,7 +148,7 @@ public abstract class AbstractProgressBarLayoutEditorElement extends LayoutEdito
             }
         }) {
             @Override
-            public void render(PoseStack p_93657_, int p_93658_, int p_93659_, float p_93660_) {
+            public void render(GuiGraphics p_93657_, int p_93658_, int p_93659_, float p_93660_) {
                 if (i.direction != null) {
                     this.setMessage(I18n.get("drippyloadingscreen.items.progress_bar.fill_direction", I18n.get("drippyloadingscreen.items.progress_bar.fill_direction." + i.direction.getName())));
                 }
@@ -167,7 +167,7 @@ public abstract class AbstractProgressBarLayoutEditorElement extends LayoutEdito
             }
         }) {
             @Override
-            public void render(PoseStack p_93657_, int p_93658_, int p_93659_, float p_93660_) {
+            public void render(GuiGraphics p_93657_, int p_93658_, int p_93659_, float p_93660_) {
                 if (i.useProgressForElementOrientation) {
                     this.setMessage(I18n.get("drippyloadingscreen.items.progress_bar.progress_for_orientation.on"));
                 } else {

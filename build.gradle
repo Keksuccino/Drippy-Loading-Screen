@@ -27,7 +27,7 @@ println('Java: ' + System.getProperty('java.version') + ' JVM: ' + System.getPro
 
 minecraft {
 
-    mappings channel: 'official', version: '1.19.3'
+    mappings channel: 'official', version: '1.20'
 
     accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
 
@@ -35,6 +35,15 @@ minecraft {
         client {
             workingDirectory project.file('run')
 			arg "-mixin.config=drippyloadingscreen.mixin.json"
+            mods {
+                drippyloadingscreen {
+                    source sourceSets.main
+                }
+            }
+        }
+        server {
+            workingDirectory project.file('server_run')
+            arg "-mixin.config=drippyloadingscreen.mixin.json"
             mods {
                 drippyloadingscreen {
                     source sourceSets.main
@@ -58,7 +67,7 @@ repositories {
 
 dependencies {
 
-    minecraft 'net.minecraftforge:forge:1.19.3-44.0.5'
+    minecraft 'net.minecraftforge:forge:1.20-46.0.12'
 	
 	implementation fileTree('libs') { include '*.jar' }
 

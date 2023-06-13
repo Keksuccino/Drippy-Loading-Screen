@@ -15,8 +15,8 @@ import org.apache.logging.log4j.Logger;
 @Mod("drippyloadingscreen")
 public class DrippyLoadingScreen {
 
-	//TODO übernehmen 2.1.1
-	public static final String VERSION = "2.1.1";
+	//TODO übernehmen
+	public static final String VERSION = "2.2.1";
 	public static final String MOD_LOADER = "forge";
 	
 	public static final File MOD_DIR = new File(FancyMenu.getGameDirectory(), "/config/drippyloadingscreen");
@@ -32,8 +32,9 @@ public class DrippyLoadingScreen {
 			if (!MOD_DIR.exists()) {
 				MOD_DIR.mkdirs();
 			}
-			
-			updateConfig();
+
+			//TODO übernehmen
+			initConfig();
 
 			MinecraftForge.EVENT_BUS.register(new EventHandler());
 			
@@ -54,6 +55,13 @@ public class DrippyLoadingScreen {
 			ex.printStackTrace();
 		}
 	}
+
+	//TODO übernehmen
+	public static void initConfig() {
+		if (config == null) {
+			updateConfig();
+		}
+	}
 	
 	public static void updateConfig() {
 		
@@ -62,6 +70,7 @@ public class DrippyLoadingScreen {
 			config = new Config(MOD_DIR.getPath() + "/config.cfg");
 
 			config.registerValue("allow_universal_layouts", false, "general");
+			config.registerValue("early_fade_out_elements", true, "general");
 			
 			config.syncConfig();
 			

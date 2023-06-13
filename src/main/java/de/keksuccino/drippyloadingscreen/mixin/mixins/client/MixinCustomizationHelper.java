@@ -16,7 +16,7 @@ public class MixinCustomizationHelper {
     private void onOnRenderPost(ScreenEvent.Render.Post e, CallbackInfo info) {
 
         if (e.getScreen() instanceof DrippyOverlayScreen) {
-            CustomizationHelperUI.render(e.getPoseStack(), e.getScreen());
+            CustomizationHelperUI.render(e.getGuiGraphics(), e.getScreen());
         }
 
     }

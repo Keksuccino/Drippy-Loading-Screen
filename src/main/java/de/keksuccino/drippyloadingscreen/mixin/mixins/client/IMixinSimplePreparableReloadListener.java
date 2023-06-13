@@ -9,8 +9,8 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 @Mixin(SimplePreparableReloadListener.class)
 public interface IMixinSimplePreparableReloadListener<T> {
 
-    @Invoker("prepare") T invokePrepareDrippy(ResourceManager var1, ProfilerFiller var2);
-
-    @Invoker("apply") void invokeApplyDrippy(T var1, ResourceManager var2, ProfilerFiller var3);
+//    @Invoker("prepare") T invokePrepareDrippy(ResourceManager var1, ProfilerFiller var2);
+//
+//    @Invoker("apply") void invokeApplyDrippy(T var1, ResourceManager var2, ProfilerFiller var3);
 
 }

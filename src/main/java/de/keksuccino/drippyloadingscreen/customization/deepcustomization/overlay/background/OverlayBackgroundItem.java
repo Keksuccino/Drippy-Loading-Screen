@@ -1,6 +1,6 @@
 package de.keksuccino.drippyloadingscreen.customization.deepcustomization.overlay.background;
 
-import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
 import de.keksuccino.fancymenu.menu.fancy.menuhandler.deepcustomizationlayer.DeepCustomizationElement;
 import de.keksuccino.fancymenu.menu.fancy.menuhandler.deepcustomizationlayer.DeepCustomizationItem;
 import de.keksuccino.konkrete.properties.PropertiesSection;
@@ -35,7 +35,7 @@ public class OverlayBackgroundItem extends DeepCustomizationItem {
     }
 
     @Override
-    public void render(PoseStack matrix, Screen menu) {
+    public void render(GuiGraphics graphics, Screen menu) {
 
         this.width = 0;
         this.height = 0;

@@ -1,13 +1,13 @@
 package de.keksuccino.drippyloadingscreen.customization.items.bars;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import de.keksuccino.fancymenu.api.item.CustomizationItem;
 import de.keksuccino.fancymenu.api.item.CustomizationItemContainer;
 import de.keksuccino.fancymenu.menu.fancy.MenuCustomization;
 import de.keksuccino.konkrete.properties.PropertiesSection;
 import de.keksuccino.konkrete.rendering.RenderUtils;
 import de.keksuccino.konkrete.resources.TextureHandler;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.resources.ResourceLocation;
 
@@ -87,15 +87,15 @@ public abstract class AbstractProgressBarCustomizationItem extends Customization
     }
 
     @Override
-    public void render(PoseStack matrix, Screen menu) throws IOException {
+    public void render(GuiGraphics graphics, Screen menu) throws IOException {
         if (this.shouldRender()) {
             RenderSystem.enableBlend();
-            this.renderBackground(matrix, menu);
-            this.renderProgress(matrix, menu);
+            this.renderBackground(graphics, menu);
+            this.renderProgress(graphics, menu);
         }
     }
 
-    protected void renderProgress(PoseStack matrix, Screen menu) {
+    protected void renderProgress(GuiGraphics graphics, Screen menu) {
 
         float currentProgress = Math.max(0.0F, Math.min(1.0F, this.getCurrentProgress()));
         int progressWidth = this.getWidth();
@@ -124,24 +124,26 @@ public abstract class AbstractProgressBarCustomizationItem extends Customization
         this.lastProgressHeight = progressHeight;
 
         if (this.barTexture != null) {
-            RenderUtils.bindTexture(this.barTexture);
+//            RenderUtils.bindTexture(this.barTexture);
+            RenderSystem.enableBlend();
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, this.opacity);
-            blit(matrix, progressX, progressY, offsetX, offsetY, progressWidth, progressHeight, this.getWidth(), this.getHeight());
+            graphics.blit(this.barTexture, progressX, progressY, offsetX, offsetY, progressWidth, progressHeight, this.getWidth(), this.getHeight());
         } else if (this.barColor != null) {
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-            RenderUtils.fill(matrix, progressX, progressY, progressX + progressWidth, progressY + progressHeight, this.barColor.getRGB(), this.opacity);
+            RenderUtils.fill(graphics, progressX, progressY, progressX + progressWidth, progressY + progressHeight, this.barColor.getRGB(), this.opacity);
         }
 
     }
 
-    protected void renderBackground(PoseStack matrix, Screen menu) {
+    protected void renderBackground(GuiGraphics graphics, Screen menu) {
         if (this.backgroundTexture != null) {
-            RenderUtils.bindTexture(this.backgroundTexture);
+//            RenderUtils.bindTexture(this.backgroundTexture);
+            RenderSystem.enableBlend();
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, this.opacity);
-            blit(matrix, this.getPosX(menu), this.getPosY(menu), 0.0F, 0.0F, this.getWidth(), this.getHeight(), this.getWidth(), this.getHeight());
+            graphics.blit(this.backgroundTexture, this.getPosX(menu), this.getPosY(menu), 0.0F, 0.0F, this.getWidth(), this.getHeight(), this.getWidth(), this.getHeight());
         } else if (this.barColor != null) {
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-            RenderUtils.fill(matrix, this.getPosX(menu), this.getPosY(menu), this.getPosX(menu) + this.getWidth(), this.getPosY(menu) + this.getHeight(), this.backgroundColor.getRGB(), this.opacity);
+            RenderUtils.fill(graphics, this.getPosX(menu), this.getPosY(menu), this.getPosX(menu) + this.getWidth(), this.getPosY(menu) + this.getHeight(), this.backgroundColor.getRGB(), this.opacity);
         }
     }
 
