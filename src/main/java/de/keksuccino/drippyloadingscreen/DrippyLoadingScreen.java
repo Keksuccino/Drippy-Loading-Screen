@@ -1,7 +1,6 @@
 package de.keksuccino.drippyloadingscreen;
 
 import java.io.File;
-
 import de.keksuccino.fancymenu.FancyMenu;
 import de.keksuccino.fancymenu.menu.animation.AnimationHandler;
 import de.keksuccino.konkrete.Konkrete;
@@ -14,7 +13,7 @@ import org.apache.logging.log4j.Logger;
 
 public class DrippyLoadingScreen implements ModInitializer {
 
-	public static final String VERSION = "2.2.1";
+	public static final String VERSION = "2.2.5";
 	public static final String MOD_LOADER = "fabric";
 	
 	public static final File MOD_DIR = new File(FancyMenu.getGameDirectory(), "/config/drippyloadingscreen");

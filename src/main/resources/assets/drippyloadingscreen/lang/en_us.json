@@ -64,6 +64,7 @@
   "drippyloadingscreen.placeholders.bars.progress.y.desc": "Gets the current Y position of\na progress bar.\n\n§cThis is not the element position,\n§cbut the position of its actual\n§cloading bar.\n\n§cThis always returns the actual\n§cstart position of the bar\n§cfrom the top of the screen.",
   "drippyloadingscreen.customization.msg.customizations_force_enabled": "You can't disable customizations\nfor this menu.",
   "drippyloadingscreen.keybinding.category": "Drippy Loading Screen",
+  "drippyloadingscreen.keybinding.toggle_overlay": "Toggle Customization Overlay",
   "drippyloadingscreen.config": "Drippy Loading Screen Settings",
   "drippyloadingscreen.config.button": "Configure Drippy",
   "drippyloadingscreen.config.button.desc": "Lets you configure Drippy Loading Screen.",

@@ -4,10 +4,8 @@
   "compatibilityLevel": "JAVA_17",
   "minVersion": "0.8",
   "client": [
-    "client.IMixinFontManager",
     "client.IMixinLoadingOverlay",
     "client.IMixinMinecraft",
-    "client.IMixinSimplePreparableReloadListener",
     "client.MixinCustomizationHelper",
     "client.MixinCustomizationHelperUI",
     "client.MixinCustomizationItemBase",
