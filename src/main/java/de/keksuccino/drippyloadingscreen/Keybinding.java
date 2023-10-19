@@ -5,6 +5,7 @@ import de.keksuccino.konkrete.input.KeyboardHandler;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.minecraft.client.KeyMapping;
 
+//This is not used anymore
 public class Keybinding {
 
     public static KeyMapping keyToggleOverlay;

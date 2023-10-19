@@ -1,5 +1,6 @@
 package de.keksuccino.drippyloadingscreen;
 
+import de.keksuccino.fancymenu.events.RenderScreenEvent;
 import net.minecraft.client.gui.GuiGraphics;
 import de.keksuccino.drippyloadingscreen.customization.DrippyOverlayScreen;
 import de.keksuccino.fancymenu.FancyMenu;
@@ -35,7 +36,7 @@ public class EventHandler {
     };
 
     @SubscribeEvent
-    public void onDrawScreenPost(GuiScreenEvent.DrawScreenEvent.Post e) {
+    public void onDrawScreenPost(RenderScreenEvent.Post e) {
         if (e.getGui() instanceof TitleScreen) {
             if (FancyMenu.config.getOrDefault("showcustomizationbuttons", true)) {
                 editLoadingScreenButton.render(e.getGuiGraphics(), e.getMouseX(), e.getMouseY(), e.getRenderPartialTicks());

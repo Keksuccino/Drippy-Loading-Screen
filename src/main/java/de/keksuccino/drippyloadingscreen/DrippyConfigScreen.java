@@ -2,6 +2,7 @@ package de.keksuccino.drippyloadingscreen;
 
 import de.keksuccino.konkrete.config.ConfigEntry;
 import de.keksuccino.konkrete.gui.screens.ConfigScreen;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.language.I18n;
 

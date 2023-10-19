@@ -11,6 +11,8 @@ import de.keksuccino.drippyloadingscreen.mixin.MixinCache;
 import de.keksuccino.fancymenu.api.item.CustomizationItemContainer;
 import de.keksuccino.fancymenu.api.item.CustomizationItemRegistry;
 import de.keksuccino.fancymenu.events.InitOrResizeScreenEvent;
+import de.keksuccino.fancymenu.events.RenderScreenEvent;
+import de.keksuccino.fancymenu.events.ScreenBackgroundRenderedEvent;
 import de.keksuccino.fancymenu.menu.animation.AnimationHandler;
 import de.keksuccino.fancymenu.menu.button.ButtonCachedEvent;
 import de.keksuccino.fancymenu.menu.fancy.MenuCustomization;
@@ -40,7 +42,6 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
 import java.awt.*;
 import java.io.File;
 import java.lang.reflect.Field;
@@ -103,7 +104,7 @@ public class MixinLoadingOverlay {
         this.scaleOverlayStart(graphics);
         if (drippyOverlayScreen != null) {
             this.runMenuHandlerTask(() -> {
-                drippyOverlayHandler.onRenderPre(new GuiScreenEvent.DrawScreenEvent.Pre(drippyOverlayScreen, graphics, mouseX, mouseY, partial));
+                drippyOverlayHandler.onRenderPre(new RenderScreenEvent.Pre(drippyOverlayScreen, graphics, mouseX, mouseY, partial));
             });
         }
         this.scaleOverlayEnd(graphics);
@@ -114,7 +115,7 @@ public class MixinLoadingOverlay {
         this.scaleOverlayStart(graphics);
         if (drippyOverlayScreen != null) {
             this.runMenuHandlerTask(() -> {
-                drippyOverlayHandler.onRenderPost(new GuiScreenEvent.DrawScreenEvent.Post(drippyOverlayScreen, graphics, mouseX, mouseY, partial));
+                drippyOverlayHandler.onRenderPost(new RenderScreenEvent.Post(drippyOverlayScreen, graphics, mouseX, mouseY, partial));
             });
         }
         this.scaleOverlayEnd(graphics);
@@ -126,7 +127,7 @@ public class MixinLoadingOverlay {
         this.scaleOverlayStart(graphics);
         if (drippyOverlayScreen != null) {
             this.runMenuHandlerTask(() -> {
-                drippyOverlayHandler.drawToBackground(new GuiScreenEvent.BackgroundDrawnEvent(drippyOverlayScreen, graphics));
+                drippyOverlayHandler.drawToBackground(new ScreenBackgroundRenderedEvent(drippyOverlayScreen, graphics));
             });
         }
         this.scaleOverlayEnd(graphics);

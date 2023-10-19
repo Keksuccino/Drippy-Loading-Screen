@@ -1,5 +1,9 @@
 package de.keksuccino.drippyloadingscreen.customization;
 
+import de.keksuccino.fancymenu.events.ScreenBackgroundRenderedEvent;
+import de.keksuccino.konkrete.properties.PropertiesSection;
+import de.keksuccino.konkrete.properties.PropertiesSerializer;
+import de.keksuccino.konkrete.properties.PropertiesSet;
 import net.minecraft.client.gui.GuiGraphics;
 import de.keksuccino.drippyloadingscreen.DrippyConfigScreen;
 import de.keksuccino.drippyloadingscreen.mixin.MixinCache;
@@ -9,7 +13,6 @@ import de.keksuccino.fancymenu.menu.fancy.helper.CustomizationHelperUI;
 import de.keksuccino.fancymenu.menu.fancy.helper.ui.FMContextMenu;
 import de.keksuccino.fancymenu.menu.fancy.menuhandler.MenuHandlerRegistry;
 import de.keksuccino.konkrete.Konkrete;
-import de.keksuccino.konkrete.events.client.GuiScreenEvent;
 import de.keksuccino.konkrete.gui.content.ContextMenu;
 import de.keksuccino.konkrete.input.StringUtils;
 import net.minecraft.client.Minecraft;
@@ -20,28 +23,38 @@ import net.minecraft.network.chat.Component;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
+import java.util.List;
 
 public class DrippyOverlayScreen extends Screen {
 
     private static final Logger LOGGER = LogManager.getLogger();
 
-    private static Button.OnPress configButtonOnPress = (press) -> {
+    private static final Button.OnPress configButtonOnPress = (press) -> {
         Minecraft.getInstance().setScreen(new DrippyConfigScreen(Minecraft.getInstance().screen));
     };
-
-    private GuiGraphics cachedStack = null;
 
     public DrippyOverlayScreen() {
         super(Component.literal(""));
         MixinCache.cachedCurrentLoadingScreenProgress = 0.5F;
-        if (!MenuCustomization.isMenuCustomizable(this)) {
-            LOGGER.info("[DRIPPY LOADING SCREEN] Force-enabling customizations for DrippyOverlayScreen..");
+        this.forceEnableCustomizations();
+    }
+
+    protected void forceEnableCustomizations() {
+        PropertiesSet customizableMenus = PropertiesSerializer.getProperties(MenuCustomization.getAbsoluteGameDirectoryPath(MenuCustomization.CUSTOMIZABLE_MENUS_FILE.getPath()));
+        if (customizableMenus != null) {
+            List<PropertiesSection> secs = customizableMenus.getPropertiesOfType(DrippyOverlayScreen.class.getName());
+            if ((secs == null) || secs.isEmpty()) {
+                LOGGER.info("[DRIPPY LOADING SCREEN] Force-enabling customizations for DrippyOverlayScreen..");
+                MenuCustomization.enableCustomizationForMenu(this);
+            }
+        } else {
+            LOGGER.error("[DRIPPY LOADING SCREEN] Unable to read '" + MenuCustomization.CUSTOMIZABLE_MENUS_FILE.getPath() + "'! Will force-enable customizations for DrippyOverlayScreen anyways..");
             MenuCustomization.enableCustomizationForMenu(this);
         }
     }
 
     @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partial) {
+    public void render(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partial) {
         try {
             if (CustomizationHelperUI.bar != null) {
                 ContextMenu con = CustomizationHelperUI.bar.getChild("fm.ui.tab.current");
@@ -54,20 +67,20 @@ public class DrippyOverlayScreen extends Screen {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        this.cachedStack = graphics;
         this.renderBackground(graphics);
         super.render(graphics, mouseX, mouseY, partial);
     }
 
+    //TODO übernehmen FM 2.14.10
     @Override
-    public void renderDirtBackground(@NotNull GuiGraphics graphics) {
+    public void renderBackground(@NotNull GuiGraphics graphics) {
         DrippyOverlayMenuHandler handler = (DrippyOverlayMenuHandler) MenuHandlerRegistry.getHandlerFor(this);
         if (handler.customBackgroundColor != null) {
             graphics.fill(0, 0, this.width, this.height, handler.customBackgroundColor.getRGB());
         } else if (IMixinLoadingOverlay.getBrandBackgroundDrippy() != null) {
             graphics.fill(0, 0, this.width, this.height, IMixinLoadingOverlay.getBrandBackgroundDrippy().getAsInt());
         }
-        Konkrete.getEventHandler().callEventsFor(new GuiScreenEvent.BackgroundDrawnEvent(this, graphics));
+        Konkrete.getEventHandler().callEventsFor(new ScreenBackgroundRenderedEvent(this, graphics));
     }
 
 }
