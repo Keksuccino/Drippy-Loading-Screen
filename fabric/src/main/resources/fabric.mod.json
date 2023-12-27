@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "id": "drippyloadingscreen",
+  "version": "${version}",
+  "name": "Drippy Loading Screen",
+  "description": "~ loading screen won't stop dripping ~ | Drippy Loading Screen © Copyright 2023 Keksuccino. Drippy Loading Screen is licensed under DSMSLv2 (DON'T SNATCH MA STUFF LICENSE v2.0). See https://github.com/Keksuccino/Drippy-Loading-Screen/blob/main/LICENSE.md for more information about this license.",
+  "environment": "client",
+  "authors": [
+    "Keksuccino"
+  ],
+  "contributors": [
+  ],
+  "contact": {},
+  "license": "DSMSLv2 (DON'T SNATCH MA STUFF LICENSE v2.0)",
+  "icon": "drippy_logo_128x128.png",
+  "entrypoints": {
+    "main": [
+      "de.keksuccino.drippyloadingscreen.FancyMenuFabric"
+    ],
+    "client": [],
+    "server": []
+  },
+  "mixins": [
+    "drippyloadingscreen.mixins.json",
+    "drippyloadingscreen.fabric.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.15.2",
+    "fabric": ">=0.91.0",
+    "konkrete": ">=1.7.0",
+    "fancymenu": ">=3.0.0",
+    "minecraft": ">=1.20.1",
+    "java": ">=17"
+  }
+}

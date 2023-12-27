@@ -1,0 +1,53 @@
+# The name of the mod loader type to load - for regular FML @Mod mods it should be javafml
+modLoader="javafml" #mandatory
+# A version range to match for said mod loader - for regular FML @Mod it will be the forge version
+loaderVersion="[47,)" #mandatory This is typically bumped every Minecraft version by Forge. See our download page for lists of versions.
+# The mod license
+license="DSMSLv2 (DON'T SNATCH MA STUFF LICENSE v2.0)"
+# A list of mods - how many allowed here is determined by the individual mod loader
+[[mods]] #mandatory
+# The modid of the mod
+modId="drippyloadingscreen" #mandatory
+# The version number of the mod - there's a few well known ${} variables useable here or just hardcode it
+version="${file.jarVersion}" #mandatory
+# A display name for the mod
+displayName="Drippy Loading Screen" #mandatory
+# A text field displayed in the mod UI
+authors="Keksuccino" #optional
+logoFile="drippy_logo_128x128.png"
+# The description text for the mod (multi line!) (#mandatory)
+description='''~ loading screen won't stop dripping ~
+
+COPYRIGHT:
+
+> Drippy Loading Screen © Copyright 2023 Keksuccino.
+  Drippy Loading Screen is licensed under DSMSLv2 (DON'T SNATCH MA STUFF LICENSE v2.0).
+  See https://github.com/Keksuccino/Drippy-Loading-Screen/blob/main/LICENSE.md for more information about this license.'''
+
+[[dependencies.drippyloadingscreen]]
+modId="konkrete"
+mandatory=true
+ordering="NONE"
+versionRange="[1.6.1,)"
+side="BOTH"
+
+[[dependencies.drippyloadingscreen]]
+modId="fancymenu"
+mandatory=true
+ordering="NONE"
+versionRange="[3.0.0,)"
+side="BOTH"
+
+[[dependencies.drippyloadingscreen]]
+modId="forge"
+mandatory=true
+versionRange="[47.2.17,)"
+ordering="NONE"
+side="CLIENT"
+
+[[dependencies.drippyloadingscreen]]
+modId="minecraft"
+mandatory=true
+versionRange="[1.20.1,)"
+ordering="NONE"
+side="CLIENT"

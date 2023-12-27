@@ -1,94 +1,85 @@
-buildscript {
+plugins {
+    id 'fabric-loom' version '1.2-SNAPSHOT' apply(false)
+    id 'net.minecraftforge.gradle' version '[6.0,6.2)' apply(false)
+    id 'org.spongepowered.gradle.vanilla' version '0.2.1-SNAPSHOT' apply(false)
+    id("org.spongepowered.mixin") version "0.7-SNAPSHOT" apply(false)
+}
+
+subprojects {
+    apply plugin: 'java'
+
+    java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+    java.withSourcesJar()
+//    java.withJavadocJar()
+        
+    jar {
+        from(rootProject.file("LICENSE")) {
+            rename { "${it}_${mod_name}" }
+        }
+        manifest {
+            attributes([
+                'Specification-Title'     : mod_name,
+                'Specification-Vendor'    : mod_author,
+                'Specification-Version'   : project.jar.archiveVersion,
+                'Implementation-Title'    : project.name,
+                'Implementation-Version'  : project.version,
+                'Implementation-Vendor'   : mod_author,
+                'Implementation-Timestamp': new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
+                'Timestamp'               : System.currentTimeMillis(),
+                'Built-On-Java'           : "${System.getProperty('java.vm.version')} (${System.getProperty('java.vm.vendor')})",
+                'Built-On-Minecraft'      : minecraft_version
+            ])
+        }
+    }
+
+    sourcesJar {
+//        from(rootProject.file("LICENSE")) {
+//            rename { "${it}_${mod_name}" }
+//        }
+    }
+
     repositories {
-        maven { url = 'https://maven.minecraftforge.net' }
-		maven { url = 'https://repo.spongepowered.org/maven' }
         mavenCentral()
-    }
-    dependencies {
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1+', changing: true
-		classpath 'org.spongepowered:mixingradle:0.7-SNAPSHOT'
-    }
-}
-apply plugin: 'net.minecraftforge.gradle'
-apply plugin: 'eclipse'
-apply plugin: 'maven-publish'
-apply plugin: 'org.spongepowered.mixin'
-
-version = '1.0.0'
-group = 'de.keksuccino'
-archivesBaseName = 'drippyloadingscreen'
-
-java.toolchain.languageVersion = JavaLanguageVersion.of(17)
-compileJava {
-    [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
-}
-
-println('Java: ' + System.getProperty('java.version') + ' JVM: ' + System.getProperty('java.vm.version') + '(' + System.getProperty('java.vendor') + ') Arch: ' + System.getProperty('os.arch'))
-
-minecraft {
-
-    mappings channel: 'official', version: '1.19.4'
-
-    //accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
-
-    runs {
-        client {
-            workingDirectory project.file('run')
-			arg "-mixin.config=drippyloadingscreen.mixin.json"
-            mods {
-                drippyloadingscreen {
-                    source sourceSets.main
-                }
+        maven { url 'https://jitpack.io' }
+        maven { url 'https://zoidberg.ukp.informatik.tu-darmstadt.de/artifactory/public-releases/' }
+        maven {
+            name = 'Sponge / Mixin'
+            url = 'https://repo.spongepowered.org/repository/maven-public/'
+        }
+        maven {
+            name = 'BlameJared Maven (JEI / CraftTweaker / Bookshelf)'
+            url = 'https://maven.blamejared.com'
+        }
+        maven {
+            url "https://cursemaven.com"
+            content {
+                includeGroup "curse.maven"
+            }
+        }
+        maven {
+            url "https://api.modrinth.com/maven"
+            content {
+                includeGroup "maven.modrinth"
             }
         }
     }
-	
-}
 
-sourceSets.main.resources { srcDir 'src/generated/resources' }
-
-repositories {
-    // Put repositories for dependencies here
-    // ForgeGradle automatically adds the Forge maven and Maven Central for you
-
-    //flatDir {
-    //   dir 'libs'
-    //}
-}
-
-dependencies {
-
-    minecraft 'net.minecraftforge:forge:1.19.4-45.0.6'
-	
-	implementation fileTree('libs') { include '*.jar' }
-
-    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
-    testAnnotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
-
-}
-
-mixin {
-    add sourceSets.main, "drippyloadingscreen.mixin-refmap.json"
-}
-
-jar {
-    manifest {
-        attributes([
-            "Specification-Title": "Drippy Loading Screen",
-            "Specification-Vendor": "Keksuccino",
-            "Specification-Version": "1",
-            "Implementation-Title": project.name,
-            "Implementation-Version": "${version}",
-            "Implementation-Vendor" :"Keksuccino",
-            "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
-            "Signing-Fingerprint": project.hasProperty('fingerprint') ? project.property('fingerprint') : 'unsigned',
-			"TweakClass": "org.spongepowered.asm.launch.MixinTweaker",
-            "TweakOrder": 0,
-            "MixinConfigs" : "drippyloadingscreen.mixin.json"
-        ])
+    tasks.withType(JavaCompile).configureEach {
+        it.options.encoding = 'UTF-8'
+        it.options.getRelease().set(17)
     }
+
+    processResources {
+        filesMatching(['pack.mcmeta', 'fabric.mod.json', 'mods.toml', '*.mixins.json']) {
+            expand project.properties
+        }
+    }
+
+    // Disables Gradle's custom module metadata from being published to maven. The
+    // metadata includes mapped dependencies which are not reasonably consumable by
+    // other mod developers.
+    tasks.withType(GenerateModuleMetadata).configureEach {
+        enabled = false
+    }
+
 }
-
-
-jar.finalizedBy('reobfJar')
-
