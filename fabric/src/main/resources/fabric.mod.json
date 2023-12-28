@@ -15,7 +15,7 @@
   "icon": "drippy_logo_128x128.png",
   "entrypoints": {
     "main": [
-      "de.keksuccino.drippyloadingscreen.FancyMenuFabric"
+      "de.keksuccino.drippyloadingscreen.DrippyLoadingScreenFabric"
     ],
     "client": [],
     "server": []

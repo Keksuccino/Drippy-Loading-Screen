@@ -1,21 +1,19 @@
-
 package de.keksuccino.drippyloadingscreen.customization.placeholders;
 
 import de.keksuccino.drippyloadingscreen.mixin.MixinCache;
-import de.keksuccino.fancymenu.menu.placeholder.v2.DeserializedPlaceholderString;
-import de.keksuccino.fancymenu.menu.placeholder.v2.Placeholder;
+import de.keksuccino.fancymenu.customization.placeholder.DeserializedPlaceholderString;
+import de.keksuccino.fancymenu.customization.placeholder.Placeholder;
 import de.keksuccino.konkrete.input.StringUtils;
 import net.minecraft.client.resources.language.I18n;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
 import java.util.Arrays;
 import java.util.List;
 
 public class GameLoadingProgressPercentPlaceholder extends Placeholder {
 
     public GameLoadingProgressPercentPlaceholder() {
-        super("drippy_gl_percent");
+        super("game_loading_progress");
     }
 
     @Override
@@ -29,7 +27,7 @@ public class GameLoadingProgressPercentPlaceholder extends Placeholder {
     }
 
     @Override
-    public String getDisplayName() {
+    public @NotNull String getDisplayName() {
         return I18n.get("drippyloadingscreen.placeholders.general.loading_progress_percent");
     }
 
@@ -40,14 +38,12 @@ public class GameLoadingProgressPercentPlaceholder extends Placeholder {
 
     @Override
     public String getCategory() {
-        return "Drippy Loading Screen";
+        return I18n.get("fancymenu.fancymenu.editor.dynamicvariabletextfield.categories.client");
     }
 
     @Override
     public @NotNull DeserializedPlaceholderString getDefaultPlaceholderString() {
-        DeserializedPlaceholderString dps = new DeserializedPlaceholderString();
-        dps.placeholder = this.getIdentifier();
-        return dps;
+        return new DeserializedPlaceholderString(this.getIdentifier(), null, "");
     }
 
 }

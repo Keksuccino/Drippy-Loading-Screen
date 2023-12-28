@@ -1,18 +1,16 @@
 {
   "required": true,
-  "package": "de.keksuccino.fancymenu.mixin.mixins.fabric",
+  "package": "de.keksuccino.drippyloadingscreen.mixin.mixins.fabric",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
   ],
   "client": [
-    "client.MixinFabricGameRenderer",
-    "client.MixinFabricTitleScreen"
   ],
   "injectors": {
     "defaultRequire": 1
   },
   "plugin": "de.keksuccino.drippyloadingscreen.mixin.DrippyMixinPlugin",
   "minVersion": "0.8",
-  "refmap": "fancymenu.refmap.json"
+  "refmap": "drippyloadingscreen.refmap.json"
 }
   

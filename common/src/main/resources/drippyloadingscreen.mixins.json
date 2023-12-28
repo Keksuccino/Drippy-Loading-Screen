@@ -5,16 +5,7 @@
   "client": [
     "client.IMixinLoadingOverlay",
     "client.IMixinMinecraft",
-    "client.MixinCustomizationHelper",
-    "client.MixinCustomizationHelperUI",
-    "client.MixinCustomizationItemBase",
-    "client.MixinLayoutEditorScreen",
-    "client.MixinLayoutPropertiesContextMenu",
-    "client.MixinLoadingOverlay",
-    "client.MixinMenuCustomization",
-    "client.MixinMenuCustomizationProperties",
-    "client.MixinMinecraft",
-    "client.MixinNewElementContextMenu"
+    "client.MixinLoadingOverlay"
   ],
   "injectors": {
     "defaultRequire": 1
