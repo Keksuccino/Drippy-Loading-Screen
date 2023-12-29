@@ -2,6 +2,7 @@ package de.keksuccino.drippyloadingscreen;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import de.keksuccino.fancymenu.FancyMenu;
+import de.keksuccino.fancymenu.customization.overlay.CustomizationOverlay;
 import de.keksuccino.fancymenu.events.screen.InitOrResizeScreenCompletedEvent;
 import de.keksuccino.fancymenu.util.LocalizationUtils;
 import de.keksuccino.fancymenu.util.event.acara.EventListener;
@@ -32,7 +33,10 @@ public class DrippyEvents {
             }) {
                 @Override
                 public void render(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partial) {
-                    TooltipHandler.INSTANCE.addTooltip(Tooltip.of(LocalizationUtils.splitLocalizedLines("drippyloadingscreen.edit_loading_screen.desc")).setDefaultStyle(), () -> this.isHovered, false, true);
+                    var m = CustomizationOverlay.getCurrentMenuBarInstance();
+                    if ((m == null) || !m.isUserNavigatingInMenuBar()) {
+                        TooltipHandler.INSTANCE.addTooltip(Tooltip.of(LocalizationUtils.splitLocalizedLines("drippyloadingscreen.edit_loading_screen.desc")).setDefaultStyle().setScale(UIBase.getUIScale()), () -> this.isHovered, false, true);
+                    }
                     if (this.isHoveredOrFocused()) {
                         this.setX(-20);
                     } else {

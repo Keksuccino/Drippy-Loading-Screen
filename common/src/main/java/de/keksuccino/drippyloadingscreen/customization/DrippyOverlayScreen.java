@@ -15,6 +15,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import de.keksuccino.drippyloadingscreen.mixin.MixinCache;
 import net.minecraft.client.gui.screens.LoadingOverlay;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FastColor;
@@ -22,6 +23,7 @@ import net.minecraft.util.Mth;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
+import java.util.function.IntSupplier;
 
 public class DrippyOverlayScreen extends Screen {
 
@@ -62,13 +64,20 @@ public class DrippyOverlayScreen extends Screen {
     public void renderBackground(@NotNull GuiGraphics graphics) {
         ScreenCustomizationLayer layer = ScreenCustomizationLayerHandler.getLayerOfScreen(this);
         boolean shouldRenderDefaultBackground = (layer == null) || (layer.layoutBase.menuBackground == null);
-        if (shouldRenderDefaultBackground && IMixinLoadingOverlay.getBrandBackgroundDrippy() != null) {
-            RenderSystem.enableBlend();
-            graphics.fill(0, 0, this.width, this.height, RenderingUtils.replaceAlphaInColor(IMixinLoadingOverlay.getBrandBackgroundDrippy().getAsInt(), this.backgroundOpacity));
+        IntSupplier supplier = IMixinLoadingOverlay.getBrandBackgroundDrippy();
+        int color = (supplier != null) ? supplier.getAsInt() : 0;
+        if (shouldRenderDefaultBackground) {
+            RenderingUtils.resetShaderColor(graphics);
+            graphics.fill(RenderType.guiOverlay(), 0, 0, this.width, this.height, replaceAlpha(color, (int)(this.backgroundOpacity * 255.0F)));
+            RenderingUtils.resetShaderColor(graphics);
         }
-        RenderingUtils.resetShaderColor(graphics);
         EventHandler.INSTANCE.postEvent(new RenderedScreenBackgroundEvent(this, graphics));
-        RenderingUtils.resetShaderColor(graphics);
+    }
+
+    private static int replaceAlpha(int color, int alpha) {
+        if (alpha > 255) alpha = 255;
+        if (alpha < 0) alpha = 0;
+        return color & 16777215 | alpha << 24;
     }
 
     public static RendererWidget buildLogoWidget() {
@@ -88,15 +97,17 @@ public class DrippyOverlayScreen extends Screen {
 
         return new RendererWidget(logoPosX, logoPosY, logoWidthHalf * 2, logoHeightHalf * 2,
                 (graphics, mouseX, mouseY, partial, x, y, width, height, widget) -> {
+                    RenderSystem.disableDepthTest();
+                    RenderSystem.depthMask(false);
                     RenderSystem.enableBlend();
-                    RenderSystem.blendEquation(32774);
                     RenderSystem.blendFunc(770, 1);
                     graphics.setColor(1.0F, 1.0F, 1.0F, ((IMixinAbstractWidget)widget).getAlphaFancyMenu());
                     graphics.blit(MOJANG_STUDIOS_LOGO_LOCATION, x, y, width / 2, height, -0.0625F, 0.0F, 120, 60, 120, 120);
                     graphics.blit(MOJANG_STUDIOS_LOGO_LOCATION, x + (width / 2), y, (width / 2), height, 0.0625F, 60.0F, 120, 60, 120, 120);
                     RenderingUtils.resetShaderColor(graphics);
                     RenderSystem.defaultBlendFunc();
-                    RenderSystem.disableBlend();
+                    RenderSystem.depthMask(true);
+                    RenderSystem.enableDepthTest();
                 }
         ).setWidgetIdentifierFancyMenu("mojang_logo");
 
@@ -123,6 +134,11 @@ public class DrippyOverlayScreen extends Screen {
                     if (Minecraft.getInstance().getOverlay() instanceof LoadingOverlay) {
                         currentProgress = ((IMixinLoadingOverlay)Minecraft.getInstance().getOverlay()).getCurrentProgressDrippy();
                     }
+                    RenderingUtils.resetShaderColor(graphics);
+                    RenderSystem.defaultBlendFunc();
+                    RenderSystem.enableBlend();
+                    RenderSystem.depthMask(true);
+                    RenderSystem.enableDepthTest();
                     drawProgressBar(graphics, x, y, x + width, y + height, ((IMixinAbstractWidget)widget).getAlphaFancyMenu(), currentProgress);
                     RenderingUtils.resetShaderColor(graphics);
                 }

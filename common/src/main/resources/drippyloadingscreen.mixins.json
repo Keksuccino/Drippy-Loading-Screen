@@ -5,7 +5,13 @@
   "client": [
     "client.IMixinLoadingOverlay",
     "client.IMixinMinecraft",
-    "client.MixinLoadingOverlay"
+    "client.MixinCustomizationOverlay",
+    "client.MixinImageElement",
+    "client.MixinImageMenuBackground",
+    "client.MixinLoadingOverlay",
+    "client.MixinProgressBarElement"
+  ],
+  "mixins": [
   ],
   "injectors": {
     "defaultRequire": 1

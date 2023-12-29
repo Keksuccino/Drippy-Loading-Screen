@@ -1,6 +1,12 @@
 package de.keksuccino.drippyloadingscreen;
 
 import java.io.File;
+import de.keksuccino.drippyloadingscreen.customization.DrippyOverlayScreen;
+import de.keksuccino.drippyloadingscreen.customization.backgrounds.Backgrounds;
+import de.keksuccino.drippyloadingscreen.customization.elements.Elements;
+import de.keksuccino.drippyloadingscreen.customization.placeholders.Placeholders;
+import de.keksuccino.fancymenu.customization.ScreenCustomization;
+import de.keksuccino.fancymenu.customization.screen.identifier.UniversalScreenIdentifierRegistry;
 import de.keksuccino.fancymenu.util.event.acara.EventHandler;
 import de.keksuccino.drippyloadingscreen.platform.Services;
 import de.keksuccino.fancymenu.util.file.FileUtils;
@@ -10,6 +16,16 @@ import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
 public class DrippyLoadingScreen {
+
+	//TODO Player Entities in loading screen layouts deaktivieren (und andere nicht funktionierende element types)
+
+	//TODO Handling für allowUniversalLayouts adden
+
+	//TODO Legacy Drippy elements (progress bars, vanilla customizations, menu background) konvertieren
+
+
+
+
 
 	private static final Logger LOGGER = LogManager.getLogger();
 
@@ -21,17 +37,12 @@ public class DrippyLoadingScreen {
 
 	private static Options options;
 
-	public DrippyLoadingScreen() {
-
-		//Initializing animation engine early (only needed in Fabric)
-		if (Services.PLATFORM.getPlatformName().equalsIgnoreCase("fabric") && Services.PLATFORM.isOnClient()) {
-			LOGGER.info("[DRIPPY LOADING SCREEN] Force-initializing FancyMenu's animation engine..");
-			FMAnimationUtils.initAnimationEngine();
-		}
-
-	}
+	private static boolean initialized = false;
 
 	public static void init() {
+
+		if (initialized) return;
+		initialized = true;
 
 		if (Services.PLATFORM.isOnClient()) {
 			LOGGER.info("[DRIPPY LOADING SCREEN] Loading v" + VERSION + " in client-side mode on " + MOD_LOADER.toUpperCase() + "!");
@@ -42,6 +53,21 @@ public class DrippyLoadingScreen {
 		if (Services.PLATFORM.isOnClient()) {
 
 			EventHandler.INSTANCE.registerListenersOf(new DrippyEvents());
+
+			//Register universal identifier for Drippy screen
+			UniversalScreenIdentifierRegistry.register("drippy_loading_overlay", DrippyOverlayScreen.class.getName());
+
+			//Disable customization for all background config screens
+			ScreenCustomization.addScreenBlacklistRule(s -> s.startsWith("de.keksuccino.drippyloadingscreen.customization.backgrounds."));
+
+			//Register custom backgrounds
+			Backgrounds.registerAll();
+
+			//Register custom placeholders
+			Placeholders.registerAll();
+
+			//Register custom element types
+			Elements.registerAll();
 
 		}
 

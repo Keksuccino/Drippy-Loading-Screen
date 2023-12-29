@@ -5,10 +5,8 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import de.keksuccino.drippyloadingscreen.DrippyLoadingScreen;
 import de.keksuccino.drippyloadingscreen.FMAnimationUtils;
 import de.keksuccino.drippyloadingscreen.customization.DrippyOverlayScreen;
-import de.keksuccino.drippyloadingscreen.customization.backgrounds.Backgrounds;
-import de.keksuccino.drippyloadingscreen.customization.elements.Elements;
-import de.keksuccino.drippyloadingscreen.customization.placeholders.Placeholders;
 import de.keksuccino.drippyloadingscreen.mixin.MixinCache;
+import de.keksuccino.fancymenu.customization.ScreenCustomization;
 import de.keksuccino.fancymenu.customization.animation.AnimationHandler;
 import de.keksuccino.fancymenu.customization.element.AbstractElement;
 import de.keksuccino.fancymenu.customization.layer.ScreenCustomizationLayer;
@@ -16,6 +14,7 @@ import de.keksuccino.fancymenu.customization.layer.ScreenCustomizationLayerHandl
 import de.keksuccino.fancymenu.events.screen.*;
 import de.keksuccino.fancymenu.util.event.acara.EventHandler;
 import de.keksuccino.fancymenu.util.rendering.RenderingUtils;
+import de.keksuccino.fancymenu.util.rendering.ui.UIBase;
 import de.keksuccino.fancymenu.util.threading.MainThreadTaskExecutor;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
@@ -26,69 +25,50 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ReloadInstance;
+import net.minecraft.util.FastColor;
 import net.minecraft.util.profiling.InactiveProfiler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import java.awt.*;
 import java.util.function.Consumer;
 
 @Mixin(LoadingOverlay.class)
 public class MixinLoadingOverlay {
 
-
-    //TODO FIXEN: Overlay Screen hat keine Menu bar
-
-    //TODO FIXEN: Overlay fade-out broken (nur background ??)
-
-
-
-
-
-
     @Unique private static final Logger LOGGER_DRIPPY = LogManager.getLogger();
 
     @Unique private static boolean initializedDrippy = false;
     @Unique private static DrippyOverlayScreen drippyOverlayScreen = new DrippyOverlayScreen();
-    @Unique private static ScreenCustomizationLayer drippyCustomizationLayer = null;
 
     @Unique private int lastScreenWidthDrippy = 0;
     @Unique private int lastScreenHeightDrippy = 0;
     @Unique private float cachedBackgroundOpacityDrippy = 1.0F;
     @Unique private float cachedElementOpacityDrippy = 1.0F;
+    @Unique private double cachedOverlayScaleDrippy = 1.0D;
 
     @Shadow private float currentProgress;
 
     @Inject(method = "<init>", at = @At("RETURN"))
     private void afterConstructDrippy(Minecraft mc, ReloadInstance reload, Consumer<?> consumer, boolean b, CallbackInfo info) {
         if (!initializedDrippy) {
-            LOGGER_DRIPPY.info("[DRIPPY LOADING SCREEN] Initializing fonts for text rendering..");
             //This makes text rendering work in the game loading screen
+            LOGGER_DRIPPY.info("[DRIPPY LOADING SCREEN] Initializing fonts for text rendering..");
             this.loadFontsDrippy();
-            //Register custom backgrounds
-            Backgrounds.registerAll();
-            //Register custom placeholders
-            Placeholders.registerAll();
-            //Register custom element types
-            Elements.registerAll();
-            LOGGER_DRIPPY.info("[DRIPPY LOADING SCREEN] Calculating animation sizes for FancyMenu..");
             //Setup FancyMenu animation sizes
+            LOGGER_DRIPPY.info("[DRIPPY LOADING SCREEN] Calculating animation sizes for FancyMenu..");
             FMAnimationUtils.initAnimationEngine();
             AnimationHandler.updateAnimationSizes();
             initializedDrippy = true;
         }
-        drippyOverlayScreen = new DrippyOverlayScreen();
-        if (drippyCustomizationLayer == null) {
-            ScreenCustomizationLayerHandler.registerScreen(drippyOverlayScreen);
-            drippyCustomizationLayer = ScreenCustomizationLayerHandler.getLayerOfScreen(drippyOverlayScreen);
-        }
+        this.setNewOverlayScreenDrippy();
         this.lastScreenWidthDrippy = Minecraft.getInstance().getWindow().getGuiScaledWidth();
         this.lastScreenHeightDrippy = Minecraft.getInstance().getWindow().getGuiScaledHeight();
-        this.initOverlayDrippy(this.lastScreenWidthDrippy, this.lastScreenHeightDrippy, false);
+        this.initOverlayScreenDrippy(false);
         this.setBackgroundOpacityDrippy(1.0F);
         this.setElementsOpacityDrippy(1.0F);
         this.tickOverlayUpdateDrippy();
@@ -104,14 +84,44 @@ public class MixinLoadingOverlay {
         this.setBackgroundOpacityDrippy(this.cachedBackgroundOpacityDrippy);
         this.setElementsOpacityDrippy(DrippyLoadingScreen.getOptions().earlyFadeOutElements.getValue() ? this.cachedElementOpacityDrippy : this.cachedBackgroundOpacityDrippy);
         this.runMenuHandlerTaskDrippy(() -> {
+
             EventHandler.INSTANCE.postEvent(new ScreenTickEvent.Pre(drippyOverlayScreen));
             drippyOverlayScreen.tick();
             EventHandler.INSTANCE.postEvent(new ScreenTickEvent.Post(drippyOverlayScreen));
+
+            this.restoreRenderDefaultsDrippy(graphics);
+
+            //This is to render the overlay in its own scale while still rendering the actual current screen under it in the current screen's scale
+            //It's important to calculate the fixed scale BEFORE updating the window GUI scale
+            float renderScale = UIBase.calculateFixedScale((float)this.cachedOverlayScaleDrippy);
+            double guiScale = Minecraft.getInstance().getWindow().getGuiScale();
+            Minecraft.getInstance().getWindow().setGuiScale(this.cachedOverlayScaleDrippy);
+            graphics.pose().pushPose();
+            graphics.pose().scale(renderScale, renderScale, renderScale);
+
             EventHandler.INSTANCE.postEvent(new RenderScreenEvent.Pre(drippyOverlayScreen, graphics, mouseX, mouseY, partial));
             drippyOverlayScreen.render(graphics, mouseX, mouseY, partial);
+            this.restoreRenderDefaultsDrippy(graphics);
             EventHandler.INSTANCE.postEvent(new RenderScreenEvent.Post(drippyOverlayScreen, graphics, mouseX, mouseY, partial));
+
+            //Reset scale after rendering
+            graphics.pose().scale(1.0F, 1.0F, 1.0F);
+            graphics.pose().popPose();
+            Minecraft.getInstance().getWindow().setGuiScale(guiScale);
+
+            this.restoreRenderDefaultsDrippy(graphics);
+
         });
 
+    }
+
+    @Unique
+    private void restoreRenderDefaultsDrippy(GuiGraphics graphics) {
+        RenderingUtils.resetShaderColor(graphics);
+        RenderSystem.defaultBlendFunc();
+        RenderSystem.depthMask(true);
+        RenderSystem.enableDepthTest();
+        RenderSystem.enableBlend();
     }
 
     @Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;setOverlay(Lnet/minecraft/client/gui/screens/Overlay;)V"))
@@ -135,7 +145,7 @@ public class MixinLoadingOverlay {
 
     @WrapWithCondition(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphics;fill(Lnet/minecraft/client/renderer/RenderType;IIIII)V"))
     private boolean cancelBackgroundRenderingDrippy(GuiGraphics instance, RenderType renderType, int i, int j, int k, int l, int color) {
-        this.cachedBackgroundOpacityDrippy = Math.min(1.0F, Math.max(0.0F, (float)(new Color(color).getAlpha()) / 255.0F));
+        this.cachedBackgroundOpacityDrippy = Math.min(1.0F, Math.max(0.0F, (float)FastColor.ARGB32.alpha(color) / 255.0F));
         return this.shouldRenderVanillaDrippy();
     }
 
@@ -148,15 +158,13 @@ public class MixinLoadingOverlay {
 
     @Unique
     private boolean shouldRenderVanillaDrippy() {
-        return (drippyOverlayScreen == null) || (drippyCustomizationLayer == null);
+        return (drippyOverlayScreen == null) || (this.getLayerDrippy() == null);
     }
 
     @Unique
     private void setBackgroundOpacityDrippy(float opacity) {
-        if (drippyCustomizationLayer == null) return;
-        if (drippyCustomizationLayer.layoutBase.menuBackground != null) {
-            drippyCustomizationLayer.layoutBase.menuBackground.opacity = opacity;
-        }
+        if (this.getLayerDrippy() == null) return;
+        this.getLayerDrippy().backgroundOpacity = opacity;
         drippyOverlayScreen.backgroundOpacity = opacity;
     }
 
@@ -165,8 +173,8 @@ public class MixinLoadingOverlay {
         if (opacity < 0.02F) {
             opacity = 0.02F;
         }
-        if (drippyCustomizationLayer != null) {
-            for (AbstractElement i : drippyCustomizationLayer.allElements) {
+        if (this.getLayerDrippy() != null) {
+            for (AbstractElement i : this.getLayerDrippy().allElements) {
                 i.opacity = opacity;
                 if (i.opacity <= 0.02F) {
                     i.visible = false;
@@ -176,14 +184,22 @@ public class MixinLoadingOverlay {
     }
 
     @Unique
+    @Nullable
+    private ScreenCustomizationLayer getLayerDrippy() {
+        if (drippyOverlayScreen == null) return null;
+        ScreenCustomizationLayer l = ScreenCustomizationLayerHandler.getLayerOfScreen(drippyOverlayScreen);
+        if (l != null) l.loadEarly = true;
+        return l;
+    }
+
+    @Unique
     private void loadFontsDrippy() {
         MainThreadTaskExecutor.executeInMainThread(() -> {
             try {
                 FontManager fontManager = ((IMixinMinecraft)Minecraft.getInstance()).getFontManagerDrippy();
                 fontManager.apply(fontManager.prepare(Minecraft.getInstance().getResourceManager(), Util.backgroundExecutor()).get(), InactiveProfiler.INSTANCE);
             } catch (Exception ex) {
-                LOGGER_DRIPPY.info("[DRIPPY LOADING SCREEN] Failed to load fonts!");
-                ex.printStackTrace();
+                LOGGER_DRIPPY.error("[DRIPPY LOADING SCREEN] Failed to load fonts!", ex);
             }
         }, MainThreadTaskExecutor.ExecuteTiming.POST_CLIENT_TICK);
     }
@@ -195,33 +211,46 @@ public class MixinLoadingOverlay {
             int screenHeight = Minecraft.getInstance().getWindow().getGuiScaledHeight();
             //Re-init overlay on window size change
             if ((screenWidth != this.lastScreenWidthDrippy) || (screenHeight != this.lastScreenHeightDrippy)) {
-                this.initOverlayDrippy(screenWidth, screenHeight, true);
+                this.initOverlayScreenDrippy(true);
             }
             this.lastScreenWidthDrippy = screenWidth;
             this.lastScreenHeightDrippy = screenHeight;
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
     }
 
     @Unique
-    private void initOverlayDrippy(int screenWidth, int screenHeight, boolean resize) {
+    private void setNewOverlayScreenDrippy() {
+        drippyOverlayScreen = new DrippyOverlayScreen();
+        ScreenCustomizationLayerHandler.registerScreen(drippyOverlayScreen);
+        this.getLayerDrippy(); //dummy call to let the method set loadEarly to true
+    }
+
+    @Unique
+    private void initOverlayScreenDrippy(boolean resize) {
         this.runMenuHandlerTaskDrippy(() -> {
             try {
+                double scale = Minecraft.getInstance().getWindow().getGuiScale();
                 RenderingUtils.resetGuiScale();
                 if (!resize) {
                     EventHandler.INSTANCE.postEvent(new OpenScreenEvent(drippyOverlayScreen));
                 }
+                drippyOverlayScreen.width = Minecraft.getInstance().getWindow().getGuiScaledWidth();
+                drippyOverlayScreen.height = Minecraft.getInstance().getWindow().getGuiScaledHeight();
                 EventHandler.INSTANCE.postEvent(new InitOrResizeScreenStartingEvent(drippyOverlayScreen, resize ? InitOrResizeScreenEvent.InitializationPhase.RESIZE : InitOrResizeScreenEvent.InitializationPhase.INIT));
                 EventHandler.INSTANCE.postEvent(new InitOrResizeScreenEvent.Pre(drippyOverlayScreen, resize ? InitOrResizeScreenEvent.InitializationPhase.RESIZE : InitOrResizeScreenEvent.InitializationPhase.INIT));
-                drippyOverlayScreen.init(Minecraft.getInstance(), screenWidth, screenHeight);
+                drippyOverlayScreen.init(Minecraft.getInstance(), drippyOverlayScreen.width, drippyOverlayScreen.height);
                 EventHandler.INSTANCE.postEvent(new InitOrResizeScreenEvent.Post(drippyOverlayScreen, resize ? InitOrResizeScreenEvent.InitializationPhase.RESIZE : InitOrResizeScreenEvent.InitializationPhase.INIT));
                 EventHandler.INSTANCE.postEvent(new InitOrResizeScreenCompletedEvent(drippyOverlayScreen, resize ? InitOrResizeScreenEvent.InitializationPhase.RESIZE : InitOrResizeScreenEvent.InitializationPhase.INIT));
                 if (!resize) {
                     EventHandler.INSTANCE.postEvent(new OpenScreenPostInitEvent(drippyOverlayScreen));
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
+                this.cachedOverlayScaleDrippy = Minecraft.getInstance().getWindow().getGuiScale();
+                MixinCache.cachedLoadingOverlayScale = this.cachedOverlayScaleDrippy;
+                Minecraft.getInstance().getWindow().setGuiScale(scale);
+            } catch (Exception ex) {
+                ex.printStackTrace();
             }
         });
     }
@@ -229,14 +258,17 @@ public class MixinLoadingOverlay {
     @Unique
     private void runMenuHandlerTaskDrippy(Runnable run) {
         try {
+            boolean customizationEnabled = ScreenCustomization.isScreenCustomizationEnabled();
+            ScreenCustomization.setScreenCustomizationEnabled(true);
             Screen current = Minecraft.getInstance().screen;
             if (!(current instanceof DrippyOverlayScreen)) {
                 Minecraft.getInstance().screen = drippyOverlayScreen;
                 run.run();
                 Minecraft.getInstance().screen = current;
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+            ScreenCustomization.setScreenCustomizationEnabled(customizationEnabled);
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
     }
 
