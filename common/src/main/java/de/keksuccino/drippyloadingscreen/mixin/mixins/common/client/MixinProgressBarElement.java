@@ -1,6 +1,6 @@
 package de.keksuccino.drippyloadingscreen.mixin.mixins.common.client;
 
-import de.keksuccino.drippyloadingscreen.LoadingScreenRenderingUtils;
+import de.keksuccino.drippyloadingscreen.DrippyUtils;
 import de.keksuccino.fancymenu.customization.element.elements.progressbar.ProgressBarElement;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.LoadingOverlay;
@@ -20,8 +20,8 @@ public class MixinProgressBarElement {
 
         ProgressBarElement e = (ProgressBarElement) ((Object)this);
 
-        if (e.barTextureSupplier != null) LoadingScreenRenderingUtils.waitForTexture(e.barTextureSupplier.get());
-        if (e.backgroundTextureSupplier != null) LoadingScreenRenderingUtils.waitForTexture(e.backgroundTextureSupplier.get());
+        if (e.barTextureSupplier != null) DrippyUtils.waitForTexture(e.barTextureSupplier.get());
+        if (e.backgroundTextureSupplier != null) DrippyUtils.waitForTexture(e.backgroundTextureSupplier.get());
 
     }
 

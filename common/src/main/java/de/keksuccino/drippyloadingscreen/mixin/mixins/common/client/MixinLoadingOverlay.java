@@ -115,15 +115,6 @@ public class MixinLoadingOverlay {
 
     }
 
-    @Unique
-    private void restoreRenderDefaultsDrippy(GuiGraphics graphics) {
-        RenderingUtils.resetShaderColor(graphics);
-        RenderSystem.defaultBlendFunc();
-        RenderSystem.depthMask(true);
-        RenderSystem.enableDepthTest();
-        RenderSystem.enableBlend();
-    }
-
     @Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;setOverlay(Lnet/minecraft/client/gui/screens/Overlay;)V"))
     private void beforeCloseOverlayDrippy(GuiGraphics $$0, int $$1, int $$2, float $$3, CallbackInfo ci) {
         EventHandler.INSTANCE.postEvent(new CloseScreenEvent(drippyOverlayScreen));
@@ -133,7 +124,7 @@ public class MixinLoadingOverlay {
     private void cancelOriginalProgressBarRenderingDrippy(GuiGraphics graphics, int p_96184_, int p_96185_, int p_96186_, int p_96187_, float opacity, CallbackInfo info) {
         if (!this.shouldRenderVanillaDrippy()) {
             info.cancel();
-            this.cachedElementOpacityDrippy = opacity;
+            this.cachedElementOpacityDrippy = DrippyLoadingScreen.getOptions().fadeOutLoadingScreen.getValue() ? opacity : 1.0F;
             RenderingUtils.resetShaderColor(graphics);
         }
     }
@@ -145,7 +136,7 @@ public class MixinLoadingOverlay {
 
     @WrapWithCondition(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphics;fill(Lnet/minecraft/client/renderer/RenderType;IIIII)V"))
     private boolean cancelBackgroundRenderingDrippy(GuiGraphics instance, RenderType renderType, int i, int j, int k, int l, int color) {
-        this.cachedBackgroundOpacityDrippy = Math.min(1.0F, Math.max(0.0F, (float)FastColor.ARGB32.alpha(color) / 255.0F));
+        this.cachedBackgroundOpacityDrippy = DrippyLoadingScreen.getOptions().fadeOutLoadingScreen.getValue() ? Math.min(1.0F, Math.max(0.0F, (float)FastColor.ARGB32.alpha(color) / 255.0F)) : 1.0F;
         return this.shouldRenderVanillaDrippy();
     }
 
@@ -154,6 +145,15 @@ public class MixinLoadingOverlay {
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         RenderingUtils.resetShaderColor(graphics);
+    }
+
+    @Unique
+    private void restoreRenderDefaultsDrippy(GuiGraphics graphics) {
+        RenderingUtils.resetShaderColor(graphics);
+        RenderSystem.defaultBlendFunc();
+        RenderSystem.depthMask(true);
+        RenderSystem.enableDepthTest();
+        RenderSystem.enableBlend();
     }
 
     @Unique

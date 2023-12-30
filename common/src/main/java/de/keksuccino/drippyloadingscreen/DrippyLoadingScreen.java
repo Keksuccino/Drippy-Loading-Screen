@@ -6,6 +6,7 @@ import de.keksuccino.drippyloadingscreen.customization.backgrounds.Backgrounds;
 import de.keksuccino.drippyloadingscreen.customization.elements.Elements;
 import de.keksuccino.drippyloadingscreen.customization.placeholders.Placeholders;
 import de.keksuccino.fancymenu.customization.ScreenCustomization;
+import de.keksuccino.fancymenu.customization.layout.LayoutHandler;
 import de.keksuccino.fancymenu.customization.screen.identifier.UniversalScreenIdentifierRegistry;
 import de.keksuccino.fancymenu.util.event.acara.EventHandler;
 import de.keksuccino.drippyloadingscreen.platform.Services;
@@ -16,10 +17,6 @@ import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
 public class DrippyLoadingScreen {
-
-	//TODO Player Entities in loading screen layouts deaktivieren (und andere nicht funktionierende element types)
-
-	//TODO Handling für allowUniversalLayouts adden
 
 	//TODO Legacy Drippy elements (progress bars, vanilla customizations, menu background) konvertieren
 
@@ -68,6 +65,9 @@ public class DrippyLoadingScreen {
 
 			//Register custom element types
 			Elements.registerAll();
+
+			//Reload layouts after registering custom elements, to not break them in case FancyMenu loaded first
+			LayoutHandler.reloadLayouts();
 
 		}
 

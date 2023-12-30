@@ -29,5 +29,6 @@
   "drippyloadingscreen.background.color.config.color": "HEX Color:",
   "drippyloadingscreen.background.color.config.invalid_color": "§xYou need to input a valid HEX color first!",
   "drippyloadingscreen.elements.vanilla_bar": "Vanilla-Like Game Loading Bar [Drippy]",
-  "drippyloadingscreen.elements.vanilla_bar.desc": "This is a Vanilla-like game loading progress bar.\nIt will only display an actual progress\nwhen used in a Drippy layout."
+  "drippyloadingscreen.elements.vanilla_bar.desc": "This is a Vanilla-like game loading progress bar.\nIt will only display an actual progress\nwhen used in a Drippy layout.",
+  "drippyloadingscreen.elements.vanilla_bar.color": "Color [HEX]"
 }

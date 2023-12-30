@@ -1,6 +1,6 @@
 package de.keksuccino.drippyloadingscreen.mixin.mixins.common.client;
 
-import de.keksuccino.drippyloadingscreen.LoadingScreenRenderingUtils;
+import de.keksuccino.drippyloadingscreen.DrippyUtils;
 import de.keksuccino.fancymenu.customization.element.elements.image.ImageElement;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.LoadingOverlay;
@@ -19,7 +19,7 @@ public class MixinImageElement {
     private void afterGetResourceDrippy(GuiGraphics graphics, int mouseX, int mouseY, float partial, CallbackInfo ci) {
 
         ImageElement e = (ImageElement) ((Object)this);
-        LoadingScreenRenderingUtils.waitForTexture(e.getTextureResource());
+        DrippyUtils.waitForTexture(e.getTextureResource());
 
     }
 

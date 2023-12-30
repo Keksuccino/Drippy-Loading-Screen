@@ -10,6 +10,7 @@ public class Options extends AbstractOptions {
     public final Option<Boolean> allowUniversalLayouts = new Option<>(config, "allow_universal_layouts", false, "general");
     public final Option<Boolean> earlyFadeOutElements = new Option<>(config, "early_fade_out_elements", true, "general");
     public final Option<Boolean> waitForTexturesInLoading = new Option<>(config, "wait_for_textures_in_loading", true, "general");
+    public final Option<Boolean> fadeOutLoadingScreen = new Option<>(config, "fade_out_loading_screen", true, "general");
 
     public Options() {
         this.config.syncConfig();
