@@ -1,0 +1,678 @@
+
+CHANGELOG | DRIPPY LOADING SCREEN v3.0.0
+ 
+PLEASE READ:
+ 
+Hey!
+ 
+Just a quick info that this is a full rewrite to make Drippy compatible with FancyMenu v3.0.0+,
+so bugs will probably happen! I tried to make old layouts compatible with the new version, but some
+specific customizations could not be ported, so make sure to check your layouts and fix them if needed!
+ 
+Thank you and happy customizing!
+ 
+-------------------------
+ 
+- The mod got a full rewrite to work with FancyMenu v3.0.0+
+- Dropped support for Minecraft versions below 1.18
+ 
+- Old Drippy config (config.cfg) is not working anymore, you need to copy your settings to the new options.txt file
+- The custom color setting of the Vanilla Progress Bar element does not exist anymore
+  - Add an "Vanilla-Like Progress Bar" element and hide the original one if your want to continue using a Vanilla-like progress bar with custom color
+- There's now a config setting to control if the mod should wait for textures in loading screen layouts to prevent textures from flickering during resource reload
+  - This can be helpful but can also make the loading screen freeze when using large textures, so disable this if you experience lagging/freezes
+- There's now a config setting to disable the loading screen fade-out
+ 
+%changelog:end%
+
+
+
+
+
+- Added support for FancyMenu 2.14.10
+
+%changelog:end%
+
+
+
+
+- Added support for MC 1.20.2
+
+%changelog:end%
+
+
+
+
+CHANGELOG | DRIPPY LOADING SCREEN v2.2.4 for Forge 1.20.1
+ 
+- Minimum required Forge version is 47.0.19 now
+ 
+- Further improved stability with new Forge loading screen
+
+%changelog:end%
+
+
+
+
+CHANGELOG | DRIPPY LOADING SCREEN v2.2.3-1 for Forge 1.20.1
+ 
+- Minimum required Forge version is 47.0.18 now
+ 
+- Added support for latest Forge build (here we go again)
+
+- Added config option to let Drippy disable the Forge early loading screen on launch (Drippy will NOT disable the early loading screen by default)
+
+%changelog:end%
+
+
+
+
+CHANGELOG | DRIPPY LOADING SCREEN v2.2.3 for Forge 1.20.1
+ 
+- Minimum required Forge version is 47.0.14 now
+ 
+- Dropped support for MC 1.20.0
+ 
+- Added support for latest Forge 1.20.1 build
+
+%changelog:end%
+
+
+
+
+CHANGELOG | DRIPPY LOADING SCREEN v2.2.2
+ 
+- Fixed: Drippy keeps adding new entries to the "config/fancymenu/customizablemenus.txt" file on every game launch
+
+%changelog:end%
+
+
+
+
+- Added support for MC 1.20
+
+%changelog:end%
+
+
+
+
+CHANGELOG | DRIPPY LOADING SCREEN v2.2.1
+ 
+- Fixed: Rare crash on startup related to config being accessed too early
+
+%changelog:end%
+
+
+
+
+
+CHANGELOG | DRIPPY LOADING SCREEN v2.2.0-1 for MC 1.16
+ 
+- Fixed: Crash when OptiFine is installed
+
+%changelog:end%
+
+
+
+
+
+CHANGELOG | DRIPPY LOADING SCREEN v2.2.0
+ 
+- Dependency Change: Minimum FancyMenu version is now 2.14.4
+ 
+- Added: Config option "Early Fade-Out Elements" to make layout elements start fading out earlier than the loading screen background (default = true)
+ 
+- Improved: The loading screen now fades out like in Vanilla
+- Improved: The Mojang Logo element now supports loading requirements
+- Improved: You can now move and resize the Mojang Logo element by disabling "Vanilla Size and Position Calculation"
+- Improved: The Vanilla Progress Bar element now supports loading requirements
+- Improved: You can now move and resize the Vanilla Progress Bar element by disabling "Vanilla Size and Position Calculation"
+- Improved: Tooltip of the Customize button in the title menu now tells users how to hide/show the button
+ 
+- Fixed: Crash when trying to start the game without FancyMenu installed instead of showing Missing Dependency screen
+- Fixed: MC 1.16: Flickering textures when the loading screen is about to close
+
+%changelog:end%
+
+
+
+
+
+CHANGELOG | DRIPPY LOADING SCREEN v2.1.4
+ 
+- Tried to make the fix of v2.1.3 less aggressive (to improve compatibility with other mods)
+
+%changelog:end%
+
+
+
+
+
+CHANGELOG | DRIPPY LOADING SCREEN v2.1.3
+ 
+- Next attempt at trying to fix the "Bad Access To Protected Data" crash/bug
+
+%changelog:end%
+
+
+
+
+
+CHANGELOG | DRIPPY LOADING SCREEN v2.1.2
+ 
+- Dependency Change: Minimum required FancyMenu version is 2.14.2 now
+ 
+- Fixed: Attempt at fixing the "Bad Access To Protected Data" bug/crash caused by Drippy Loading Screen + Oculus/Iris/OptiFine
+
+%changelog:end%
+
+
+
+
+
+CHANGELOG | DRIPPY LOADING SCREEN for MC 1.19.4
+ 
+- Added support for MC 1.19.4
+
+%changelog:end%
+
+
+
+
+
+CHANGELOG | DRIPPY LOADING SCREEN v2.1.1
+ 
+- Improved: Tried to improve early loading of fonts for text rendering in loading screen (could improve mod compatibility)
+ 
+%changelog:end%
+
+
+
+
+
+CHANGELOG | DRIPPY LOADING SCREEN v2.1.0
+ 
+- Added: Config option to allow universal layouts in the loading screen (default: false)
+- Added: "CPU Info" placeholder (Drippy Loading Screen category)
+- Added: "GPU Info" placeholder (Drippy Loading Screen category)
+- Added: "FPS" placeholder (Drippy Loading Screen category)
+- Added: "Java Version" placeholder (Drippy Loading Screen category)
+- Added: "Java VM Name" placeholder (Drippy Loading Screen category)
+- Added: "OpenGL Info" placeholder (Drippy Loading Screen category)
+- Added: "Operating System" placeholder (Drippy Loading Screen category)
+- Added: Ability to set a background texture and color to progress bar elements (bars added before this update will have a blue background now)
+ 
+- Improved: The Drippy button in the main menu now hides/shows with the FancyMenu UI (CTRL + ALT + C to toggle by default)
+- Improved: FancyMenu's customization overlay is now always visible in the Drippy customization screen (even if hidden in other screens) 
+ 
+ 
+KNOWN ISSUES:
+ 
+- Resizing is broken for the child element when using the "element" orientation (This is a bug in FancyMenu and not Drippy)
+ 
+%changelog:end%
+
+
+
+
+
+CHANGELOG | DRIPPY LOADING SCREEN v2.0.1
+ 
+- Fixed: Crash on game start
+ 
+ 
+ 
+CHANGELOG | DRIPPY LOADING SCREEN v2.0.0
+ 
+~ It's rewrite time! ~
+ 
+This update is a complete 100% REWRITE of Drippy!
+That's a good thing, trust me, but there are indeed some BIG CHANGES that come with that:
+
+- OLD LAYOUTS ARE INCOMPATIBLE WITH THIS NEW VERSION!
+  I'm very sorry, but I wasn't able to make old layouts work in the rewrite.
+  You will need to remake your layouts, which is indeed a bummer, but I think it will pay out.
+
+- Drippy is now basically a FancyMenu extension, which means you have access to almost all of FancyMenu's elements,
+  This also means that FancyMenu is now a DEPENDENCY!
+  
+- You can now use NON-BASIC CHARACTERS in text-based elements!
+  That means support for Russian, Japanese, Korean and more characters!
+  
+- It's now possible to use ANIMATIONS in Drippy,
+  which is just one of the many benefits that come from having FancyMenu as dependency!
+  
+- NO AUDIO SUPPORT ANYMORE!
+  Yes, I know, some of you probably want to give me a good ol' punch to the face right now,
+  but there's a reason for why audio support didn't make it into the rewrite.
+  It's just that the audio engine is not supposed to be ready in the loading screen and initializing it that early,
+  which is needed for audio support, can lead to a long list of problems with other mods.
+  But don't worry, animation audio is still supported, because animations use a different audio engine.
+  
+- EXPORTING/IMPORTING SETUPS is now possible via FancyMenu's setup export/import feature!
+  FancyMenu now sees the loading screen as normal menu, which also means it saves layouts for the loading screen in exactly
+  the same way it does for other menus, so when you export your "FancyMenu" setup, you now automatically export
+  loading screen layouts as well.
+  
+- So much more stuff you know from FancyMenu, like the new placeholder system, etc.!
+
+And the best thing: Since this is a complete rewrite, there will probably be a lot new bugs for you to discover!
+Just see them as little easter eggs.
+
+But jokes aside, if you discover bugs (which will probably happen), report them to me, so I can fix them.
+Thank you very much!
+
+%changelog:end%
+
+
+
+
+
+CHANGELOG | DRIPPY LOADING SCREEN v2.0.0
+ 
+~ It's rewrite time! ~
+ 
+This update is a complete 100% REWRITE of Drippy!
+That's a good thing, trust me, but there are indeed some BIG CHANGES that come with that:
+
+- OLD LAYOUTS ARE INCOMPATIBLE WITH THIS NEW VERSION!
+  I'm very sorry, but I wasn't able to make old layouts work in the rewrite.
+  You will need to remake your layouts, which is indeed a bummer, but I think it will pay out.
+
+- Drippy is now basically a FancyMenu extension, which means you have access to almost all of FancyMenu's elements,
+  This also means that FancyMenu is now a DEPENDENCY!
+  
+- You can now use NON-BASIC CHARACTERS in text-based elements!
+  That means support for Russian, Japanese, Korean and more characters!
+  
+- It's now possible to use ANIMATIONS in Drippy,
+  which is just one of the many benefits that come from having FancyMenu as dependency!
+  
+- NO AUDIO SUPPORT ANYMORE!
+  Yes, I know, some of you probably want to give me a good ol' punch to the face right now,
+  but there's a reason for why audio support didn't make it into the rewrite.
+  It's just that the audio engine is not supposed to be ready in the loading screen and initializing it that early,
+  which is needed for audio support, can lead to a long list of problems with other mods.
+  But don't worry, animation audio is still supported, because animations use a different audio engine.
+  
+- EXPORTING/IMPORTING SETUPS is now possible via FancyMenu's setup export/import feature!
+  FancyMenu now sees the loading screen as normal menu, which also means it saves layouts for the loading screen in exactly
+  the same way it does for other menus, so when you export your "FancyMenu" setup, you now automatically export
+  loading screen layouts as well.
+  
+- So much more stuff you know from FancyMenu, like the new placeholder system, etc.!
+
+And the best thing: Since this is a complete rewrite, there will probably be a lot new bugs for you to discover!
+Just see them as little easter eggs.
+
+But jokes aside, if you discover bugs (which will probably happen), report them to me, so I can fix them.
+Thank you very much!
+
+
+%changelog:end%
+
+
+
+
+
+- Initial MC 1.19.3 release
+
+%changelog:end%
+
+
+
+
+
+CHANGELOG | DRIPPY LOADING SCREEN v1.6.6
+ 
+- Fixed: Experimental fix for the auto-scaling issue where the loading screen got the zoomies and decided to zoom out into oblivion
+ 
+- Improved: Auto-scaling now requires the user to set a forced GUI scale first
+--> Layouts with auto-scaling already enabled will not change, but it's really recommend to set a forced GUI scale if you haven't yet
+
+%changelog:end%
+
+
+
+
+CHANGELOG | DRIPPY LOADING SCREEN v1.6.5-1 for Forge 1.16.X
+ 
+- Fixed: Crash on game start when OptiFine is installed
+ 
+ 
+CHANGELOG | DRIPPY LOADING SCREEN v1.6.5
+ 
+- Dependency Change: Removed mandatory Auudio dependency
+--> Auudio is still needed for audio elements, but it's not a mandatory dependency anymore
+
+%changelog:end%
+
+
+
+
+
+CHANGELOG | DRIPPY LOADING SCREEN v1.6.5-1 for Forge 1.16.X
+ 
+- Fixed: Crash on game start when OptiFine is installed
+
+%changelog:end%
+
+
+
+
+
+CHANGELOG | DRIPPY LOADING SCREEN v1.6.5
+ 
+- Dependency Change: Removed mandatory Auudio dependency
+--> Auudio is still needed for audio elements, but it's not a mandatory dependency anymore
+
+%changelog:end%
+
+
+
+
+
+CHANGELOG | DRIPPY LOADING SCREEN v1.6.4-1 for Forge 1.19
+ 
+- Added support for the latest Forge 1.19 build (this will break the mod on older builds, so please update to the latest Forge build)
+
+%changelog:end%
+
+
+
+
+
+CHANGELOG | DRIPPY LOADING SCREEN v1.6.4
+ 
+- Fixed: Game crashing in some situations when a loading screen fades to no screen (when fading to in-game view)
+
+%changelog:end%
+
+
+
+
+
+- Initial MC 1.19 release
+
+%changelog:end%
+
+
+
+
+
+CHANGELOG | DRIPPY LOADING SCREEN v1.6.3
+ 
+- Fixed: More potential causes of random crashes related to a missing config (you should update to this build!)
+
+%changelog:end%
+
+
+
+
+
+
+CHANGELOG | DRIPPY LOADING SCREEN v1.6.2
+ 
+- Fixed: Random crash at game start related to Drippy's config not being loaded yet
+
+%changelog:end%
+
+
+
+
+
+
+CHANGELOG | DRIPPY LOADING SCREEN v1.6.1
+ 
+- Added: Config option to disable custom sound engine reloading, because it could cause conflicts with other mods
+ 
+- Improved: Audio elements now play until the very end of the loading screen
+ 
+- Fixed: Audio elements not playing in the first loading screen (when starting the game) while OptiFine is installed
+
+%changelog:end%
+
+
+
+
+
+
+CHANGELOG | DRIPPY LOADING SCREEN v1.6.0
+ 
+- Dropped support for Fabric MC 1.16
+ 
+- NEW DEPENDENCY: Drippy Loading Screen now depends on Auudio
+ 
+- Added: Audio element
+--> Play background sounds in the loading screen
+--> This is only useful for short sounds (or longer sounds, when loading big modpacks), since loading times aren't very long in MC by default
+--> Audios get cut at the end of the loading screen, because MC's sound engine gets reloaded (you know, because it's a resource (re)loading screen)
+
+%changelog:end%
+
+
+
+
+
+
+CHANGELOG | DRIPPY LOADING SCREEN v1.5.1
+ 
+- Fixed: Broken v1.5.0 update for Fabric 1.16.5 (most of the new features were missing in the release, because I'm retarded)
+- Fixed: Hopefully fixed randomly occuring crash when using web textures while having OptiFine installed
+
+%changelog:end%
+
+
+
+
+
+
+CHANGELOG | DRIPPY LOADING SCREEN v1.5.0
+ 
+- Lifted minimum required Konkrete version to 1.3.3
+ 
+- Added: Placeholder text value '%cpuinfo%' to get an info text about the CPU, including name, cores, etc.
+- Added: Placeholder text value '%gpuinfo%' to get an info text about the GPU
+- Added: Placeholder text value '%javaversion%' to get the Java version
+- Added: Placeholder text value '%osname%' to get the name of the operating system
+- Added: Placeholder text value '%openglversion%' to get the OpenGL version (combined with the GPU driver version)
+- Added: Placeholder text value '%randomtext:<filepath>:<interval_sec>%' to pick a random text from a TXT file and let it pick a new one every X seconds
+ 
+- Improved: Web texture handling (ported new web texture handling from FancyMenu)
+- Improved: Grid in editor now renders from the center and the centered lines look different to easily know what the center of the screen is
+ 
+- Fixed: Unable to check for Optifine in required mods property of layouts (you can now check for OF by using 'optifine' as mod ID)
+- Fixed: Optifine not counting to existing mods in '%loadedmods%' and '%totalmods%' placeholder text values
+- Fixed: FPS drops in customized loading screen when many mods are installed (caused by placeholder text value)
+- Fixed: Placeholder to get the mod loader version says "Forge Version" on Fabric (changed to "Mod Loader Version")
+- Fixed: Placeholder to get the mod loader version inputs "%version:forge%" to text field on Fabric
+
+
+
+
+
+
+
+
+CHANGELOG | DRIPPY LOADING SCREEN v1.4.2
+ 
+- Lifted minimum required Konkrete version to v1.3.2
+ 
+- Dropped support for MC 1.17
+ 
+- Added: "Keep Aspect Ratio" option for background images, to keep its aspect ratio instead of stretching it to the screen resolution
+ 
+- Fixed: Compatibility issues with Optifine
+
+
+
+
+
+
+
+
+CHANGELOG | DRIPPY LOADING SCREEN v1.4.1
+ 
+- NEW LICENSE! Builds before v1.4.1 are not affected by this and remain with the old license.
+
+
+
+
+
+
+
+CHANGELOG | DRIPPY LOADING SCREEN v1.4.0
+ 
+- Added: Orientation 'loading-progress', to set the progress end of a custom progress bar as orientation origin point/anchor, so the element will move with the current progress
+- Added: Placeholder text value '%loadingprogress%', to get the current loading progress in percent
+ 
+- Fixed: Element ID gets copied when copy-pasting an element (should get a new one instead)
+- Fixed: Custom Progress Bar element not saving its element ID (gets new one every time it loads)
+
+
+
+
+
+
+
+CHANGELOG | DRIPPY LOADING SCREEN v1.3.1
+ 
+- Fixed: Drippy button in the main menu customizable by FancyMenu (this causes glitched layouts when hiding the button later, so it's now just always invisible for FancyMenu)
+
+
+
+
+
+
+
+
+CHANGELOG | DRIPPY LOADING SCREEN v1.3.0
+ 
+- Added: Random mode for layouts
+  - Randomize layouts by groups, to pick one layout per group when the loading screen gets opened
+  - Set groups to only pick a new layout once per game session
+ 
+- Improved: Paths of textures and other files used in layouts now get converted to Linux-friendly paths when saving it in the editor
+ 
+- Fixed: Customization menu not closeable by pressing ESC
+- Fixed: Some elements that use external resources like textures and other files aren't working on other systems than Windows when using backslashes in the path
+
+
+
+
+
+
+
+
+
+CHANGELOG | DRIPPY LOADING SCREEN v1.2.1
+ 
+- Fixed: Incorrect character spacing of '/', '\', '|', '1', '(', ')', '[', ']' and ',' in the text rendering system (used to render text of text elements)
+  - If you found more characters that look like they're not having the right width or height, please report them, thank you!
+
+
+
+
+
+
+
+
+CHANGELOG | DRIPPY LOADING SCREEN [FORGE] v1.2.0-1 for MC 1.17
+ 
+- Fixed: Crash when trying to create a new layout (why has nobody except of one person noticed this lmao)
+
+
+
+
+
+
+
+
+
+CHANGELOG | DRIPPY LOADING SCREEN v1.2.0
+ 
+- Added support for Forge MC 1.17.1
+ 
+- Lifted minimum required Konkrete version to v1.3.0
+ 
+- Added: Auto-Scaling
+  - Just enable auto-scaling and your layout should basically just work at every scale and resolution! No more struggling with different screen sizes!
+  - Because of how Minecraft text rendering works, text elements will look a bit blurry at some scales. This can't be fixed and the best workaround is to use images for text.
+- Added: Option to enable a grid in the editor for easier aligning of elements (Disabled by default, can be toggled in the mod settings)
+  - Editor shortcut to toggle the grid is CTRL + G
+- Added: Option to force a GUI scale for the loading screen
+- Added: Option to disable the fade-out of the loading screen
+ 
+- Changed: Name of keybind to toggle the customization overlay
+
+
+
+
+
+
+
+
+
+CHANGELOG | DRIPPY LOADING SCREEN v1.1.1
+ 
+- Fixed: Critical: Crash when reloading resources or changing language (Only happened in Fabric 1.17, but also fixed in Forge 1.16 version, just to be sure)
+- Fixed: License link in mod description not working
+
+
+
+
+
+
+
+
+
+CHANGELOG | DRIPPY LOADING SCREEN [FORGE] v1.1.0-2
+ 
+- Changed: Ported text rendering system from Fabric 1.17 to Forge to unify layout rendering
+  - This could change the position of your text elements a little bit, so check your layouts for overlapping elements and stuff
+
+
+
+
+
+
+
+
+
+CHANGELOG | DRIPPY LOADING SCREEN [FABRIC] v1.1.0-2
+ 
+- Fixed: Text rendering: Some characters cutted off at the bottom
+- Fixed: Text rendering: Wrong character width for lowercase "j" character
+
+
+
+
+
+
+
+
+
+
+CHANGELOG | DRIPPY LOADING SCREEN [FABRIC] v1.1.0-1
+ 
+- Fixed: Re-Enabled text elements in the Fabric version
+
+
+
+
+
+
+
+
+CHANGELOG | DRIPPY LOADING SCREEN v1.1.0
+ 
+- Added: Ability to set a background image
+ 
+- Improved: Elements now fade-out with the loading screen
+ 
+- Fixed: Images getting rendered wrongly/glitchy in some cases
+- Fixed: Vanilla elements showing "Move Up" and "Move Down" controls even though they can't be moved up and down
+
+
+
+

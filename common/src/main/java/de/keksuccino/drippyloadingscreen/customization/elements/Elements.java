@@ -5,9 +5,11 @@ import de.keksuccino.fancymenu.customization.element.ElementRegistry;
 
 public class Elements {
 
+    public static final VanillaBarElementBuilder VANILLA_BAR_ELEMENT = new VanillaBarElementBuilder();
+
     public static void registerAll() {
 
-        ElementRegistry.register(new VanillaBarElementBuilder());
+        ElementRegistry.register(VANILLA_BAR_ELEMENT);
 
     }
 
