@@ -29,7 +29,7 @@ public class MixinLayout {
 
     @Legacy("This converts old v2 elements to its replacements. Remove this in the future.")
     @SuppressWarnings("all")
-    @Inject(method = "convertLegacyElements", at = @At("RETURN"))
+    @Inject(method = "convertLegacyElements", at = @At("RETURN"), remap = false)
     private static void atReturnConvertLegacyElementsDrippy(PropertyContainerSet layout, CallbackInfoReturnable<@NotNull List<List<?>>> info) {
 
         List<List<?>> returnValue = info.getReturnValue();
@@ -86,7 +86,7 @@ public class MixinLayout {
     }
 
     @Legacy("Converts old v2 logo and progress bar deep elements to Vanilla widget elements. Remove this in the future.")
-    @Inject(method = "convertLegacyVanillaButtonCustomizations", at = @At("RETURN"))
+    @Inject(method = "convertLegacyVanillaButtonCustomizations", at = @At("RETURN"), remap = false)
     private static void atReturnConvertLegacyVanillaButtonCustomizationsDrippy(PropertyContainerSet layout, CallbackInfoReturnable<@NotNull List<SerializedElement>> info) {
 
         List<SerializedElement> returnValue = info.getReturnValue();
@@ -194,7 +194,7 @@ public class MixinLayout {
     }
 
     @Legacy("Convert old v2 background color deep element to new ColorMenuBackground instance. Remove this in the future.")
-    @Inject(method = "convertLegacyMenuBackground", at = @At("RETURN"), cancellable = true)
+    @Inject(method = "convertLegacyMenuBackground", at = @At("RETURN"), cancellable = true, remap = false)
     private static void atReturnConvertLegacyMenuBackgroundDrippy(PropertyContainerSet layout, CallbackInfoReturnable<MenuBackground> info) {
 
         for (PropertyContainer sec : layout.getContainersOfType("customization")) {

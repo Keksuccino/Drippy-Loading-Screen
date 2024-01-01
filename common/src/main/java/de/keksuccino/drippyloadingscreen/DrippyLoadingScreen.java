@@ -18,12 +18,6 @@ import org.jetbrains.annotations.NotNull;
 
 public class DrippyLoadingScreen {
 
-	//TODO Legacy Drippy elements (progress bars, vanilla customizations, menu background) konvertieren
-
-
-
-
-
 	private static final Logger LOGGER = LogManager.getLogger();
 
 	public static final String VERSION = "3.0.0";

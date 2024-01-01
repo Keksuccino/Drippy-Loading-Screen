@@ -30,5 +30,14 @@
   "drippyloadingscreen.background.color.config.invalid_color": "§xYou need to input a valid HEX color first!",
   "drippyloadingscreen.elements.vanilla_bar": "Vanilla-Like Game Loading Bar [Drippy]",
   "drippyloadingscreen.elements.vanilla_bar.desc": "This is a Vanilla-like game loading progress bar.\nIt will only display an actual progress\nwhen used in a Drippy layout.",
-  "drippyloadingscreen.elements.vanilla_bar.color": "Color [HEX]"
+  "drippyloadingscreen.elements.vanilla_bar.color": "Color [HEX]",
+  "drippyloadingscreen.settings.allow_universal": "Allow Universal Layouts: %s",
+  "drippyloadingscreen.settings.allow_universal.desc": "If universal layouts should get\napplied to the loading screen.",
+  "drippyloadingscreen.settings.early_fade_out_elements": "Early Fade-Out Elements: %s",
+  "drippyloadingscreen.settings.early_fade_out_elements.desc": "If loading screen elements should\nstart fading out before the background.",
+  "drippyloadingscreen.settings.wait_for_textures_in_loading": "Wait For Textures in Loading: %s",
+  "drippyloadingscreen.settings.wait_for_textures_in_loading.desc": "If the mod should wait for textures\n in the loading screen to prevent them from\nflickering while reloading resources.\n\nDisable this if you experience freezes.",
+  "drippyloadingscreen.settings.fade_out_loading_screen": "Fade-Out Loading Screen: %s",
+  "drippyloadingscreen.settings.fade_out_loading_screen.desc": "If the loading screen should fade out.",
+  "drippyloadingscreen.settings.customize_loading_screen": "Customize Loading Screen"
 }
