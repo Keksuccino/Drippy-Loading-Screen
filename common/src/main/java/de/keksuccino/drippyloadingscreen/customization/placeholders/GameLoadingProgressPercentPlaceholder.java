@@ -17,6 +17,11 @@ public class GameLoadingProgressPercentPlaceholder extends Placeholder {
     }
 
     @Override
+    public @Nullable List<String> getAlternativeIdentifiers() {
+        return List.of("drippy_gl_percent");
+    }
+
+    @Override
     public String getReplacementFor(DeserializedPlaceholderString dps) {
         return "" + (int)(MixinCache.cachedCurrentLoadingScreenProgress * 100.0F);
     }

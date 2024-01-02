@@ -55,6 +55,7 @@ public class MixinLoadingOverlay {
 
     @Inject(method = "<init>", at = @At("RETURN"))
     private void afterConstructDrippy(Minecraft mc, ReloadInstance reload, Consumer<?> consumer, boolean b, CallbackInfo info) {
+
         if (!initializedDrippy) {
             //This makes text rendering work in the game loading screen
             LOGGER_DRIPPY.info("[DRIPPY LOADING SCREEN] Initializing fonts for text rendering..");
@@ -65,6 +66,7 @@ public class MixinLoadingOverlay {
             AnimationHandler.updateAnimationSizes();
             initializedDrippy = true;
         }
+
         this.setNewOverlayScreenDrippy();
         this.lastScreenWidthDrippy = Minecraft.getInstance().getWindow().getGuiScaledWidth();
         this.lastScreenHeightDrippy = Minecraft.getInstance().getWindow().getGuiScaledHeight();
@@ -72,6 +74,7 @@ public class MixinLoadingOverlay {
         this.setBackgroundOpacityDrippy(1.0F);
         this.setElementsOpacityDrippy(1.0F);
         this.tickOverlayUpdateDrippy();
+
     }
 
     @Inject(method = "render", at = @At("RETURN"))
@@ -113,6 +116,11 @@ public class MixinLoadingOverlay {
 
         });
 
+    }
+
+    @WrapWithCondition(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/Screen;render(Lnet/minecraft/client/gui/GuiGraphics;IIF)V"))
+    private boolean cancelScreenRenderingDrippy(Screen instance, GuiGraphics guiGraphics, int i, int j, float f) {
+        return DrippyLoadingScreen.getOptions().fadeOutLoadingScreen.getValue();
     }
 
     @Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;setOverlay(Lnet/minecraft/client/gui/screens/Overlay;)V"))

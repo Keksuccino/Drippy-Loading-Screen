@@ -8,12 +8,13 @@
     "client.MixinCustomizationOverlay",
     "client.MixinImageElement",
     "client.MixinImageMenuBackground",
+    "client.MixinLayout",
     "client.MixinLayoutEditorUI",
     "client.MixinLoadingOverlay",
     "client.MixinPlayerEntityElement",
     "client.MixinProgressBarElement",
     "client.MixinScreenCustomizationLayer",
-    "client.MixinLayout"
+    "client.MixinScreenCustomization"
   ],
   "mixins": [
   ],

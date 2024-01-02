@@ -4,7 +4,6 @@ import de.keksuccino.drippyloadingscreen.customization.DrippyOverlayScreen;
 import de.keksuccino.fancymenu.customization.screen.identifier.ScreenIdentifierHandler;
 import de.keksuccino.fancymenu.util.resource.resources.texture.ITexture;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.LoadingOverlay;
 import org.jetbrains.annotations.Nullable;
 
 public class DrippyUtils {
@@ -19,7 +18,7 @@ public class DrippyUtils {
     }
 
     public static boolean isDrippyRendering() {
-        return (Minecraft.getInstance().screen instanceof DrippyOverlayScreen) && (Minecraft.getInstance().getOverlay() instanceof LoadingOverlay);
+        return (Minecraft.getInstance().screen instanceof DrippyOverlayScreen);
     }
 
     public static boolean isDrippyIdentifier(@Nullable String identifier) {

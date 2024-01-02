@@ -45,6 +45,14 @@ public class DrippyLoadingScreen {
 
 			EventHandler.INSTANCE.registerListenersOf(new DrippyEvents());
 
+		}
+
+	}
+
+	public static void registerAll() {
+
+		if (Services.PLATFORM.isOnClient()) {
+
 			//Register universal identifier for Drippy screen
 			UniversalScreenIdentifierRegistry.register("drippy_loading_overlay", DrippyOverlayScreen.class.getName());
 
@@ -59,9 +67,6 @@ public class DrippyLoadingScreen {
 
 			//Register custom element types
 			Elements.registerAll();
-
-			//Reload layouts after registering custom elements, to not break them in case FancyMenu loaded first
-			LayoutHandler.reloadLayouts();
 
 		}
 

@@ -13,6 +13,7 @@ import de.keksuccino.fancymenu.customization.element.elements.progressbar.Progre
 import de.keksuccino.fancymenu.customization.layout.Layout;
 import de.keksuccino.fancymenu.util.Legacy;
 import de.keksuccino.fancymenu.util.MathUtils;
+import de.keksuccino.fancymenu.util.SerializationUtils;
 import de.keksuccino.fancymenu.util.properties.PropertyContainer;
 import de.keksuccino.fancymenu.util.properties.PropertyContainerSet;
 import de.keksuccino.fancymenu.util.rendering.DrawableColor;
@@ -46,25 +47,35 @@ public class MixinLayout {
                     //GENERIC PROGRESS BAR ELEMENT
                     if (action.equals("custom_layout_element:drippy_generic_progress_bar")) {
 
-                        ProgressBarElement element = Elements.PROGRESS_BAR.deserializeElement(convertContainerToSerializedElementDrippy(sec));
+                        ProgressBarElement element = Elements.PROGRESS_BAR.deserializeElementInternal(convertContainerToSerializedElementDrippy(sec));
 
-                        element.progressValueMode = ProgressBarElement.ProgressValueMode.FLOATING_POINT;
+                        if (element != null) {
 
-                        elements.add(Elements.PROGRESS_BAR.serializeElementInternal(element));
-                        elementOrder.add(element.getInstanceIdentifier());
+                            element.useProgressForElementAnchor = SerializationUtils.deserializeBoolean(false, sec.getValue("progress_for_element_orientation"));
+                            element.progressValueMode = ProgressBarElement.ProgressValueMode.FLOATING_POINT;
+
+                            elements.add(Elements.PROGRESS_BAR.serializeElementInternal(element));
+                            elementOrder.add(element.getInstanceIdentifier());
+
+                        }
 
                     }
 
                     //LOADING BAR ELEMENT
                     if (action.equals("custom_layout_element:drippy_custom_loading_bar")) {
 
-                        ProgressBarElement element = Elements.PROGRESS_BAR.deserializeElement(convertContainerToSerializedElementDrippy(sec));
+                        ProgressBarElement element = Elements.PROGRESS_BAR.deserializeElementInternal(convertContainerToSerializedElementDrippy(sec));
 
-                        element.progressValueMode = ProgressBarElement.ProgressValueMode.PERCENTAGE;
-                        element.progressSource = Placeholders.GAME_LOADING_PROGRESS_PERCENT.getDefaultPlaceholderString().toString();
+                        if (element != null) {
 
-                        elements.add(Elements.PROGRESS_BAR.serializeElementInternal(element));
-                        elementOrder.add(element.getInstanceIdentifier());
+                            element.useProgressForElementAnchor = SerializationUtils.deserializeBoolean(false, sec.getValue("progress_for_element_orientation"));
+                            element.progressValueMode = ProgressBarElement.ProgressValueMode.PERCENTAGE;
+                            element.progressSource = Placeholders.GAME_LOADING_PROGRESS_PERCENT.getDefaultPlaceholderString().toString();
+
+                            elements.add(Elements.PROGRESS_BAR.serializeElementInternal(element));
+                            elementOrder.add(element.getInstanceIdentifier());
+
+                        }
 
                     }
 
@@ -196,6 +207,8 @@ public class MixinLayout {
     @Legacy("Convert old v2 background color deep element to new ColorMenuBackground instance. Remove this in the future.")
     @Inject(method = "convertLegacyMenuBackground", at = @At("RETURN"), cancellable = true, remap = false)
     private static void atReturnConvertLegacyMenuBackgroundDrippy(PropertyContainerSet layout, CallbackInfoReturnable<MenuBackground> info) {
+
+        if (info.getReturnValue() != null) return;
 
         for (PropertyContainer sec : layout.getContainersOfType("customization")) {
 
