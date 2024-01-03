@@ -4,6 +4,7 @@ import de.keksuccino.fancymenu.customization.background.MenuBackgroundBuilder;
 import de.keksuccino.fancymenu.customization.background.SerializedMenuBackground;
 import de.keksuccino.fancymenu.util.LocalizationUtils;
 import de.keksuccino.fancymenu.util.rendering.DrawableColor;
+import de.keksuccino.fancymenu.util.rendering.text.Components;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -59,7 +60,7 @@ public class ColorMenuBackgroundBuilder extends MenuBackgroundBuilder<ColorMenuB
 
     @Override
     public @NotNull Component getDisplayName() {
-        return Component.translatable("drippyloadingscreen.background.color");
+        return Components.translatable("drippyloadingscreen.background.color");
     }
 
     @Override

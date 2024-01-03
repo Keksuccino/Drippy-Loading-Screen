@@ -3,9 +3,9 @@ package de.keksuccino.drippyloadingscreen.customization.backgrounds.color;
 import de.keksuccino.fancymenu.util.LocalizationUtils;
 import de.keksuccino.fancymenu.util.input.TextValidators;
 import de.keksuccino.fancymenu.util.rendering.DrawableColor;
+import de.keksuccino.fancymenu.util.rendering.text.Components;
 import de.keksuccino.fancymenu.util.rendering.ui.screen.CellScreen;
 import de.keksuccino.fancymenu.util.rendering.ui.tooltip.Tooltip;
-import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 import java.util.function.Consumer;
 
@@ -19,7 +19,7 @@ public class ColorMenuBackgroundConfigScreen extends CellScreen {
     protected String colorHex;
 
     protected ColorMenuBackgroundConfigScreen(@NotNull ColorMenuBackground background, @NotNull Consumer<ColorMenuBackground> callback) {
-        super(Component.translatable("drippyloadingscreen.background.color.config"));
+        super(Components.translatable("drippyloadingscreen.background.color.config"));
         this.background = background;
         this.colorHex = this.background.color.getHex();
         this.callback = callback;
@@ -30,7 +30,7 @@ public class ColorMenuBackgroundConfigScreen extends CellScreen {
 
         this.addStartEndSpacerCell();
 
-        this.addLabelCell(Component.translatable("drippyloadingscreen.background.color.config.color"));
+        this.addLabelCell(Components.translatable("drippyloadingscreen.background.color.config.color"));
 
         this.addTextInputCell(null, false, false)
                 .setEditListener(s -> this.colorHex = s)

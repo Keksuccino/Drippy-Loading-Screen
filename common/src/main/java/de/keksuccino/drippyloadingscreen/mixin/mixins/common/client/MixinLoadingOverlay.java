@@ -2,6 +2,7 @@ package de.keksuccino.drippyloadingscreen.mixin.mixins.common.client;
 
 import com.llamalad7.mixinextras.injector.WrapWithCondition;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import de.keksuccino.drippyloadingscreen.DrippyLoadingScreen;
 import de.keksuccino.drippyloadingscreen.FMAnimationUtils;
 import de.keksuccino.drippyloadingscreen.customization.DrippyOverlayScreen;
@@ -16,14 +17,9 @@ import de.keksuccino.fancymenu.util.event.acara.EventHandler;
 import de.keksuccino.fancymenu.util.rendering.RenderingUtils;
 import de.keksuccino.fancymenu.util.rendering.ui.UIBase;
 import de.keksuccino.fancymenu.util.threading.MainThreadTaskExecutor;
-import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.font.FontManager;
 import net.minecraft.client.gui.screens.LoadingOverlay;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ReloadInstance;
 import net.minecraft.util.FastColor;
 import net.minecraft.util.profiling.InactiveProfiler;
@@ -78,7 +74,7 @@ public class MixinLoadingOverlay {
     }
 
     @Inject(method = "render", at = @At("RETURN"))
-    private void afterRenderDrippy(GuiGraphics graphics, int mouseX, int mouseY, float partial, CallbackInfo info) {
+    private void afterRenderDrippy(PoseStack graphics, int mouseX, int mouseY, float partial, CallbackInfo info) {
 
         if (this.shouldRenderVanillaDrippy()) return;
 
@@ -92,72 +88,72 @@ public class MixinLoadingOverlay {
             drippyOverlayScreen.tick();
             EventHandler.INSTANCE.postEvent(new ScreenTickEvent.Post(drippyOverlayScreen));
 
-            this.restoreRenderDefaultsDrippy(graphics);
+            this.restoreRenderDefaultsDrippy();
 
             //This is to render the overlay in its own scale while still rendering the actual current screen under it in the current screen's scale
             //It's important to calculate the fixed scale BEFORE updating the window GUI scale
             float renderScale = UIBase.calculateFixedScale((float)this.cachedOverlayScaleDrippy);
             double guiScale = Minecraft.getInstance().getWindow().getGuiScale();
             Minecraft.getInstance().getWindow().setGuiScale(this.cachedOverlayScaleDrippy);
-            graphics.pose().pushPose();
-            graphics.pose().scale(renderScale, renderScale, renderScale);
+            graphics.pushPose();
+            graphics.scale(renderScale, renderScale, renderScale);
 
             EventHandler.INSTANCE.postEvent(new RenderScreenEvent.Pre(drippyOverlayScreen, graphics, mouseX, mouseY, partial));
             drippyOverlayScreen.render(graphics, mouseX, mouseY, partial);
-            this.restoreRenderDefaultsDrippy(graphics);
+            this.restoreRenderDefaultsDrippy();
             EventHandler.INSTANCE.postEvent(new RenderScreenEvent.Post(drippyOverlayScreen, graphics, mouseX, mouseY, partial));
 
             //Reset scale after rendering
-            graphics.pose().scale(1.0F, 1.0F, 1.0F);
-            graphics.pose().popPose();
+            graphics.scale(1.0F, 1.0F, 1.0F);
+            graphics.popPose();
             Minecraft.getInstance().getWindow().setGuiScale(guiScale);
 
-            this.restoreRenderDefaultsDrippy(graphics);
+            this.restoreRenderDefaultsDrippy();
 
         });
 
     }
 
-    @WrapWithCondition(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/Screen;render(Lnet/minecraft/client/gui/GuiGraphics;IIF)V"))
-    private boolean cancelScreenRenderingDrippy(Screen instance, GuiGraphics guiGraphics, int i, int j, float f) {
+    @WrapWithCondition(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/Screen;render(Lcom/mojang/blaze3d/vertex/PoseStack;IIF)V"))
+    private boolean cancelScreenRenderingDrippy(Screen instance, PoseStack guiGraphics, int i, int j, float f) {
         return DrippyLoadingScreen.getOptions().fadeOutLoadingScreen.getValue();
     }
 
     @Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;setOverlay(Lnet/minecraft/client/gui/screens/Overlay;)V"))
-    private void beforeCloseOverlayDrippy(GuiGraphics $$0, int $$1, int $$2, float $$3, CallbackInfo ci) {
+    private void beforeCloseOverlayDrippy(PoseStack $$0, int $$1, int $$2, float $$3, CallbackInfo ci) {
         EventHandler.INSTANCE.postEvent(new CloseScreenEvent(drippyOverlayScreen));
     }
 
     @Inject(method = "drawProgressBar", at = @At("HEAD"), cancellable = true)
-    private void cancelOriginalProgressBarRenderingDrippy(GuiGraphics graphics, int p_96184_, int p_96185_, int p_96186_, int p_96187_, float opacity, CallbackInfo info) {
+    private void cancelOriginalProgressBarRenderingDrippy(PoseStack graphics, int p_96184_, int p_96185_, int p_96186_, int p_96187_, float opacity, CallbackInfo info) {
         if (!this.shouldRenderVanillaDrippy()) {
             info.cancel();
             this.cachedElementOpacityDrippy = DrippyLoadingScreen.getOptions().fadeOutLoadingScreen.getValue() ? opacity : 1.0F;
-            RenderingUtils.resetShaderColor(graphics);
+            RenderingUtils.resetShaderColor();
         }
     }
 
-    @WrapWithCondition(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphics;blit(Lnet/minecraft/resources/ResourceLocation;IIIIFFIIII)V"))
-    private boolean cancelOriginalLogoRenderingDrippy(GuiGraphics instance, ResourceLocation resourceLocation, int i, int j, int k, int l, float f, float g, int m, int n, int o, int p) {
+    @WrapWithCondition(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/LoadingOverlay;blit(Lcom/mojang/blaze3d/vertex/PoseStack;IIIIFFIIII)V"))
+    private boolean cancelOriginalLogoRenderingDrippy(PoseStack poseStack, int i1, int i2, int i3, int i4, float v5, float v6, int i7, int i8, int i9, int i0) {
         return this.shouldRenderVanillaDrippy();
     }
 
-    @WrapWithCondition(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphics;fill(Lnet/minecraft/client/renderer/RenderType;IIIII)V"))
-    private boolean cancelBackgroundRenderingDrippy(GuiGraphics instance, RenderType renderType, int i, int j, int k, int l, int color) {
+    @WrapWithCondition(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/LoadingOverlay;fill(Lcom/mojang/blaze3d/vertex/PoseStack;IIIII)V"))
+    private boolean cancelBackgroundRenderingDrippy(PoseStack poseStack, int i1, int i2, int i3, int i4, int color) {
         this.cachedBackgroundOpacityDrippy = DrippyLoadingScreen.getOptions().fadeOutLoadingScreen.getValue() ? Math.min(1.0F, Math.max(0.0F, (float)FastColor.ARGB32.alpha(color) / 255.0F)) : 1.0F;
         return this.shouldRenderVanillaDrippy();
     }
 
     @Inject(method = "render", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/GlStateManager;_clear(IZ)V", shift = At.Shift.AFTER))
-    private void clearColorAfterBackgroundRenderingDrippy(GuiGraphics graphics, int p_282704_, int p_283650_, float p_283394_, CallbackInfo info) {
+    private void clearColorAfterBackgroundRenderingDrippy(PoseStack graphics, int p_282704_, int p_283650_, float p_283394_, CallbackInfo info) {
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
-        RenderingUtils.resetShaderColor(graphics);
+        RenderingUtils.resetShaderColor();
     }
 
     @Unique
-    private void restoreRenderDefaultsDrippy(GuiGraphics graphics) {
-        RenderingUtils.resetShaderColor(graphics);
+    private void restoreRenderDefaultsDrippy() {
+        RenderingUtils.resetShaderColor();
         RenderSystem.defaultBlendFunc();
         RenderSystem.depthMask(true);
         RenderSystem.enableDepthTest();
@@ -200,12 +196,13 @@ public class MixinLoadingOverlay {
         return l;
     }
 
+    @SuppressWarnings("all")
     @Unique
     private void loadFontsDrippy() {
         MainThreadTaskExecutor.executeInMainThread(() -> {
             try {
-                FontManager fontManager = ((IMixinMinecraft)Minecraft.getInstance()).getFontManagerDrippy();
-                fontManager.apply(fontManager.prepare(Minecraft.getInstance().getResourceManager(), Util.backgroundExecutor()).get(), InactiveProfiler.INSTANCE);
+                Object m = ((IMixinSimplePreparableReloadListener)((IMixinFontManager)((IMixinMinecraft)Minecraft.getInstance()).getFontManagerDrippy()).getReloadListenerDrippy()).invokePrepareDrippy(Minecraft.getInstance().getResourceManager(), InactiveProfiler.INSTANCE);
+                ((IMixinSimplePreparableReloadListener)((IMixinFontManager)((IMixinMinecraft)Minecraft.getInstance()).getFontManagerDrippy()).getReloadListenerDrippy()).invokeApplyDrippy(m, Minecraft.getInstance().getResourceManager(), InactiveProfiler.INSTANCE);
             } catch (Exception ex) {
                 LOGGER_DRIPPY.error("[DRIPPY LOADING SCREEN] Failed to load fonts!", ex);
             }
