@@ -1,6 +1,7 @@
 package de.keksuccino.drippyloadingscreen;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import de.keksuccino.fancymenu.FancyMenu;
 import de.keksuccino.fancymenu.customization.overlay.CustomizationOverlay;
 import de.keksuccino.fancymenu.events.screen.InitOrResizeScreenCompletedEvent;
@@ -13,9 +14,9 @@ import de.keksuccino.fancymenu.util.rendering.ui.contextmenu.v2.ContextMenu;
 import de.keksuccino.fancymenu.util.rendering.ui.tooltip.Tooltip;
 import de.keksuccino.fancymenu.util.rendering.ui.tooltip.TooltipHandler;
 import de.keksuccino.fancymenu.util.rendering.ui.widget.button.ExtendedButton;
-import net.minecraft.client.gui.GuiGraphics;
 import de.keksuccino.drippyloadingscreen.customization.DrippyOverlayScreen;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -71,7 +72,7 @@ public class DrippyEvents {
             }) {
 
                 @Override
-                public void render(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partial) {
+                public void render(@NotNull PoseStack graphics, int mouseX, int mouseY, float partial) {
 
                     var m = CustomizationOverlay.getCurrentMenuBarInstance();
                     if ((m == null) || (!m.isUserNavigatingInMenuBar() && !drippyMenu.isUserNavigatingInMenu())) {
@@ -84,16 +85,17 @@ public class DrippyEvents {
                     }
                     super.render(graphics, mouseX, mouseY, partial);
                     RenderSystem.enableBlend();
-                    RenderingUtils.resetShaderColor(graphics);
-                    graphics.blit(EDIT_BUTTON_TEXTURE, this.getX(), this.getY(), 0.0f, 0.0f, this.getWidth(), this.getHeight(), this.getWidth(), this.getHeight());
-                    RenderingUtils.resetShaderColor(graphics);
+                    RenderingUtils.resetShaderColor();
+                    RenderingUtils.bindTexture(EDIT_BUTTON_TEXTURE);
+                    GuiComponent.blit(graphics, this.getX(), this.getY(), 0.0f, 0.0f, this.getWidth(), this.getHeight(), this.getWidth(), this.getHeight());
+                    RenderingUtils.resetShaderColor();
 
                     drippyMenu.render(graphics, mouseX, mouseY, partial);
 
                 }
 
                 @Override
-                protected void renderBackground(@NotNull GuiGraphics graphics) {
+                protected void renderBackground(@NotNull PoseStack graphics) {
                     boolean b = this.isHovered;
                     if (drippyMenu.isOpen()) this.isHovered = true;
                     super.renderBackground(graphics);
@@ -102,7 +104,7 @@ public class DrippyEvents {
 
                 @Override
                 public boolean mouseClicked(double $$0, double $$1, int $$2) {
-                    if (drippyMenu.isOpen() && !drippyMenu.isUserNavigatingInMenu() && !this.isHovered()) {
+                    if (drippyMenu.isOpen() && !drippyMenu.isUserNavigatingInMenu() && !this.isHovered) {
                         drippyMenu.closeMenu();
                         this.setFocused(false);
                     }
