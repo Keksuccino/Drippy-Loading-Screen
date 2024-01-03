@@ -33,7 +33,7 @@ public class DrippyOverlayScreen extends Screen {
     public float backgroundOpacity = 1.0F;
 
     public DrippyOverlayScreen() {
-        super(Component.literal(""));
+        super(Component.empty());
         MixinCache.cachedCurrentLoadingScreenProgress = 0.5F;
         this.forceEnableCustomizations();
     }

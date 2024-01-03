@@ -13,8 +13,9 @@
     "client.MixinLoadingOverlay",
     "client.MixinPlayerEntityElement",
     "client.MixinProgressBarElement",
+    "client.MixinScreenCustomization",
     "client.MixinScreenCustomizationLayer",
-    "client.MixinScreenCustomization"
+    "client.MixinCustomizationOverlayUI"
   ],
   "mixins": [
   ],
