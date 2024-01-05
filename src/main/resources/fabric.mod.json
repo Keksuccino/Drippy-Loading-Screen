@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "id": "drippyloadingscreen",
-  "version": "2.2.5",
-  "name": "Drippy Loading Screen",
+  "id": "${mod_id}",
+  "version": "${mod_version}",
+  "name": "${mod_name}",
   "description": "Drippy Loading Screen © Copyright 2021-2023 Keksuccino. Drippy Loading Screen is licensed under DSMSL (DON'T SNATCH MA STUFF LICENSE). See https://github.com/Keksuccino/Drippy-Loading-Screen/blob/main/LICENSE.md for more information about this license.",
   "environment": "client",
   "authors": [
@@ -10,7 +10,7 @@
   ],
   "contributors": [],
   "contact": {},
-  "license": "DSMSL (DON'T SNATCH MA STUFF LICENSE)",
+  "license": "DSMSL",
   "icon": "assets/drippyloadingscreen/icon.png",
   "entrypoints": {
     "main": [
@@ -20,15 +20,16 @@
     "server": []
   },
   "mixins": [
-    "drippyloadingscreen.mixin.json"
+    "${mod_id}.mixins.json"
   ],
   "depends": {
-    "fabricloader": ">=0.14.6",
-    "konkrete": ">=1.7.0",
-    "fancymenu": ">=2.14.10",
-    "fabric": "*",
-	"minecraft": ">=1.20.2",
+    "fabricloader": ">=0.15.3",
+    "fabric": ">=0.92.0",
+    "minecraft": ">=1.20.4",
     "java": ">=17"
   },
-  "accessWidener": "drippyloadingscreen.accessWidener"
+  "breaks": {
+    "fancymenu": ">=3.0.0"
+  },
+  "accessWidener": "${mod_id}.accesswidener"
 }

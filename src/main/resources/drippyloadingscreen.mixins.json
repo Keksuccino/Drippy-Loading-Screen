@@ -20,6 +20,6 @@
   "injectors": {
     "defaultRequire": 1
   },
-  "refmap": "drippyloadingscreen.mixin-refmap.json",
+  "refmap": "drippyloadingscreen.refmap.json",
   "plugin": "de.keksuccino.drippyloadingscreen.mixin.DrippyMixinPlugin"
 }
