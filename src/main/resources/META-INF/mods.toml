@@ -1,13 +1,14 @@
-modLoader="javafml" #mandatory
-loaderVersion="[46,)" #mandatory This is typically bumped every Minecraft version by Forge. See our download page for lists of versions.
-license="DSMSL (DON'T SNATCH MA STUFF LICENSE)"
-# A list of mods - how many allowed here is determined by the individual mod loader
-[[mods]] #mandatory
-modId="drippyloadingscreen" #mandatory
-version="2.2.1" #mandatory
-displayName="Drippy Loading Screen" #mandatory
-authors="Keksuccino" #optional
-displayURL="https://www.curseforge.com/minecraft/mc-mods/drippy-loading-screen" #optional
+modLoader="javafml"
+loaderVersion="${loader_version_range}"
+license="${mod_license}"
+clientSideOnly=false
+[[mods]]
+modId="${mod_id}"
+version="${mod_version}"
+displayName="${mod_name}"
+authors="${mod_authors}" #optional
+#If mod is present on server, only let users with same client-side mod version join
+displayTest="MATCH_VERSION"
 description='''Damn, what a drippy loading screen!
 
 COPYRIGHT:
@@ -16,30 +17,33 @@ COPYRIGHT:
   Drippy Loading Screen is licensed under DSMSL (DON'T SNATCH MA STUFF LICENSE).
   See https://github.com/Keksuccino/Drippy-Loading-Screen/blob/main/LICENSE.md for more information about this license.'''
 
-[[dependencies.drippyloadingscreen]]
-modId="konkrete"
-mandatory=true
-ordering="NONE"
-versionRange="[1.6.0,)"
-side="BOTH"
+[[dependencies.${mod_id}]]
+    modId="konkrete"
+    mandatory=true
+    ordering="NONE"
+    versionRange="[1.6.1,)"
+    side="BOTH"
 
-[[dependencies.drippyloadingscreen]]
-modId="fancymenu"
-mandatory=true
-ordering="AFTER"
-versionRange="[2.14.4,)"
-side="BOTH"
+[[dependencies.${mod_id}]]
+    modId="fancymenu"
+    mandatory=true
+    ordering="AFTER"
+    versionRange="[2.14.9,3.0.0)"
+    side="BOTH"
 
-[[dependencies.drippyloadingscreen]]
-modId="forge"
-mandatory=true
-versionRange="[46.0.0,)"
-ordering="NONE"
-side="CLIENT"
+[[dependencies.${mod_id}]]
+    modId="forge"
+    mandatory=true
+    versionRange="${forge_version_range}"
+    ordering="NONE"
+    side="BOTH"
+	
+[[dependencies.${mod_id}]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="${minecraft_version_range}"
+    ordering="NONE"
+    side="BOTH"
 
-[[dependencies.drippyloadingscreen]]
-modId="minecraft"
-mandatory=true
-versionRange="[1.20,)"
-ordering="NONE"
-side="CLIENT"
+#[features.${mod_id}]
+#openGLVersion="[3.2,)"

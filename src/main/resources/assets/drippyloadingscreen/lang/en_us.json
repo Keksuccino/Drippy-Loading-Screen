@@ -71,5 +71,8 @@
   "drippyloadingscreen.config.allow_universal_layouts": "Allow Universal Layouts",
   "drippyloadingscreen.config.allow_universal_layouts.desc": "If universal layouts should get%%n%%applied to the loading screen.",
   "drippyloadingscreen.config.early_fade_out_elements": "Early Fade-Out Elements",
-  "drippyloadingscreen.config.early_fade_out_elements.desc": "If elements should start fading out earlier%%n%%than the loading screen background."
+  "drippyloadingscreen.config.early_fade_out_elements.desc": "If elements should start fading out earlier%%n%%than the loading screen background.",
+  "drippyloadingscreen.config.categories.forge": "FORGE",
+  "drippyloadingscreen.config.enable_early_loading": "Enable Forge Early Loading Screen",
+  "drippyloadingscreen.config.enable_early_loading.desc": "If you disable this, Drippy will force-disable%%n%%Forge's early loading screen.%%n%%This could cause issues with some mods,%%n%%so if you experience crashes, please%%n%%turn it back on."
 }

@@ -37,7 +37,7 @@ public class EventHandler {
     @SubscribeEvent
     public void onDrawScreenPost(ScreenEvent.Render.Post e) {
         if (e.getScreen() instanceof TitleScreen) {
-            if (FancyMenu.config.getOrDefault("showcustomizationbuttons", true)) {
+            if (FancyMenu.getConfig().getOrDefault("showcustomizationbuttons", true)) {
                 editLoadingScreenButton.render(e.getGuiGraphics(), e.getMouseX(), e.getMouseY(), e.getPartialTick());
             }
         }

@@ -16,4 +16,6 @@ public interface IMixinLoadingOverlay {
 
     @Accessor("currentProgress") float getCurrentProgressDrippy();
 
+    @Accessor("currentProgress") void setCurrentProgressDrippy(float currentProgress);
+
 }

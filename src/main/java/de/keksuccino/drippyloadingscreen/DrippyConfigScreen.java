@@ -2,6 +2,7 @@ package de.keksuccino.drippyloadingscreen;
 
 import de.keksuccino.konkrete.config.ConfigEntry;
 import de.keksuccino.konkrete.gui.screens.ConfigScreen;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.language.I18n;
 
@@ -25,6 +26,10 @@ public class DrippyConfigScreen extends ConfigScreen {
             this.setValueDescription(e.getName(), I18n.get("drippyloadingscreen.config." + e.getName() + ".desc"));
         }
 
+    }
+
+    @Override
+    public void renderBackground(GuiGraphics p_283688_, int p_299421_, int p_298679_, float p_297268_) {
     }
 
 }
