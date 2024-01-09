@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
-  "id": "drippyloadingscreen",
-  "version": "${version}",
-  "name": "Drippy Loading Screen",
-  "description": "~ loading screen won't stop dripping ~ | Drippy Loading Screen © Copyright 2023 Keksuccino. Drippy Loading Screen is licensed under DSMSLv2 (DON'T SNATCH MA STUFF LICENSE v2.0). See https://github.com/Keksuccino/Drippy-Loading-Screen/blob/main/LICENSE.md for more information about this license.",
-  "environment": "client",
+  "id": "${mod_id}",
+  "version": "${mod_version}",
+  "name": "${mod_name}",
+  "description": "${mod_description}",
+  "environment": "*",
   "authors": [
-    "Keksuccino"
+    "${mod_authors}"
   ],
   "contributors": [
   ],
   "contact": {},
-  "license": "DSMSLv2 (DON'T SNATCH MA STUFF LICENSE v2.0)",
+  "license": "${mod_license}",
   "icon": "drippy_logo_128x128.png",
   "entrypoints": {
     "main": [
