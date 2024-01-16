@@ -4,3 +4,5 @@ accessible class net/minecraft/client/gui/font/FontManager$Preparation
 
 accessible method net/minecraft/client/gui/font/FontManager prepare (Lnet/minecraft/server/packs/resources/ResourceManager;Ljava/util/concurrent/Executor;)Ljava/util/concurrent/CompletableFuture;
 accessible method net/minecraft/client/gui/font/FontManager apply (Lnet/minecraft/client/gui/font/FontManager$Preparation;Lnet/minecraft/util/profiling/ProfilerFiller;)V
+
+extendable method net/minecraft/client/gui/components/AbstractWidget render (Lnet/minecraft/client/gui/GuiGraphics;IIF)V
