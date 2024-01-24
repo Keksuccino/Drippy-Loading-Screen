@@ -31,5 +31,6 @@
     "fancymenu": ">=3.0.0",
     "minecraft": ">=${minecraft_version}",
     "java": ">=17"
-  }
+  },
+  "accessWidener": "drippyloadingscreen.accesswidener"
 }
