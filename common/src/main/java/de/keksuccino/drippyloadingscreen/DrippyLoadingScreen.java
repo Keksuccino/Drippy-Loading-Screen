@@ -6,7 +6,6 @@ import de.keksuccino.drippyloadingscreen.customization.backgrounds.Backgrounds;
 import de.keksuccino.drippyloadingscreen.customization.elements.Elements;
 import de.keksuccino.drippyloadingscreen.customization.placeholders.Placeholders;
 import de.keksuccino.fancymenu.customization.ScreenCustomization;
-import de.keksuccino.fancymenu.customization.layout.LayoutHandler;
 import de.keksuccino.fancymenu.customization.screen.identifier.UniversalScreenIdentifierRegistry;
 import de.keksuccino.fancymenu.util.event.acara.EventHandler;
 import de.keksuccino.drippyloadingscreen.platform.Services;
@@ -20,7 +19,7 @@ public class DrippyLoadingScreen {
 
 	private static final Logger LOGGER = LogManager.getLogger();
 
-	public static final String VERSION = "3.0.0";
+	public static final String VERSION = "3.0.1";
 	public static final String MOD_LOADER = Services.PLATFORM.getPlatformName();
 	public static final String MOD_ID = "drippyloadingscreen";
 
