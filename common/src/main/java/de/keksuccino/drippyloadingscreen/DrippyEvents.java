@@ -4,6 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import de.keksuccino.fancymenu.FancyMenu;
 import de.keksuccino.fancymenu.customization.overlay.CustomizationOverlay;
 import de.keksuccino.fancymenu.events.screen.InitOrResizeScreenCompletedEvent;
+import de.keksuccino.fancymenu.events.screen.RenderScreenEvent;
 import de.keksuccino.fancymenu.util.LocalizationUtils;
 import de.keksuccino.fancymenu.util.cycle.CommonCycles;
 import de.keksuccino.fancymenu.util.event.acara.EventListener;
@@ -26,6 +27,7 @@ public class DrippyEvents {
     private static final ResourceLocation EDIT_BUTTON_TEXTURE = new ResourceLocation("drippyloadingscreen", "textures/edit_button.png");
 
     private ContextMenu drippyMenu;
+    private ExtendedButton drippyButton;
 
     @EventListener
     public void onInitOrResizeScreenCompleted(InitOrResizeScreenCompletedEvent e) {
@@ -112,9 +114,22 @@ public class DrippyEvents {
             };
             UIBase.applyDefaultWidgetSkinTo(editButton);
 
-            e.addWidget(this.drippyMenu);
-            e.addRenderableWidget(editButton);
+            //2 because MenuBar and DebugOverlay need to be at pos 0 and 1
+            e.getWidgets().add(2, editButton);
+            this.drippyButton = editButton;
+            e.getWidgets().add(2, this.drippyMenu);
 
+        }
+
+    }
+
+    @EventListener(priority = 0) //FM is -1
+    public void onScreenRenderPost(RenderScreenEvent.Post e) {
+
+        if ((e.getScreen() instanceof TitleScreen) && FancyMenu.getOptions().showCustomizationOverlay.getValue()) {
+            if (this.drippyButton != null) {
+                this.drippyButton.render(e.getGraphics(), e.getMouseX(), e.getMouseY(), e.getPartial());
+            }
         }
 
     }

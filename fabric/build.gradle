@@ -27,7 +27,8 @@ dependencies {
     modImplementation "maven.modrinth:melody:1.0.1-1.20.1-1.20.4-fabric"
     modImplementation "maven.modrinth:konkrete:1.8.0-1.20.4-fabric"
     modImplementation "maven.modrinth:modmenu:9.0.0"
-    modImplementation "flatdir:fancymenu:3.0.1"
+    //This will obviously break in-dev, but I just want to compile the frickin build rn and will fix this later
+    implementation "flatdir:fancymenu:3.1.0"
 }
 
 loom {
