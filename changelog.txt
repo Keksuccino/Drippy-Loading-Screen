@@ -1,4 +1,36 @@
 
+CHANGELOG | DRIPPY LOADING SCREEN v3.0.2
+ 
+- Lowered required Fabric API version to 0.88.1
+
+%changelog:end%
+
+
+
+
+
+CHANGELOG | DRIPPY LOADING SCREEN v3.0.1
+
+- Added support for FancyMenu v3.1.0
+- Lowered minimum required 1.20.1 Forge version to 47.1.47
+- The Drippy button in the Title Screen now always renders on top of everything (should not get rendered behind FancyMenu elements, etc.)
+
+%changelog:end%
+
+
+
+
+
+CHANGELOG | DRIPPY LOADING SCREEN v3.0.0 (link version)
+
+CHANGELOG: https://gist.github.com/Keksuccino/b5f8bdad204be04566a69b914ff1554d
+
+%changelog:end%
+
+
+
+
+
 CHANGELOG | DRIPPY LOADING SCREEN v3.0.0
  
 PLEASE READ:
