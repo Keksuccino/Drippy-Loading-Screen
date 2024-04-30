@@ -1,4 +1,14 @@
 
+CHANGELOG | DRIPPY LOADING SCREEN v3.0.4
+ 
+- Ported to MC 1.20.6 (skipped 1.20.5)
+- Dropped support for MC 1.20.4
+
+%changelog:end%
+
+
+
+
 CHANGELOG | DRIPPY LOADING SCREEN v3.0.3
  
 - Ported to NeoForge 1.20.4
