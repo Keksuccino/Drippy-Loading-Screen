@@ -28,7 +28,7 @@ import java.util.function.IntSupplier;
 public class DrippyOverlayScreen extends Screen {
 
     private static final Logger LOGGER = LogManager.getLogger();
-    private static final ResourceLocation MOJANG_STUDIOS_LOGO_LOCATION = new ResourceLocation("textures/gui/title/mojangstudios.png");
+    private static final ResourceLocation MOJANG_STUDIOS_LOGO_LOCATION = ResourceLocation.parse("textures/gui/title/mojangstudios.png");
 
     public float backgroundOpacity = 1.0F;
 

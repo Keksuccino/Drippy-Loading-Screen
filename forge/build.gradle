@@ -80,9 +80,9 @@ dependencies {
     implementation(jarJar("io.github.llamalad7:mixinextras-forge:0.3.5")) {
         jarJar.ranged(it, "[0.3.5,)")
     }
-    implementation "maven.modrinth:konkrete:1.9.7-1.20.6-forge"
-    implementation "maven.modrinth:melody:1.0.8-1.20.6-forge"
-    implementation "maven.modrinth:fancymenu:3.2.4-1.20.6-forge"
+    implementation "maven.modrinth:konkrete:1.9.9-1.21-forge"
+    implementation "maven.modrinth:melody:1.0.10-1.21-forge"
+    implementation "maven.modrinth:fancymenu:3.2.5-1.21-forge"
     compileOnly project(":common")
 }
 

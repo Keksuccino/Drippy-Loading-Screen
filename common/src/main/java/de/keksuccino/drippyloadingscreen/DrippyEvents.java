@@ -24,7 +24,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class DrippyEvents {
 
-    private static final ResourceLocation EDIT_BUTTON_TEXTURE = new ResourceLocation("drippyloadingscreen", "textures/edit_button.png");
+    private static final ResourceLocation EDIT_BUTTON_TEXTURE = ResourceLocation.fromNamespaceAndPath("drippyloadingscreen", "textures/edit_button.png");
 
     private ContextMenu drippyMenu;
     private ExtendedButton drippyButton;
