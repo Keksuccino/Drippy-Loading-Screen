@@ -17,9 +17,12 @@ import org.jetbrains.annotations.NotNull;
 
 public class DrippyLoadingScreen {
 
+	//TODO übernehmen (min FM version auf 3.2.1 hochsetzen)
+
 	private static final Logger LOGGER = LogManager.getLogger();
 
-	public static final String VERSION = "3.0.7";
+	//TODO übernehmen
+	public static final String VERSION = "3.0.8";
 	public static final String MOD_LOADER = Services.PLATFORM.getPlatformName();
 	public static final String MOD_ID = "drippyloadingscreen";
 	public static final File MOD_DIR = createDirectory(new File(GameDirectoryUtils.getGameDirectory(), "/config/drippyloadingscreen"));
