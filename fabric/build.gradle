@@ -3,7 +3,7 @@ plugins {
     id 'java'
     id 'idea'
     id 'maven-publish'
-    id 'fabric-loom' version '1.4-SNAPSHOT'
+    id 'fabric-loom' version '1.6-SNAPSHOT'
 }
 
 base {
@@ -27,8 +27,7 @@ dependencies {
     modImplementation "maven.modrinth:melody:1.0.1-1.20.1-1.20.4-fabric"
     modImplementation "maven.modrinth:konkrete:1.8.0-1.20.4-fabric"
     modImplementation "maven.modrinth:modmenu:9.0.0"
-    //This will obviously break in-dev, but I just want to compile the frickin build rn and will fix this later
-    implementation "flatdir:fancymenu:3.1.0"
+    modImplementation "maven.modrinth:fancymenu:3.2.3-1.20.4-fabric"
 }
 
 loom {
