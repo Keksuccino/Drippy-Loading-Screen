@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "${mod_id}",
-  "version": "3.0.1",
+  "version": "${mod_version}",
   "name": "${mod_name}",
   "description": "${mod_description}",
   "environment": "*",
@@ -26,7 +26,7 @@
   ],
   "depends": {
     "fabricloader": ">=0.15.2",
-    "fabric": ">=0.91.0",
+    "fabric": ">=0.88.1",
     "konkrete": ">=1.7.0",
     "fancymenu": ">=3.1.0",
     "minecraft": ">=1.20.1",
