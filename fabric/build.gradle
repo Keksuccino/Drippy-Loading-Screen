@@ -25,7 +25,7 @@ dependencies {
     implementation 'com.github.Keksuccino:japng:0.5.3'
     modImplementation "maven.modrinth:load-my-resources:1.0.4-1.20.2-fabric"
     modImplementation "maven.modrinth:melody:1.0.1-1.20.1-1.20.4-fabric"
-    modImplementation "maven.modrinth:konkrete:1.8.0-1.20.4-fabric"
+    modImplementation "maven.modrinth:konkrete:1.9.2-1.20.4-fabric"
     modImplementation "maven.modrinth:modmenu:9.0.0"
     modImplementation "maven.modrinth:fancymenu:3.2.3-1.20.4-fabric"
 }
