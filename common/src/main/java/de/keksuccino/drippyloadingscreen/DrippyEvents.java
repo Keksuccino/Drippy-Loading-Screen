@@ -33,7 +33,7 @@ public class DrippyEvents {
     @EventListener
     public void onInitOrResizeScreenCompleted(InitOrResizeScreenCompletedEvent e) {
 
-        if ((e.getScreen() instanceof TitleScreen) && FancyMenu.getOptions().showCustomizationOverlay.getValue()) {
+        if ((e.getScreen() instanceof TitleScreen) && CustomizationOverlay.isOverlayVisible(e.getScreen())) {
 
             this.drippyMenu = new ContextMenu()
                     .setForceDefaultTooltipStyle(true)
@@ -128,7 +128,7 @@ public class DrippyEvents {
     @EventListener(priority = 0) //FM is -1
     public void onScreenRenderPost(RenderScreenEvent.Post e) {
 
-        if ((e.getScreen() instanceof TitleScreen) && FancyMenu.getOptions().showCustomizationOverlay.getValue()) {
+        if ((e.getScreen() instanceof TitleScreen) && CustomizationOverlay.isOverlayVisible(e.getScreen())) {
             if (this.drippyButton != null) {
                 this.drippyButton.render(e.getPoseStack(), e.getMouseX(), e.getMouseY(), e.getPartial());
             }
