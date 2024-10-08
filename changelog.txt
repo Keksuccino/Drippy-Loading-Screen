@@ -1,4 +1,15 @@
 
+CHANGELOG | DRIPPY LOADING SCREEN v3.0.8
+ 
+- Dropped MC 1.21.0
+- Minimum FancyMenu version is now v3.2.0
+- Fixed Drippy ignoring FancyMenu's modpack mode
+
+%changelog:end%
+
+
+
+
 CHANGELOG | DRIPPY LOADING SCREEN v3.0.6
  
 - Ported to Forge 1.20.6
