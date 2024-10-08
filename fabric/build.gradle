@@ -26,7 +26,7 @@ dependencies {
     modImplementation "maven.modrinth:melody:1.0.6-1.20.5-fabric"
     modImplementation "maven.modrinth:konkrete:1.9.4-1.20.5-fabric"
     modImplementation "maven.modrinth:modmenu:10.0.0-beta.1"
-    modImplementation "maven.modrinth:fancymenu:3.1.6-1.20.5-fabric"
+    modImplementation "maven.modrinth:fancymenu:3.2.3-1.20.6-fabric"
 }
 
 loom {
