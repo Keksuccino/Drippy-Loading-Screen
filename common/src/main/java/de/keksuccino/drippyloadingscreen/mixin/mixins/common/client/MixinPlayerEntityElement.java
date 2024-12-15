@@ -1,9 +1,7 @@
 package de.keksuccino.drippyloadingscreen.mixin.mixins.common.client;
 
 import de.keksuccino.drippyloadingscreen.DrippyUtils;
-import de.keksuccino.fancymenu.customization.element.elements.playerentity.PlayerEntityElement;
-import de.keksuccino.fancymenu.customization.element.elements.playerentity.model.PlayerEntityElementRenderer;
-import de.keksuccino.fancymenu.customization.element.elements.playerentity.model.PlayerEntityProperties;
+import de.keksuccino.fancymenu.customization.element.elements.playerentity.v2.PlayerEntityElement;
 import net.minecraft.client.gui.GuiGraphics;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -22,20 +20,20 @@ public class MixinPlayerEntityElement {
         if (DrippyUtils.isDrippyRendering()) info.cancel();
     }
 
-    /**
-     * @reason Return a dummy properties instance if in Drippy layout (to not spam errors to the log)
-     */
-    @Inject(method = "getActiveEntityProperties", at = @At("HEAD"), cancellable = true, remap = false)
-    private void headGetActiveEntityPropertiesDrippy(CallbackInfoReturnable<PlayerEntityProperties> info) {
-        if (DrippyUtils.isDrippyRendering()) info.setReturnValue(new PlayerEntityProperties(false));
-    }
-
-    /**
-     * @reason Return NULL if in Drippy layout (to not spam errors to the log)
-     */
-    @Inject(method = "buildEntityRenderer", at = @At("HEAD"), cancellable = true, remap = false)
-    private static void headBuildEntityRendererDrippy(boolean slim, CallbackInfoReturnable<PlayerEntityElementRenderer> info) {
-        if (DrippyUtils.isDrippyRendering()) info.setReturnValue(null);
-    }
+//    /**
+//     * @reason Return a dummy properties instance if in Drippy layout (to not spam errors to the log)
+//     */
+//    @Inject(method = "getActiveEntityProperties", at = @At("HEAD"), cancellable = true, remap = false)
+//    private void headGetActiveEntityPropertiesDrippy(CallbackInfoReturnable<PlayerEntityProperties> info) {
+//        if (DrippyUtils.isDrippyRendering()) info.setReturnValue(new PlayerEntityProperties(false));
+//    }
+//
+//    /**
+//     * @reason Return NULL if in Drippy layout (to not spam errors to the log)
+//     */
+//    @Inject(method = "buildEntityRenderer", at = @At("HEAD"), cancellable = true, remap = false)
+//    private static void headBuildEntityRendererDrippy(boolean slim, CallbackInfoReturnable<PlayerEntityElementRenderer> info) {
+//        if (DrippyUtils.isDrippyRendering()) info.setReturnValue(null);
+//    }
 
 }

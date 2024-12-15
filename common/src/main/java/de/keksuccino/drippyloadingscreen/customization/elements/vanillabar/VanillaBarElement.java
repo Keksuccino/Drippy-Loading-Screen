@@ -34,9 +34,7 @@ public class VanillaBarElement extends AbstractElement {
         }
 
         RenderSystem.enableBlend();
-        RenderingUtils.resetShaderColor(graphics);
         this.drawProgressBar(graphics, x, y, x + w, y + h, currentProgress);
-        RenderingUtils.resetShaderColor(graphics);
 
     }
 

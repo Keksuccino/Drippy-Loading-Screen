@@ -1,6 +1,5 @@
 package de.keksuccino.drippyloadingscreen.customization;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import de.keksuccino.drippyloadingscreen.mixin.mixins.common.client.IMixinLoadingOverlay;
 import de.keksuccino.fancymenu.customization.ScreenCustomization;
 import de.keksuccino.fancymenu.customization.layer.ScreenCustomizationLayer;
@@ -8,7 +7,6 @@ import de.keksuccino.fancymenu.customization.layer.ScreenCustomizationLayerHandl
 import de.keksuccino.fancymenu.events.screen.RenderedScreenBackgroundEvent;
 import de.keksuccino.fancymenu.mixin.mixins.common.client.IMixinAbstractWidget;
 import de.keksuccino.fancymenu.util.event.acara.EventHandler;
-import de.keksuccino.fancymenu.util.rendering.RenderingUtils;
 import de.keksuccino.fancymenu.util.rendering.ui.widget.RendererWidget;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -18,7 +16,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.FastColor;
+import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -66,9 +64,7 @@ public class DrippyOverlayScreen extends Screen {
         IntSupplier supplier = IMixinLoadingOverlay.getBrandBackgroundDrippy();
         int color = (supplier != null) ? supplier.getAsInt() : 0;
         if (shouldRenderDefaultBackground) {
-            RenderingUtils.resetShaderColor(graphics);
             graphics.fill(RenderType.guiOverlay(), 0, 0, this.width, this.height, replaceAlpha(color, (int)(this.backgroundOpacity * 255.0F)));
-            RenderingUtils.resetShaderColor(graphics);
         }
         EventHandler.INSTANCE.postEvent(new RenderedScreenBackgroundEvent(this, graphics));
     }
@@ -96,17 +92,16 @@ public class DrippyOverlayScreen extends Screen {
 
         return new RendererWidget(logoPosX, logoPosY, logoWidthHalf * 2, logoHeightHalf * 2,
                 (graphics, mouseX, mouseY, partial, x, y, width, height, widget) -> {
-                    RenderSystem.disableDepthTest();
-                    RenderSystem.depthMask(false);
-                    RenderSystem.enableBlend();
-                    RenderSystem.blendFunc(770, 1);
-                    graphics.setColor(1.0F, 1.0F, 1.0F, ((IMixinAbstractWidget)widget).getAlphaFancyMenu());
-                    graphics.blit(MOJANG_STUDIOS_LOGO_LOCATION, x, y, width / 2, height, -0.0625F, 0.0F, 120, 60, 120, 120);
-                    graphics.blit(MOJANG_STUDIOS_LOGO_LOCATION, x + (width / 2), y, (width / 2), height, 0.0625F, 60.0F, 120, 60, 120, 120);
-                    RenderingUtils.resetShaderColor(graphics);
-                    RenderSystem.defaultBlendFunc();
-                    RenderSystem.depthMask(true);
-                    RenderSystem.enableDepthTest();
+//                    RenderSystem.disableDepthTest();
+//                    RenderSystem.depthMask(false);
+//                    RenderSystem.enableBlend();
+//                    RenderSystem.blendFunc(770, 1);
+                    int v = ARGB.white(((IMixinAbstractWidget)widget).getAlphaFancyMenu());
+                    graphics.blit(location -> RenderType.mojangLogo(), MOJANG_STUDIOS_LOGO_LOCATION, x, y, -0.0625F, 0.0F, width / 2, height, 120, 60, 120, 120, v);
+                    graphics.blit(location -> RenderType.mojangLogo(), MOJANG_STUDIOS_LOGO_LOCATION, x + (width / 2), y, 0.0625F, 60.0F, width / 2, height, 120, 60, 120, 120, v);
+//                    RenderSystem.defaultBlendFunc();
+//                    RenderSystem.depthMask(true);
+//                    RenderSystem.enableDepthTest();
                 }
         ).setWidgetIdentifierFancyMenu("mojang_logo");
 
@@ -133,13 +128,7 @@ public class DrippyOverlayScreen extends Screen {
                     if (Minecraft.getInstance().getOverlay() instanceof LoadingOverlay) {
                         currentProgress = ((IMixinLoadingOverlay)Minecraft.getInstance().getOverlay()).getCurrentProgressDrippy();
                     }
-                    RenderingUtils.resetShaderColor(graphics);
-                    RenderSystem.defaultBlendFunc();
-                    RenderSystem.enableBlend();
-                    RenderSystem.depthMask(true);
-                    RenderSystem.enableDepthTest();
                     drawProgressBar(graphics, x, y, x + width, y + height, ((IMixinAbstractWidget)widget).getAlphaFancyMenu(), currentProgress);
-                    RenderingUtils.resetShaderColor(graphics);
                 }
         ).setWidgetIdentifierFancyMenu("progress_bar");
 
@@ -148,7 +137,7 @@ public class DrippyOverlayScreen extends Screen {
     private static void drawProgressBar(GuiGraphics graphics, int xMin, int yMin, int xMax, int yMax, float opacity, float currentProgress) {
         int i = Mth.ceil((float)(xMax - xMin - 2) * currentProgress);
         int j = Math.round(opacity * 255.0F);
-        int k = FastColor.ARGB32.color(j, 255, 255, 255);
+        int k = ARGB.color(j, 255, 255, 255);
         graphics.fill(xMin + 2, yMin + 2, xMin + i, yMax - 2, k);
         graphics.fill(xMin + 1, yMin, xMax - 1, yMin + 1, k);
         graphics.fill(xMin + 1, yMax, xMax - 1, yMax - 1, k);
