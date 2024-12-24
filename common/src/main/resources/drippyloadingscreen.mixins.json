@@ -18,7 +18,6 @@
     "client.MixinScreenCustomizationLayer"
   ],
   "mixins": [
-    "client.MixinScreenIdentifierHandler"
   ],
   "injectors": {
     "defaultRequire": 1
