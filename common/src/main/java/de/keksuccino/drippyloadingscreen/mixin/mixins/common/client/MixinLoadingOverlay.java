@@ -1,12 +1,11 @@
 package de.keksuccino.drippyloadingscreen.mixin.mixins.common.client;
 
 import com.llamalad7.mixinextras.injector.WrapWithCondition;
+import com.mojang.blaze3d.systems.RenderSystem;
 import de.keksuccino.drippyloadingscreen.DrippyLoadingScreen;
-import de.keksuccino.drippyloadingscreen.FMAnimationUtils;
 import de.keksuccino.drippyloadingscreen.customization.DrippyOverlayScreen;
 import de.keksuccino.drippyloadingscreen.mixin.MixinCache;
 import de.keksuccino.fancymenu.customization.ScreenCustomization;
-import de.keksuccino.fancymenu.customization.animation.AnimationHandler;
 import de.keksuccino.fancymenu.customization.element.AbstractElement;
 import de.keksuccino.fancymenu.customization.layer.ScreenCustomizationLayer;
 import de.keksuccino.fancymenu.customization.layer.ScreenCustomizationLayerHandler;
@@ -14,35 +13,45 @@ import de.keksuccino.fancymenu.events.screen.*;
 import de.keksuccino.fancymenu.util.event.acara.EventHandler;
 import de.keksuccino.fancymenu.util.rendering.RenderingUtils;
 import de.keksuccino.fancymenu.util.rendering.ui.UIBase;
-import de.keksuccino.fancymenu.util.threading.MainThreadTaskExecutor;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.font.FontManager;
 import net.minecraft.client.gui.screens.LoadingOverlay;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.CoreShaders;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.ReloadInstance;
 import net.minecraft.util.ARGB;
-import net.minecraft.util.profiling.InactiveProfiler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
-import org.spongepowered.asm.mixin.injection.*;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
 @Mixin(LoadingOverlay.class)
 public class MixinLoadingOverlay {
 
+    //TODO Text element broken wenn gescalt in loading screen ?????
+    //TODO Text element broken wenn gescalt in loading screen ?????
+    //TODO Text element broken wenn gescalt in loading screen ?????
+    //TODO Text element broken wenn gescalt in loading screen ?????
+    //TODO Text element broken wenn gescalt in loading screen ?????
+    //TODO Text element broken wenn gescalt in loading screen ?????
+    //TODO Text element broken wenn gescalt in loading screen ?????
+    //TODO Text element broken wenn gescalt in loading screen ?????
+
     @Unique private static final Logger LOGGER_DRIPPY = LogManager.getLogger();
 
-    @Unique private static boolean initializedDrippy = false;
     @Unique private static DrippyOverlayScreen drippyOverlayScreen = null;
 
     @Unique private int lastScreenWidthDrippy = 0;
@@ -50,22 +59,12 @@ public class MixinLoadingOverlay {
     @Unique private float cachedBackgroundOpacityDrippy = 1.0F;
     @Unique private float cachedElementOpacityDrippy = 1.0F;
     @Unique private double cachedOverlayScaleDrippy = 1.0D;
+    @Unique private boolean fontsReloadedDrippy = false;
 
     @Shadow private float currentProgress;
 
     @Inject(method = "<init>", at = @At("RETURN"))
     private void afterConstructDrippy(Minecraft mc, ReloadInstance reload, Consumer<?> consumer, boolean b, CallbackInfo info) {
-
-        if (!initializedDrippy) {
-            //This makes text rendering work in the game loading screen
-            LOGGER_DRIPPY.info("[DRIPPY LOADING SCREEN] Initializing fonts for text rendering..");
-            this.loadFontsDrippy();
-            //Setup FancyMenu animation sizes
-            LOGGER_DRIPPY.info("[DRIPPY LOADING SCREEN] Calculating animation sizes for FancyMenu..");
-            FMAnimationUtils.initAnimationEngine();
-            AnimationHandler.updateAnimationSizes();
-            initializedDrippy = true;
-        }
 
         this.setNewOverlayScreenDrippy();
         this.lastScreenWidthDrippy = Minecraft.getInstance().getWindow().getGuiScaledWidth();
@@ -81,6 +80,17 @@ public class MixinLoadingOverlay {
     private void after_render_Drippy(GuiGraphics graphics, int mouseX, int mouseY, float partial, CallbackInfo info) {
 
         if (this.shouldRenderVanillaDrippy()) return;
+
+        if (!fontsReloadedDrippy) {
+            //This makes text rendering work in the game loading screen
+            LOGGER_DRIPPY.info("[DRIPPY LOADING SCREEN] Reloading fonts for text rendering..");
+            this.loadFontsDrippy();
+            fontsReloadedDrippy = true;
+        }
+
+        if (!this.fontsReadyDrippy(graphics)) return;
+
+        RenderSystem.enableBlend();
 
         MixinCache.cachedCurrentLoadingScreenProgress = this.currentProgress;
         this.tickOverlayUpdateDrippy();
@@ -104,7 +114,6 @@ public class MixinLoadingOverlay {
 
             EventHandler.INSTANCE.postEvent(new RenderScreenEvent.Pre(getDrippyOverlayScreen(), graphics, mouseX, mouseY, partial));
             getDrippyOverlayScreen().render(graphics, mouseX, mouseY, partial);
-//            this.restoreRenderDefaultsDrippy(graphics);
             EventHandler.INSTANCE.postEvent(new RenderScreenEvent.Post(getDrippyOverlayScreen(), graphics, mouseX, mouseY, partial));
 
             //Reset scale after rendering
@@ -112,9 +121,9 @@ public class MixinLoadingOverlay {
             graphics.pose().popPose();
             Minecraft.getInstance().getWindow().setGuiScale(guiScale);
 
-//            this.restoreRenderDefaultsDrippy(graphics);
-
         });
+
+        this.restoreRenderDefaultsDrippy(graphics);
 
     }
 
@@ -147,19 +156,12 @@ public class MixinLoadingOverlay {
         return this.shouldRenderVanillaDrippy();
     }
 
-//    @Inject(method = "render", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/GlStateManager;_clear(IZ)V", shift = At.Shift.AFTER))
-//    private void clearColorAfterBackgroundRenderingDrippy(GuiGraphics graphics, int p_282704_, int p_283650_, float p_283394_, CallbackInfo info) {
-//        RenderSystem.enableBlend();
-//        RenderSystem.defaultBlendFunc();
-//    }
-//
-//    @Unique
-//    private void restoreRenderDefaultsDrippy(GuiGraphics graphics) {
-//        RenderSystem.defaultBlendFunc();
-//        RenderSystem.depthMask(true);
-//        RenderSystem.enableDepthTest();
-//        RenderSystem.enableBlend();
-//    }
+    @Unique
+    private void restoreRenderDefaultsDrippy(GuiGraphics graphics) {
+        RenderSystem.defaultBlendFunc();
+        RenderSystem.enableBlend();
+        graphics.flush();
+    }
 
     @Unique
     private boolean shouldRenderVanillaDrippy() {
@@ -199,14 +201,27 @@ public class MixinLoadingOverlay {
 
     @Unique
     private void loadFontsDrippy() {
-        MainThreadTaskExecutor.executeInMainThread(() -> {
-            try {
-                FontManager fontManager = ((IMixinMinecraft)Minecraft.getInstance()).getFontManagerDrippy();
-                fontManager.apply(fontManager.prepare(Minecraft.getInstance().getResourceManager(), Util.backgroundExecutor()).get(), InactiveProfiler.INSTANCE);
-            } catch (Exception ex) {
-                LOGGER_DRIPPY.error("[DRIPPY LOADING SCREEN] Failed to load fonts!", ex);
-            }
-        }, MainThreadTaskExecutor.ExecuteTiming.POST_CLIENT_TICK);
+        try {
+            FontManager fontManager = ((IMixinMinecraft)Minecraft.getInstance()).getFontManagerDrippy();
+            fontManager.reload(new PreparableReloadListener.PreparationBarrier() {
+                @Override
+                public <T> CompletableFuture<T> wait(T t) {
+                    return new CompletableFuture<>();
+                }
+            }, Minecraft.getInstance().getResourceManager(), Minecraft.getInstance(), Util.backgroundExecutor());
+        } catch (Exception ex) {
+            LOGGER_DRIPPY.error("[DRIPPY LOADING SCREEN] Failed to load fonts!", ex);
+        }
+    }
+
+    @Unique
+    private boolean fontsReadyDrippy(GuiGraphics graphics) {
+        try {
+            Minecraft.getInstance().getShaderManager().getProgramForLoading(CoreShaders.RENDERTYPE_TEXT);
+        } catch (Throwable t) {
+            return false;
+        }
+        return true;
     }
 
     @Unique
