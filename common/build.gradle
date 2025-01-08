@@ -21,7 +21,7 @@ dependencies {
     compileOnly 'com.github.Keksuccino:japng:0.5.3'
     compileOnly "maven.modrinth:konkrete:1.9.10-1.21.4-forge"
     compileOnly "maven.modrinth:melody:1.0.10-1.21-forge"
-    compileOnly "maven.modrinth:fancymenu:3.3.4-1.21.4-forge"
+    compileOnly "maven.modrinth:fancymenu:3.3.5-1.21.4-forge"
     implementation group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.1'
     implementation group: 'org.ow2.asm', name: 'asm-tree', version: '9.3'
 }

@@ -1,6 +1,8 @@
 package de.keksuccino.drippyloadingscreen.mixin.mixins.common.client;
 
 import com.llamalad7.mixinextras.injector.WrapWithCondition;
+import com.mojang.blaze3d.ProjectionType;
+import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
 import de.keksuccino.drippyloadingscreen.DrippyLoadingScreen;
 import de.keksuccino.drippyloadingscreen.customization.DrippyOverlayScreen;
@@ -12,7 +14,6 @@ import de.keksuccino.fancymenu.customization.layer.ScreenCustomizationLayerHandl
 import de.keksuccino.fancymenu.events.screen.*;
 import de.keksuccino.fancymenu.util.event.acara.EventHandler;
 import de.keksuccino.fancymenu.util.rendering.RenderingUtils;
-import de.keksuccino.fancymenu.util.rendering.ui.UIBase;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -28,6 +29,7 @@ import net.minecraft.util.ARGB;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -40,15 +42,6 @@ import java.util.function.Function;
 
 @Mixin(LoadingOverlay.class)
 public class MixinLoadingOverlay {
-
-    //TODO Text element broken wenn gescalt in loading screen ?????
-    //TODO Text element broken wenn gescalt in loading screen ?????
-    //TODO Text element broken wenn gescalt in loading screen ?????
-    //TODO Text element broken wenn gescalt in loading screen ?????
-    //TODO Text element broken wenn gescalt in loading screen ?????
-    //TODO Text element broken wenn gescalt in loading screen ?????
-    //TODO Text element broken wenn gescalt in loading screen ?????
-    //TODO Text element broken wenn gescalt in loading screen ?????
 
     @Unique private static final Logger LOGGER_DRIPPY = LogManager.getLogger();
 
@@ -102,28 +95,20 @@ public class MixinLoadingOverlay {
             getDrippyOverlayScreen().tick();
             EventHandler.INSTANCE.postEvent(new ScreenTickEvent.Post(getDrippyOverlayScreen()));
 
-//            this.restoreRenderDefaultsDrippy(graphics);
-
             //This is to render the overlay in its own scale while still rendering the actual current screen under it in the current screen's scale
             //It's important to calculate the fixed scale BEFORE updating the window GUI scale
-            float renderScale = UIBase.calculateFixedScale((float)this.cachedOverlayScaleDrippy);
-            double guiScale = Minecraft.getInstance().getWindow().getGuiScale();
-            Minecraft.getInstance().getWindow().setGuiScale(this.cachedOverlayScaleDrippy);
-            graphics.pose().pushPose();
-            graphics.pose().scale(renderScale, renderScale, renderScale);
+            Window window = Minecraft.getInstance().getWindow();
+            double guiScale = window.getGuiScale();
+            this.setGuiScaleDrippy(this.cachedOverlayScaleDrippy);
 
             EventHandler.INSTANCE.postEvent(new RenderScreenEvent.Pre(getDrippyOverlayScreen(), graphics, mouseX, mouseY, partial));
             getDrippyOverlayScreen().render(graphics, mouseX, mouseY, partial);
             EventHandler.INSTANCE.postEvent(new RenderScreenEvent.Post(getDrippyOverlayScreen(), graphics, mouseX, mouseY, partial));
 
             //Reset scale after rendering
-            graphics.pose().scale(1.0F, 1.0F, 1.0F);
-            graphics.pose().popPose();
-            Minecraft.getInstance().getWindow().setGuiScale(guiScale);
+            this.setGuiScaleDrippy(guiScale);
 
         });
-
-        this.restoreRenderDefaultsDrippy(graphics);
 
     }
 
@@ -141,7 +126,7 @@ public class MixinLoadingOverlay {
     private void cancelOriginalProgressBarRenderingDrippy(GuiGraphics graphics, int p_96184_, int p_96185_, int p_96186_, int p_96187_, float opacity, CallbackInfo info) {
         if (!this.shouldRenderVanillaDrippy()) {
             info.cancel();
-            this.cachedElementOpacityDrippy = DrippyLoadingScreen.getOptions().fadeOutLoadingScreen.getValue() ? opacity : 1.0F;
+            this.cachedElementOpacityDrippy = DrippyLoadingScreen.getOptions().fadeOutLoadingScreen.getValue() ? Math.min(1.0F, Math.max(0.05F, opacity)) : 1.0F;
         }
     }
 
@@ -152,15 +137,19 @@ public class MixinLoadingOverlay {
 
     @WrapWithCondition(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphics;fill(Lnet/minecraft/client/renderer/RenderType;IIIII)V"))
     private boolean cancelBackgroundRenderingDrippy(GuiGraphics instance, RenderType renderType, int i, int j, int k, int l, int color) {
-        this.cachedBackgroundOpacityDrippy = DrippyLoadingScreen.getOptions().fadeOutLoadingScreen.getValue() ? Math.min(1.0F, Math.max(0.0F, (float) ARGB.alpha(color) / 255.0F)) : 1.0F;
+        this.cachedBackgroundOpacityDrippy = DrippyLoadingScreen.getOptions().fadeOutLoadingScreen.getValue() ? Math.min(1.0F, Math.max(0.05F, (float) ARGB.alpha(color) / 255.0F)) : 1.0F;
         return this.shouldRenderVanillaDrippy();
     }
 
     @Unique
-    private void restoreRenderDefaultsDrippy(GuiGraphics graphics) {
-        RenderSystem.defaultBlendFunc();
-        RenderSystem.enableBlend();
-        graphics.flush();
+    private void setGuiScaleDrippy(double scale) {
+        Window window = Minecraft.getInstance().getWindow();
+        window.setGuiScale(scale);
+        Minecraft.getInstance().gameRenderer.resize(window.getWidth(), window.getHeight());
+        RenderSystem.viewport(0, 0, window.getWidth(), window.getHeight());
+        Matrix4f matrix4f = (new Matrix4f()).setOrtho(0.0F, (float)((double)window.getWidth() / window.getGuiScale()), (float)((double)window.getHeight() / window.getGuiScale()), 0.0F, 1000.0F, 21000.0F);
+        RenderSystem.setProjectionMatrix(matrix4f, ProjectionType.ORTHOGRAPHIC);
+        RenderSystem.clear(256);
     }
 
     @Unique

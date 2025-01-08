@@ -29,7 +29,7 @@ side="BOTH"
 modId="fancymenu"
 mandatory=true
 ordering="NONE"
-versionRange="[3.2.1,)"
+versionRange="[3.3.5,)"
 side="BOTH"
 
 [[dependencies.${mod_id}]]

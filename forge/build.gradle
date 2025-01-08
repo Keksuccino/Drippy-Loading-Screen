@@ -82,7 +82,7 @@ dependencies {
     }
     implementation "maven.modrinth:konkrete:1.9.10-1.21.4-forge"
     implementation "maven.modrinth:melody:1.0.10-1.21-forge"
-    implementation "maven.modrinth:fancymenu:3.3.4-1.21.4-forge"
+    implementation "maven.modrinth:fancymenu:3.3.5-1.21.4-forge"
     compileOnly project(":common")
 }
 
