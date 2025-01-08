@@ -1,4 +1,14 @@
 
+CHANGELOG | DRIPPY LOADING SCREEN v3.0.10
+ 
+- Added support for MC 1.21.4
+- Now requires FancyMenu v3.3.5+
+
+%changelog:end%
+
+
+
+
 CHANGELOG | DRIPPY LOADING SCREEN v3.0.9
  
 - Forge: Fixed crash on start in MC 1.20.4, 1.20.1, 1.19.2, 1.18.2
