@@ -119,7 +119,7 @@ public class MixinLoadingOverlay {
 
     @Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;setOverlay(Lnet/minecraft/client/gui/screens/Overlay;)V"))
     private void beforeCloseOverlayDrippy(GuiGraphics $$0, int $$1, int $$2, float $$3, CallbackInfo ci) {
-        EventHandler.INSTANCE.postEvent(new CloseScreenEvent(getDrippyOverlayScreen()));
+        EventHandler.INSTANCE.postEvent(new CloseScreenEvent(getDrippyOverlayScreen(), null));
     }
 
     @Inject(method = "drawProgressBar", at = @At("HEAD"), cancellable = true)

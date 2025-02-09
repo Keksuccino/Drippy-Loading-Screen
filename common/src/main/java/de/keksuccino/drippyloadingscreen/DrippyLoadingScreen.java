@@ -19,7 +19,7 @@ public class DrippyLoadingScreen {
 
 	private static final Logger LOGGER = LogManager.getLogger();
 
-	public static final String VERSION = "3.0.10";
+	public static final String VERSION = "3.0.11";
 	public static final String MOD_LOADER = Services.PLATFORM.getPlatformName();
 	public static final String MOD_ID = "drippyloadingscreen";
 	public static final File MOD_DIR = createDirectory(new File(GameDirectoryUtils.getGameDirectory(), "/config/drippyloadingscreen"));
