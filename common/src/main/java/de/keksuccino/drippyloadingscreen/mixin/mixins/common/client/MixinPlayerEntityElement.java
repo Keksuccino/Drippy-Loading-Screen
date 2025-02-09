@@ -5,6 +5,7 @@ import de.keksuccino.drippyloadingscreen.DrippyUtils;
 import de.keksuccino.fancymenu.customization.element.elements.playerentity.PlayerEntityElement;
 import de.keksuccino.fancymenu.customization.element.elements.playerentity.model.PlayerEntityElementRenderer;
 import de.keksuccino.fancymenu.customization.element.elements.playerentity.model.PlayerEntityProperties;
+import de.keksuccino.fancymenu.util.rendering.gui.GuiGraphics;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -17,8 +18,8 @@ public class MixinPlayerEntityElement {
     /**
      * @reason Cancel rendering if in Drippy layout (to not spam errors to the log)
      */
-    @Inject(method = "render", at = @At("HEAD"), cancellable = true)
-    private void headRenderDrippy(PoseStack graphics, int mouseX, int mouseY, float partial, CallbackInfo info) {
+    @Inject(method = "render", at = @At("HEAD"), cancellable = true, remap = false)
+    private void headRenderDrippy(GuiGraphics graphics, int mouseX, int mouseY, float partial, CallbackInfo info) {
         if (DrippyUtils.isDrippyRendering()) info.cancel();
     }
 
