@@ -15,6 +15,7 @@ import de.keksuccino.fancymenu.customization.layer.ScreenCustomizationLayerHandl
 import de.keksuccino.fancymenu.events.screen.*;
 import de.keksuccino.fancymenu.util.event.acara.EventHandler;
 import de.keksuccino.fancymenu.util.rendering.RenderingUtils;
+import de.keksuccino.fancymenu.util.rendering.gui.GuiGraphics;
 import de.keksuccino.fancymenu.util.rendering.ui.UIBase;
 import de.keksuccino.fancymenu.util.threading.MainThreadTaskExecutor;
 import net.minecraft.client.Minecraft;
@@ -121,7 +122,7 @@ public class MixinLoadingOverlay {
 
     @Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;setOverlay(Lnet/minecraft/client/gui/screens/Overlay;)V"))
     private void beforeCloseOverlayDrippy(PoseStack $$0, int $$1, int $$2, float $$3, CallbackInfo ci) {
-        EventHandler.INSTANCE.postEvent(new CloseScreenEvent(drippyOverlayScreen));
+        EventHandler.INSTANCE.postEvent(new CloseScreenEvent(drippyOverlayScreen, null));
     }
 
     @Inject(method = "drawProgressBar", at = @At("HEAD"), cancellable = true)
@@ -129,7 +130,7 @@ public class MixinLoadingOverlay {
         if (!this.shouldRenderVanillaDrippy()) {
             info.cancel();
             this.cachedElementOpacityDrippy = DrippyLoadingScreen.getOptions().fadeOutLoadingScreen.getValue() ? opacity : 1.0F;
-            RenderingUtils.resetShaderColor();
+            RenderingUtils.resetShaderColor(GuiGraphics.currentGraphics());
         }
     }
 
@@ -148,12 +149,12 @@ public class MixinLoadingOverlay {
     private void clearColorAfterBackgroundRenderingDrippy(PoseStack graphics, int p_282704_, int p_283650_, float p_283394_, CallbackInfo info) {
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
-        RenderingUtils.resetShaderColor();
+        RenderingUtils.resetShaderColor(GuiGraphics.currentGraphics());
     }
 
     @Unique
     private void restoreRenderDefaultsDrippy() {
-        RenderingUtils.resetShaderColor();
+        RenderingUtils.resetShaderColor(GuiGraphics.currentGraphics());
         RenderSystem.defaultBlendFunc();
         RenderSystem.depthMask(true);
         RenderSystem.enableDepthTest();

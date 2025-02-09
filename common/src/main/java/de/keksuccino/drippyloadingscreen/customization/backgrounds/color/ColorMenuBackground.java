@@ -5,6 +5,7 @@ import de.keksuccino.fancymenu.customization.background.MenuBackground;
 import de.keksuccino.fancymenu.customization.background.MenuBackgroundBuilder;
 import de.keksuccino.fancymenu.util.rendering.DrawableColor;
 import de.keksuccino.fancymenu.util.rendering.RenderingUtils;
+import de.keksuccino.fancymenu.util.rendering.gui.GuiGraphics;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.screens.LoadingOverlay;
@@ -22,17 +23,17 @@ public class ColorMenuBackground extends MenuBackground {
     }
 
     @Override
-    public void render(@NotNull PoseStack graphics, int mouseX, int mouseY, float partial) {
+    public void render(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partial) {
 
-        RenderingUtils.resetShaderColor();
+        RenderingUtils.resetShaderColor(graphics);
         int colorToRender = FastColor.ARGB32.color(255, this.color.getColor().getRed(), this.color.getColor().getGreen(), this.color.getColor().getBlue());
         colorToRender = replaceAlpha(colorToRender, (int)(this.opacity * 255.0F));
         if (Minecraft.getInstance().getOverlay() instanceof LoadingOverlay) {
-            GuiComponent.fill(graphics, 0, 0, getScreenWidth(), getScreenHeight(), colorToRender);
+            graphics.fill(0, 0, getScreenWidth(), getScreenHeight(), colorToRender);
         } else {
-            GuiComponent.fill(graphics, 0, 0, getScreenWidth(), getScreenHeight(), colorToRender);
+            graphics.fill(0, 0, getScreenWidth(), getScreenHeight(), colorToRender);
         }
-        RenderingUtils.resetShaderColor();
+        RenderingUtils.resetShaderColor(graphics);
 
     }
 

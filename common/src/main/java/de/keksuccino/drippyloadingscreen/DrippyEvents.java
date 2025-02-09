@@ -10,6 +10,7 @@ import de.keksuccino.fancymenu.util.LocalizationUtils;
 import de.keksuccino.fancymenu.util.cycle.CommonCycles;
 import de.keksuccino.fancymenu.util.event.acara.EventListener;
 import de.keksuccino.fancymenu.util.rendering.RenderingUtils;
+import de.keksuccino.fancymenu.util.rendering.gui.GuiGraphics;
 import de.keksuccino.fancymenu.util.rendering.ui.UIBase;
 import de.keksuccino.fancymenu.util.rendering.ui.contextmenu.v2.ContextMenu;
 import de.keksuccino.fancymenu.util.rendering.ui.tooltip.Tooltip;
@@ -74,7 +75,9 @@ public class DrippyEvents {
             }) {
 
                 @Override
-                public void render(@NotNull PoseStack graphics, int mouseX, int mouseY, float partial) {
+                public void render(@NotNull PoseStack pose, int mouseX, int mouseY, float partial) {
+
+                    GuiGraphics graphics = GuiGraphics.currentGraphics();
 
                     var m = CustomizationOverlay.getCurrentMenuBarInstance();
                     if ((m == null) || (!m.isUserNavigatingInMenuBar() && !drippyMenu.isUserNavigatingInMenu())) {
@@ -87,17 +90,16 @@ public class DrippyEvents {
                     }
                     super.render(graphics, mouseX, mouseY, partial);
                     RenderSystem.enableBlend();
-                    RenderingUtils.resetShaderColor();
-                    RenderingUtils.bindTexture(EDIT_BUTTON_TEXTURE);
-                    GuiComponent.blit(graphics, this.getX(), this.getY(), 0.0f, 0.0f, this.getWidth(), this.getHeight(), this.getWidth(), this.getHeight());
-                    RenderingUtils.resetShaderColor();
+                    RenderingUtils.resetShaderColor(graphics);
+                    graphics.blit(EDIT_BUTTON_TEXTURE, this.getX(), this.getY(), 0.0f, 0.0f, this.getWidth(), this.getHeight(), this.getWidth(), this.getHeight());
+                    RenderingUtils.resetShaderColor(graphics);
 
                     drippyMenu.render(graphics, mouseX, mouseY, partial);
 
                 }
 
                 @Override
-                protected void renderBackground(@NotNull PoseStack graphics) {
+                protected void renderBackground(@NotNull GuiGraphics graphics) {
                     boolean b = this.isHovered;
                     if (drippyMenu.isOpen()) this.isHovered = true;
                     super.renderBackground(graphics);

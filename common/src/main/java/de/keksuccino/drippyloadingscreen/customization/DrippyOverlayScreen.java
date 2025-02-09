@@ -10,6 +10,7 @@ import de.keksuccino.fancymenu.events.screen.RenderedScreenBackgroundEvent;
 import de.keksuccino.fancymenu.mixin.mixins.common.client.IMixinAbstractWidget;
 import de.keksuccino.fancymenu.util.event.acara.EventHandler;
 import de.keksuccino.fancymenu.util.rendering.RenderingUtils;
+import de.keksuccino.fancymenu.util.rendering.gui.GuiGraphics;
 import de.keksuccino.fancymenu.util.rendering.ui.widget.RendererWidget;
 import net.minecraft.client.Minecraft;
 import de.keksuccino.drippyloadingscreen.mixin.MixinCache;
@@ -61,17 +62,18 @@ public class DrippyOverlayScreen extends Screen {
     }
 
     @Override
-    public void renderBackground(@NotNull PoseStack graphics) {
+    public void renderBackground(@NotNull PoseStack pose) {
+        GuiGraphics graphics = GuiGraphics.currentGraphics();
         ScreenCustomizationLayer layer = ScreenCustomizationLayerHandler.getLayerOfScreen(this);
-        boolean shouldRenderDefaultBackground = (layer == null) || (layer.layoutBase.menuBackground == null);
+        boolean shouldRenderDefaultBackground = (layer == null) || layer.layoutBase.menuBackgrounds.isEmpty();
         IntSupplier supplier = IMixinLoadingOverlay.getBrandBackgroundDrippy();
         int color = (supplier != null) ? supplier.getAsInt() : 0;
         if (shouldRenderDefaultBackground) {
-            RenderingUtils.resetShaderColor();
-            GuiComponent.fill(graphics, 0, 0, this.width, this.height, replaceAlpha(color, (int)(this.backgroundOpacity * 255.0F)));
-            RenderingUtils.resetShaderColor();
+            RenderingUtils.resetShaderColor(graphics);
+            graphics.fill(0, 0, this.width, this.height, replaceAlpha(color, (int)(this.backgroundOpacity * 255.0F)));
+            RenderingUtils.resetShaderColor(graphics);
         }
-        EventHandler.INSTANCE.postEvent(new RenderedScreenBackgroundEvent(this, graphics));
+        EventHandler.INSTANCE.postEvent(new RenderedScreenBackgroundEvent(this, graphics.pose()));
     }
 
     private static int replaceAlpha(int color, int alpha) {
@@ -96,16 +98,16 @@ public class DrippyOverlayScreen extends Screen {
         int logoPosY = centerY - logoHeightHalf;
 
         return new RendererWidget(logoPosX, logoPosY, logoWidthHalf * 2, logoHeightHalf * 2,
-                (graphics, mouseX, mouseY, partial, x, y, width, height, widget) -> {
+                (pose, mouseX, mouseY, partial, x, y, width, height, widget) -> {
+                    GuiGraphics graphics = GuiGraphics.currentGraphics();
                     RenderSystem.disableDepthTest();
                     RenderSystem.depthMask(false);
                     RenderSystem.enableBlend();
                     RenderSystem.blendFunc(770, 1);
-                    RenderingUtils.bindTexture(MOJANG_STUDIOS_LOGO_LOCATION);
-                    RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, ((IMixinAbstractWidget)widget).getAlphaFancyMenu());
-                    GuiComponent.blit(graphics, x, y, width / 2, height, -0.0625F, 0.0F, 120, 60, 120, 120);
-                    GuiComponent.blit(graphics, x + (width / 2), y, (width / 2), height, 0.0625F, 60.0F, 120, 60, 120, 120);
-                    RenderingUtils.resetShaderColor();
+                    graphics.setColor(1.0F, 1.0F, 1.0F, ((IMixinAbstractWidget)widget).getAlphaFancyMenu());
+                    graphics.blit(MOJANG_STUDIOS_LOGO_LOCATION, x, y, width / 2, height, -0.0625F, 0.0F, 120, 60, 120, 120);
+                    graphics.blit(MOJANG_STUDIOS_LOGO_LOCATION, x + (width / 2), y, (width / 2), height, 0.0625F, 60.0F, 120, 60, 120, 120);
+                    RenderingUtils.resetShaderColor(graphics);
                     RenderSystem.defaultBlendFunc();
                     RenderSystem.depthMask(true);
                     RenderSystem.enableDepthTest();
@@ -130,32 +132,33 @@ public class DrippyOverlayScreen extends Screen {
         int barHeight = 10;
 
         return new RendererWidget(barPosX, barPosY, barWidth, barHeight,
-                (graphics, mouseX, mouseY, partial, x, y, width, height, widget) -> {
+                (pose, mouseX, mouseY, partial, x, y, width, height, widget) -> {
+            GuiGraphics graphics = GuiGraphics.currentGraphics();
                     float currentProgress = 0.5F;
                     if (Minecraft.getInstance().getOverlay() instanceof LoadingOverlay) {
                         currentProgress = ((IMixinLoadingOverlay)Minecraft.getInstance().getOverlay()).getCurrentProgressDrippy();
                     }
-                    RenderingUtils.resetShaderColor();
+                    RenderingUtils.resetShaderColor(graphics);
                     RenderSystem.defaultBlendFunc();
                     RenderSystem.enableBlend();
                     RenderSystem.depthMask(true);
                     RenderSystem.enableDepthTest();
                     drawProgressBar(graphics, x, y, x + width, y + height, ((IMixinAbstractWidget)widget).getAlphaFancyMenu(), currentProgress);
-                    RenderingUtils.resetShaderColor();
+                    RenderingUtils.resetShaderColor(graphics);
                 }
         ).setWidgetIdentifierFancyMenu("progress_bar");
 
     }
 
-    private static void drawProgressBar(PoseStack graphics, int xMin, int yMin, int xMax, int yMax, float opacity, float currentProgress) {
+    private static void drawProgressBar(GuiGraphics graphics, int xMin, int yMin, int xMax, int yMax, float opacity, float currentProgress) {
         int i = Mth.ceil((float)(xMax - xMin - 2) * currentProgress);
         int j = Math.round(opacity * 255.0F);
         int k = FastColor.ARGB32.color(j, 255, 255, 255);
-        GuiComponent.fill(graphics, xMin + 2, yMin + 2, xMin + i, yMax - 2, k);
-        GuiComponent.fill(graphics, xMin + 1, yMin, xMax - 1, yMin + 1, k);
-        GuiComponent.fill(graphics, xMin + 1, yMax, xMax - 1, yMax - 1, k);
-        GuiComponent.fill(graphics, xMin, yMin, xMin + 1, yMax, k);
-        GuiComponent.fill(graphics, xMax, yMin, xMax - 1, yMax, k);
+        graphics.fill(xMin + 2, yMin + 2, xMin + i, yMax - 2, k);
+        graphics.fill(xMin + 1, yMin, xMax - 1, yMin + 1, k);
+        graphics.fill(xMin + 1, yMax, xMax - 1, yMax - 1, k);
+        graphics.fill(xMin, yMin, xMin + 1, yMax, k);
+        graphics.fill(xMax, yMin, xMax - 1, yMax, k);
     }
 
 }
