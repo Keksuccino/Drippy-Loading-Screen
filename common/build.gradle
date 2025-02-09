@@ -14,12 +14,17 @@ minecraft {
     }
 }
 
+repositories {
+    flatDir { dirs 'libs' }
+}
+
 dependencies {
     compileOnly 'io.github.llamalad7:mixinextras-common:0.3.2'
     compileOnly group:'org.spongepowered', name:'mixin', version:'0.8.5'
-    compileOnly fileTree('libs') { include '*.jar' }
     compileOnly 'com.github.Keksuccino:japng:0.5.3'
     compileOnly "curse.maven:melody-938643:4953732"
+    compileOnly "flatdir:fancymenu:3.4.0"
+    compileOnly "flatdir:konkrete:1.8.0"
     implementation group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.1'
     implementation group: 'org.ow2.asm', name: 'asm-tree', version: '9.3'
 }

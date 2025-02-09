@@ -63,7 +63,7 @@ public class DrippyOverlayScreen extends Screen {
     @Override
     public void renderBackground(@NotNull GuiGraphics graphics) {
         ScreenCustomizationLayer layer = ScreenCustomizationLayerHandler.getLayerOfScreen(this);
-        boolean shouldRenderDefaultBackground = (layer == null) || (layer.layoutBase.menuBackground == null);
+        boolean shouldRenderDefaultBackground = (layer == null) || layer.layoutBase.menuBackgrounds.isEmpty();
         IntSupplier supplier = IMixinLoadingOverlay.getBrandBackgroundDrippy();
         int color = (supplier != null) ? supplier.getAsInt() : 0;
         if (shouldRenderDefaultBackground) {
