@@ -15,13 +15,13 @@ minecraft {
 }
 
 dependencies {
-    compileOnly 'io.github.llamalad7:mixinextras-common:0.3.2'
+    compileOnly 'io.github.llamalad7:mixinextras-common:0.3.5'
     compileOnly group:'org.spongepowered', name:'mixin', version:'0.8.5'
     //compileOnly fileTree('libs') { include '*.jar' }
     compileOnly 'com.github.Keksuccino:japng:0.5.3'
     compileOnly "maven.modrinth:konkrete:1.9.9-1.21-forge"
     compileOnly "maven.modrinth:melody:1.0.10-1.21-forge"
-    compileOnly "maven.modrinth:fancymenu:3.2.5-1.21-forge"
+    compileOnly "maven.modrinth:fancymenu:3.4.0-1.21.1-forge"
     implementation group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.1'
     implementation group: 'org.ow2.asm', name: 'asm-tree', version: '9.3'
 }

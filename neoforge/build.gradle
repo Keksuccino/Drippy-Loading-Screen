@@ -1,7 +1,7 @@
 plugins {
     id 'idea'
     id 'maven-publish'
-    id 'net.neoforged.gradle.userdev' version '7.0.145'
+    id 'net.neoforged.gradle.userdev' version '7.0.178'
     id 'java-library'
 }
 base {
@@ -49,7 +49,7 @@ dependencies {
     compileOnly project(":common")
     implementation "maven.modrinth:konkrete:1.9.9-1.21-neoforge"
     implementation "maven.modrinth:melody:1.0.10-1.21-neoforge"
-    implementation "maven.modrinth:fancymenu:3.2.5-1.21-neoforge"
+    implementation "maven.modrinth:fancymenu:3.4.0-1.21.1-neoforge"
 }
 
 // NeoGradle compiles the game, but we don't want to add our common code to the game's code
