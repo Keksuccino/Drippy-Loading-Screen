@@ -4,11 +4,9 @@ import com.llamalad7.mixinextras.injector.WrapWithCondition;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import de.keksuccino.drippyloadingscreen.DrippyLoadingScreen;
-import de.keksuccino.drippyloadingscreen.FMAnimationUtils;
 import de.keksuccino.drippyloadingscreen.customization.DrippyOverlayScreen;
 import de.keksuccino.drippyloadingscreen.mixin.MixinCache;
 import de.keksuccino.fancymenu.customization.ScreenCustomization;
-import de.keksuccino.fancymenu.customization.animation.AnimationHandler;
 import de.keksuccino.fancymenu.customization.element.AbstractElement;
 import de.keksuccino.fancymenu.customization.layer.ScreenCustomizationLayer;
 import de.keksuccino.fancymenu.customization.layer.ScreenCustomizationLayerHandler;
@@ -57,10 +55,6 @@ public class MixinLoadingOverlay {
             //This makes text rendering work in the game loading screen
             LOGGER_DRIPPY.info("[DRIPPY LOADING SCREEN] Initializing fonts for text rendering..");
             this.loadFontsDrippy();
-            //Setup FancyMenu animation sizes
-            LOGGER_DRIPPY.info("[DRIPPY LOADING SCREEN] Calculating animation sizes for FancyMenu..");
-            FMAnimationUtils.initAnimationEngine();
-            AnimationHandler.updateAnimationSizes();
             initializedDrippy = true;
         }
 
