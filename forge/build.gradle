@@ -82,7 +82,7 @@ dependencies {
     }
     implementation fg.deobf("maven.modrinth:konkrete:1.8.0-1.18-1.18.2-forge")
     implementation fg.deobf("maven.modrinth:melody:1.0.1-1.18.2-forge")
-    implementation fg.deobf("maven.modrinth:fancymenu:3.4.0-1.18.2-forge")
+    implementation fg.deobf("maven.modrinth:fancymenu:3.5.0-1.18.2-forge")
     compileOnly project(":common")
 }
 
