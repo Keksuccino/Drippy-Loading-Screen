@@ -1,6 +1,6 @@
 ## About
 
-This is the repository for Drippy Loading screen, an addon for [FancyMenu](https://github.com/Keksuccino/FancyMenu), to customize Minecraft's loading screen.
+This is the repository for Drippy Loading Screen, an addon for [FancyMenu](https://github.com/Keksuccino/FancyMenu), to customize Minecraft's loading screen.
 
 ## Copyright
 
