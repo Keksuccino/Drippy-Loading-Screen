@@ -1,7 +1,7 @@
 plugins {
     id 'idea'
     id 'maven-publish'
-    id 'net.neoforged.gradle.userdev' version '7.0.178'
+    id 'net.neoforged.gradle.userdev' version '7.0.184'
     id 'java-library'
 }
 base {
@@ -47,9 +47,18 @@ dependencies {
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.2")
     implementation "net.neoforged:neoforge:${neoforge_version}"
     compileOnly project(":common")
-    implementation "maven.modrinth:konkrete:1.9.9-1.21.4-neoforge"
-    implementation "maven.modrinth:melody:1.0.10-1.21-neoforge"
-    implementation "maven.modrinth:fancymenu:3.5.0-1.21.4-neoforge"
+    implementation "maven.modrinth:konkrete:1.9.11-1.21.5-neoforge"
+    implementation "maven.modrinth:melody:1.0.11-1.21.5-neoforge"
+    implementation "maven.modrinth:fancymenu:3.5.1-1.21.5-neoforge"
+}
+
+// Exclude Fabric Loader from NeoForge
+configurations {
+    runtimeClasspath    { exclude group: 'net.fabricmc', module: 'fabric-loader' }
+    developmentRuntimeClasspath {
+        // Gradle 8 names used by ForgeGradle 6
+        exclude group: 'net.fabricmc', module: 'fabric-loader'
+    }
 }
 
 // NeoGradle compiles the game, but we don't want to add our common code to the game's code

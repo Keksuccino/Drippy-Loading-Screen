@@ -80,10 +80,19 @@ dependencies {
     implementation(jarJar("io.github.llamalad7:mixinextras-forge:0.4.1")) {
         jarJar.ranged(it, "[0.4.1,)")
     }
-    implementation "maven.modrinth:konkrete:1.9.10-1.21.4-forge"
-    implementation "maven.modrinth:melody:1.0.10-1.21-forge"
-    implementation "maven.modrinth:fancymenu:3.5.0-1.21.4-forge"
+    implementation "maven.modrinth:konkrete:1.9.11-1.21.5-forge"
+    implementation "maven.modrinth:melody:1.0.11-1.21.5-forge"
+    implementation "maven.modrinth:fancymenu:3.5.1-1.21.5-forge"
     compileOnly project(":common")
+}
+
+// Exclude Fabric Loader from Forge
+configurations {
+    runtimeClasspath    { exclude group: 'net.fabricmc', module: 'fabric-loader' }
+    developmentRuntimeClasspath {
+        // Gradle 8 names used by ForgeGradle 6
+        exclude group: 'net.fabricmc', module: 'fabric-loader'
+    }
 }
 
 tasks.withType(JavaCompile).configureEach {

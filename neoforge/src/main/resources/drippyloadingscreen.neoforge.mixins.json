@@ -5,6 +5,7 @@
   "mixins": [
   ],
   "client": [
+    "client.MixinMinecraft",
     "client.MixinNeoForgeLoadingOverlay"
   ],
   "injectors": {

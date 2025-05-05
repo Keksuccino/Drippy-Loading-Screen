@@ -7,7 +7,7 @@ public class DrippyLoadingScreenForge {
     
     public DrippyLoadingScreenForge() {
 
-        DrippyLoadingScreen.init();
+        // DrippyLoadingScreen.init(); moved to MixinMinecraft
         
     }
 

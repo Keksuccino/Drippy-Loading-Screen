@@ -9,7 +9,7 @@ public class DrippyLoadingScreenNeoForge {
     
     public DrippyLoadingScreenNeoForge(@NotNull IEventBus eventBus) {
 
-        DrippyLoadingScreen.init();
+        // DrippyLoadingScreen.init(); moved to MixinMinecraft
         
     }
 
