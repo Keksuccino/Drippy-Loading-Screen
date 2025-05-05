@@ -33,7 +33,6 @@ public class VanillaBarElement extends AbstractElement {
             currentProgress = ((IMixinLoadingOverlay)Minecraft.getInstance().getOverlay()).getCurrentProgressDrippy();
         }
 
-        RenderSystem.enableBlend();
         this.drawProgressBar(graphics, x, y, x + w, y + h, currentProgress);
 
     }

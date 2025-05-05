@@ -87,7 +87,6 @@ public class DrippyEvents {
                         this.setX(-30);
                     }
                     super.render(graphics, mouseX, mouseY, partial);
-                    RenderSystem.enableBlend();
                     graphics.blit(RenderType::guiTextured, EDIT_BUTTON_TEXTURE, this.getX(), this.getY(), 0.0f, 0.0f, this.getWidth(), this.getHeight(), this.getWidth(), this.getHeight());
 
                     drippyMenu.render(graphics, mouseX, mouseY, partial);

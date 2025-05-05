@@ -2,6 +2,7 @@ package de.keksuccino.drippyloadingscreen.mixin.mixins.common.client;
 
 import com.llamalad7.mixinextras.injector.WrapWithCondition;
 import com.mojang.blaze3d.ProjectionType;
+import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
 import de.keksuccino.drippyloadingscreen.DrippyLoadingScreen;
@@ -20,7 +21,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.font.FontManager;
 import net.minecraft.client.gui.screens.LoadingOverlay;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.renderer.CoreShaders;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
@@ -28,6 +29,7 @@ import net.minecraft.server.packs.resources.ReloadInstance;
 import net.minecraft.util.ARGB;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.Mixin;
@@ -40,6 +42,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+@SuppressWarnings("deprecation")
 @Mixin(LoadingOverlay.class)
 public class MixinLoadingOverlay {
 
@@ -82,8 +85,6 @@ public class MixinLoadingOverlay {
         }
 
         if (!this.fontsReadyDrippy(graphics)) return;
-
-        RenderSystem.enableBlend();
 
         MixinCache.cachedCurrentLoadingScreenProgress = this.currentProgress;
         this.tickOverlayUpdateDrippy();
@@ -146,10 +147,8 @@ public class MixinLoadingOverlay {
         Window window = Minecraft.getInstance().getWindow();
         window.setGuiScale(scale);
         Minecraft.getInstance().gameRenderer.resize(window.getWidth(), window.getHeight());
-        RenderSystem.viewport(0, 0, window.getWidth(), window.getHeight());
         Matrix4f matrix4f = (new Matrix4f()).setOrtho(0.0F, (float)((double)window.getWidth() / window.getGuiScale()), (float)((double)window.getHeight() / window.getGuiScale()), 0.0F, 1000.0F, 21000.0F);
         RenderSystem.setProjectionMatrix(matrix4f, ProjectionType.ORTHOGRAPHIC);
-        RenderSystem.clear(256);
     }
 
     @Unique
@@ -194,7 +193,7 @@ public class MixinLoadingOverlay {
             FontManager fontManager = ((IMixinMinecraft)Minecraft.getInstance()).getFontManagerDrippy();
             fontManager.reload(new PreparableReloadListener.PreparationBarrier() {
                 @Override
-                public <T> CompletableFuture<T> wait(T t) {
+                public <T> @NotNull CompletableFuture<T> wait(T t) {
                     return new CompletableFuture<>();
                 }
             }, Minecraft.getInstance().getResourceManager(), Minecraft.getInstance(), Util.backgroundExecutor());
@@ -206,8 +205,10 @@ public class MixinLoadingOverlay {
     @Unique
     private boolean fontsReadyDrippy(GuiGraphics graphics) {
         try {
-            Minecraft.getInstance().getShaderManager().getProgramForLoading(CoreShaders.RENDERTYPE_TEXT);
+            RenderPipelines.TEXT.getLocation();
         } catch (Throwable t) {
+            //TODO remove debug
+            LOGGER_DRIPPY.error("######################################", t);
             return false;
         }
         return true;
@@ -225,7 +226,7 @@ public class MixinLoadingOverlay {
             this.lastScreenWidthDrippy = screenWidth;
             this.lastScreenHeightDrippy = screenHeight;
         } catch (Exception ex) {
-            ex.printStackTrace();
+            LOGGER_DRIPPY.error("[DRIPPY LOADING SCREEN] Failed to tick overlay update!", ex);
         }
     }
 
@@ -259,7 +260,7 @@ public class MixinLoadingOverlay {
                 MixinCache.cachedLoadingOverlayScale = this.cachedOverlayScaleDrippy;
                 Minecraft.getInstance().getWindow().setGuiScale(scale);
             } catch (Exception ex) {
-                ex.printStackTrace();
+                LOGGER_DRIPPY.error("[DRIPPY LOADING SCREEN] Failed to init overlay screen!", ex);
             }
         });
     }
@@ -277,7 +278,7 @@ public class MixinLoadingOverlay {
             }
             ScreenCustomization.setScreenCustomizationEnabled(customizationEnabled);
         } catch (Exception ex) {
-            ex.printStackTrace();
+            LOGGER_DRIPPY.error("[DRIPPY LOADING SCREEN] Failed to run menu handler task!", ex);
         }
     }
 
