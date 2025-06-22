@@ -3,6 +3,8 @@
   "package": "de.keksuccino.drippyloadingscreen.mixin.mixins.common",
   "compatibilityLevel": "JAVA_17",
   "client": [
+    "client.IMixinGameRenderer",
+    "client.IMixinGuiRenderer",
     "client.IMixinLoadingOverlay",
     "client.IMixinMinecraft",
     "client.MixinCustomizationOverlay",
@@ -10,6 +12,7 @@
     "client.MixinImageElement",
     "client.MixinImageMenuBackground",
     "client.MixinLayout",
+    "client.MixinLayoutEditorScreen",
     "client.MixinLayoutEditorUI",
     "client.MixinLoadingOverlay",
     "client.MixinPlayerEntityElement",

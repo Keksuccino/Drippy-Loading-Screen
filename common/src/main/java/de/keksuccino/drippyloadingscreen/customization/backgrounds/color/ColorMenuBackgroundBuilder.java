@@ -67,4 +67,9 @@ public class ColorMenuBackgroundBuilder extends MenuBackgroundBuilder<ColorMenuB
         return LocalizationUtils.splitLocalizedLines("drippyloadingscreen.background.color.desc");
     }
 
+    @Override
+    public boolean isDeprecated() {
+        return true;
+    }
+
 }

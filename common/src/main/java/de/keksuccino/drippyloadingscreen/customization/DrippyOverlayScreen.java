@@ -13,7 +13,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import de.keksuccino.drippyloadingscreen.mixin.MixinCache;
 import net.minecraft.client.gui.screens.LoadingOverlay;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.ARGB;
@@ -64,7 +64,7 @@ public class DrippyOverlayScreen extends Screen {
         IntSupplier supplier = IMixinLoadingOverlay.getBrandBackgroundDrippy();
         int color = (supplier != null) ? supplier.getAsInt() : 0;
         if (shouldRenderDefaultBackground) {
-            graphics.fill(RenderType.guiOverlay(), 0, 0, this.width, this.height, replaceAlpha(color, (int)(this.backgroundOpacity * 255.0F)));
+            graphics.fill(0, 0, this.width, this.height, replaceAlpha(color, (int)(this.backgroundOpacity * 255.0F)));
         }
         EventHandler.INSTANCE.postEvent(new RenderedScreenBackgroundEvent(this, graphics));
     }
@@ -92,16 +92,9 @@ public class DrippyOverlayScreen extends Screen {
 
         return new RendererWidget(logoPosX, logoPosY, logoWidthHalf * 2, logoHeightHalf * 2,
                 (graphics, mouseX, mouseY, partial, x, y, width, height, widget) -> {
-//                    RenderSystem.disableDepthTest();
-//                    RenderSystem.depthMask(false);
-//                    RenderSystem.enableBlend();
-//                    RenderSystem.blendFunc(770, 1);
                     int v = ARGB.white(((IMixinAbstractWidget)widget).getAlphaFancyMenu());
-                    graphics.blit(location -> RenderType.mojangLogo(), MOJANG_STUDIOS_LOGO_LOCATION, x, y, -0.0625F, 0.0F, width / 2, height, 120, 60, 120, 120, v);
-                    graphics.blit(location -> RenderType.mojangLogo(), MOJANG_STUDIOS_LOGO_LOCATION, x + (width / 2), y, 0.0625F, 60.0F, width / 2, height, 120, 60, 120, 120, v);
-//                    RenderSystem.defaultBlendFunc();
-//                    RenderSystem.depthMask(true);
-//                    RenderSystem.enableDepthTest();
+                    graphics.blit(RenderPipelines.MOJANG_LOGO, MOJANG_STUDIOS_LOGO_LOCATION, x, y, -0.0625F, 0.0F, width / 2, height, 120, 60, 120, 120, v);
+                    graphics.blit(RenderPipelines.MOJANG_LOGO, MOJANG_STUDIOS_LOGO_LOCATION, x + (width / 2), y, 0.0625F, 60.0F, width / 2, height, 120, 60, 120, 120, v);
                 }
         ).setWidgetIdentifierFancyMenu("mojang_logo");
 

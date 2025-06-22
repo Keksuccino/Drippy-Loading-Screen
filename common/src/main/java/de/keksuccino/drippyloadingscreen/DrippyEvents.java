@@ -18,6 +18,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import de.keksuccino.drippyloadingscreen.customization.DrippyOverlayScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.TitleScreen;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -87,7 +88,7 @@ public class DrippyEvents {
                         this.setX(-30);
                     }
                     super.render(graphics, mouseX, mouseY, partial);
-                    graphics.blit(RenderType::guiTextured, EDIT_BUTTON_TEXTURE, this.getX(), this.getY(), 0.0f, 0.0f, this.getWidth(), this.getHeight(), this.getWidth(), this.getHeight());
+                    graphics.blit(RenderPipelines.GUI_TEXTURED, EDIT_BUTTON_TEXTURE, this.getX(), this.getY(), 0.0f, 0.0f, this.getWidth(), this.getHeight(), this.getWidth(), this.getHeight());
 
                     drippyMenu.render(graphics, mouseX, mouseY, partial);
 
