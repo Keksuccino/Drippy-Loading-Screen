@@ -180,11 +180,11 @@ public class MixinLoadingOverlay {
 
     @Unique
     private boolean fontsReadyDrippy(GuiGraphics graphics) {
-        try {
-            RenderPipelines.TEXT.getLocation();
-        } catch (Throwable t) {
-            return false;
-        }
+//        try {
+//            RenderPipelines.TEXT.getLocation();
+//        } catch (Throwable t) {
+//            return false;
+//        }
         return true;
     }
 
