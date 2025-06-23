@@ -19,9 +19,9 @@ import java.util.List;
 @Mixin(ScreenCustomizationLayer.class)
 public abstract class MixinScreenCustomizationLayer {
 
-    @Shadow public abstract @NotNull String getScreenIdentifier();
+    @Shadow(remap = false) public abstract @NotNull String getScreenIdentifier();
 
-    @Shadow public LayoutBase layoutBase;
+    @Shadow(remap = false) public LayoutBase layoutBase;
 
     /**
      * @reason Custom GUI scaling is not supported in the loading overlay.
