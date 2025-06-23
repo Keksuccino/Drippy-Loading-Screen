@@ -1,4 +1,15 @@
 
+CHANGELOG | DRIPPY LOADING SCREEN v3.0.14
+ 
+- Ported mod to Minecraft 1.21.6
+- Drippy will (for now) not pre-load fonts anymore, which will result in text being invisible until late init when starting the game (should be visible all the time when reloading resources)
+- Disabled ability to apply custom scaling logic (forced GUI scale; auto-sizing) to loading screen layouts because Minecraft's GUI scaling logic got too limited for that
+
+%changelog:end%
+
+
+
+
 CHANGELOG | DRIPPY LOADING SCREEN v3.0.13
  
 - Ported mod to Minecraft 1.21.5
