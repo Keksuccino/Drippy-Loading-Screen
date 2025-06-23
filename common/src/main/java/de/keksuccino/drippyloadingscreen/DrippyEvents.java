@@ -34,7 +34,6 @@ public class DrippyEvents {
     @EventListener
     public void onInitOrResizeScreenCompleted(InitOrResizeScreenCompletedEvent e) {
 
-        //TODO übernehmen (if)
         if ((e.getScreen() instanceof TitleScreen) && CustomizationOverlay.isOverlayVisible(e.getScreen())) {
 
             this.drippyMenu = new ContextMenu()
@@ -72,7 +71,11 @@ public class DrippyEvents {
             //------------------------------
 
             ExtendedButton editButton = new ExtendedButton(-30, 40, 80, 40, Component.empty(), (button) -> {
-                drippyMenu.openMenuAt(10, 80 - 10);
+                if (drippyMenu.isOpen()) {
+                    drippyMenu.closeMenu();
+                } else {
+                    drippyMenu.openMenuAt(10, 80 - 10);
+                }
             }) {
 
                 @Override

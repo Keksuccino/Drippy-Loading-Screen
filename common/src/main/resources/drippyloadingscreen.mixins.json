@@ -9,6 +9,8 @@
     "client.IMixinMinecraft",
     "client.MixinCustomizationOverlay",
     "client.MixinCustomizationOverlayUI",
+    "client.MixinFontManager",
+    "client.MixinGuiRenderState",
     "client.MixinImageElement",
     "client.MixinImageMenuBackground",
     "client.MixinLayout",

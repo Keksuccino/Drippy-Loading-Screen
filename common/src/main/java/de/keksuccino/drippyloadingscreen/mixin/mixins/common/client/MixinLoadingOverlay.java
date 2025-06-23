@@ -13,20 +13,15 @@ import de.keksuccino.fancymenu.events.screen.*;
 import de.keksuccino.fancymenu.util.event.acara.EventHandler;
 import de.keksuccino.fancymenu.util.rendering.RenderingUtils;
 import de.keksuccino.fancymenu.util.window.WindowHandler;
-import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.font.FontManager;
 import net.minecraft.client.gui.screens.LoadingOverlay;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.ReloadInstance;
 import net.minecraft.util.ARGB;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -34,7 +29,6 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
 @SuppressWarnings("deprecation")
@@ -49,7 +43,6 @@ public class MixinLoadingOverlay {
     @Unique private int lastScreenHeightDrippy = 0;
     @Unique private float cachedBackgroundOpacityDrippy = 1.0F;
     @Unique private float cachedElementOpacityDrippy = 1.0F;
-    @Unique private boolean fontsReloadedDrippy = false;
 
     @Shadow private float currentProgress;
 
@@ -70,15 +63,6 @@ public class MixinLoadingOverlay {
     private void after_render_Drippy(GuiGraphics graphics, int mouseX, int mouseY, float partial, CallbackInfo info) {
 
         if (this.shouldRenderVanillaDrippy()) return;
-
-        if (!fontsReloadedDrippy) {
-            //This makes text rendering work in the game loading screen
-            LOGGER_DRIPPY.info("[DRIPPY LOADING SCREEN] Reloading fonts for text rendering..");
-            this.loadFontsDrippy();
-            fontsReloadedDrippy = true;
-        }
-
-        if (!this.fontsReadyDrippy(graphics)) return;
 
         MixinCache.cachedCurrentLoadingScreenProgress = this.currentProgress;
         this.tickOverlayUpdateDrippy();
@@ -161,31 +145,6 @@ public class MixinLoadingOverlay {
         ScreenCustomizationLayer l = ScreenCustomizationLayerHandler.getLayerOfScreen(getDrippyOverlayScreen());
         if (l != null) l.loadEarly = true;
         return l;
-    }
-
-    @Unique
-    private void loadFontsDrippy() {
-        try {
-            FontManager fontManager = ((IMixinMinecraft)Minecraft.getInstance()).getFontManagerDrippy();
-            fontManager.reload(new PreparableReloadListener.PreparationBarrier() {
-                @Override
-                public <T> @NotNull CompletableFuture<T> wait(T t) {
-                    return new CompletableFuture<>();
-                }
-            }, Minecraft.getInstance().getResourceManager(), Minecraft.getInstance(), Util.backgroundExecutor());
-        } catch (Exception ex) {
-            LOGGER_DRIPPY.error("[DRIPPY LOADING SCREEN] Failed to load fonts!", ex);
-        }
-    }
-
-    @Unique
-    private boolean fontsReadyDrippy(GuiGraphics graphics) {
-//        try {
-//            RenderPipelines.TEXT.getLocation();
-//        } catch (Throwable t) {
-//            return false;
-//        }
-        return true;
     }
 
     @Unique
