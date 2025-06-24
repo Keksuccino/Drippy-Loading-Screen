@@ -19,7 +19,7 @@ public class MixinLayoutEditorScreen {
 
     @Shadow(remap = false) @NotNull public Layout layout;
 
-    @Inject(method = "init", at = @At(value = "INVOKE", target = "Lde/keksuccino/fancymenu/customization/layout/editor/LayoutEditorScreen;serializeElementInstancesToLayoutInstance()V", shift = At.Shift.AFTER), remap = false)
+    @Inject(method = "init", at = @At(value = "INVOKE", target = "Lde/keksuccino/fancymenu/customization/layout/editor/LayoutEditorScreen;serializeElementInstancesToLayoutInstance()V", shift = At.Shift.AFTER, remap = false))
     private void before_scaling_in_init_Drippy(CallbackInfo info) {
 
         if (this.layoutTargetScreen instanceof DrippyOverlayScreen) {
