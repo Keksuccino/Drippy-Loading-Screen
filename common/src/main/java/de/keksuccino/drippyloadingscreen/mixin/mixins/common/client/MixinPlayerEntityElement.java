@@ -1,7 +1,7 @@
 package de.keksuccino.drippyloadingscreen.mixin.mixins.common.client;
 
 import de.keksuccino.drippyloadingscreen.DrippyUtils;
-import de.keksuccino.fancymenu.customization.element.elements.playerentity.v2.PlayerEntityElement;
+import de.keksuccino.fancymenu.customization.element.elements.playerentity.PlayerEntityElement;
 import net.minecraft.client.gui.GuiGraphics;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;

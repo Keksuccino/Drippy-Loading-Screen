@@ -26,16 +26,12 @@ public class MixinNeoForgeLoadingOverlay extends LoadingOverlay {
 
     @Inject(method = "render", at = @At("HEAD"), cancellable = true)
     private void cancelForgeCustomLoadingOverlayRenderingDrippy(GuiGraphics graphics, int mouseX, int mouseY, float partial, CallbackInfo info) {
-
         try {
-
             super.render(graphics, mouseX, mouseY, partial);
             info.cancel();
-
         } catch (Exception ex) {
             LOGGER_DRIPPY.error("[DRIPPY LOADING SCREEN] Error while trying to render custom loading screen in NeoForgeLoadingOverlay!", ex);
         }
-
     }
 
 }

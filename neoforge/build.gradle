@@ -1,7 +1,7 @@
 plugins {
     id 'idea'
     id 'maven-publish'
-    id 'net.neoforged.gradle.userdev' version '7.0.184'
+    id 'net.neoforged.gradle.userdev' version '7.0.192'
     id 'java-library'
 }
 base {
@@ -47,9 +47,9 @@ dependencies {
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.2")
     implementation "net.neoforged:neoforge:${neoforge_version}"
     compileOnly project(":common")
-    implementation "maven.modrinth:konkrete:1.9.12-1.21.6-neoforge"
-    implementation "maven.modrinth:melody:1.0.12-1.21.6-neoforge"
-    implementation "maven.modrinth:fancymenu:3.5.3-1.21.6-neoforge"
+    implementation "maven.modrinth:konkrete:1.9.13-1.21.10-neoforge"
+    implementation "maven.modrinth:melody:1.0.13-1.21.10-neoforge"
+    implementation "maven.modrinth:fancymenu:3.7.2-1.21.10-neoforge"
 }
 
 // Exclude Fabric Loader from NeoForge
