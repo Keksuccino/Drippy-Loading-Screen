@@ -14,10 +14,12 @@ import de.keksuccino.fancymenu.util.rendering.ui.contextmenu.v2.ContextMenu;
 import de.keksuccino.fancymenu.util.rendering.ui.tooltip.Tooltip;
 import de.keksuccino.fancymenu.util.rendering.ui.tooltip.TooltipHandler;
 import de.keksuccino.fancymenu.util.rendering.ui.widget.button.ExtendedButton;
+import de.keksuccino.konkrete.input.MouseInput;
 import net.minecraft.client.gui.GuiGraphics;
 import de.keksuccino.drippyloadingscreen.customization.DrippyOverlayScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.TitleScreen;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
@@ -103,15 +105,10 @@ public class DrippyEvents {
                     if (drippyMenu.isOpen()) this.isHovered = true;
                     super.renderBackground(graphics);
                     this.isHovered = b;
-                }
-
-                @Override
-                public boolean mouseClicked(double $$0, double $$1, int $$2) {
-                    if (drippyMenu.isOpen() && !drippyMenu.isUserNavigatingInMenu() && !this.isHovered()) {
+                    if (MouseInput.isLeftMouseDown() && drippyMenu.isOpen() && !drippyMenu.isUserNavigatingInMenu() && !this.isHovered()) {
                         drippyMenu.closeMenu();
                         this.setFocused(false);
                     }
-                    return super.mouseClicked($$0, $$1, $$2);
                 }
 
             };
