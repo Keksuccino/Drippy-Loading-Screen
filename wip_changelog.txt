@@ -11,3 +11,4 @@ DRIPPY LOADING SCREEN v3.1.0 | CHANGELOG [ !! WIP !! NOT READY YET !! WIP !! ]
   - Russian (ru_ru)
   - Simplified Chinese (zh_cn)
   - Brazilian Portuguese (pt_br)
+- Fixed loading screen not fading in correctly like the Vanilla one (#75, #71)
