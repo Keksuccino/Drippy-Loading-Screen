@@ -1,0 +1,13 @@
+
+DRIPPY LOADING SCREEN v3.1.0 | CHANGELOG [ !! WIP !! NOT READY YET !! WIP !! ]
+
+- Added support for FancyMenu v3.8.0+
+- Added/Updated the following translations:
+  - German (de_de)
+  - Greek (el_gr)
+  - Mexican Spanish (es_mx)
+  - French (fr_fr)
+  - Japanese (ja_jp)
+  - Russian (ru_ru)
+  - Simplified Chinese (zh_cn)
+  - Brazilian Portuguese (pt_br)
