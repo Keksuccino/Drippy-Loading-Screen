@@ -24,11 +24,13 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ReloadInstance;
 import net.minecraft.util.FastColor;
+import net.minecraft.util.Mth;
 import net.minecraft.util.profiling.InactiveProfiler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.*;
@@ -50,6 +52,8 @@ public class MixinLoadingOverlay {
     @Unique private double cachedOverlayScaleDrippy = 1.0D;
 
     @Shadow private float currentProgress;
+    @Shadow private long fadeInStart;
+    @Shadow @Final private boolean fadeIn;
 
     @Inject(method = "<init>", at = @At("RETURN"))
     private void afterConstructDrippy(Minecraft mc, ReloadInstance reload, Consumer<?> consumer, boolean b, CallbackInfo info) {
@@ -78,6 +82,7 @@ public class MixinLoadingOverlay {
 
         MixinCache.cachedCurrentLoadingScreenProgress = this.currentProgress;
         this.tickOverlayUpdateDrippy();
+        this.updateFadeInOpacityCacheDrippy();
         this.setBackgroundOpacityDrippy(this.cachedBackgroundOpacityDrippy);
         this.setElementsOpacityDrippy(DrippyLoadingScreen.getOptions().earlyFadeOutElements.getValue() ? this.cachedElementOpacityDrippy : this.cachedBackgroundOpacityDrippy);
         this.runMenuHandlerTaskDrippy(() -> {
@@ -114,7 +119,7 @@ public class MixinLoadingOverlay {
 
     @WrapWithCondition(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/Screen;render(Lnet/minecraft/client/gui/GuiGraphics;IIF)V"))
     private boolean cancelScreenRenderingDrippy(Screen instance, GuiGraphics guiGraphics, int i, int j, float f) {
-        return DrippyLoadingScreen.getOptions().fadeOutLoadingScreen.getValue();
+        return DrippyLoadingScreen.getOptions().fadeInOutLoadingScreen.getValue();
     }
 
     @Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;setOverlay(Lnet/minecraft/client/gui/screens/Overlay;)V"))
@@ -126,7 +131,7 @@ public class MixinLoadingOverlay {
     private void cancelOriginalProgressBarRenderingDrippy(GuiGraphics graphics, int p_96184_, int p_96185_, int p_96186_, int p_96187_, float opacity, CallbackInfo info) {
         if (!this.shouldRenderVanillaDrippy()) {
             info.cancel();
-            this.cachedElementOpacityDrippy = DrippyLoadingScreen.getOptions().fadeOutLoadingScreen.getValue() ? opacity : 1.0F;
+            this.cachedElementOpacityDrippy = DrippyLoadingScreen.getOptions().fadeInOutLoadingScreen.getValue() ? opacity : 1.0F;
             RenderingUtils.resetShaderColor(graphics);
         }
     }
@@ -138,7 +143,7 @@ public class MixinLoadingOverlay {
 
     @WrapWithCondition(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphics;fill(Lnet/minecraft/client/renderer/RenderType;IIIII)V"))
     private boolean cancelBackgroundRenderingDrippy(GuiGraphics instance, RenderType renderType, int i, int j, int k, int l, int color) {
-        this.cachedBackgroundOpacityDrippy = DrippyLoadingScreen.getOptions().fadeOutLoadingScreen.getValue() ? Math.min(1.0F, Math.max(0.0F, (float)FastColor.ARGB32.alpha(color) / 255.0F)) : 1.0F;
+        this.cachedBackgroundOpacityDrippy = DrippyLoadingScreen.getOptions().fadeInOutLoadingScreen.getValue() ? Math.min(1.0F, Math.max(0.0F, (float)FastColor.ARGB32.alpha(color) / 255.0F)) : 1.0F;
         return this.shouldRenderVanillaDrippy();
     }
 
@@ -175,12 +180,11 @@ public class MixinLoadingOverlay {
         if (opacity < 0.02F) {
             opacity = 0.02F;
         }
+        boolean shouldBeVisible = opacity > 0.02F;
         if (this.getLayerDrippy() != null) {
             for (AbstractElement i : this.getLayerDrippy().allElements) {
                 i.opacity = opacity;
-                if (i.opacity <= 0.02F) {
-                    i.visible = false;
-                }
+                i.visible = shouldBeVisible;
             }
         }
     }
@@ -220,6 +224,31 @@ public class MixinLoadingOverlay {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+    }
+
+    @Unique
+    private void updateFadeInOpacityCacheDrippy() {
+        if (!DrippyLoadingScreen.getOptions().fadeInOutLoadingScreen.getValue()) {
+            return;
+        }
+        float fadeInOpacity = this.getFadeInOpacityDrippy();
+        if (fadeInOpacity >= 0.0F && fadeInOpacity < 1.0F) {
+            this.cachedBackgroundOpacityDrippy = fadeInOpacity;
+            this.cachedElementOpacityDrippy = fadeInOpacity;
+        }
+    }
+
+    @Unique
+    private float getFadeInOpacityDrippy() {
+        if (!this.fadeIn) {
+            return -1.0F;
+        }
+        if (this.fadeInStart < 0L) {
+            return -1.0F;
+        }
+        long now = Util.getMillis();
+        float progress = (float)(now - this.fadeInStart) / (float)LoadingOverlay.FADE_IN_TIME;
+        return Mth.clamp(progress, 0.0F, 1.0F);
     }
 
     @Unique

@@ -1,7 +1,6 @@
 package de.keksuccino.drippyloadingscreen;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import de.keksuccino.fancymenu.FancyMenu;
 import de.keksuccino.fancymenu.customization.overlay.CustomizationOverlay;
 import de.keksuccino.fancymenu.events.screen.InitOrResizeScreenCompletedEvent;
 import de.keksuccino.fancymenu.events.screen.RenderScreenEvent;
@@ -63,8 +62,8 @@ public class DrippyEvents {
                     .setTooltipSupplier((menu, entry) -> Tooltip.of(LocalizationUtils.splitLocalizedLines("drippyloadingscreen.settings.early_fade_out_elements.desc")));
 
             this.drippyMenu.addValueCycleEntry("fade_out_loading_screen",
-                            CommonCycles.cycleEnabledDisabled("drippyloadingscreen.settings.fade_out_loading_screen", DrippyLoadingScreen.getOptions().fadeOutLoadingScreen.getValue())
-                                    .addCycleListener(value -> DrippyLoadingScreen.getOptions().fadeOutLoadingScreen.setValue(value.getAsBoolean())))
+                            CommonCycles.cycleEnabledDisabled("drippyloadingscreen.settings.fade_out_loading_screen", DrippyLoadingScreen.getOptions().fadeInOutLoadingScreen.getValue())
+                                    .addCycleListener(value -> DrippyLoadingScreen.getOptions().fadeInOutLoadingScreen.setValue(value.getAsBoolean())))
                     .setTooltipSupplier((menu, entry) -> Tooltip.of(LocalizationUtils.splitLocalizedLines("drippyloadingscreen.settings.fade_out_loading_screen.desc")));
 
             //------------------------------
