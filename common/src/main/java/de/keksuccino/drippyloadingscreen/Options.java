@@ -14,7 +14,7 @@ public class Options extends AbstractOptions {
 
     public final Option<String> earlyLoadingBackgroundTexturePath = new Option<>(config, "early_loading_background_texture_path", "/config/fancymenu/assets/some_image.png", "early_loading"); // only supports PNG; falls back to Vanilla-like color background if image not found (respects Minecraft's dark background setting like NeoForge)
     public final Option<Boolean> earlyLoadingBackgroundPreserveAspectRatio = new Option<>(config, "early_loading_background_preserve_aspect_ratio", true, "early_loading");
-    public final Option<String> earlyLoadingLogoTexturePath = new Option<>(config, "early_loading_logo_texture_path", "/config/fancymenu/assets/some_image.png", "early_loading"); // only supports PNG; falls back to a solid rendered block of color if image not found (color = red)
+    public final Option<String> earlyLoadingLogoTexturePath = new Option<>(config, "early_loading_logo_texture_path", "/config/fancymenu/assets/some_image.png", "early_loading"); // only supports PNG; falls back to Vanilla Mojang logo if image not found
     public final Option<Integer> earlyLoadingLogoWidth = new Option<>(config, "early_loading_logo_width", 500, "early_loading");
     public final Option<Integer> earlyLoadingLogoHeight = new Option<>(config, "early_loading_logo_height", 100, "early_loading");
     public final Option<Integer> earlyLoadingLogoPositionOffsetX = new Option<>(config, "early_loading_logo_position_offset_x", 0, "early_loading"); // logo is rendered perfectly centered on the X axis by default
