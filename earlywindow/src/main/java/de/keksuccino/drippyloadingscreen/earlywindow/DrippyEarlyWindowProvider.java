@@ -59,8 +59,8 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
     public Runnable initialize(String[] arguments) {
         setupWindow();
         startRenderThread();
-        this.ticker = emptyTick;
-        return ticker;
+        this.ticker = this::pollEvents;
+        return this::periodicTick;
     }
 
     private void setupWindow() {
@@ -153,7 +153,6 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
             GL.setCapabilities(this.renderCapabilities);
             drawFrame();
             GLFW.glfwSwapBuffers(this.window);
-            GLFW.glfwPollEvents();
         }
 
         GL.setCapabilities(null);
@@ -169,6 +168,7 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
     @Override
     public long setupMinecraftWindow(IntSupplier width, IntSupplier height, Supplier<String> title, LongSupplier monitor) {
         this.running = false;
+        this.ticker = emptyTick;
         if (this.renderThread != null) {
             try {
                 this.renderThread.join(2000);
@@ -229,6 +229,12 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
     @Override
     public void periodicTick() {
         this.ticker.run();
+    }
+
+    private void pollEvents() {
+        if (this.window != 0L) {
+            GLFW.glfwPollEvents();
+        }
     }
 
     @Override
