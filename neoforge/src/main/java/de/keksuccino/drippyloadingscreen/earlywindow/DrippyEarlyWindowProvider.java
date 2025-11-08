@@ -19,6 +19,7 @@ import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
+import org.lwjgl.opengl.GLCapabilities;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.stb.STBEasyFont;
 import org.lwjgl.system.MemoryStack;
@@ -48,6 +49,8 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
     private Runnable ticker = emptyTick;
     private String glVersion = "3.2";
     private Method overlayFactory;
+    private Thread renderThread;
+    private GLCapabilities renderCapabilities;
 
     @Override
     public String name() {
@@ -57,7 +60,8 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
     @Override
     public Runnable initialize(String[] arguments) {
         setupWindow();
-        this.ticker = this::renderTickInternal;
+        startRenderThread();
+        this.ticker = emptyTick;
         return ticker;
     }
 
@@ -75,8 +79,7 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
         GLFW.glfwWindowHint(GLFW.GLFW_RESIZABLE, GLFW.GLFW_TRUE);
         GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_VERSION_MAJOR, 3);
         GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_VERSION_MINOR, 2);
-        GLFW.glfwWindowHint(GLFW.GLFW_OPENGL_PROFILE, GLFW.GLFW_OPENGL_ANY_PROFILE);
-        GLFW.glfwWindowHint(GLFW.GLFW_OPENGL_FORWARD_COMPAT, GLFW.GLFW_TRUE);
+        GLFW.glfwWindowHint(GLFW.GLFW_OPENGL_PROFILE, GLFW.GLFW_OPENGL_COMPAT_PROFILE);
 
         this.window = GLFW.glfwCreateWindow(this.windowWidth, this.windowHeight, "Drippy Loading Screen", 0L, 0L);
         if (this.window == 0L) {
@@ -85,10 +88,6 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
 
         centerWindow();
         GLFW.glfwMakeContextCurrent(this.window);
-        GL.createCapabilities();
-        this.glVersion = GL11.glGetString(GL11.GL_VERSION);
-        GLFW.glfwSwapInterval(1);
-
         updateFramebufferFromWindow();
         GLFW.glfwSetFramebufferSizeCallback(this.window, (handle, width, height) -> {
             this.framebufferWidth = Math.max(1, width);
@@ -138,19 +137,29 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
         }
     }
 
-    private void renderTickInternal() {
-        if (!this.running || this.window == 0L) {
-            return;
-        }
+    private void startRenderThread() {
+        this.renderThread = new Thread(this::renderLoop, "Drippy-EarlyWindow");
+        this.renderThread.setDaemon(true);
+        this.renderThread.start();
+    }
 
+    private void renderLoop() {
         GLFW.glfwMakeContextCurrent(this.window);
-        try {
+        this.renderCapabilities = GL.createCapabilities();
+        GL.setCapabilities(this.renderCapabilities);
+        this.glVersion = Optional.ofNullable(GL11.glGetString(GL11.GL_VERSION)).orElse(this.glVersion);
+        GLFW.glfwSwapInterval(1);
+
+        while (this.running && !GLFW.glfwWindowShouldClose(this.window)) {
+            GLFW.glfwMakeContextCurrent(this.window);
+            GL.setCapabilities(this.renderCapabilities);
             drawFrame();
             GLFW.glfwSwapBuffers(this.window);
-        } finally {
-            GLFW.glfwMakeContextCurrent(0L);
+            GLFW.glfwPollEvents();
         }
-        GLFW.glfwPollEvents();
+
+        GL.setCapabilities(null);
+        GLFW.glfwMakeContextCurrent(0L);
     }
 
     private void drawFrame() {
@@ -193,7 +202,16 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
     @Override
     public long setupMinecraftWindow(IntSupplier width, IntSupplier height, Supplier<String> title, LongSupplier monitor) {
         this.running = false;
+        if (this.renderThread != null) {
+            try {
+                this.renderThread.join(2000);
+            } catch (InterruptedException ignored) {
+                Thread.currentThread().interrupt();
+            }
+        }
+
         GLFW.glfwMakeContextCurrent(this.window);
+        GL.createCapabilities();
         GLFW.glfwSetWindowTitle(this.window, title.get());
         GLFW.glfwSwapInterval(0);
         GLFW.glfwMakeContextCurrent(0L);
