@@ -1,9 +1,19 @@
+
 plugins {
+    id "net.neoforged.gradle.userdev" version "$neogradle_version"
     id 'java-library'
 }
 
 base {
     archivesName = "${mod_id}-earlywindow"
+}
+
+repositories {
+    mavenCentral()
+    maven {
+        name = 'NeoForge'
+        url = 'https://maven.neoforged.net/releases/'
+    }
 }
 
 dependencies {

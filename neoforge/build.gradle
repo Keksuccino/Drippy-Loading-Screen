@@ -66,6 +66,7 @@ dependencies {
     implementation "maven.modrinth:melody:1.0.10-1.21-neoforge"
 	//implementation "maven.modrinth:fancymenu:3.8.0-1.21.1-neoforge"
 	implementation "flatdir:fancymenu:3.8.0"
+    implementation project(":earlywindow")
     compileOnly project(":common")
 }
 
@@ -84,8 +85,10 @@ def copyEarlyWindowJar = { String taskName, String outputDir ->
 def copyEarlyWindowClient = copyEarlyWindowJar("copyEarlyWindowJarToClientMods", "run_client/mods")
 def copyEarlyWindowServer = copyEarlyWindowJar("copyEarlyWindowJarToServerMods", "run_server/mods")
 
-tasks.named("runClient").configure { dependsOn(copyEarlyWindowClient) }
-tasks.named("runServer").configure { dependsOn(copyEarlyWindowServer) }
+gradle.projectsEvaluated {
+    tasks.named("runClient").configure { dependsOn(copyEarlyWindowClient) }
+    tasks.named("runServer").configure { dependsOn(copyEarlyWindowServer) }
+}
 
 // Exclude Fabric Loader from NeoForge
 configurations {
