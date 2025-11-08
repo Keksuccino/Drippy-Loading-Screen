@@ -19,6 +19,7 @@ import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GLCapabilities;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.stb.STBEasyFont;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.util.tinyfd.TinyFileDialogs;
 
@@ -27,6 +28,9 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
     public static final String PROVIDER_NAME = "drippyearlywindow";
     private static final Logger LOGGER = LogManager.getLogger();
     private static final String DEFAULT_TEXT = "This is a custom window";
+    private static final float BG_RED = 0.69f;
+    private static final float BG_GREEN = 0.87f;
+    private static final float BG_BLUE = 0.94f;
 
     private final ByteBuffer textBuffer = BufferUtils.createByteBuffer(64 * 1024);
     private final Runnable emptyTick = () -> {};
@@ -147,7 +151,7 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
         while (this.running && !GLFW.glfwWindowShouldClose(this.window)) {
             GLFW.glfwMakeContextCurrent(this.window);
             GL.setCapabilities(this.renderCapabilities);
-            DrippyEarlyWindowRenderer.renderFrame(this.windowWidth, this.windowHeight, this.framebufferWidth, this.framebufferHeight, this.textBuffer, this.displayText);
+            drawFrame();
             GLFW.glfwSwapBuffers(this.window);
             GLFW.glfwPollEvents();
         }
@@ -236,6 +240,37 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
     public void crash(String message) {
         LOGGER.error("Early window crash: {}", message);
         TinyFileDialogs.tinyfd_messageBox("Drippy Loading Screen", message, "ok", "error", true);
+    }
+
+    private void drawFrame() {
+        GL11.glViewport(0, 0, this.framebufferWidth, this.framebufferHeight);
+        GL11.glDisable(GL11.GL_DEPTH_TEST);
+        GL11.glClearColor(BG_RED, BG_GREEN, BG_BLUE, 1.0f);
+        GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
+
+        GL11.glMatrixMode(GL11.GL_PROJECTION);
+        GL11.glLoadIdentity();
+        GL11.glOrtho(0.0, this.windowWidth, this.windowHeight, 0.0, -1.0, 1.0);
+        GL11.glMatrixMode(GL11.GL_MODELVIEW);
+        GL11.glLoadIdentity();
+
+        renderText();
+    }
+
+    private void renderText() {
+        this.textBuffer.clear();
+        this.textBuffer.limit(this.textBuffer.capacity());
+        float textWidth = STBEasyFont.stb_easy_font_width(this.displayText);
+        float x = Math.max(16.0f, (this.windowWidth - textWidth) / 2.0f);
+        float y = this.windowHeight / 2.0f;
+        int quads = STBEasyFont.stb_easy_font_print(x, y, this.displayText, null, this.textBuffer);
+        this.textBuffer.flip();
+
+        GL11.glColor3f(0.05f, 0.05f, 0.05f);
+        GL11.glEnableClientState(GL11.GL_VERTEX_ARRAY);
+        GL11.glVertexPointer(2, GL11.GL_FLOAT, 16, this.textBuffer);
+        GL11.glDrawArrays(GL11.GL_QUADS, 0, quads * 4);
+        GL11.glDisableClientState(GL11.GL_VERTEX_ARRAY);
     }
 
 }
