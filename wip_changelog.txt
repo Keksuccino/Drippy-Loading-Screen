@@ -1,6 +1,8 @@
 
 DRIPPY LOADING SCREEN v3.1.0 | CHANGELOG [ !! WIP !! NOT READY YET !! WIP !! ]
 
+- Dropped support for (Lex)Forge for Minecraft 1.21+
+- Dropped support for Minecraft 1.18.2, 1.21.4
 - Added support for FancyMenu v3.8.0+
 - Added/Updated the following translations:
   - German (de_de)
