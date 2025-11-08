@@ -1,0 +1,11 @@
+plugins {
+    id 'java-library'
+}
+
+base {
+    archivesName = "${mod_id}-earlywindow"
+}
+
+dependencies {
+    compileOnly "net.neoforged:neoforge:${neoforge_version}"
+}
