@@ -1,7 +1,17 @@
 package de.keksuccino.drippyloadingscreen.earlywindow;
 
+import de.keksuccino.drippyloadingscreen.earlywindow.config.EarlyLoadingOptions;
+import de.keksuccino.drippyloadingscreen.earlywindow.config.EarlyLoadingOptionsLoader;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.IntConsumer;
@@ -9,31 +19,30 @@ import java.util.function.IntSupplier;
 import java.util.function.LongSupplier;
 import java.util.function.Supplier;
 import net.neoforged.fml.loading.FMLConfig;
+import net.neoforged.fml.loading.FMLPaths;
+import net.neoforged.fml.loading.progress.ProgressMeter;
+import net.neoforged.fml.loading.progress.StartupNotificationManager;
 import net.neoforged.neoforgespi.earlywindow.ImmediateWindowProvider;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GLCapabilities;
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.stb.STBEasyFont;
+import org.lwjgl.stb.STBImage;
 import org.lwjgl.system.MemoryStack;
+import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.util.tinyfd.TinyFileDialogs;
 
 public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
 
-    public static final String PROVIDER_NAME = "drippyearlywindow";
+    public static final String PROVIDER_NAME = "drippy_early_window";
     private static final Logger LOGGER = LogManager.getLogger();
-    private static final String DEFAULT_TEXT = "This is a custom window";
-    private static final float BG_RED = 0.69f;
-    private static final float BG_GREEN = 0.87f;
-    private static final float BG_BLUE = 0.94f;
-
-    private final ByteBuffer textBuffer = BufferUtils.createByteBuffer(64 * 1024);
-    private final Runnable emptyTick = () -> {};
+    private static final Runnable EMPTY_TICK = () -> {};
+    private static final String MOJANG_LOGO_PATH = "assets/minecraft/textures/gui/title/mojangstudios.png";
+    private static final float INDETERMINATE_SEGMENT_WIDTH = 0.3f;
 
     private long window;
     private boolean running;
@@ -43,12 +52,26 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
     private int framebufferHeight;
     private int windowX;
     private int windowY;
-    private final String displayText = DEFAULT_TEXT;
-    private Runnable ticker = emptyTick;
+    private Runnable ticker = EMPTY_TICK;
     private String glVersion = "3.2";
     private Constructor<?> overlayConstructor;
     private Thread renderThread;
     private GLCapabilities renderCapabilities;
+
+    private Path gameDirectory;
+    private EarlyLoadingOptions options = EarlyLoadingOptions.defaults();
+    private ColourScheme colourScheme = ColourScheme.red();
+    private String effectiveWindowTitle = "Minecraft";
+
+    private LoadedTexture backgroundTexture;
+    private LoadedTexture logoTexture;
+    private LoadedTexture barBackgroundTexture;
+    private LoadedTexture barProgressTexture;
+
+    private float displayedProgress;
+    private boolean progressIndeterminate;
+    private float indeterminateOffset;
+    private long lastProgressSampleNanos;
 
     @Override
     public String name() {
@@ -57,6 +80,12 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
 
     @Override
     public Runnable initialize(String[] arguments) {
+        this.gameDirectory = FMLPaths.GAMEDIR.get();
+        Path configDir = FMLPaths.CONFIGDIR.get();
+        this.options = new EarlyLoadingOptionsLoader(configDir).load();
+        this.effectiveWindowTitle = this.options.windowTitle();
+        this.colourScheme = resolveColourScheme();
+
         setupWindow();
         startRenderThread();
         this.ticker = this::pollEvents;
@@ -66,7 +95,7 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
     private void setupWindow() {
         GLFWErrorCallback.createPrint(System.err).set();
         if (!GLFW.glfwInit()) {
-            throw new IllegalStateException("Failed to initialize GLFW for Drippy early window");
+            throw new IllegalStateException("[DRIPPY LOADING SCREEN] Failed to initialize GLFW for Drippy early window!");
         }
 
         this.windowWidth = Math.max(1, FMLConfig.getIntConfigValue(FMLConfig.ConfigValue.EARLY_WINDOW_WIDTH));
@@ -79,9 +108,9 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
         GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_VERSION_MINOR, 2);
         GLFW.glfwWindowHint(GLFW.GLFW_OPENGL_PROFILE, GLFW.GLFW_OPENGL_COMPAT_PROFILE);
 
-        this.window = GLFW.glfwCreateWindow(this.windowWidth, this.windowHeight, "Drippy Loading Screen", 0L, 0L);
+        this.window = GLFW.glfwCreateWindow(this.windowWidth, this.windowHeight, this.effectiveWindowTitle, 0L, 0L);
         if (this.window == 0L) {
-            throw new IllegalStateException("Failed to create Drippy early window");
+            throw new IllegalStateException("[DRIPPY LOADING SCREEN] Failed to create Drippy early window!");
         }
 
         centerWindow();
@@ -147,16 +176,20 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
         GL.setCapabilities(this.renderCapabilities);
         this.glVersion = Optional.ofNullable(GL11.glGetString(GL11.GL_VERSION)).orElse(this.glVersion);
         GLFW.glfwSwapInterval(1);
+        loadTextures();
+        this.lastProgressSampleNanos = System.nanoTime();
 
-        while (this.running && !GLFW.glfwWindowShouldClose(this.window)) {
-            GLFW.glfwMakeContextCurrent(this.window);
-            GL.setCapabilities(this.renderCapabilities);
-            drawFrame();
-            GLFW.glfwSwapBuffers(this.window);
+        try {
+            while (this.running && !GLFW.glfwWindowShouldClose(this.window)) {
+                GL.setCapabilities(this.renderCapabilities);
+                drawFrame();
+                GLFW.glfwSwapBuffers(this.window);
+            }
+        } finally {
+            cleanupTextures();
+            GL.setCapabilities(null);
+            GLFW.glfwMakeContextCurrent(0L);
         }
-
-        GL.setCapabilities(null);
-        GLFW.glfwMakeContextCurrent(0L);
     }
 
     @Override
@@ -168,7 +201,7 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
     @Override
     public long setupMinecraftWindow(IntSupplier width, IntSupplier height, Supplier<String> title, LongSupplier monitor) {
         this.running = false;
-        this.ticker = emptyTick;
+        this.ticker = EMPTY_TICK;
         if (this.renderThread != null) {
             try {
                 this.renderThread.join(2000);
@@ -197,7 +230,7 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
     @Override
     public <T> Supplier<T> loadingOverlay(Supplier<?> mc, Supplier<?> ri, Consumer<Optional<Throwable>> ex, boolean fade) {
         if (this.overlayConstructor == null) {
-            throw new IllegalStateException("Custom loading overlay is not available yet");
+            throw new IllegalStateException("[DRIPPY LOADING SCREEN] Custom loading overlay is not available yet!");
         }
         return () -> {
             try {
@@ -206,7 +239,7 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
                 T castOverlay = (T) overlay;
                 return castOverlay;
             } catch (ReflectiveOperationException e) {
-                throw new IllegalStateException("Failed to create Drippy loading overlay", e);
+                throw new IllegalStateException("[DRIPPY LOADING SCREEN] Failed to create Drippy loading overlay!", e);
             }
         };
     }
@@ -222,7 +255,7 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
             Constructor<?> ctor = overlayClass.getConstructor(minecraftClass, reloadClass, Consumer.class, boolean.class);
             this.overlayConstructor = ctor;
         } catch (Exception e) {
-            throw new IllegalStateException("Custom loading overlay class missing", e);
+            throw new IllegalStateException("[DRIPPY LOADING SCREEN] Custom loading overlay class missing!", e);
         }
     }
 
@@ -249,9 +282,11 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
     }
 
     private void drawFrame() {
+        updateProgressMetrics();
+
         GL11.glViewport(0, 0, this.framebufferWidth, this.framebufferHeight);
         GL11.glDisable(GL11.GL_DEPTH_TEST);
-        GL11.glClearColor(BG_RED, BG_GREEN, BG_BLUE, 1.0f);
+        GL11.glClearColor(this.colourScheme.background().r(), this.colourScheme.background().g(), this.colourScheme.background().b(), 1.0f);
         GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
 
         GL11.glMatrixMode(GL11.GL_PROJECTION);
@@ -260,23 +295,336 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
         GL11.glMatrixMode(GL11.GL_MODELVIEW);
         GL11.glLoadIdentity();
 
-        renderText();
+        GL11.glEnable(GL11.GL_BLEND);
+        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+
+        renderBackgroundLayer();
+        float logoBottom = renderLogoLayer();
+        renderProgressBar(logoBottom);
+
+        GL11.glDisable(GL11.GL_BLEND);
+        GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
     }
 
-    private void renderText() {
-        this.textBuffer.clear();
-        this.textBuffer.limit(this.textBuffer.capacity());
-        float textWidth = STBEasyFont.stb_easy_font_width(this.displayText);
-        float x = Math.max(16.0f, (this.windowWidth - textWidth) / 2.0f);
-        float y = this.windowHeight / 2.0f;
-        int quads = STBEasyFont.stb_easy_font_print(x, y, this.displayText, null, this.textBuffer);
-        this.textBuffer.flip();
+    private void renderBackgroundLayer() {
+        if (this.backgroundTexture == null) {
+            drawSolidQuad(0.0f, 0.0f, this.windowWidth, this.windowHeight, this.colourScheme.background(), 1.0f);
+            return;
+        }
+        float drawWidth = this.windowWidth;
+        float drawHeight = this.windowHeight;
+        float x = 0.0f;
+        float y = 0.0f;
+        if (this.options.backgroundPreserveAspectRatio() && this.backgroundTexture.width() > 0 && this.backgroundTexture.height() > 0) {
+            float textureRatio = (float) this.backgroundTexture.width() / this.backgroundTexture.height();
+            float windowRatio = (float) this.windowWidth / this.windowHeight;
+            if (windowRatio > textureRatio) {
+                drawWidth = this.windowWidth;
+                drawHeight = drawWidth / textureRatio;
+                y = (this.windowHeight - drawHeight) / 2.0f;
+            } else {
+                drawHeight = this.windowHeight;
+                drawWidth = drawHeight * textureRatio;
+                x = (this.windowWidth - drawWidth) / 2.0f;
+            }
+        }
+        drawTexturedQuad(x, y, drawWidth, drawHeight, this.backgroundTexture, 0.0f, 0.0f, 1.0f, 1.0f);
+    }
 
-        GL11.glColor3f(0.05f, 0.05f, 0.05f);
-        GL11.glEnableClientState(GL11.GL_VERTEX_ARRAY);
-        GL11.glVertexPointer(2, GL11.GL_FLOAT, 16, this.textBuffer);
-        GL11.glDrawArrays(GL11.GL_QUADS, 0, quads * 4);
-        GL11.glDisableClientState(GL11.GL_VERTEX_ARRAY);
+    private float renderLogoLayer() {
+        if (this.logoTexture == null) {
+            return this.windowHeight / 2.0f;
+        }
+        float width = this.options.logoWidth() > 0 ? this.options.logoWidth() : this.logoTexture.width();
+        float height = this.options.logoHeight() > 0 ? this.options.logoHeight() : this.logoTexture.height();
+        float x = (this.windowWidth - width) / 2.0f + this.options.logoOffsetX();
+        float baseline = this.windowHeight * 0.35f;
+        float y = baseline + this.options.logoOffsetY();
+        drawTexturedQuad(x, y, width, height, this.logoTexture, 0.0f, 0.0f, 1.0f, 1.0f);
+        return y + height;
+    }
+
+    private void renderProgressBar(float logoBottom) {
+        int configuredWidth = Math.max(32, this.options.barWidth());
+        int configuredHeight = Math.max(6, this.options.barHeight());
+        float width = Math.min(configuredWidth, this.windowWidth - 40.0f);
+        float height = Math.min(configuredHeight, this.windowHeight / 6.0f);
+        float baseX = (this.windowWidth - width) / 2.0f + this.options.barOffsetX();
+        float defaultY = (logoBottom > 0.0f ? logoBottom + 32.0f : this.windowHeight / 2.0f + 20.0f);
+        float baseY = Math.min(defaultY + this.options.barOffsetY(), this.windowHeight - height - 10.0f);
+
+        if (this.barBackgroundTexture != null) {
+            drawTexturedQuad(baseX, baseY, width, height, this.barBackgroundTexture, 0.0f, 0.0f, 1.0f, 1.0f);
+        } else {
+            drawSolidQuad(baseX, baseY, width, height, this.colourScheme.background().withBrightness(0.5f), 0.9f);
+            drawRectangleOutline(baseX, baseY, width, height, this.colourScheme.foreground(), 1.0f);
+        }
+
+        if (this.progressIndeterminate) {
+            drawIndeterminateProgress(baseX, baseY, width, height);
+        } else {
+            drawProgressSegment(baseX, baseY, width, height, 0.0f, Math.max(0.0f, Math.min(1.0f, this.displayedProgress)));
+        }
+    }
+
+    private void drawIndeterminateProgress(float x, float y, float width, float height) {
+        float start = this.indeterminateOffset;
+        float end = start + INDETERMINATE_SEGMENT_WIDTH;
+        if (end <= 1.0f) {
+            drawProgressSegment(x, y, width, height, start, end);
+        } else {
+            drawProgressSegment(x, y, width, height, start, 1.0f);
+            drawProgressSegment(x, y, width, height, 0.0f, end - 1.0f);
+        }
+    }
+
+    private void drawProgressSegment(float baseX, float baseY, float width, float height, float start, float end) {
+        if (end <= start) {
+            return;
+        }
+        float segmentWidth = width * (end - start);
+        float segmentX = baseX + width * start;
+        if (this.barProgressTexture != null) {
+            drawTexturedQuad(segmentX, baseY, segmentWidth, height, this.barProgressTexture, start, 0.0f, end, 1.0f);
+        } else {
+            drawSolidQuad(segmentX, baseY, segmentWidth, height, this.colourScheme.foreground(), 1.0f);
+        }
+    }
+
+    private void drawSolidQuad(float x, float y, float width, float height, Colour colour, float alpha) {
+        GL11.glDisable(GL11.GL_TEXTURE_2D);
+        GL11.glColor4f(colour.r(), colour.g(), colour.b(), alpha);
+        GL11.glBegin(GL11.GL_QUADS);
+        GL11.glVertex2f(x, y);
+        GL11.glVertex2f(x + width, y);
+        GL11.glVertex2f(x + width, y + height);
+        GL11.glVertex2f(x, y + height);
+        GL11.glEnd();
+        GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+    }
+
+    private void drawRectangleOutline(float x, float y, float width, float height, Colour colour, float alpha) {
+        GL11.glDisable(GL11.GL_TEXTURE_2D);
+        GL11.glColor4f(colour.r(), colour.g(), colour.b(), alpha);
+        GL11.glBegin(GL11.GL_LINE_LOOP);
+        GL11.glVertex2f(x, y);
+        GL11.glVertex2f(x + width, y);
+        GL11.glVertex2f(x + width, y + height);
+        GL11.glVertex2f(x, y + height);
+        GL11.glEnd();
+        GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+    }
+
+    private void drawTexturedQuad(float x, float y, float width, float height, LoadedTexture texture, float u0, float v0, float u1, float v1) {
+        GL11.glEnable(GL11.GL_TEXTURE_2D);
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture.id());
+        GL11.glBegin(GL11.GL_QUADS);
+        GL11.glTexCoord2f(u0, v0);
+        GL11.glVertex2f(x, y);
+        GL11.glTexCoord2f(u1, v0);
+        GL11.glVertex2f(x + width, y);
+        GL11.glTexCoord2f(u1, v1);
+        GL11.glVertex2f(x + width, y + height);
+        GL11.glTexCoord2f(u0, v1);
+        GL11.glVertex2f(x, y + height);
+        GL11.glEnd();
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
+        GL11.glDisable(GL11.GL_TEXTURE_2D);
+    }
+
+    private void loadTextures() {
+        this.backgroundTexture = loadUserTexture(this.options.backgroundTexturePath());
+        this.logoTexture = loadUserTexture(this.options.logoTexturePath());
+        if (this.logoTexture == null) {
+            this.logoTexture = loadMojangLogoTexture();
+        }
+        this.barBackgroundTexture = loadUserTexture(this.options.barBackgroundTexturePath());
+        this.barProgressTexture = loadUserTexture(this.options.barProgressTexturePath());
+    }
+
+    private void cleanupTextures() {
+        deleteTexture(this.backgroundTexture);
+        deleteTexture(this.logoTexture);
+        deleteTexture(this.barBackgroundTexture);
+        deleteTexture(this.barProgressTexture);
+    }
+
+    private void deleteTexture(LoadedTexture texture) {
+        if (texture != null) {
+            GL11.glDeleteTextures(texture.id());
+        }
+    }
+
+    private LoadedTexture loadUserTexture(String configuredPath) {
+        Path resolved = resolveTexturePath(configuredPath);
+        if (resolved == null) {
+            return null;
+        }
+        return uploadTextureFromPath(resolved);
+    }
+
+    private Path resolveTexturePath(String configuredPath) {
+        if (configuredPath == null || configuredPath.isBlank() || this.gameDirectory == null) {
+            return null;
+        }
+        String trimmed = configuredPath.trim();
+        try {
+            Path candidate;
+            if (trimmed.startsWith("/") || trimmed.startsWith("\\")) {
+                candidate = this.gameDirectory.resolve(trimmed.substring(1));
+            } else {
+                Path raw = Paths.get(trimmed);
+                candidate = raw.isAbsolute() ? raw : this.gameDirectory.resolve(raw);
+            }
+            if (!Files.isReadable(candidate)) {
+                LOGGER.debug("[DRIPPY LOADING SCREEN] Configured early loading texture {} not found", candidate);
+                return null;
+            }
+            return candidate.normalize();
+        } catch (InvalidPathException ex) {
+            LOGGER.warn("[DRIPPY LOADING SCREEN] Invalid early loading texture path '{}'", configuredPath, ex);
+            return null;
+        }
+    }
+
+    private LoadedTexture uploadTextureFromPath(Path path) {
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            var width = stack.mallocInt(1);
+            var height = stack.mallocInt(1);
+            var channels = stack.mallocInt(1);
+            ByteBuffer image = STBImage.stbi_load(path.toString(), width, height, channels, 4);
+            if (image == null) {
+                LOGGER.warn("[DRIPPY LOADING SCREEN] Failed to decode texture {}: {}", path, STBImage.stbi_failure_reason());
+                return null;
+            }
+            return uploadTexture(image, width.get(0), height.get(0));
+        }
+    }
+
+    private LoadedTexture uploadTexture(ByteBuffer image, int width, int height) {
+        int textureId = GL11.glGenTextures();
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, textureId);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
+        GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA8, width, height, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, image);
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
+        STBImage.stbi_image_free(image);
+        return new LoadedTexture(textureId, width, height);
+    }
+
+    private LoadedTexture loadMojangLogoTexture() {
+        try (InputStream stream = DrippyEarlyWindowProvider.class.getClassLoader().getResourceAsStream(MOJANG_LOGO_PATH)) {
+            if (stream == null) {
+                LOGGER.warn("[DRIPPY LOADING SCREEN] Unable to locate Mojang logo at {}", MOJANG_LOGO_PATH);
+                return null;
+            }
+            byte[] data = stream.readAllBytes();
+            ByteBuffer buffer = MemoryUtil.memAlloc(data.length);
+            buffer.put(data).flip();
+            LoadedTexture texture = decodeTexture(buffer, MOJANG_LOGO_PATH);
+            MemoryUtil.memFree(buffer);
+            return texture;
+        } catch (IOException e) {
+            LOGGER.warn("[DRIPPY LOADING SCREEN] Failed to load Mojang logo resource {}", MOJANG_LOGO_PATH, e);
+            return null;
+        }
+    }
+
+    private LoadedTexture decodeTexture(ByteBuffer buffer, String label) {
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            var width = stack.mallocInt(1);
+            var height = stack.mallocInt(1);
+            var channels = stack.mallocInt(1);
+            ByteBuffer image = STBImage.stbi_load_from_memory(buffer, width, height, channels, 4);
+            if (image == null) {
+                LOGGER.warn("[DRIPPY LOADING SCREEN] Failed to decode texture {}: {}", label, STBImage.stbi_failure_reason());
+                return null;
+            }
+            return uploadTexture(image, width.get(0), height.get(0));
+        }
+    }
+
+    private void updateProgressMetrics() {
+        long now = System.nanoTime();
+        if (this.lastProgressSampleNanos == 0L) {
+            this.lastProgressSampleNanos = now;
+        }
+        float deltaSeconds = (now - this.lastProgressSampleNanos) / 1_000_000_000f;
+        this.lastProgressSampleNanos = now;
+
+        ProgressSample sample = ProgressSample.capture();
+        if (sample.indeterminate()) {
+            this.progressIndeterminate = true;
+            this.indeterminateOffset = (this.indeterminateOffset + deltaSeconds * 0.4f) % 1.0f;
+            this.displayedProgress = 0.0f;
+        } else {
+            this.progressIndeterminate = false;
+            float target = sample.progress();
+            float lerpFactor = Math.min(1.0f, deltaSeconds * 6.0f);
+            this.displayedProgress += (target - this.displayedProgress) * lerpFactor;
+            this.indeterminateOffset = 0.0f;
+        }
+    }
+
+    private ColourScheme resolveColourScheme() {
+        if (System.getenv("FML_EARLY_WINDOW_DARK") != null) {
+            return ColourScheme.dark();
+        }
+        if (this.gameDirectory == null) {
+            return ColourScheme.red();
+        }
+        Path optionsFile = this.gameDirectory.resolve("options.txt");
+        if (!Files.isRegularFile(optionsFile)) {
+            return ColourScheme.red();
+        }
+        try {
+            List<String> lines = Files.readAllLines(optionsFile, StandardCharsets.UTF_8);
+            for (String line : lines) {
+                int idx = line.indexOf(':');
+                if (idx <= 0) {
+                    continue;
+                }
+                String key = line.substring(0, idx).trim();
+                if (!"darkMojangStudiosBackground".equals(key)) {
+                    continue;
+                }
+                String value = line.substring(idx + 1).trim();
+                return Boolean.parseBoolean(value) ? ColourScheme.dark() : ColourScheme.red();
+            }
+        } catch (IOException ignored) {
+            // fall through to default red scheme
+        }
+        return ColourScheme.red();
+    }
+
+    private record LoadedTexture(int id, int width, int height) {}
+
+    private record Colour(float r, float g, float b) {
+        private Colour withBrightness(float factor) {
+            return new Colour(Math.min(1.0f, r * factor), Math.min(1.0f, g * factor), Math.min(1.0f, b * factor));
+        }
+    }
+
+    private record ColourScheme(Colour background, Colour foreground) {
+        private static ColourScheme red() {
+            return new ColourScheme(new Colour(239.0f / 255.0f, 50.0f / 255.0f, 61.0f / 255.0f), new Colour(1.0f, 1.0f, 1.0f));
+        }
+
+        private static ColourScheme dark() {
+            return new ColourScheme(new Colour(0.0f, 0.0f, 0.0f), new Colour(1.0f, 1.0f, 1.0f));
+        }
+    }
+
+    private record ProgressSample(float progress, boolean indeterminate) {
+        private static ProgressSample capture() {
+            List<ProgressMeter> meters = StartupNotificationManager.getCurrentProgress();
+            for (ProgressMeter meter : meters) {
+                if (meter.steps() > 0) {
+                    return new ProgressSample(Math.max(0.0f, Math.min(1.0f, meter.progress())), false);
+                }
+            }
+            return new ProgressSample(0.0f, true);
+        }
     }
 
 }

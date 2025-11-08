@@ -13,11 +13,12 @@ public class DrippyEarlyWindowBootstrapper implements GraphicsBootstrapper {
 
     @Override
     public String name() {
-        return "drippyearlywindow_bootstrap";
+        return "drippy_early_window_bootstrap";
     }
 
     @Override
     public void bootstrap(String[] arguments) {
+
         if (!FMLConfig.getBoolConfigValue(FMLConfig.ConfigValue.EARLY_WINDOW_CONTROL)) {
             return;
         }
@@ -27,11 +28,13 @@ public class DrippyEarlyWindowBootstrapper implements GraphicsBootstrapper {
             return;
         }
         if (!Objects.equals(currentProvider, "fmlearlywindow")) {
-            LOGGER.debug("Leaving user-selected early window provider {} unchanged", currentProvider);
+            LOGGER.debug("[DRIPPY LOADING SCREEN] Leaving user-selected early window provider {} unchanged.", currentProvider);
             return;
         }
 
         FMLConfig.updateConfig(FMLConfig.ConfigValue.EARLY_WINDOW_PROVIDER, DrippyEarlyWindowProvider.PROVIDER_NAME);
-        LOGGER.info("Configured NeoForge to use the {} early window provider", DrippyEarlyWindowProvider.PROVIDER_NAME);
+        LOGGER.info("[DRIPPY LOADING SCREEN] Configured NeoForge to use the {} early window provider.", DrippyEarlyWindowProvider.PROVIDER_NAME);
+
     }
+
 }
