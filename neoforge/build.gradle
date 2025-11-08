@@ -69,6 +69,24 @@ dependencies {
     compileOnly project(":common")
 }
 
+def earlywindowProject = project(":earlywindow")
+def earlywindowJarProvider = earlywindowProject.tasks.named("jar")
+def earlywindowJarFile = earlywindowJarProvider.flatMap { it.archiveFile }
+
+def copyEarlyWindowJar = { String taskName, String outputDir ->
+    tasks.register(taskName, Copy) {
+        dependsOn earlywindowJarProvider
+        from earlywindowJarFile.map { it.asFile }
+        into rootProject.layout.projectDirectory.dir(outputDir)
+    }
+}
+
+def copyEarlyWindowClient = copyEarlyWindowJar("copyEarlyWindowJarToClientMods", "run_client/mods")
+def copyEarlyWindowServer = copyEarlyWindowJar("copyEarlyWindowJarToServerMods", "run_server/mods")
+
+tasks.named("runClient").configure { dependsOn(copyEarlyWindowClient) }
+tasks.named("runServer").configure { dependsOn(copyEarlyWindowServer) }
+
 // Exclude Fabric Loader from NeoForge
 configurations {
     runtimeClasspath    { exclude group: 'net.fabricmc', module: 'fabric-loader' }
