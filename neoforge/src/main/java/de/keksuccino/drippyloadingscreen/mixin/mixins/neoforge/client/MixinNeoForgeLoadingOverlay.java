@@ -32,7 +32,7 @@ public class MixinNeoForgeLoadingOverlay extends LoadingOverlay {
     @WrapMethod(method = "render")
     private void wrap_NeoForge_render_Drippy(GuiGraphics graphics, int mouseX, int mouseY, float partial, Operation<Void> original) {
 
-        // Render original NeoForge overlay invisible to not break logic and mixins of other mods (but remove any actual rendering via mixins below)
+        // Render original NeoForge overlay to not break logic and mixins of other mods (but remove any actual rendering via mixins below)
         original.call(graphics, mouseX, mouseY, partial);
 
         // Restore render defaults
