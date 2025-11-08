@@ -48,6 +48,8 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
     private boolean running;
     private int windowWidth;
     private int windowHeight;
+    private int baseWindowWidth = 1;
+    private int baseWindowHeight = 1;
     private int framebufferWidth;
     private int framebufferHeight;
     private int windowX;
@@ -100,6 +102,8 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
 
         this.windowWidth = Math.max(1, FMLConfig.getIntConfigValue(FMLConfig.ConfigValue.EARLY_WINDOW_WIDTH));
         this.windowHeight = Math.max(1, FMLConfig.getIntConfigValue(FMLConfig.ConfigValue.EARLY_WINDOW_HEIGHT));
+        this.baseWindowWidth = this.windowWidth;
+        this.baseWindowHeight = this.windowHeight;
 
         GLFW.glfwDefaultWindowHints();
         GLFW.glfwWindowHint(GLFW.GLFW_VISIBLE, GLFW.GLFW_TRUE);
@@ -298,9 +302,10 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
         GL11.glEnable(GL11.GL_BLEND);
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 
+        float uiScale = computeUiScale();
         renderBackgroundLayer();
-        float logoBottom = renderLogoLayer();
-        renderProgressBar(logoBottom);
+        float logoBottom = renderLogoLayer(uiScale);
+        renderProgressBar(logoBottom, uiScale);
 
         GL11.glDisable(GL11.GL_BLEND);
         GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
@@ -331,27 +336,46 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
         drawTexturedQuad(x, y, drawWidth, drawHeight, this.backgroundTexture, 0.0f, 0.0f, 1.0f, 1.0f);
     }
 
-    private float renderLogoLayer() {
+    private float renderLogoLayer(float uiScale) {
+        float scaledOffsetY = this.options.logoOffsetY() * uiScale;
         if (this.logoTexture == null) {
-            return this.windowHeight / 2.0f;
+            return this.windowHeight / 2.0f + scaledOffsetY;
         }
-        float width = this.options.logoWidth() > 0 ? this.options.logoWidth() : this.logoTexture.width();
-        float height = this.options.logoHeight() > 0 ? this.options.logoHeight() : this.logoTexture.height();
-        float x = (this.windowWidth - width) / 2.0f + this.options.logoOffsetX();
+        float baseWidth = this.options.logoWidth() > 0 ? this.options.logoWidth() : this.logoTexture.width();
+        float baseHeight = this.options.logoHeight() > 0 ? this.options.logoHeight() : this.logoTexture.height();
+        float width = Math.max(1.0f, baseWidth * uiScale);
+        float height = Math.max(1.0f, baseHeight * uiScale);
+        float offsetX = this.options.logoOffsetX() * uiScale;
+        float x = (this.windowWidth - width) / 2.0f + offsetX;
         float baseline = this.windowHeight * 0.35f;
-        float y = baseline + this.options.logoOffsetY();
+        float y = baseline + scaledOffsetY;
         drawTexturedQuad(x, y, width, height, this.logoTexture, 0.0f, 0.0f, 1.0f, 1.0f);
         return y + height;
     }
 
-    private void renderProgressBar(float logoBottom) {
+    private void renderProgressBar(float logoBottom, float uiScale) {
         int configuredWidth = Math.max(32, this.options.barWidth());
         int configuredHeight = Math.max(6, this.options.barHeight());
-        float width = Math.min(configuredWidth, this.windowWidth - 40.0f);
-        float height = Math.min(configuredHeight, this.windowHeight / 6.0f);
-        float baseX = (this.windowWidth - width) / 2.0f + this.options.barOffsetX();
-        float defaultY = (logoBottom > 0.0f ? logoBottom + 32.0f : this.windowHeight / 2.0f + 20.0f);
-        float baseY = Math.min(defaultY + this.options.barOffsetY(), this.windowHeight - height - 10.0f);
+        float targetWidth = configuredWidth * uiScale;
+        float targetHeight = configuredHeight * uiScale;
+        float minWidth = 32.0f * uiScale;
+        float minHeight = 6.0f * uiScale;
+        float maxWidth = Math.max(minWidth, this.windowWidth - 40.0f);
+        float maxHeight = Math.max(minHeight, this.windowHeight / 6.0f);
+        float width = Math.max(minWidth, Math.min(targetWidth, maxWidth));
+        float height = Math.max(minHeight, Math.min(targetHeight, maxHeight));
+        float offsetX = this.options.barOffsetX() * uiScale;
+        float offsetY = this.options.barOffsetY() * uiScale;
+        float baseX = (this.windowWidth - width) / 2.0f + offsetX;
+        float spacing = 32.0f * uiScale;
+        float fallbackSpacing = 20.0f * uiScale;
+        float defaultY = (logoBottom > 0.0f ? logoBottom + spacing : this.windowHeight / 2.0f + fallbackSpacing);
+        float minY = 10.0f * uiScale;
+        float maxY = Math.max(minY, this.windowHeight - height - minY);
+        float baseY = clamp(defaultY + offsetY, minY, maxY);
+        float minX = 10.0f * uiScale;
+        float maxX = Math.max(minX, this.windowWidth - width - minX);
+        baseX = clamp(baseX, minX, maxX);
 
         if (this.barBackgroundTexture != null) {
             drawTexturedQuad(baseX, baseY, width, height, this.barBackgroundTexture, 0.0f, 0.0f, 1.0f, 1.0f);
@@ -625,6 +649,22 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
             }
             return new ProgressSample(0.0f, true);
         }
+    }
+
+    private float computeUiScale() {
+        float baseW = Math.max(1.0f, this.baseWindowWidth);
+        float baseH = Math.max(1.0f, this.baseWindowHeight);
+        float scaleX = this.windowWidth / baseW;
+        float scaleY = this.windowHeight / baseH;
+        float scale = Math.min(scaleX, scaleY);
+        return Math.max(0.1f, scale);
+    }
+
+    private static float clamp(float value, float min, float max) {
+        if (max < min) {
+            return min;
+        }
+        return Math.max(min, Math.min(value, max));
     }
 
 }
