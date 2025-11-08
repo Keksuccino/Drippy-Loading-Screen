@@ -1,9 +1,7 @@
 package de.keksuccino.drippyloadingscreen.earlywindow;
 
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
+import java.lang.reflect.Constructor;
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.IntConsumer;
@@ -44,7 +42,7 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
     private final String displayText = DEFAULT_TEXT;
     private Runnable ticker = emptyTick;
     private String glVersion = "3.2";
-    private Method overlayFactory;
+    private Constructor<?> overlayConstructor;
     private Thread renderThread;
     private GLCapabilities renderCapabilities;
 
@@ -194,38 +192,33 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
 
     @Override
     public <T> Supplier<T> loadingOverlay(Supplier<?> mc, Supplier<?> ri, Consumer<Optional<Throwable>> ex, boolean fade) {
-        if (this.overlayFactory == null) {
-            throw new IllegalStateException("NeoForge loading overlay is not available yet");
+        if (this.overlayConstructor == null) {
+            throw new IllegalStateException("Custom loading overlay is not available yet");
         }
-        try {
-            var displayWindow = new DrippyDisplayWindowBridge(this);
-            @SuppressWarnings("unchecked")
-            Supplier<T> supplier = (Supplier<T>) overlayFactory.invoke(null, mc, ri, ex, displayWindow);
-            return supplier;
-        } catch (ReflectiveOperationException e) {
-            throw new IllegalStateException("Failed to create NeoForge loading overlay", e);
-        }
+        return () -> {
+            try {
+                Object overlay = overlayConstructor.newInstance(mc.get(), ri.get(), ex, fade);
+                @SuppressWarnings("unchecked")
+                T castOverlay = (T) overlay;
+                return castOverlay;
+            } catch (ReflectiveOperationException e) {
+                throw new IllegalStateException("Failed to create Drippy loading overlay", e);
+            }
+        };
     }
 
     @Override
     public void updateModuleReads(ModuleLayer layer) {
-        var currentModule = getClass().getModule();
-        layer.findModule("minecraft").ifPresent(currentModule::addReads);
-
-        var neoForgeModule = layer.findModule("neoforge").orElse(null);
-        if (neoForgeModule == null) {
-            LOGGER.warn("NeoForge module was not found when wiring the loading overlay");
-            return;
-        }
-        currentModule.addReads(neoForgeModule);
         try {
-            var overlayClass = Class.forName(neoForgeModule, "net.neoforged.neoforge.client.loading.NeoForgeLoadingOverlay");
-            this.overlayFactory = Arrays.stream(overlayClass.getMethods())
-                    .filter(m -> Modifier.isStatic(m.getModifiers()) && m.getName().equals("newInstance"))
-                    .findFirst()
-                    .orElseThrow(() -> new IllegalStateException("Failed to locate NeoForgeLoadingOverlay#newInstance"));
+            ClassLoader loader = Thread.currentThread().getContextClassLoader();
+            var overlayClass = Class.forName("de.keksuccino.drippyloadingscreen.neoforge.CustomLoadingOverlay", false, loader);
+            var minecraftClass = Class.forName("net.minecraft.client.Minecraft", false, loader);
+            var reloadClass = Class.forName("net.minecraft.server.packs.resources.ReloadInstance", false, loader);
+            @SuppressWarnings("unchecked")
+            Constructor<?> ctor = overlayClass.getConstructor(minecraftClass, reloadClass, Consumer.class, boolean.class);
+            this.overlayConstructor = ctor;
         } catch (Exception e) {
-            throw new IllegalStateException("NeoForge loading overlay class missing", e);
+            throw new IllegalStateException("Custom loading overlay class missing", e);
         }
     }
 
@@ -245,15 +238,4 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
         TinyFileDialogs.tinyfd_messageBox("Drippy Loading Screen", message, "ok", "error", true);
     }
 
-    int overlayLogicalWidth() {
-        return Math.max(1, this.windowWidth);
-    }
-
-    int overlayLogicalHeight() {
-        return Math.max(1, this.windowHeight);
-    }
-
-    String overlayText() {
-        return this.displayText;
-    }
 }
