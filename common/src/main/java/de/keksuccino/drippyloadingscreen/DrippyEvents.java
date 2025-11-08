@@ -31,7 +31,6 @@ public class DrippyEvents {
     @EventListener
     public void onInitOrResizeScreenCompleted(InitOrResizeScreenCompletedEvent e) {
 
-        //TODO übernehmen (if)
         if ((e.getScreen() instanceof TitleScreen) && CustomizationOverlay.isOverlayVisible(e.getScreen())) {
 
             this.drippyMenu = new ContextMenu()
@@ -114,7 +113,7 @@ public class DrippyEvents {
             };
             UIBase.applyDefaultWidgetSkinTo(editButton);
 
-            //2 because MenuBar and DebugOverlay need to be at pos 0 and 1
+            // 2 because MenuBar and DebugOverlay need to be at pos 0 and 1
             e.getWidgets().add(2, editButton);
             this.drippyButton = editButton;
             e.getWidgets().add(2, this.drippyMenu);
@@ -126,7 +125,6 @@ public class DrippyEvents {
     @EventListener(priority = 0) //FM is -1
     public void onScreenRenderPost(RenderScreenEvent.Post e) {
 
-        //TODO übernehmen (if)
         if ((e.getScreen() instanceof TitleScreen) && CustomizationOverlay.isOverlayVisible(e.getScreen())) {
             if (this.drippyButton != null) {
                 this.drippyButton.render(e.getGraphics(), e.getMouseX(), e.getMouseY(), e.getPartial());

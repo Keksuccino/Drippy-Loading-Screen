@@ -243,12 +243,15 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
 
     @Override
     public void updateModuleReads(ModuleLayer layer) {
+        var currentModule = getClass().getModule();
+        layer.findModule("minecraft").ifPresent(currentModule::addReads);
+
         var neoForgeModule = layer.findModule("neoforge").orElse(null);
         if (neoForgeModule == null) {
             LOGGER.warn("NeoForge module was not found when wiring the loading overlay");
             return;
         }
-        getClass().getModule().addReads(neoForgeModule);
+        currentModule.addReads(neoForgeModule);
         try {
             var overlayClass = Class.forName(neoForgeModule, "net.neoforged.neoforge.client.loading.NeoForgeLoadingOverlay");
             this.overlayFactory = Arrays.stream(overlayClass.getMethods())
