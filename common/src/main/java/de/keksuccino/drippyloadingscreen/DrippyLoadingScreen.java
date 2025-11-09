@@ -42,6 +42,8 @@ public class DrippyLoadingScreen {
 
 			EventHandler.INSTANCE.registerListenersOf(new DrippyEvents());
 
+            EventHandler.INSTANCE.registerListenersOf(new Test());
+
 		}
 
 	}

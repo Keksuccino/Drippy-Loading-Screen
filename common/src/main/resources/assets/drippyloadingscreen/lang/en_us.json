@@ -18,5 +18,6 @@
   "drippyloadingscreen.settings.fade_out_loading_screen": "Fade-In/Out Loading Screen: %s",
   "drippyloadingscreen.settings.fade_out_loading_screen.desc": "If the loading screen should fade in and out, just like the Vanilla one.\nNote that it will only fade in when reloading resources.",
   "drippyloadingscreen.settings.wait_for_textures_in_loading": "Wait For Textures in Loading: %s",
-  "drippyloadingscreen.settings.wait_for_textures_in_loading.desc": "If the mod should wait for textures\n in the loading screen to prevent them from\nflickering while reloading resources.\n\nDisable this if you experience freezes."
+  "drippyloadingscreen.settings.wait_for_textures_in_loading.desc": "If the mod should wait for textures\n in the loading screen to prevent them from\nflickering while reloading resources.\n\nDisable this if you experience freezes.",
+  "drippyloadingscreen.screen.early_loading_preview": "Early Loading Preview"
 }
