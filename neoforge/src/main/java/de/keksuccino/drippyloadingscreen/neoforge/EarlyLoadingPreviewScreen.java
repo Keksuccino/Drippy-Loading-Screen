@@ -1,6 +1,7 @@
 package de.keksuccino.drippyloadingscreen.neoforge;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.math.Axis;
 import de.keksuccino.drippyloadingscreen.DrippyLoadingScreen;
 import de.keksuccino.drippyloadingscreen.DrippyUtils;
 import de.keksuccino.drippyloadingscreen.Options;
@@ -53,6 +54,7 @@ public class EarlyLoadingPreviewScreen extends Screen {
     private static final float LOGGER_LINE_HEIGHT = 12.0f;
     private static final float LOGGER_MARGIN = 10.0f;
     private static final float LOGGER_MIN_UI_SCALE = 0.75f;
+    private static final int WATERMARK_PLACEHOLDER_SIZE = 128;
     private static final int LOGGER_MAX_VISIBLE_LINES = 6;
     private static final int LOGGER_MAX_MESSAGE_LENGTH = 256;
     private static final long LOGGER_DEBUG_MESSAGE_INTERVAL_NANOS = 2_000_000_000L;
@@ -232,11 +234,9 @@ public class EarlyLoadingPreviewScreen extends Screen {
     private void renderWatermark(GuiGraphics graphics, RenderMetrics metrics, @Nullable ResourceSupplier<ITexture> supplier, int configuredWidth, int configuredHeight,
                                  int offsetX, int offsetY, WatermarkAnchor anchor, float uiScale) {
         TextureInfo texture = fetchTexture(supplier);
-        if (!texture.isValid()) {
-            return;
-        }
-        int fallbackWidth = texture.width() > 0 ? texture.width() : 1;
-        int fallbackHeight = texture.height() > 0 ? texture.height() : 1;
+        boolean hasTexture = texture.isValid();
+        int fallbackWidth = hasTexture && texture.width() > 0 ? texture.width() : WATERMARK_PLACEHOLDER_SIZE;
+        int fallbackHeight = hasTexture && texture.height() > 0 ? texture.height() : WATERMARK_PLACEHOLDER_SIZE;
         float width = Math.max(1.0f, (configuredWidth > 0 ? configuredWidth : fallbackWidth) * uiScale);
         float height = Math.max(1.0f, (configuredHeight > 0 ? configuredHeight : fallbackHeight) * uiScale);
         float scaledOffsetX = offsetX * uiScale;
@@ -265,7 +265,15 @@ public class EarlyLoadingPreviewScreen extends Screen {
                 y = scaledOffsetY;
             }
         }
-        drawTexture(graphics, texture, metrics.toGui(x), metrics.toGui(y), metrics.toGui(width), metrics.toGui(height));
+        float guiX = metrics.toGui(x);
+        float guiY = metrics.toGui(y);
+        float guiWidth = metrics.toGui(width);
+        float guiHeight = metrics.toGui(height);
+        if (hasTexture) {
+            drawTexture(graphics, texture, guiX, guiY, guiWidth, guiHeight);
+        } else {
+            drawWatermarkPlaceholder(graphics, guiX, guiY, guiWidth, guiHeight);
+        }
     }
 
     private void renderLoggerOverlay(GuiGraphics graphics, RenderMetrics metrics, float uiScale) {
@@ -427,6 +435,35 @@ public class EarlyLoadingPreviewScreen extends Screen {
         graphics.fill(left, bottom - 1, right, bottom, argb);
         graphics.fill(left, top, left + 1, bottom, argb);
         graphics.fill(right - 1, top, right, bottom, argb);
+    }
+
+    private void drawWatermarkPlaceholder(GuiGraphics graphics, float x, float y, float width, float height) {
+        if (width <= 1.0f || height <= 1.0f) {
+            return;
+        }
+        Color faded = this.colorScheme.foreground().withBrightness(0.4f);
+        drawSolidRect(graphics, x, y, width, height, faded, 0.25f);
+        drawOutline(graphics, x, y, width, height, this.colorScheme.foreground(), 0.6f);
+
+        int left = Math.round(x);
+        int top = Math.round(y);
+        int right = Math.max(left + 1, Math.round(x + width));
+        int bottom = Math.max(top + 1, Math.round(y + height));
+        graphics.enableScissor(left, top, right, bottom);
+        graphics.pose().pushPose();
+        graphics.pose().translate(x + width / 2.0f, y + height / 2.0f, 0.0f);
+        graphics.pose().mulPose(Axis.ZP.rotationDegrees(-45.0f));
+        float span = (float) Math.hypot(width, height) + 20.0f;
+        float stripeSpacing = 20.0f;
+        float stripeThickness = 6.0f;
+        int stripeColor = toArgb(this.colorScheme.foreground(), 0.45f);
+        for (float offset = -span; offset <= span; offset += stripeSpacing) {
+            int minX = Math.round(offset - stripeThickness / 2.0f);
+            int maxX = Math.round(offset + stripeThickness / 2.0f);
+            graphics.fill(minX, Math.round(-span), maxX, Math.round(span), stripeColor);
+        }
+        graphics.pose().popPose();
+        graphics.disableScissor();
     }
 
     private TextureInfo resolveLogoTexture() {
