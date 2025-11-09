@@ -26,6 +26,7 @@ import net.ellerton.japng.argb8888.Argb8888Bitmap;
 import net.ellerton.japng.argb8888.Argb8888BitmapSequence;
 import net.ellerton.japng.chunks.PngAnimationControl;
 import net.ellerton.japng.chunks.PngFrameControl;
+import net.ellerton.japng.error.PngException;
 import net.neoforged.fml.loading.FMLConfig;
 import net.neoforged.fml.loading.FMLPaths;
 import net.neoforged.fml.loading.progress.ProgressMeter;
@@ -517,7 +518,7 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
                 return null;
             }
             return uploadApngSequence(sequence);
-        } catch (IOException | RuntimeException ex) {
+        } catch (IOException | RuntimeException | PngException ex) {
             LOGGER.warn("[DRIPPY LOADING SCREEN] Failed to decode APNG texture {}: {}", path, ex.getMessage());
             LOGGER.debug("[DRIPPY LOADING SCREEN] Detailed APNG decode failure for {}", path, ex);
             return null;
