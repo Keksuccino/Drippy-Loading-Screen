@@ -1,5 +1,6 @@
 package de.keksuccino.drippyloadingscreen.earlyloading;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import de.keksuccino.drippyloadingscreen.DrippyLoadingScreen;
 import de.keksuccino.drippyloadingscreen.DrippyUtils;
 import de.keksuccino.drippyloadingscreen.Options;
@@ -99,6 +100,7 @@ public class EarlyLoadingPreviewScreen extends Screen {
 
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        RenderSystem.enableBlend();
         updateProgressMetrics();
         renderBackgroundLayer(graphics);
         float uiScale = computeUiScale();
@@ -290,6 +292,7 @@ public class EarlyLoadingPreviewScreen extends Screen {
         graphics.pose().pushPose();
         graphics.pose().translate(x, y, 0.0f);
         graphics.pose().scale(textScale, textScale, 1.0f);
+        RenderSystem.enableBlend();
         graphics.drawString(this.font, text, 0, 0, toArgb(this.colorScheme.foreground(), alpha), false);
         graphics.pose().popPose();
     }
@@ -346,13 +349,31 @@ public class EarlyLoadingPreviewScreen extends Screen {
         if (end <= start) {
             return;
         }
-        float segmentWidth = width * (end - start);
-        float segmentX = baseX + width * start;
         TextureInfo progressTexture = fetchTexture(this.textureSuppliers.barProgress());
         if (progressTexture.isValid()) {
-            drawTextureSegment(graphics, progressTexture, segmentX, baseY, segmentWidth, height, start, end);
+            drawProgressTextureClipped(graphics, progressTexture, baseX, baseY, width, height, start, end);
         } else {
+            float segmentWidth = width * (end - start);
+            float segmentX = baseX + width * start;
             drawSolidRect(graphics, segmentX, baseY, segmentWidth, height, this.colorScheme.foreground(), 1.0f);
+        }
+    }
+
+    private void drawProgressTextureClipped(GuiGraphics graphics, TextureInfo texture, float baseX, float baseY, float width, float height, float start, float end) {
+        float segmentStart = baseX + width * start;
+        float segmentEnd = baseX + width * end;
+        int clipMinX = Math.round(Math.min(segmentStart, segmentEnd));
+        int clipMaxX = Math.round(Math.max(segmentStart, segmentEnd));
+        int clipMinY = Math.round(baseY);
+        int clipMaxY = Math.round(baseY + height);
+        if (clipMaxX <= clipMinX || clipMaxY <= clipMinY) {
+            return;
+        }
+        graphics.enableScissor(clipMinX, clipMinY, clipMaxX, clipMaxY);
+        try {
+            drawTexture(graphics, texture, baseX, baseY, width, height);
+        } finally {
+            graphics.disableScissor();
         }
     }
 
@@ -364,20 +385,8 @@ public class EarlyLoadingPreviewScreen extends Screen {
         int drawHeight = Math.max(1, Math.round(height));
         int drawX = Math.round(x);
         int drawY = Math.round(y);
-        graphics.blit(texture.location(), drawX, drawY, 0.0f, 0.0f, drawWidth, drawHeight, texture.width(), texture.height());
-    }
-
-    private void drawTextureSegment(GuiGraphics graphics, TextureInfo texture, float x, float y, float width, float height, float start, float end) {
-        int drawWidth = Math.max(1, Math.round(width));
-        int drawHeight = Math.max(1, Math.round(height));
-        int drawX = Math.round(x);
-        int drawY = Math.round(y);
-        int uOffset = Math.max(0, Math.round(start * texture.width()));
-        int uWidth = Math.max(1, Math.round((end - start) * texture.width()));
-        if (uOffset + uWidth > texture.width()) {
-            uWidth = Math.max(1, texture.width() - uOffset);
-        }
-        graphics.blit(texture.location(), drawX, drawY, drawWidth, drawHeight, (float) uOffset, 0.0f, uWidth, texture.height(), texture.width(), texture.height());
+        RenderSystem.enableBlend();
+        graphics.blit(texture.location(), drawX, drawY, 0.0f, 0.0f, drawWidth, drawHeight, drawWidth, drawHeight);
     }
 
     private void drawSolidRect(GuiGraphics graphics, float x, float y, float width, float height, Color color, float alpha) {
@@ -386,6 +395,7 @@ public class EarlyLoadingPreviewScreen extends Screen {
         int top = Math.round(y);
         int right = Math.max(left + 1, Math.round(x + width));
         int bottom = Math.max(top + 1, Math.round(y + height));
+        RenderSystem.enableBlend();
         graphics.fill(left, top, right, bottom, argb);
     }
 
@@ -395,6 +405,7 @@ public class EarlyLoadingPreviewScreen extends Screen {
         int top = Math.round(y);
         int right = Math.max(left + 1, Math.round(x + width));
         int bottom = Math.max(top + 1, Math.round(y + height));
+        RenderSystem.enableBlend();
         graphics.fill(left, top, right, top + 1, argb);
         graphics.fill(left, bottom - 1, right, bottom, argb);
         graphics.fill(left, top, left + 1, bottom, argb);
