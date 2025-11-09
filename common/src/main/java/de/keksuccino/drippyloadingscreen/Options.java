@@ -27,6 +27,32 @@ public class Options extends AbstractOptions {
     public final Option<Integer> earlyLoadingBarPositionOffsetX = new Option<>(config, "early_loading_bar_position_offset_x", 0, "early_loading"); // progress bar is rendered below logo by default
     public final Option<Integer> earlyLoadingBarPositionOffsetY = new Option<>(config, "early_loading_bar_position_offset_y", 50, "early_loading"); // progress bar is rendered below logo by default
 
+    // NEW OPTIONS BELOW !!! IMPLEMENT THESE PLEASE !!!
+    public final Option<Integer> earlyLoadingWindowWidth = new Option<>(config, "early_loading_window_width", -1, "early_loading"); // uses NeoForge's own width setting if -1, otherwise uses this one instead
+    public final Option<Integer> earlyLoadingWindowHeight = new Option<>(config, "early_loading_window_height", -1, "early_loading"); // uses NeoForge's own height setting if -1, otherwise uses this one instead
+    public final Option<Boolean> earlyLoadingHideLogo = new Option<>(config, "early_loading_hide_logo", false, "early_loading"); // if true, the logo in the early loading screen will be hidden
+    public final Option<Boolean> earlyLoadingHideBar = new Option<>(config, "early_loading_hide_bar", false, "early_loading"); // if true, the progress bar in the early loading screen will be hidden
+    public final Option<String> earlyLoadingTopLeftWatermarkTexturePath = new Option<>(config, "early_loading_top_left_watermark_texture_path", "/config/fancymenu/assets/some_image.png", "early_loading"); // supports PNG and APNG; watermark does not render (is invisible) when the input texture is invalid or doesn't exist
+    public final Option<Integer> earlyLoadingTopLeftWatermarkTextureWidth = new Option<>(config, "early_loading_top_left_watermark_width", 100, "early_loading");
+    public final Option<Integer> earlyLoadingTopLeftWatermarkTextureHeight = new Option<>(config, "early_loading_top_left_watermark_height", 100, "early_loading");
+    public final Option<Integer> earlyLoadingTopLeftWatermarkTexturePositionOffsetX = new Option<>(config, "early_loading_top_left_watermark_position_offset_x", 0, "early_loading");
+    public final Option<Integer> earlyLoadingTopLeftWatermarkTexturePositionOffsetY = new Option<>(config, "early_loading_top_left_watermark_position_offset_y", 0, "early_loading");
+    public final Option<String> earlyLoadingTopRightWatermarkTexturePath = new Option<>(config, "early_loading_top_right_watermark_texture_path", "/config/fancymenu/assets/some_image.png", "early_loading"); // supports PNG and APNG; watermark does not render (is invisible) when the input texture is invalid or doesn't exist
+    public final Option<Integer> earlyLoadingTopRightWatermarkTextureWidth = new Option<>(config, "early_loading_top_right_watermark_width", 100, "early_loading");
+    public final Option<Integer> earlyLoadingTopRightWatermarkTextureHeight = new Option<>(config, "early_loading_top_right_watermark_height", 100, "early_loading");
+    public final Option<Integer> earlyLoadingTopRightWatermarkTexturePositionOffsetX = new Option<>(config, "early_loading_top_right_watermark_position_offset_x", 0, "early_loading");
+    public final Option<Integer> earlyLoadingTopRightWatermarkTexturePositionOffsetY = new Option<>(config, "early_loading_top_right_watermark_position_offset_y", 0, "early_loading");
+    public final Option<String> earlyLoadingBottomLeftWatermarkTexturePath = new Option<>(config, "early_loading_bottom_left_watermark_texture_path", "/config/fancymenu/assets/some_image.png", "early_loading"); // supports PNG and APNG; watermark does not render (is invisible) when the input texture is invalid or doesn't exist
+    public final Option<Integer> earlyLoadingBottomLeftWatermarkTextureWidth = new Option<>(config, "early_loading_bottom_left_watermark_width", 100, "early_loading");
+    public final Option<Integer> earlyLoadingBottomLeftWatermarkTextureHeight = new Option<>(config, "early_loading_bottom_left_watermark_height", 100, "early_loading");
+    public final Option<Integer> earlyLoadingBottomLeftWatermarkTexturePositionOffsetX = new Option<>(config, "early_loading_bottom_left_watermark_position_offset_x", 0, "early_loading");
+    public final Option<Integer> earlyLoadingBottomLeftWatermarkTexturePositionOffsetY = new Option<>(config, "early_loading_bottom_left_watermark_position_offset_y", 0, "early_loading");
+    public final Option<String> earlyLoadingBottomRightWatermarkTexturePath = new Option<>(config, "early_loading_bottom_right_watermark_texture_path", "/config/fancymenu/assets/some_image.png", "early_loading"); // supports PNG and APNG; watermark does not render (is invisible) when the input texture is invalid or doesn't exist
+    public final Option<Integer> earlyLoadingBottomRightWatermarkTextureWidth = new Option<>(config, "early_loading_bottom_right_watermark_width", 100, "early_loading");
+    public final Option<Integer> earlyLoadingBottomRightWatermarkTextureHeight = new Option<>(config, "early_loading_bottom_right_watermark_height", 100, "early_loading");
+    public final Option<Integer> earlyLoadingBottomRightWatermarkTexturePositionOffsetX = new Option<>(config, "early_loading_bottom_right_watermark_position_offset_x", 0, "early_loading");
+    public final Option<Integer> earlyLoadingBottomRightWatermarkTexturePositionOffsetY = new Option<>(config, "early_loading_bottom_right_watermark_position_offset_y", 0, "early_loading");
+
     public Options() {
         this.config.syncConfig();
         this.config.clearUnusedValues();
