@@ -28,14 +28,14 @@ public record EarlyLoadingOptions(
                 500,
                 100,
                 0,
-                0,
+                -50,
                 "Minecraft",
                 null,
                 null,
                 400,
                 40,
                 0,
-                0
+                50
         );
     }
 }
