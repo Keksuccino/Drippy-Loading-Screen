@@ -45,7 +45,6 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
     private static final Runnable EMPTY_TICK = () -> {};
     private static final String MOJANG_LOGO_PATH = "assets/minecraft/textures/gui/title/mojangstudios.png";
     private static final float INDETERMINATE_SEGMENT_WIDTH = 0.3f;
-    private static final boolean LOGGER_DEBUG_MODE = true;
     private static final float LOGGER_LINE_HEIGHT = 12.0f;
     private static final float LOGGER_MARGIN = 10.0f;
     private static final int LOGGER_MAX_VISIBLE_LINES = 6;
@@ -53,6 +52,7 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
     private static final int LOGGER_VERTEX_BUFFER_CAPACITY = LOGGER_MAX_MESSAGE_LENGTH * 300;
     private static final float LOGGER_BASE_TEXT_SCALE = 1.35f;
     private static final float LOGGER_MIN_UI_SCALE = 0.75f;
+    private static final boolean LOGGER_DEBUG_MODE = false;
     private static final long LOGGER_DEBUG_MESSAGE_INTERVAL_NANOS = 2_000_000_000L;
     private static final String[] LOGGER_DEBUG_MESSAGE_POOL = {
             "Initializing Drippy Early Window renderer...",
@@ -350,8 +350,8 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
     }
 
     private void renderBackgroundLayer() {
+        drawSolidQuad(0.0f, 0.0f, this.windowWidth, this.windowHeight, this.colorScheme.background(), 1.0f);
         if (this.backgroundTexture == null) {
-            drawSolidQuad(0.0f, 0.0f, this.windowWidth, this.windowHeight, this.colorScheme.background(), 1.0f);
             return;
         }
         float drawWidth = this.windowWidth;
