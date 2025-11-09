@@ -475,7 +475,7 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
     }
 
     private void loadTextures() {
-        this.backgroundTexture = loadUserTexture(this.options.backgroundTexturePath(), false);
+        this.backgroundTexture = loadUserTexture(this.options.backgroundTexturePath(), true);
         this.logoTexture = loadUserTexture(this.options.logoTexturePath(), true);
         if (this.logoTexture == null) {
             this.logoTexture = loadMojangLogoTexture();
