@@ -303,7 +303,12 @@ public class EarlyLoadingPreviewScreen extends Screen {
         }
         graphics.pose().pushPose();
         graphics.pose().translate(metrics.toGui(x), metrics.toGui(y), 0.0f);
-        graphics.pose().scale(textScale, textScale, 1.0f);
+        float guiAdjustedScale = textScale * metrics.guiScaleFactor();
+        if (guiAdjustedScale <= 0.0f) {
+            graphics.pose().popPose();
+            return;
+        }
+        graphics.pose().scale(guiAdjustedScale, guiAdjustedScale, 1.0f);
         RenderSystem.enableBlend();
         graphics.drawString(this.font, text, 0, 0, toArgb(this.colorScheme.foreground(), alpha), false);
         graphics.pose().popPose();
