@@ -67,6 +67,7 @@ public final class EarlyLoadingOptionsLoader {
                 parseInt(values.get("early_loading_window_height"), defaults.windowHeightOverride()),
                 parseBoolean(values.get("early_loading_hide_logo"), defaults.hideLogo()),
                 parseBoolean(values.get("early_loading_hide_bar"), defaults.hideBar()),
+                parseBoolean(values.get("early_loading_hide_logger"), defaults.hideLogger()),
                 sanitizeTextureValue(values.get("early_loading_top_left_watermark_texture_path")),
                 parseInt(values.get("early_loading_top_left_watermark_width"), defaults.topLeftWatermarkWidth()),
                 parseInt(values.get("early_loading_top_left_watermark_height"), defaults.topLeftWatermarkHeight()),

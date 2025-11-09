@@ -6,11 +6,14 @@ import de.keksuccino.drippyloadingscreen.earlywindow.texture.EarlyWindowTextureL
 import de.keksuccino.drippyloadingscreen.earlywindow.texture.EarlyWindowTextureLoader.LoadedTexture;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Consumer;
 import java.util.function.IntConsumer;
 import java.util.function.IntSupplier;
@@ -18,17 +21,20 @@ import java.util.function.LongSupplier;
 import java.util.function.Supplier;
 import net.neoforged.fml.loading.FMLConfig;
 import net.neoforged.fml.loading.FMLPaths;
+import net.neoforged.fml.loading.progress.Message;
 import net.neoforged.fml.loading.progress.ProgressMeter;
 import net.neoforged.fml.loading.progress.StartupNotificationManager;
 import net.neoforged.neoforgespi.earlywindow.ImmediateWindowProvider;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GLCapabilities;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.stb.STBEasyFont;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.util.tinyfd.TinyFileDialogs;
 
@@ -39,6 +45,20 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
     private static final Runnable EMPTY_TICK = () -> {};
     private static final String MOJANG_LOGO_PATH = "assets/minecraft/textures/gui/title/mojangstudios.png";
     private static final float INDETERMINATE_SEGMENT_WIDTH = 0.3f;
+    private static final boolean LOGGER_DEBUG_MODE = false;
+    private static final float LOGGER_LINE_HEIGHT = 12.0f;
+    private static final float LOGGER_MARGIN = 10.0f;
+    private static final int LOGGER_MAX_VISIBLE_LINES = 6;
+    private static final int LOGGER_MAX_MESSAGE_LENGTH = 256;
+    private static final int LOGGER_VERTEX_BUFFER_CAPACITY = LOGGER_MAX_MESSAGE_LENGTH * 300;
+    private static final String[] LOGGER_DEBUG_MESSAGE_POOL = {
+            "Initializing Drippy Early Window renderer...",
+            "Connecting to NeoForge loading pipeline",
+            "Registering FancyMenu compatibility hooks",
+            "Preparing APNG decoder",
+            "Waiting for Minecraft bootstrap",
+            "Completing early window handoff"
+    };
 
     private long window;
     private boolean running;
@@ -70,6 +90,7 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
     private LoadedTexture topRightWatermarkTexture;
     private LoadedTexture bottomLeftWatermarkTexture;
     private LoadedTexture bottomRightWatermarkTexture;
+    private final ByteBuffer loggerVertexBuffer = BufferUtils.createByteBuffer(LOGGER_VERTEX_BUFFER_CAPACITY);
 
     private float displayedProgress;
     private boolean progressIndeterminate;
@@ -317,6 +338,7 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
         float logoBottom = renderLogoLayer(uiScale);
         renderProgressBar(logoBottom, uiScale);
         renderWatermarks(uiScale);
+        renderLoggerOverlay(uiScale);
 
         GL11.glDisable(GL11.GL_BLEND);
         GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
@@ -476,6 +498,99 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
         drawTexturedQuad(x, y, width, height, texture, 0.0f, 0.0f, 1.0f, 1.0f);
     }
 
+    private void renderLoggerOverlay(float uiScale) {
+        if (this.options.hideLogger()) {
+            return;
+        }
+        List<StartupNotificationManager.AgeMessage> rawMessages = collectLoggerMessages();
+        if (rawMessages.isEmpty()) {
+            return;
+        }
+        List<LoggerLine> lines = new ArrayList<>();
+        for (int i = rawMessages.size() - 1; i >= 0; i--) {
+            var ageMessage = rawMessages.get(i);
+            float fade = computeLoggerFade(ageMessage.age(), i);
+            if (fade <= 0.01f) {
+                continue;
+            }
+            String sanitized = sanitizeLogMessage(ageMessage.message().getText());
+            if (sanitized.isEmpty()) {
+                continue;
+            }
+            lines.add(new LoggerLine(sanitized, fade));
+        }
+        if (lines.isEmpty()) {
+            return;
+        }
+        int visible = Math.min(lines.size(), LOGGER_MAX_VISIBLE_LINES);
+        int startIndex = lines.size() - visible;
+        float lineHeight = LOGGER_LINE_HEIGHT * uiScale;
+        float margin = LOGGER_MARGIN * uiScale;
+        float totalHeight = visible * lineHeight;
+        float startY = this.windowHeight - totalHeight - margin;
+        if (startY < margin) {
+            startY = margin;
+        }
+        float x = margin;
+        for (int idx = 0; idx < visible; idx++) {
+            LoggerLine line = lines.get(startIndex + idx);
+            float y = startY + idx * lineHeight;
+            drawLoggerLine(line.text(), x, y, line.alpha());
+        }
+    }
+
+    private void drawLoggerLine(String text, float x, float y, float alpha) {
+        if (text == null || text.isEmpty()) {
+            return;
+        }
+        this.loggerVertexBuffer.clear();
+        int quadCount = STBEasyFont.stb_easy_font_print(x, y, text, null, this.loggerVertexBuffer);
+        if (quadCount <= 0) {
+            return;
+        }
+        this.loggerVertexBuffer.limit(this.loggerVertexBuffer.capacity());
+        this.loggerVertexBuffer.position(0);
+        boolean texturesEnabled = GL11.glIsEnabled(GL11.GL_TEXTURE_2D);
+        GL11.glDisable(GL11.GL_TEXTURE_2D);
+        GL11.glEnableClientState(GL11.GL_VERTEX_ARRAY);
+        GL11.glVertexPointer(2, GL11.GL_FLOAT, 16, this.loggerVertexBuffer);
+        Color foreground = this.colorScheme.foreground();
+        GL11.glColor4f(foreground.r(), foreground.g(), foreground.b(), clamp(alpha, 0.0f, 1.0f));
+        GL11.glDrawArrays(GL11.GL_QUADS, 0, quadCount * 4);
+        GL11.glDisableClientState(GL11.GL_VERTEX_ARRAY);
+        if (texturesEnabled) {
+            GL11.glEnable(GL11.GL_TEXTURE_2D);
+        }
+        GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+    }
+
+    private List<StartupNotificationManager.AgeMessage> collectLoggerMessages() {
+        List<StartupNotificationManager.AgeMessage> messages = new ArrayList<>(StartupNotificationManager.getMessages());
+        if (!LOGGER_DEBUG_MODE) {
+            return messages;
+        }
+        messages.addAll(generateDebugLoggerMessages());
+        return messages;
+    }
+
+    private List<StartupNotificationManager.AgeMessage> generateDebugLoggerMessages() {
+        ThreadLocalRandom random = ThreadLocalRandom.current();
+        List<StartupNotificationManager.AgeMessage> debugMessages = new ArrayList<>();
+        for (String sample : LOGGER_DEBUG_MESSAGE_POOL) {
+            if (random.nextBoolean()) {
+                debugMessages.add(createDebugAgeMessage(sample, random));
+            }
+        }
+        if (debugMessages.isEmpty()) {
+            debugMessages.add(createDebugAgeMessage(LOGGER_DEBUG_MESSAGE_POOL[0], random));
+        }
+        return debugMessages;
+    }
+
+    private StartupNotificationManager.AgeMessage createDebugAgeMessage(String message, ThreadLocalRandom random) {
+        return new StartupNotificationManager.AgeMessage(random.nextInt(250, 4000), new Message(message, null));
+    }
+
     private void drawIndeterminateProgress(float x, float y, float width, float height) {
         float start = this.indeterminateOffset;
         float end = start + INDETERMINATE_SEGMENT_WIDTH;
@@ -628,6 +743,49 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
         }
         return ColorScheme.red();
     }
+
+    private static float computeLoggerFade(int ageMillis, int reverseIndex) {
+        float fade = (4000.0f - ageMillis - (reverseIndex - 4) * 1000.0f) / 5000.0f;
+        return clamp(fade, 0.0f, 1.0f);
+    }
+
+    private static String sanitizeLogMessage(String raw) {
+        if (raw == null) {
+            return "";
+        }
+        String trimmed = raw.strip();
+        if (trimmed.isEmpty()) {
+            return "";
+        }
+        StringBuilder builder = new StringBuilder(Math.min(LOGGER_MAX_MESSAGE_LENGTH, trimmed.length()));
+        boolean truncated = false;
+        for (int i = 0; i < trimmed.length(); i++) {
+            if (builder.length() >= LOGGER_MAX_MESSAGE_LENGTH) {
+                truncated = true;
+                break;
+            }
+            char ch = trimmed.charAt(i);
+            if (ch == '\r' || ch == '\n') {
+                if (builder.length() == 0 || builder.charAt(builder.length() - 1) == ' ') {
+                    continue;
+                }
+                builder.append(' ');
+                continue;
+            }
+            if (ch < 32 || ch > 126) {
+                builder.append('?');
+            } else {
+                builder.append(ch);
+            }
+        }
+        if (truncated && LOGGER_MAX_MESSAGE_LENGTH > 3) {
+            builder.setLength(LOGGER_MAX_MESSAGE_LENGTH - 3);
+            builder.append("...");
+        }
+        return builder.toString();
+    }
+
+    private record LoggerLine(String text, float alpha) {}
 
     private record Color(float r, float g, float b) {
         private Color withBrightness(float factor) {
