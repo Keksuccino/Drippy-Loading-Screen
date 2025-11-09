@@ -45,12 +45,13 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
     private static final Runnable EMPTY_TICK = () -> {};
     private static final String MOJANG_LOGO_PATH = "assets/minecraft/textures/gui/title/mojangstudios.png";
     private static final float INDETERMINATE_SEGMENT_WIDTH = 0.3f;
-    private static final boolean LOGGER_DEBUG_MODE = false;
+    private static final boolean LOGGER_DEBUG_MODE = true;
     private static final float LOGGER_LINE_HEIGHT = 12.0f;
     private static final float LOGGER_MARGIN = 10.0f;
     private static final int LOGGER_MAX_VISIBLE_LINES = 6;
     private static final int LOGGER_MAX_MESSAGE_LENGTH = 256;
     private static final int LOGGER_VERTEX_BUFFER_CAPACITY = LOGGER_MAX_MESSAGE_LENGTH * 300;
+    private static final long LOGGER_DEBUG_MESSAGE_INTERVAL_NANOS = 2_000_000_000L;
     private static final String[] LOGGER_DEBUG_MESSAGE_POOL = {
             "Initializing Drippy Early Window renderer...",
             "Connecting to NeoForge loading pipeline",
@@ -91,6 +92,8 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
     private LoadedTexture bottomLeftWatermarkTexture;
     private LoadedTexture bottomRightWatermarkTexture;
     private final ByteBuffer loggerVertexBuffer = BufferUtils.createByteBuffer(LOGGER_VERTEX_BUFFER_CAPACITY);
+    private final List<DebugLoggerMessage> loggerDebugMessages = new ArrayList<>();
+    private long lastDebugMessageNanos;
 
     private float displayedProgress;
     private boolean progressIndeterminate;
@@ -566,29 +569,35 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
 
     private List<StartupNotificationManager.AgeMessage> collectLoggerMessages() {
         List<StartupNotificationManager.AgeMessage> messages = new ArrayList<>(StartupNotificationManager.getMessages());
-        if (!LOGGER_DEBUG_MODE) {
-            return messages;
+        if (LOGGER_DEBUG_MODE) {
+            injectDebugLoggerMessage();
+            messages.addAll(buildDebugLoggerAgeMessages());
         }
-        messages.addAll(generateDebugLoggerMessages());
         return messages;
     }
 
-    private List<StartupNotificationManager.AgeMessage> generateDebugLoggerMessages() {
+    private void injectDebugLoggerMessage() {
+        long now = System.nanoTime();
+        if ((now - this.lastDebugMessageNanos) < LOGGER_DEBUG_MESSAGE_INTERVAL_NANOS) {
+            return;
+        }
+        this.lastDebugMessageNanos = now;
         ThreadLocalRandom random = ThreadLocalRandom.current();
-        List<StartupNotificationManager.AgeMessage> debugMessages = new ArrayList<>();
-        for (String sample : LOGGER_DEBUG_MESSAGE_POOL) {
-            if (random.nextBoolean()) {
-                debugMessages.add(createDebugAgeMessage(sample, random));
-            }
+        String message = LOGGER_DEBUG_MESSAGE_POOL[random.nextInt(LOGGER_DEBUG_MESSAGE_POOL.length)];
+        this.loggerDebugMessages.add(new DebugLoggerMessage(message, now));
+        if (this.loggerDebugMessages.size() > LOGGER_MAX_VISIBLE_LINES * 2) {
+            this.loggerDebugMessages.remove(0);
         }
-        if (debugMessages.isEmpty()) {
-            debugMessages.add(createDebugAgeMessage(LOGGER_DEBUG_MESSAGE_POOL[0], random));
-        }
-        return debugMessages;
     }
 
-    private StartupNotificationManager.AgeMessage createDebugAgeMessage(String message, ThreadLocalRandom random) {
-        return new StartupNotificationManager.AgeMessage(random.nextInt(250, 4000), new Message(message, null));
+    private List<StartupNotificationManager.AgeMessage> buildDebugLoggerAgeMessages() {
+        long now = System.nanoTime();
+        List<StartupNotificationManager.AgeMessage> debugMessages = new ArrayList<>();
+        for (DebugLoggerMessage message : this.loggerDebugMessages) {
+            int ageMillis = (int) ((now - message.createdAtNanos()) / 1_000_000L);
+            debugMessages.add(new StartupNotificationManager.AgeMessage(ageMillis, new Message(message.text(), null)));
+        }
+        return debugMessages;
     }
 
     private void drawIndeterminateProgress(float x, float y, float width, float height) {
@@ -786,6 +795,8 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
     }
 
     private record LoggerLine(String text, float alpha) {}
+
+    private record DebugLoggerMessage(String text, long createdAtNanos) {}
 
     private record Color(float r, float g, float b) {
         private Color withBrightness(float factor) {
