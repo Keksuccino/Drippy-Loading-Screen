@@ -1,4 +1,4 @@
-package de.keksuccino.drippyloadingscreen.earlyloading;
+package de.keksuccino.drippyloadingscreen.neoforge;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import de.keksuccino.drippyloadingscreen.DrippyLoadingScreen;
