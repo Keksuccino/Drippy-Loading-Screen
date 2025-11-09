@@ -66,6 +66,10 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
     private LoadedTexture logoTexture;
     private LoadedTexture barBackgroundTexture;
     private LoadedTexture barProgressTexture;
+    private LoadedTexture topLeftWatermarkTexture;
+    private LoadedTexture topRightWatermarkTexture;
+    private LoadedTexture bottomLeftWatermarkTexture;
+    private LoadedTexture bottomRightWatermarkTexture;
 
     private float displayedProgress;
     private boolean progressIndeterminate;
@@ -99,10 +103,18 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
             throw new IllegalStateException("[DRIPPY LOADING SCREEN] Failed to initialize GLFW for Drippy early window!");
         }
 
-        this.windowWidth = Math.max(1, FMLConfig.getIntConfigValue(FMLConfig.ConfigValue.EARLY_WINDOW_WIDTH));
-        this.windowHeight = Math.max(1, FMLConfig.getIntConfigValue(FMLConfig.ConfigValue.EARLY_WINDOW_HEIGHT));
-        this.baseWindowWidth = this.windowWidth;
-        this.baseWindowHeight = this.windowHeight;
+        int configuredWidth = Math.max(1, FMLConfig.getIntConfigValue(FMLConfig.ConfigValue.EARLY_WINDOW_WIDTH));
+        int configuredHeight = Math.max(1, FMLConfig.getIntConfigValue(FMLConfig.ConfigValue.EARLY_WINDOW_HEIGHT));
+        if (this.options.windowWidthOverride() != -1) {
+            configuredWidth = Math.max(1, this.options.windowWidthOverride());
+        }
+        if (this.options.windowHeightOverride() != -1) {
+            configuredHeight = Math.max(1, this.options.windowHeightOverride());
+        }
+        this.windowWidth = configuredWidth;
+        this.windowHeight = configuredHeight;
+        this.baseWindowWidth = configuredWidth;
+        this.baseWindowHeight = configuredHeight;
 
         GLFW.glfwDefaultWindowHints();
         GLFW.glfwWindowHint(GLFW.GLFW_VISIBLE, GLFW.GLFW_TRUE);
@@ -304,6 +316,7 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
         renderBackgroundLayer();
         float logoBottom = renderLogoLayer(uiScale);
         renderProgressBar(logoBottom, uiScale);
+        renderWatermarks(uiScale);
 
         GL11.glDisable(GL11.GL_BLEND);
         GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
@@ -336,6 +349,9 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
 
     private float renderLogoLayer(float uiScale) {
         float scaledOffsetY = this.options.logoOffsetY() * uiScale;
+        if (this.options.hideLogo()) {
+            return this.windowHeight / 2.0f + scaledOffsetY;
+        }
         if (this.logoTexture == null) {
             return this.windowHeight / 2.0f + scaledOffsetY;
         }
@@ -352,6 +368,9 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
     }
 
     private void renderProgressBar(float logoBottom, float uiScale) {
+        if (this.options.hideBar()) {
+            return;
+        }
         int configuredWidth = Math.max(32, this.options.barWidth());
         int configuredHeight = Math.max(6, this.options.barHeight());
         float targetWidth = configuredWidth * uiScale;
@@ -387,6 +406,74 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
         } else {
             drawProgressSegment(baseX, baseY, width, height, 0.0f, Math.max(0.0f, Math.min(1.0f, this.displayedProgress)));
         }
+    }
+
+    private void renderWatermarks(float uiScale) {
+        renderWatermark(this.topLeftWatermarkTexture,
+                this.options.topLeftWatermarkWidth(),
+                this.options.topLeftWatermarkHeight(),
+                this.options.topLeftWatermarkOffsetX(),
+                this.options.topLeftWatermarkOffsetY(),
+                WatermarkAnchor.TOP_LEFT,
+                uiScale);
+        renderWatermark(this.topRightWatermarkTexture,
+                this.options.topRightWatermarkWidth(),
+                this.options.topRightWatermarkHeight(),
+                this.options.topRightWatermarkOffsetX(),
+                this.options.topRightWatermarkOffsetY(),
+                WatermarkAnchor.TOP_RIGHT,
+                uiScale);
+        renderWatermark(this.bottomLeftWatermarkTexture,
+                this.options.bottomLeftWatermarkWidth(),
+                this.options.bottomLeftWatermarkHeight(),
+                this.options.bottomLeftWatermarkOffsetX(),
+                this.options.bottomLeftWatermarkOffsetY(),
+                WatermarkAnchor.BOTTOM_LEFT,
+                uiScale);
+        renderWatermark(this.bottomRightWatermarkTexture,
+                this.options.bottomRightWatermarkWidth(),
+                this.options.bottomRightWatermarkHeight(),
+                this.options.bottomRightWatermarkOffsetX(),
+                this.options.bottomRightWatermarkOffsetY(),
+                WatermarkAnchor.BOTTOM_RIGHT,
+                uiScale);
+    }
+
+    private void renderWatermark(LoadedTexture texture, int configuredWidth, int configuredHeight, int offsetX, int offsetY, WatermarkAnchor anchor, float uiScale) {
+        if (texture == null) {
+            return;
+        }
+        int fallbackWidth = texture.width() > 0 ? texture.width() : 1;
+        int fallbackHeight = texture.height() > 0 ? texture.height() : 1;
+        float width = Math.max(1.0f, (configuredWidth > 0 ? configuredWidth : fallbackWidth) * uiScale);
+        float height = Math.max(1.0f, (configuredHeight > 0 ? configuredHeight : fallbackHeight) * uiScale);
+        float scaledOffsetX = offsetX * uiScale;
+        float scaledOffsetY = offsetY * uiScale;
+        float x;
+        float y;
+        switch (anchor) {
+            case TOP_LEFT -> {
+                x = scaledOffsetX;
+                y = scaledOffsetY;
+            }
+            case TOP_RIGHT -> {
+                x = this.windowWidth - width + scaledOffsetX;
+                y = scaledOffsetY;
+            }
+            case BOTTOM_LEFT -> {
+                x = scaledOffsetX;
+                y = this.windowHeight - height + scaledOffsetY;
+            }
+            case BOTTOM_RIGHT -> {
+                x = this.windowWidth - width + scaledOffsetX;
+                y = this.windowHeight - height + scaledOffsetY;
+            }
+            default -> {
+                x = scaledOffsetX;
+                y = scaledOffsetY;
+            }
+        }
+        drawTexturedQuad(x, y, width, height, texture, 0.0f, 0.0f, 1.0f, 1.0f);
     }
 
     private void drawIndeterminateProgress(float x, float y, float width, float height) {
@@ -466,6 +553,10 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
         }
         this.barBackgroundTexture = this.textureLoader.loadUserTexture(this.options.barBackgroundTexturePath(), true);
         this.barProgressTexture = this.textureLoader.loadUserTexture(this.options.barProgressTexturePath(), true);
+        this.topLeftWatermarkTexture = this.textureLoader.loadUserTexture(this.options.topLeftWatermarkTexturePath(), true);
+        this.topRightWatermarkTexture = this.textureLoader.loadUserTexture(this.options.topRightWatermarkTexturePath(), true);
+        this.bottomLeftWatermarkTexture = this.textureLoader.loadUserTexture(this.options.bottomLeftWatermarkTexturePath(), true);
+        this.bottomRightWatermarkTexture = this.textureLoader.loadUserTexture(this.options.bottomRightWatermarkTexturePath(), true);
     }
 
     private void cleanupTextures() {
@@ -473,6 +564,10 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
         deleteTexture(this.logoTexture);
         deleteTexture(this.barBackgroundTexture);
         deleteTexture(this.barProgressTexture);
+        deleteTexture(this.topLeftWatermarkTexture);
+        deleteTexture(this.topRightWatermarkTexture);
+        deleteTexture(this.bottomLeftWatermarkTexture);
+        deleteTexture(this.bottomRightWatermarkTexture);
     }
 
     private void deleteTexture(LoadedTexture texture) {
@@ -560,6 +655,13 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
             }
             return new ProgressSample(0.0f, true);
         }
+    }
+
+    private enum WatermarkAnchor {
+        TOP_LEFT,
+        TOP_RIGHT,
+        BOTTOM_LEFT,
+        BOTTOM_RIGHT
     }
 
     private float computeUiScale() {

@@ -26,8 +26,6 @@ public class Options extends AbstractOptions {
     public final Option<Integer> earlyLoadingBarHeight = new Option<>(config, "early_loading_bar_height", 40, "early_loading");
     public final Option<Integer> earlyLoadingBarPositionOffsetX = new Option<>(config, "early_loading_bar_position_offset_x", 0, "early_loading"); // progress bar is rendered below logo by default
     public final Option<Integer> earlyLoadingBarPositionOffsetY = new Option<>(config, "early_loading_bar_position_offset_y", 50, "early_loading"); // progress bar is rendered below logo by default
-
-    // NEW OPTIONS BELOW !!! IMPLEMENT THESE PLEASE !!!
     public final Option<Integer> earlyLoadingWindowWidth = new Option<>(config, "early_loading_window_width", -1, "early_loading"); // uses NeoForge's own width setting if -1, otherwise uses this one instead
     public final Option<Integer> earlyLoadingWindowHeight = new Option<>(config, "early_loading_window_height", -1, "early_loading"); // uses NeoForge's own height setting if -1, otherwise uses this one instead
     public final Option<Boolean> earlyLoadingHideLogo = new Option<>(config, "early_loading_hide_logo", false, "early_loading"); // if true, the logo in the early loading screen will be hidden
@@ -52,6 +50,7 @@ public class Options extends AbstractOptions {
     public final Option<Integer> earlyLoadingBottomRightWatermarkTextureHeight = new Option<>(config, "early_loading_bottom_right_watermark_height", 100, "early_loading");
     public final Option<Integer> earlyLoadingBottomRightWatermarkTexturePositionOffsetX = new Option<>(config, "early_loading_bottom_right_watermark_position_offset_x", 0, "early_loading");
     public final Option<Integer> earlyLoadingBottomRightWatermarkTexturePositionOffsetY = new Option<>(config, "early_loading_bottom_right_watermark_position_offset_y", 0, "early_loading");
+    public final Option<Boolean> earlyLoadingHideLogger = new Option<>(config, "early_loading_hide_logger", false, "early_loading");
 
     public Options() {
         this.config.syncConfig();

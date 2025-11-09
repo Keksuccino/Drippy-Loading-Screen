@@ -62,7 +62,31 @@ public final class EarlyLoadingOptionsLoader {
                 parseInt(values.get("early_loading_bar_width"), defaults.barWidth()),
                 parseInt(values.get("early_loading_bar_height"), defaults.barHeight()),
                 parseInt(values.get("early_loading_bar_position_offset_x"), defaults.barOffsetX()),
-                parseInt(values.get("early_loading_bar_position_offset_y"), defaults.barOffsetY())
+                parseInt(values.get("early_loading_bar_position_offset_y"), defaults.barOffsetY()),
+                parseInt(values.get("early_loading_window_width"), defaults.windowWidthOverride()),
+                parseInt(values.get("early_loading_window_height"), defaults.windowHeightOverride()),
+                parseBoolean(values.get("early_loading_hide_logo"), defaults.hideLogo()),
+                parseBoolean(values.get("early_loading_hide_bar"), defaults.hideBar()),
+                sanitizeTextureValue(values.get("early_loading_top_left_watermark_texture_path")),
+                parseInt(values.get("early_loading_top_left_watermark_width"), defaults.topLeftWatermarkWidth()),
+                parseInt(values.get("early_loading_top_left_watermark_height"), defaults.topLeftWatermarkHeight()),
+                parseInt(values.get("early_loading_top_left_watermark_position_offset_x"), defaults.topLeftWatermarkOffsetX()),
+                parseInt(values.get("early_loading_top_left_watermark_position_offset_y"), defaults.topLeftWatermarkOffsetY()),
+                sanitizeTextureValue(values.get("early_loading_top_right_watermark_texture_path")),
+                parseInt(values.get("early_loading_top_right_watermark_width"), defaults.topRightWatermarkWidth()),
+                parseInt(values.get("early_loading_top_right_watermark_height"), defaults.topRightWatermarkHeight()),
+                parseInt(values.get("early_loading_top_right_watermark_position_offset_x"), defaults.topRightWatermarkOffsetX()),
+                parseInt(values.get("early_loading_top_right_watermark_position_offset_y"), defaults.topRightWatermarkOffsetY()),
+                sanitizeTextureValue(values.get("early_loading_bottom_left_watermark_texture_path")),
+                parseInt(values.get("early_loading_bottom_left_watermark_width"), defaults.bottomLeftWatermarkWidth()),
+                parseInt(values.get("early_loading_bottom_left_watermark_height"), defaults.bottomLeftWatermarkHeight()),
+                parseInt(values.get("early_loading_bottom_left_watermark_position_offset_x"), defaults.bottomLeftWatermarkOffsetX()),
+                parseInt(values.get("early_loading_bottom_left_watermark_position_offset_y"), defaults.bottomLeftWatermarkOffsetY()),
+                sanitizeTextureValue(values.get("early_loading_bottom_right_watermark_texture_path")),
+                parseInt(values.get("early_loading_bottom_right_watermark_width"), defaults.bottomRightWatermarkWidth()),
+                parseInt(values.get("early_loading_bottom_right_watermark_height"), defaults.bottomRightWatermarkHeight()),
+                parseInt(values.get("early_loading_bottom_right_watermark_position_offset_x"), defaults.bottomRightWatermarkOffsetX()),
+                parseInt(values.get("early_loading_bottom_right_watermark_position_offset_y"), defaults.bottomRightWatermarkOffsetY())
         );
     }
 
