@@ -18,11 +18,11 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FastColor;
 import net.minecraft.util.Mth;
+import net.neoforged.fml.loading.FMLConfig;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
@@ -545,22 +545,16 @@ public class EarlyLoadingPreviewScreen extends Screen {
         if (this.visualOptions.windowWidthOverride() > 0) {
             return this.visualOptions.windowWidthOverride();
         }
-        Integer configured = EarlyWindowReferenceSize.configWidth();
-        if (configured != null && configured > 0) {
-            return configured;
-        }
-        return DEFAULT_REFERENCE_WIDTH;
+        int configured = FMLConfig.getIntConfigValue(FMLConfig.ConfigValue.EARLY_WINDOW_WIDTH);
+        return configured > 0 ? configured : DEFAULT_REFERENCE_WIDTH;
     }
 
     private float resolveReferenceHeight() {
         if (this.visualOptions.windowHeightOverride() > 0) {
             return this.visualOptions.windowHeightOverride();
         }
-        Integer configured = EarlyWindowReferenceSize.configHeight();
-        if (configured != null && configured > 0) {
-            return configured;
-        }
-        return DEFAULT_REFERENCE_HEIGHT;
+        int configured = FMLConfig.getIntConfigValue(FMLConfig.ConfigValue.EARLY_WINDOW_HEIGHT);
+        return configured > 0 ? configured : DEFAULT_REFERENCE_HEIGHT;
     }
 
     private static String sanitizeLogMessage(@Nullable String raw) {
@@ -631,56 +625,6 @@ public class EarlyLoadingPreviewScreen extends Screen {
     private record RenderMetrics(float absoluteWidth, float absoluteHeight, float guiScaleFactor) {
         private float toGui(float absolute) {
             return absolute * this.guiScaleFactor;
-        }
-    }
-
-    private static final class EarlyWindowReferenceSize {
-        private static final String CONFIG_CLASS = "net.neoforged.fml.loading.FMLConfig";
-        private static final String CONFIG_VALUE_CLASS = "net.neoforged.fml.loading.FMLConfig$ConfigValue";
-        private static final String METHOD_NAME = "getIntConfigValue";
-        private static final String WIDTH_ENUM = "EARLY_WINDOW_WIDTH";
-        private static final String HEIGHT_ENUM = "EARLY_WINDOW_HEIGHT";
-
-        private static Integer cachedWidth;
-        private static Integer cachedHeight;
-        private static boolean widthResolved;
-        private static boolean heightResolved;
-
-        @Nullable
-        private static Integer configWidth() {
-            if (!widthResolved) {
-                cachedWidth = fetchValue(WIDTH_ENUM);
-                widthResolved = true;
-            }
-            return cachedWidth;
-        }
-
-        @Nullable
-        private static Integer configHeight() {
-            if (!heightResolved) {
-                cachedHeight = fetchValue(HEIGHT_ENUM);
-                heightResolved = true;
-            }
-            return cachedHeight;
-        }
-
-        @SuppressWarnings({"rawtypes", "unchecked"})
-        @Nullable
-        private static Integer fetchValue(String enumName) {
-            try {
-                Class<?> enumRaw = Class.forName(CONFIG_VALUE_CLASS);
-                Class<? extends Enum> enumClass = (Class<? extends Enum>) enumRaw.asSubclass(Enum.class);
-                Enum constant = Enum.valueOf(enumClass, enumName);
-                Class<?> configClass = Class.forName(CONFIG_CLASS);
-                Method method = configClass.getMethod(METHOD_NAME, enumRaw);
-                Object value = method.invoke(null, constant);
-                if (value instanceof Number number) {
-                    return number.intValue();
-                }
-            } catch (Throwable ignored) {
-                // NeoForge classes not present (Fabric) or reflection failed.
-            }
-            return null;
         }
     }
 
