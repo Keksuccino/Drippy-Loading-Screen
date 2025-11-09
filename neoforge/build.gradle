@@ -71,7 +71,7 @@ dependencies {
 }
 
 def earlywindowProject = project(":earlywindow")
-def earlywindowJarProvider = earlywindowProject.tasks.named("jar")
+def earlywindowJarProvider = earlywindowProject.tasks.named("shadowJar")
 def earlywindowJarFile = earlywindowJarProvider.flatMap { it.archiveFile }
 
 def copyEarlyWindowJar = { String taskName, String outputDir ->

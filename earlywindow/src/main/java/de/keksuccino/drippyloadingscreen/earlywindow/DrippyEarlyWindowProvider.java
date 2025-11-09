@@ -2,6 +2,7 @@ package de.keksuccino.drippyloadingscreen.earlywindow;
 
 import de.keksuccino.drippyloadingscreen.earlywindow.config.EarlyLoadingOptions;
 import de.keksuccino.drippyloadingscreen.earlywindow.config.EarlyLoadingOptionsLoader;
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
@@ -11,6 +12,8 @@ import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -18,6 +21,11 @@ import java.util.function.IntConsumer;
 import java.util.function.IntSupplier;
 import java.util.function.LongSupplier;
 import java.util.function.Supplier;
+import net.ellerton.japng.Png;
+import net.ellerton.japng.argb8888.Argb8888Bitmap;
+import net.ellerton.japng.argb8888.Argb8888BitmapSequence;
+import net.ellerton.japng.chunks.PngAnimationControl;
+import net.ellerton.japng.chunks.PngFrameControl;
 import net.neoforged.fml.loading.FMLConfig;
 import net.neoforged.fml.loading.FMLPaths;
 import net.neoforged.fml.loading.progress.ProgressMeter;
@@ -43,6 +51,12 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
     private static final Runnable EMPTY_TICK = () -> {};
     private static final String MOJANG_LOGO_PATH = "assets/minecraft/textures/gui/title/mojangstudios.png";
     private static final float INDETERMINATE_SEGMENT_WIDTH = 0.3f;
+    private static final long DEFAULT_FRAME_DURATION_NANOS = 100_000_000L;
+    private static final int APNG_DISPOSE_NONE = 0;
+    private static final int APNG_DISPOSE_BACKGROUND = 1;
+    private static final int APNG_DISPOSE_PREVIOUS = 2;
+    private static final int APNG_BLEND_SOURCE = 0;
+    private static final int APNG_BLEND_OVER = 1;
 
     private long window;
     private boolean running;
@@ -74,6 +88,7 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
     private boolean progressIndeterminate;
     private float indeterminateOffset;
     private long lastProgressSampleNanos;
+    private long currentFrameTimestampNanos;
 
     @Override
     public String name() {
@@ -287,6 +302,7 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
 
     private void drawFrame() {
         updateProgressMetrics();
+        this.currentFrameTimestampNanos = System.nanoTime();
 
         GL11.glViewport(0, 0, this.framebufferWidth, this.framebufferHeight);
         GL11.glDisable(GL11.GL_DEPTH_TEST);
@@ -441,7 +457,8 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
 
     private void drawTexturedQuad(float x, float y, float width, float height, LoadedTexture texture, float u0, float v0, float u1, float v1) {
         GL11.glEnable(GL11.GL_TEXTURE_2D);
-        GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture.id());
+        int textureId = texture.currentTextureId(this.currentFrameTimestampNanos);
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, textureId);
         GL11.glBegin(GL11.GL_QUADS);
         GL11.glTexCoord2f(u0, v0);
         GL11.glVertex2f(x, y);
@@ -457,13 +474,13 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
     }
 
     private void loadTextures() {
-        this.backgroundTexture = loadUserTexture(this.options.backgroundTexturePath());
-        this.logoTexture = loadUserTexture(this.options.logoTexturePath());
+        this.backgroundTexture = loadUserTexture(this.options.backgroundTexturePath(), false);
+        this.logoTexture = loadUserTexture(this.options.logoTexturePath(), true);
         if (this.logoTexture == null) {
             this.logoTexture = loadMojangLogoTexture();
         }
-        this.barBackgroundTexture = loadUserTexture(this.options.barBackgroundTexturePath());
-        this.barProgressTexture = loadUserTexture(this.options.barProgressTexturePath());
+        this.barBackgroundTexture = loadUserTexture(this.options.barBackgroundTexturePath(), true);
+        this.barProgressTexture = loadUserTexture(this.options.barProgressTexturePath(), true);
     }
 
     private void cleanupTextures() {
@@ -475,16 +492,195 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
 
     private void deleteTexture(LoadedTexture texture) {
         if (texture != null) {
-            GL11.glDeleteTextures(texture.id());
+            texture.delete();
         }
     }
 
-    private LoadedTexture loadUserTexture(String configuredPath) {
+    private LoadedTexture loadUserTexture(String configuredPath, boolean supportApng) {
         Path resolved = resolveTexturePath(configuredPath);
         if (resolved == null) {
             return null;
         }
+        if (supportApng) {
+            LoadedTexture animated = loadApngTexture(resolved);
+            if (animated != null) {
+                return animated;
+            }
+        }
         return uploadTextureFromPath(resolved);
+    }
+
+    private LoadedTexture loadApngTexture(Path path) {
+        try (InputStream stream = new BufferedInputStream(Files.newInputStream(path))) {
+            Argb8888BitmapSequence sequence = Png.readArgb8888BitmapSequence(stream);
+            if (sequence == null || !sequence.isAnimated()) {
+                return null;
+            }
+            return uploadApngSequence(sequence);
+        } catch (IOException | RuntimeException ex) {
+            LOGGER.warn("[DRIPPY LOADING SCREEN] Failed to decode APNG texture {}: {}", path, ex.getMessage());
+            LOGGER.debug("[DRIPPY LOADING SCREEN] Detailed APNG decode failure for {}", path, ex);
+            return null;
+        }
+    }
+
+    private LoadedTexture uploadApngSequence(Argb8888BitmapSequence sequence) {
+        int width = Math.max(1, sequence.header.width);
+        int height = Math.max(1, sequence.header.height);
+        List<TextureFrame> frames = new ArrayList<>();
+        int[] working = new int[width * height];
+        if (sequence.hasDefaultImage() && sequence.defaultImage != null) {
+            int[] defaultPixels = sequence.defaultImage.getPixelArray();
+            System.arraycopy(defaultPixels, 0, working, 0, Math.min(defaultPixels.length, working.length));
+            frames.add(createFrameFromPixels(working, width, height, DEFAULT_FRAME_DURATION_NANOS));
+        }
+        List<Argb8888BitmapSequence.Frame> animationFrames = sequence.getAnimationFrames();
+        if (animationFrames == null || animationFrames.isEmpty()) {
+            if (frames.isEmpty()) {
+                return null;
+            }
+            TextureFrame single = frames.get(0);
+            return LoadedTexture.singleFrame(single.textureId(), width, height);
+        }
+        for (Argb8888BitmapSequence.Frame frame : animationFrames) {
+            PngFrameControl control = frame.control;
+            if (control == null || frame.bitmap == null) {
+                continue;
+            }
+            int[] snapshot = control.disposeOp == APNG_DISPOSE_PREVIOUS ? Arrays.copyOf(working, working.length) : null;
+            blendFrameOnto(working, frame.bitmap, control, width, height);
+            long duration = toFrameDurationNanos(control.getDelayMilliseconds());
+            frames.add(createFrameFromPixels(working, width, height, duration));
+            applyDisposal(working, snapshot, control, width, height);
+        }
+        if (frames.isEmpty()) {
+            return null;
+        }
+        if (frames.size() == 1) {
+            TextureFrame single = frames.get(0);
+            return LoadedTexture.singleFrame(single.textureId(), width, height);
+        }
+        int loopCount = extractLoopCount(sequence.getAnimationControl());
+        return LoadedTexture.animated(frames, width, height, loopCount);
+    }
+
+    private void blendFrameOnto(int[] canvas, Argb8888Bitmap bitmap, PngFrameControl control, int canvasWidth, int canvasHeight) {
+        int destX = clampInt(control.xOffset, 0, Math.max(0, canvasWidth - 1));
+        int destY = clampInt(control.yOffset, 0, Math.max(0, canvasHeight - 1));
+        int availableWidth = canvasWidth - destX;
+        int availableHeight = canvasHeight - destY;
+        int copyWidth = Math.min(Math.min(bitmap.getWidth(), control.width), Math.max(0, availableWidth));
+        int copyHeight = Math.min(Math.min(bitmap.getHeight(), control.height), Math.max(0, availableHeight));
+        if (copyWidth <= 0 || copyHeight <= 0) {
+            return;
+        }
+        int[] srcPixels = bitmap.getPixelArray();
+        int srcStride = bitmap.getWidth();
+        boolean blendOver = control.blendOp == APNG_BLEND_OVER;
+        for (int row = 0; row < copyHeight; row++) {
+            int destIndex = (destY + row) * canvasWidth + destX;
+            int srcIndex = row * srcStride;
+            for (int col = 0; col < copyWidth; col++) {
+                int srcPixel = srcPixels[srcIndex + col];
+                if (!blendOver) {
+                    canvas[destIndex + col] = srcPixel;
+                } else {
+                    canvas[destIndex + col] = blendOver(canvas[destIndex + col], srcPixel);
+                }
+            }
+        }
+    }
+
+    private void applyDisposal(int[] canvas, int[] previous, PngFrameControl control, int canvasWidth, int canvasHeight) {
+        if (control.disposeOp == APNG_DISPOSE_NONE) {
+            return;
+        }
+        int destX = clampInt(control.xOffset, 0, Math.max(0, canvasWidth - 1));
+        int destY = clampInt(control.yOffset, 0, Math.max(0, canvasHeight - 1));
+        int regionWidth = Math.min(control.width, Math.max(0, canvasWidth - destX));
+        int regionHeight = Math.min(control.height, Math.max(0, canvasHeight - destY));
+        if (regionWidth <= 0 || regionHeight <= 0) {
+            return;
+        }
+        if (control.disposeOp == APNG_DISPOSE_BACKGROUND) {
+            for (int row = 0; row < regionHeight; row++) {
+                int index = (destY + row) * canvasWidth + destX;
+                Arrays.fill(canvas, index, index + regionWidth, 0);
+            }
+        } else if (control.disposeOp == APNG_DISPOSE_PREVIOUS && previous != null) {
+            for (int row = 0; row < regionHeight; row++) {
+                int index = (destY + row) * canvasWidth + destX;
+                System.arraycopy(previous, index, canvas, index, regionWidth);
+            }
+        }
+    }
+
+    private long toFrameDurationNanos(int delayMs) {
+        long clamped = Math.max(0, delayMs);
+        if (clamped == 0) {
+            return DEFAULT_FRAME_DURATION_NANOS;
+        }
+        return clamped * 1_000_000L;
+    }
+
+    private TextureFrame createFrameFromPixels(int[] pixels, int width, int height, long durationNanos) {
+        int[] snapshot = Arrays.copyOf(pixels, pixels.length);
+        ByteBuffer buffer = toRgbaBuffer(snapshot);
+        try {
+            int textureId = createGlTexture(buffer, width, height);
+            long sanitizedDuration = durationNanos <= 0 ? DEFAULT_FRAME_DURATION_NANOS : durationNanos;
+            return new TextureFrame(textureId, sanitizedDuration);
+        } finally {
+            MemoryUtil.memFree(buffer);
+        }
+    }
+
+    private ByteBuffer toRgbaBuffer(int[] argbPixels) {
+        ByteBuffer buffer = MemoryUtil.memAlloc(argbPixels.length * 4);
+        for (int pixel : argbPixels) {
+            buffer.put((byte) ((pixel >> 16) & 0xFF));
+            buffer.put((byte) ((pixel >> 8) & 0xFF));
+            buffer.put((byte) (pixel & 0xFF));
+            buffer.put((byte) ((pixel >>> 24) & 0xFF));
+        }
+        buffer.flip();
+        return buffer;
+    }
+
+    private int extractLoopCount(PngAnimationControl control) {
+        if (control == null) {
+            return -1;
+        }
+        return control.loopForever() ? -1 : Math.max(1, control.numPlays);
+    }
+
+    private int blendOver(int dstPixel, int srcPixel) {
+        int srcAlpha = (srcPixel >>> 24) & 0xFF;
+        if (srcAlpha == 0) {
+            return dstPixel;
+        }
+        int dstAlpha = (dstPixel >>> 24) & 0xFF;
+        float srcA = srcAlpha / 255.0f;
+        float dstA = dstAlpha / 255.0f;
+        float outA = srcA + dstA * (1.0f - srcA);
+        if (outA <= 0.0f) {
+            return 0;
+        }
+        int srcR = (srcPixel >>> 16) & 0xFF;
+        int srcG = (srcPixel >>> 8) & 0xFF;
+        int srcB = srcPixel & 0xFF;
+        int dstR = (dstPixel >>> 16) & 0xFF;
+        int dstG = (dstPixel >>> 8) & 0xFF;
+        int dstB = dstPixel & 0xFF;
+        int outR = clampChannel((int) Math.round((srcR * srcA + dstR * dstA * (1.0f - srcA)) / outA));
+        int outG = clampChannel((int) Math.round((srcG * srcA + dstG * dstA * (1.0f - srcA)) / outA));
+        int outB = clampChannel((int) Math.round((srcB * srcA + dstB * dstA * (1.0f - srcA)) / outA));
+        int outAlpha = clampChannel((int) Math.round(outA * 255.0f));
+        return (outAlpha << 24) | (outR << 16) | (outG << 8) | outB;
+    }
+
+    private int clampChannel(int value) {
+        return Math.max(0, Math.min(255, value));
     }
 
     private Path resolveTexturePath(String configuredPath) {
@@ -521,19 +717,23 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
                 LOGGER.warn("[DRIPPY LOADING SCREEN] Failed to decode texture {}: {}", path, STBImage.stbi_failure_reason());
                 return null;
             }
-            return uploadTexture(image, width.get(0), height.get(0));
+            try {
+                int textureId = createGlTexture(image, width.get(0), height.get(0));
+                return LoadedTexture.singleFrame(textureId, width.get(0), height.get(0));
+            } finally {
+                STBImage.stbi_image_free(image);
+            }
         }
     }
 
-    private LoadedTexture uploadTexture(ByteBuffer image, int width, int height) {
+    private int createGlTexture(ByteBuffer image, int width, int height) {
         int textureId = GL11.glGenTextures();
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, textureId);
         GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
         GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
         GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA8, width, height, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, image);
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
-        STBImage.stbi_image_free(image);
-        return new LoadedTexture(textureId, width, height);
+        return textureId;
     }
 
     private LoadedTexture loadMojangLogoTexture() {
@@ -564,7 +764,12 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
                 LOGGER.warn("[DRIPPY LOADING SCREEN] Failed to decode texture {}: {}", label, STBImage.stbi_failure_reason());
                 return null;
             }
-            return uploadTexture(image, width.get(0), height.get(0));
+            try {
+                int textureId = createGlTexture(image, width.get(0), height.get(0));
+                return LoadedTexture.singleFrame(textureId, width.get(0), height.get(0));
+            } finally {
+                STBImage.stbi_image_free(image);
+            }
         }
     }
 
@@ -621,7 +826,100 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
         return ColourScheme.red();
     }
 
-    private record LoadedTexture(int id, int width, int height) {}
+    private static final class LoadedTexture {
+        private final TextureFrame[] frames;
+        private final int width;
+        private final int height;
+        private final boolean loopsForever;
+        private final int loopLimit;
+        private final boolean animated;
+        private int currentFrameIndex;
+        private long frameStartedAtNanos;
+        private int completedLoops;
+        private boolean animationFinished;
+
+        private LoadedTexture(TextureFrame[] frames, int width, int height, int loopLimit) {
+            this.frames = frames;
+            this.width = width;
+            this.height = height;
+            this.loopLimit = Math.max(0, loopLimit);
+            this.loopsForever = loopLimit <= 0;
+            this.animated = frames.length > 1;
+        }
+
+        private static LoadedTexture singleFrame(int textureId, int width, int height) {
+            return new LoadedTexture(new TextureFrame[]{new TextureFrame(textureId, 0L)}, width, height, 0);
+        }
+
+        private static LoadedTexture animated(List<TextureFrame> frameList, int width, int height, int loopLimit) {
+            TextureFrame[] array = frameList.toArray(TextureFrame[]::new);
+            return new LoadedTexture(array, width, height, loopLimit);
+        }
+
+        int width() {
+            return this.width;
+        }
+
+        int height() {
+            return this.height;
+        }
+
+        int currentTextureId(long nowNanos) {
+            if (this.frames.length == 0) {
+                return 0;
+            }
+            if (!this.animated || this.animationFinished) {
+                if (this.frameStartedAtNanos == 0L) {
+                    this.frameStartedAtNanos = nowNanos;
+                }
+                return this.frames[this.currentFrameIndex].textureId();
+            }
+            if (this.frameStartedAtNanos == 0L) {
+                this.frameStartedAtNanos = nowNanos;
+                return this.frames[this.currentFrameIndex].textureId();
+            }
+            long frameDuration = frameDuration(this.frames[this.currentFrameIndex]);
+            while ((nowNanos - this.frameStartedAtNanos) >= frameDuration && !this.animationFinished) {
+                this.frameStartedAtNanos += frameDuration;
+                advanceFrame();
+                frameDuration = frameDuration(this.frames[this.currentFrameIndex]);
+            }
+            return this.frames[this.currentFrameIndex].textureId();
+        }
+
+        private long frameDuration(TextureFrame frame) {
+            long duration = frame.durationNanos();
+            return duration <= 0 ? DEFAULT_FRAME_DURATION_NANOS : duration;
+        }
+
+        private void advanceFrame() {
+            if (this.frames.length <= 1) {
+                return;
+            }
+            this.currentFrameIndex++;
+            if (this.currentFrameIndex >= this.frames.length) {
+                if (this.loopsForever) {
+                    this.currentFrameIndex = 0;
+                } else {
+                    this.completedLoops++;
+                    if (this.completedLoops >= this.loopLimit) {
+                        this.animationFinished = true;
+                        this.currentFrameIndex = this.frames.length - 1;
+                    } else {
+                        this.currentFrameIndex = 0;
+                    }
+                }
+            }
+        }
+
+        void delete() {
+            for (TextureFrame frame : this.frames) {
+                GL11.glDeleteTextures(frame.textureId());
+            }
+        }
+    }
+
+    private record TextureFrame(int textureId, long durationNanos) {}
 
     private record Colour(float r, float g, float b) {
         private Colour withBrightness(float factor) {
@@ -658,6 +956,13 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
         float scaleY = this.windowHeight / baseH;
         float scale = Math.min(scaleX, scaleY);
         return Math.max(0.1f, scale);
+    }
+
+    private static int clampInt(int value, int min, int max) {
+        if (max < min) {
+            return min;
+        }
+        return Math.max(min, Math.min(value, max));
     }
 
     private static float clamp(float value, float min, float max) {
