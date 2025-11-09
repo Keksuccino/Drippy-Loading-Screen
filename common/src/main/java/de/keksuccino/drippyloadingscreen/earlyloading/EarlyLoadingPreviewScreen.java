@@ -5,6 +5,7 @@ import de.keksuccino.drippyloadingscreen.DrippyLoadingScreen;
 import de.keksuccino.drippyloadingscreen.DrippyUtils;
 import de.keksuccino.drippyloadingscreen.Options;
 import de.keksuccino.fancymenu.util.file.type.FileMediaType;
+import de.keksuccino.fancymenu.util.rendering.ui.UIBase;
 import de.keksuccino.fancymenu.util.resource.ResourceSource;
 import de.keksuccino.fancymenu.util.resource.ResourceSourceType;
 import de.keksuccino.fancymenu.util.resource.ResourceSupplier;
@@ -21,6 +22,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
@@ -43,6 +45,9 @@ public class EarlyLoadingPreviewScreen extends Screen {
             "/config/fancymenu/assets/some_bar_progress_image.png"
     };
 
+    private static final int DEFAULT_REFERENCE_WIDTH = 854;
+    private static final int DEFAULT_REFERENCE_HEIGHT = 480;
+
     private static final float INDETERMINATE_SEGMENT_WIDTH = 0.3f;
     private static final float LOGGER_BASE_TEXT_SCALE = 1.35f;
     private static final float LOGGER_LINE_HEIGHT = 12.0f;
@@ -64,8 +69,8 @@ public class EarlyLoadingPreviewScreen extends Screen {
     private final TextureSuppliers textureSuppliers;
     private ColorScheme colorScheme;
 
-    private int baseWidth;
-    private int baseHeight;
+    private float baseWidth;
+    private float baseHeight;
 
     private float displayedProgress;
     private float simulationProgress;
@@ -88,8 +93,8 @@ public class EarlyLoadingPreviewScreen extends Screen {
     @Override
     protected void init() {
         super.init();
-        this.baseWidth = this.visualOptions.windowWidthOverride() > 0 ? this.visualOptions.windowWidthOverride() : Math.max(1, this.width);
-        this.baseHeight = this.visualOptions.windowHeightOverride() > 0 ? this.visualOptions.windowHeightOverride() : Math.max(1, this.height);
+        this.baseWidth = resolveReferenceWidth();
+        this.baseHeight = resolveReferenceHeight();
     }
 
     @Override
@@ -102,12 +107,13 @@ public class EarlyLoadingPreviewScreen extends Screen {
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         RenderSystem.enableBlend();
         updateProgressMetrics();
-        renderBackgroundLayer(graphics);
-        float uiScale = computeUiScale();
-        float logoBottom = renderLogoLayer(graphics, uiScale);
-        renderProgressBar(graphics, logoBottom, uiScale);
-        renderWatermarks(graphics, uiScale);
-        renderLoggerOverlay(graphics, uiScale);
+        RenderMetrics metrics = captureRenderMetrics();
+        renderBackgroundLayer(graphics, metrics);
+        float uiScale = computeUiScale(metrics);
+        float logoBottom = renderLogoLayer(graphics, metrics, uiScale);
+        renderProgressBar(graphics, metrics, logoBottom, uiScale);
+        renderWatermarks(graphics, metrics, uiScale);
+        renderLoggerOverlay(graphics, metrics, uiScale);
         super.render(graphics, mouseX, mouseY, partialTick);
     }
 
@@ -116,108 +122,114 @@ public class EarlyLoadingPreviewScreen extends Screen {
         // Background is fully controlled by render().
     }
 
-    private void renderBackgroundLayer(GuiGraphics graphics) {
+    private void renderBackgroundLayer(GuiGraphics graphics, RenderMetrics metrics) {
         graphics.fill(0, 0, this.width, this.height, toArgb(this.colorScheme.background(), 1.0f));
         TextureInfo background = fetchTexture(this.textureSuppliers.background());
         if (!background.isValid()) {
             return;
         }
-        float drawWidth = this.width;
-        float drawHeight = this.height;
+        float drawWidth = metrics.absoluteWidth();
+        float drawHeight = metrics.absoluteHeight();
         float x = 0.0f;
         float y = 0.0f;
         if (this.visualOptions.backgroundPreserveAspectRatio() && background.width() > 0 && background.height() > 0) {
             float textureRatio = (float) background.width() / (float) background.height();
-            float windowRatio = (float) this.width / (float) this.height;
+            float windowRatio = metrics.absoluteWidth() / metrics.absoluteHeight();
             if (windowRatio > textureRatio) {
-                drawWidth = this.width;
+                drawWidth = metrics.absoluteWidth();
                 drawHeight = drawWidth / textureRatio;
-                y = (this.height - drawHeight) / 2.0f;
+                y = (metrics.absoluteHeight() - drawHeight) / 2.0f;
             } else {
-                drawHeight = this.height;
+                drawHeight = metrics.absoluteHeight();
                 drawWidth = drawHeight * textureRatio;
-                x = (this.width - drawWidth) / 2.0f;
+                x = (metrics.absoluteWidth() - drawWidth) / 2.0f;
             }
         }
-        drawTexture(graphics, background, x, y, drawWidth, drawHeight);
+        drawTexture(graphics, background, metrics.toGui(x), metrics.toGui(y), metrics.toGui(drawWidth), metrics.toGui(drawHeight));
     }
 
-    private float renderLogoLayer(GuiGraphics graphics, float uiScale) {
+    private float renderLogoLayer(GuiGraphics graphics, RenderMetrics metrics, float uiScale) {
         float scaledOffsetY = this.visualOptions.logoOffsetY() * uiScale;
         if (this.visualOptions.hideLogo()) {
-            return this.height / 2.0f + scaledOffsetY;
+            return metrics.absoluteHeight() / 2.0f + scaledOffsetY;
         }
         TextureInfo logoTexture = resolveLogoTexture();
         if (!logoTexture.isValid()) {
-            return this.height / 2.0f + scaledOffsetY;
+            return metrics.absoluteHeight() / 2.0f + scaledOffsetY;
         }
         float baseWidth = this.visualOptions.logoWidth() > 0 ? this.visualOptions.logoWidth() : logoTexture.width();
         float baseHeight = this.visualOptions.logoHeight() > 0 ? this.visualOptions.logoHeight() : logoTexture.height();
         float width = Math.max(1.0f, baseWidth * uiScale);
         float height = Math.max(1.0f, baseHeight * uiScale);
         float offsetX = this.visualOptions.logoOffsetX() * uiScale;
-        float x = (this.width - width) / 2.0f + offsetX;
-        float baseline = this.height * 0.35f;
+        float x = (metrics.absoluteWidth() - width) / 2.0f + offsetX;
+        float baseline = metrics.absoluteHeight() * 0.35f;
         float y = baseline + scaledOffsetY;
-        drawTexture(graphics, logoTexture, x, y, width, height);
+        drawTexture(graphics, logoTexture, metrics.toGui(x), metrics.toGui(y), metrics.toGui(width), metrics.toGui(height));
         return y + height;
     }
 
-    private void renderProgressBar(GuiGraphics graphics, float logoBottom, float uiScale) {
+    private void renderProgressBar(GuiGraphics graphics, RenderMetrics metrics, float logoBottom, float uiScale) {
         if (this.visualOptions.hideBar()) {
             return;
         }
+        float screenWidth = metrics.absoluteWidth();
+        float screenHeight = metrics.absoluteHeight();
         int configuredWidth = Math.max(32, this.visualOptions.barWidth());
         int configuredHeight = Math.max(6, this.visualOptions.barHeight());
         float targetWidth = configuredWidth * uiScale;
         float targetHeight = configuredHeight * uiScale;
         float minWidth = 32.0f * uiScale;
         float minHeight = 6.0f * uiScale;
-        float maxWidth = Math.max(minWidth, this.width - 40.0f);
-        float maxHeight = Math.max(minHeight, this.height / 6.0f);
+        float maxWidth = Math.max(minWidth, screenWidth - 40.0f);
+        float maxHeight = Math.max(minHeight, screenHeight / 6.0f);
         float width = Mth.clamp(targetWidth, minWidth, maxWidth);
         float height = Mth.clamp(targetHeight, minHeight, maxHeight);
         float offsetX = this.visualOptions.barOffsetX() * uiScale;
         float offsetY = this.visualOptions.barOffsetY() * uiScale;
-        float baseX = (this.width - width) / 2.0f + offsetX;
+        float baseX = (screenWidth - width) / 2.0f + offsetX;
         float spacing = 32.0f * uiScale;
         float fallbackSpacing = 20.0f * uiScale;
-        float defaultY = (logoBottom > 0.0f ? logoBottom + spacing : this.height / 2.0f + fallbackSpacing);
+        float defaultY = (logoBottom > 0.0f ? logoBottom + spacing : screenHeight / 2.0f + fallbackSpacing);
         float minY = 10.0f * uiScale;
-        float maxY = Math.max(minY, this.height - height - minY);
+        float maxY = Math.max(minY, screenHeight - height - minY);
         float baseY = Mth.clamp(defaultY + offsetY, minY, maxY);
         float minX = 10.0f * uiScale;
-        float maxX = Math.max(minX, this.width - width - minX);
+        float maxX = Math.max(minX, screenWidth - width - minX);
         baseX = Mth.clamp(baseX, minX, maxX);
 
+        float guiBaseX = metrics.toGui(baseX);
+        float guiBaseY = metrics.toGui(baseY);
+        float guiWidth = metrics.toGui(width);
+        float guiHeight = metrics.toGui(height);
         TextureInfo barBackground = fetchTexture(this.textureSuppliers.barBackground());
         if (barBackground.isValid()) {
-            drawTexture(graphics, barBackground, baseX, baseY, width, height);
+            drawTexture(graphics, barBackground, guiBaseX, guiBaseY, guiWidth, guiHeight);
         } else {
-            drawSolidRect(graphics, baseX, baseY, width, height, this.colorScheme.background().withBrightness(0.5f), 0.9f);
-            drawOutline(graphics, baseX, baseY, width, height, this.colorScheme.foreground(), 1.0f);
+            drawSolidRect(graphics, guiBaseX, guiBaseY, guiWidth, guiHeight, this.colorScheme.background().withBrightness(0.5f), 0.9f);
+            drawOutline(graphics, guiBaseX, guiBaseY, guiWidth, guiHeight, this.colorScheme.foreground(), 1.0f);
         }
 
         if (this.progressIndeterminate) {
-            drawIndeterminateProgress(graphics, baseX, baseY, width, height);
+            drawIndeterminateProgress(graphics, guiBaseX, guiBaseY, guiWidth, guiHeight);
         } else {
             float clamped = Mth.clamp(this.displayedProgress, 0.0f, 1.0f);
-            drawProgressSegment(graphics, baseX, baseY, width, height, 0.0f, clamped);
+            drawProgressSegment(graphics, guiBaseX, guiBaseY, guiWidth, guiHeight, 0.0f, clamped);
         }
     }
 
-    private void renderWatermarks(GuiGraphics graphics, float uiScale) {
-        renderWatermark(graphics, this.textureSuppliers.topLeft(), this.visualOptions.topLeftWidth(), this.visualOptions.topLeftHeight(),
+    private void renderWatermarks(GuiGraphics graphics, RenderMetrics metrics, float uiScale) {
+        renderWatermark(graphics, metrics, this.textureSuppliers.topLeft(), this.visualOptions.topLeftWidth(), this.visualOptions.topLeftHeight(),
                 this.visualOptions.topLeftOffsetX(), this.visualOptions.topLeftOffsetY(), WatermarkAnchor.TOP_LEFT, uiScale);
-        renderWatermark(graphics, this.textureSuppliers.topRight(), this.visualOptions.topRightWidth(), this.visualOptions.topRightHeight(),
+        renderWatermark(graphics, metrics, this.textureSuppliers.topRight(), this.visualOptions.topRightWidth(), this.visualOptions.topRightHeight(),
                 this.visualOptions.topRightOffsetX(), this.visualOptions.topRightOffsetY(), WatermarkAnchor.TOP_RIGHT, uiScale);
-        renderWatermark(graphics, this.textureSuppliers.bottomLeft(), this.visualOptions.bottomLeftWidth(), this.visualOptions.bottomLeftHeight(),
+        renderWatermark(graphics, metrics, this.textureSuppliers.bottomLeft(), this.visualOptions.bottomLeftWidth(), this.visualOptions.bottomLeftHeight(),
                 this.visualOptions.bottomLeftOffsetX(), this.visualOptions.bottomLeftOffsetY(), WatermarkAnchor.BOTTOM_LEFT, uiScale);
-        renderWatermark(graphics, this.textureSuppliers.bottomRight(), this.visualOptions.bottomRightWidth(), this.visualOptions.bottomRightHeight(),
+        renderWatermark(graphics, metrics, this.textureSuppliers.bottomRight(), this.visualOptions.bottomRightWidth(), this.visualOptions.bottomRightHeight(),
                 this.visualOptions.bottomRightOffsetX(), this.visualOptions.bottomRightOffsetY(), WatermarkAnchor.BOTTOM_RIGHT, uiScale);
     }
 
-    private void renderWatermark(GuiGraphics graphics, @Nullable ResourceSupplier<ITexture> supplier, int configuredWidth, int configuredHeight,
+    private void renderWatermark(GuiGraphics graphics, RenderMetrics metrics, @Nullable ResourceSupplier<ITexture> supplier, int configuredWidth, int configuredHeight,
                                  int offsetX, int offsetY, WatermarkAnchor anchor, float uiScale) {
         TextureInfo texture = fetchTexture(supplier);
         if (!texture.isValid()) {
@@ -237,26 +249,26 @@ public class EarlyLoadingPreviewScreen extends Screen {
                 y = scaledOffsetY;
             }
             case TOP_RIGHT -> {
-                x = this.width - width + scaledOffsetX;
+                x = metrics.absoluteWidth() - width + scaledOffsetX;
                 y = scaledOffsetY;
             }
             case BOTTOM_LEFT -> {
                 x = scaledOffsetX;
-                y = this.height - height + scaledOffsetY;
+                y = metrics.absoluteHeight() - height + scaledOffsetY;
             }
             case BOTTOM_RIGHT -> {
-                x = this.width - width + scaledOffsetX;
-                y = this.height - height + scaledOffsetY;
+                x = metrics.absoluteWidth() - width + scaledOffsetX;
+                y = metrics.absoluteHeight() - height + scaledOffsetY;
             }
             default -> {
                 x = scaledOffsetX;
                 y = scaledOffsetY;
             }
         }
-        drawTexture(graphics, texture, x, y, width, height);
+        drawTexture(graphics, texture, metrics.toGui(x), metrics.toGui(y), metrics.toGui(width), metrics.toGui(height));
     }
 
-    private void renderLoggerOverlay(GuiGraphics graphics, float uiScale) {
+    private void renderLoggerOverlay(GuiGraphics graphics, RenderMetrics metrics, float uiScale) {
         if (this.visualOptions.hideLogger() || this.font == null) {
             return;
         }
@@ -273,7 +285,7 @@ public class EarlyLoadingPreviewScreen extends Screen {
         float lineHeight = LOGGER_LINE_HEIGHT * textScale;
         float margin = LOGGER_MARGIN * textScale;
         float totalHeight = visible * lineHeight;
-        float startY = this.height - totalHeight - margin;
+        float startY = metrics.absoluteHeight() - totalHeight - margin;
         if (startY < margin) {
             startY = margin;
         }
@@ -281,16 +293,16 @@ public class EarlyLoadingPreviewScreen extends Screen {
         for (int idx = 0; idx < visible; idx++) {
             LoggerLine line = lines.get(startIndex + idx);
             float y = startY + idx * lineHeight;
-            drawLoggerLine(graphics, line.text(), x, y, line.alpha(), textScale);
+            drawLoggerLine(graphics, metrics, line.text(), x, y, line.alpha(), textScale);
         }
     }
 
-    private void drawLoggerLine(GuiGraphics graphics, String text, float x, float y, float alpha, float textScale) {
+    private void drawLoggerLine(GuiGraphics graphics, RenderMetrics metrics, String text, float x, float y, float alpha, float textScale) {
         if (text.isEmpty() || alpha <= 0.0f || this.font == null) {
             return;
         }
         graphics.pose().pushPose();
-        graphics.pose().translate(x, y, 0.0f);
+        graphics.pose().translate(metrics.toGui(x), metrics.toGui(y), 0.0f);
         graphics.pose().scale(textScale, textScale, 1.0f);
         RenderSystem.enableBlend();
         graphics.drawString(this.font, text, 0, 0, toArgb(this.colorScheme.foreground(), alpha), false);
@@ -469,11 +481,11 @@ public class EarlyLoadingPreviewScreen extends Screen {
         }
     }
 
-    private float computeUiScale() {
+    private float computeUiScale(RenderMetrics metrics) {
         float baseW = Math.max(1.0f, this.baseWidth);
         float baseH = Math.max(1.0f, this.baseHeight);
-        float scaleX = this.width / baseW;
-        float scaleY = this.height / baseH;
+        float scaleX = metrics.absoluteWidth() / baseW;
+        float scaleY = metrics.absoluteHeight() / baseH;
         float scale = Math.min(scaleX, scaleY);
         return Math.max(0.1f, scale);
     }
@@ -529,6 +541,28 @@ public class EarlyLoadingPreviewScreen extends Screen {
         return Mth.clamp(fade, 0.0f, 1.0f);
     }
 
+    private float resolveReferenceWidth() {
+        if (this.visualOptions.windowWidthOverride() > 0) {
+            return this.visualOptions.windowWidthOverride();
+        }
+        Integer configured = EarlyWindowReferenceSize.configWidth();
+        if (configured != null && configured > 0) {
+            return configured;
+        }
+        return DEFAULT_REFERENCE_WIDTH;
+    }
+
+    private float resolveReferenceHeight() {
+        if (this.visualOptions.windowHeightOverride() > 0) {
+            return this.visualOptions.windowHeightOverride();
+        }
+        Integer configured = EarlyWindowReferenceSize.configHeight();
+        if (configured != null && configured > 0) {
+            return configured;
+        }
+        return DEFAULT_REFERENCE_HEIGHT;
+    }
+
     private static String sanitizeLogMessage(@Nullable String raw) {
         if (raw == null) {
             return "";
@@ -573,11 +607,81 @@ public class EarlyLoadingPreviewScreen extends Screen {
         return FastColor.ARGB32.color(a, r, g, b);
     }
 
+    private RenderMetrics captureRenderMetrics() {
+        Minecraft minecraft = Minecraft.getInstance();
+        if (minecraft != null && minecraft.getWindow() != null) {
+            float guiFactor = Math.max(UIBase.calculateFixedScale(1.0f), 1.0f / Math.max(1.0f, (float)minecraft.getWindow().getGuiScale()));
+            float absoluteWidth = Math.max(1.0f, minecraft.getWindow().getWidth());
+            float absoluteHeight = Math.max(1.0f, minecraft.getWindow().getHeight());
+            return new RenderMetrics(absoluteWidth, absoluteHeight, guiFactor);
+        }
+        float guiFactor = 1.0f;
+        float absoluteWidth = Math.max(1.0f, this.width);
+        float absoluteHeight = Math.max(1.0f, this.height);
+        return new RenderMetrics(absoluteWidth, absoluteHeight, guiFactor);
+    }
+
     private enum WatermarkAnchor {
         TOP_LEFT,
         TOP_RIGHT,
         BOTTOM_LEFT,
         BOTTOM_RIGHT
+    }
+
+    private record RenderMetrics(float absoluteWidth, float absoluteHeight, float guiScaleFactor) {
+        private float toGui(float absolute) {
+            return absolute * this.guiScaleFactor;
+        }
+    }
+
+    private static final class EarlyWindowReferenceSize {
+        private static final String CONFIG_CLASS = "net.neoforged.fml.loading.FMLConfig";
+        private static final String CONFIG_VALUE_CLASS = "net.neoforged.fml.loading.FMLConfig$ConfigValue";
+        private static final String METHOD_NAME = "getIntConfigValue";
+        private static final String WIDTH_ENUM = "EARLY_WINDOW_WIDTH";
+        private static final String HEIGHT_ENUM = "EARLY_WINDOW_HEIGHT";
+
+        private static Integer cachedWidth;
+        private static Integer cachedHeight;
+        private static boolean widthResolved;
+        private static boolean heightResolved;
+
+        @Nullable
+        private static Integer configWidth() {
+            if (!widthResolved) {
+                cachedWidth = fetchValue(WIDTH_ENUM);
+                widthResolved = true;
+            }
+            return cachedWidth;
+        }
+
+        @Nullable
+        private static Integer configHeight() {
+            if (!heightResolved) {
+                cachedHeight = fetchValue(HEIGHT_ENUM);
+                heightResolved = true;
+            }
+            return cachedHeight;
+        }
+
+        @SuppressWarnings({"rawtypes", "unchecked"})
+        @Nullable
+        private static Integer fetchValue(String enumName) {
+            try {
+                Class<?> enumRaw = Class.forName(CONFIG_VALUE_CLASS);
+                Class<? extends Enum> enumClass = (Class<? extends Enum>) enumRaw.asSubclass(Enum.class);
+                Enum constant = Enum.valueOf(enumClass, enumName);
+                Class<?> configClass = Class.forName(CONFIG_CLASS);
+                Method method = configClass.getMethod(METHOD_NAME, enumRaw);
+                Object value = method.invoke(null, constant);
+                if (value instanceof Number number) {
+                    return number.intValue();
+                }
+            } catch (Throwable ignored) {
+                // NeoForge classes not present (Fabric) or reflection failed.
+            }
+            return null;
+        }
     }
 
     private record TextureInfo(@Nullable ResourceLocation location, int width, int height) {
