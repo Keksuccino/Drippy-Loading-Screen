@@ -51,6 +51,8 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
     private static final int LOGGER_MAX_VISIBLE_LINES = 6;
     private static final int LOGGER_MAX_MESSAGE_LENGTH = 256;
     private static final int LOGGER_VERTEX_BUFFER_CAPACITY = LOGGER_MAX_MESSAGE_LENGTH * 300;
+    private static final float LOGGER_BASE_TEXT_SCALE = 1.35f;
+    private static final float LOGGER_MIN_UI_SCALE = 0.75f;
     private static final long LOGGER_DEBUG_MESSAGE_INTERVAL_NANOS = 2_000_000_000L;
     private static final String[] LOGGER_DEBUG_MESSAGE_POOL = {
             "Initializing Drippy Early Window renderer...",
@@ -527,8 +529,10 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
         }
         int visible = Math.min(lines.size(), LOGGER_MAX_VISIBLE_LINES);
         int startIndex = lines.size() - visible;
-        float lineHeight = LOGGER_LINE_HEIGHT * uiScale;
-        float margin = LOGGER_MARGIN * uiScale;
+        float effectiveUiScale = Math.max(LOGGER_MIN_UI_SCALE, uiScale);
+        float textScale = LOGGER_BASE_TEXT_SCALE * effectiveUiScale;
+        float lineHeight = LOGGER_LINE_HEIGHT * textScale;
+        float margin = LOGGER_MARGIN * textScale;
         float totalHeight = visible * lineHeight;
         float startY = this.windowHeight - totalHeight - margin;
         if (startY < margin) {
@@ -538,16 +542,16 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
         for (int idx = 0; idx < visible; idx++) {
             LoggerLine line = lines.get(startIndex + idx);
             float y = startY + idx * lineHeight;
-            drawLoggerLine(line.text(), x, y, line.alpha());
+            drawLoggerLine(line.text(), x, y, line.alpha(), textScale);
         }
     }
 
-    private void drawLoggerLine(String text, float x, float y, float alpha) {
+    private void drawLoggerLine(String text, float x, float y, float alpha, float textScale) {
         if (text == null || text.isEmpty()) {
             return;
         }
         this.loggerVertexBuffer.clear();
-        int quadCount = STBEasyFont.stb_easy_font_print(x, y, text, null, this.loggerVertexBuffer);
+        int quadCount = STBEasyFont.stb_easy_font_print(0.0f, 0.0f, text, null, this.loggerVertexBuffer);
         if (quadCount <= 0) {
             return;
         }
@@ -555,12 +559,16 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
         this.loggerVertexBuffer.position(0);
         boolean texturesEnabled = GL11.glIsEnabled(GL11.GL_TEXTURE_2D);
         GL11.glDisable(GL11.GL_TEXTURE_2D);
+        GL11.glPushMatrix();
+        GL11.glTranslatef(x, y, 0.0f);
+        GL11.glScalef(textScale, textScale, 1.0f);
         GL11.glEnableClientState(GL11.GL_VERTEX_ARRAY);
         GL11.glVertexPointer(2, GL11.GL_FLOAT, 16, this.loggerVertexBuffer);
         Color foreground = this.colorScheme.foreground();
         GL11.glColor4f(foreground.r(), foreground.g(), foreground.b(), clamp(alpha, 0.0f, 1.0f));
         GL11.glDrawArrays(GL11.GL_QUADS, 0, quadCount * 4);
         GL11.glDisableClientState(GL11.GL_VERTEX_ARRAY);
+        GL11.glPopMatrix();
         if (texturesEnabled) {
             GL11.glEnable(GL11.GL_TEXTURE_2D);
         }
