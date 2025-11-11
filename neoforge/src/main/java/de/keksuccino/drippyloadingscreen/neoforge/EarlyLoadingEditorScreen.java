@@ -321,18 +321,29 @@ public class EarlyLoadingEditorScreen extends Screen {
 
     private void renderElementHoverIndicators(GuiGraphics graphics, double mouseX, double mouseY) {
         int borderColor = UIBase.getUIColorTheme().layout_editor_element_border_color_normal.getColorInt();
-        if (this.logoBounds != null && this.logoBounds.contains(mouseX, mouseY)) {
-            drawEditorHoverBorder(graphics, this.logoBounds, borderColor);
-        } else if (this.progressBarBounds != null && this.progressBarBounds.contains(mouseX, mouseY)) {
-            drawEditorHoverBorder(graphics, this.progressBarBounds, borderColor);
-        } else {
-            for (ElementBounds bounds : this.watermarkBounds.values()) {
-                if (bounds != null && bounds.contains(mouseX, mouseY)) {
-                    drawEditorHoverBorder(graphics, bounds, borderColor);
-                    break;
-                }
-            }
+        drawHoverBorderIfNeeded(graphics, this.logoBounds, this.logoContextMenu, mouseX, mouseY, borderColor);
+        drawHoverBorderIfNeeded(graphics, this.progressBarBounds, this.progressBarContextMenu, mouseX, mouseY, borderColor);
+        for (WatermarkAnchor anchor : WatermarkAnchor.values()) {
+            drawHoverBorderIfNeeded(graphics,
+                    this.watermarkBounds.get(anchor),
+                    this.watermarkContextMenus.get(anchor),
+                    mouseX,
+                    mouseY,
+                    borderColor);
         }
+    }
+
+    private void drawHoverBorderIfNeeded(GuiGraphics graphics, @Nullable ElementBounds bounds, @Nullable ContextMenu menu,
+                                         double mouseX, double mouseY, int argbColor) {
+        if (bounds == null) {
+            return;
+        }
+        boolean hovered = bounds.contains(mouseX, mouseY);
+        boolean menuOpen = menu != null && menu.isOpen();
+        if (!hovered && !menuOpen) {
+            return;
+        }
+        drawEditorHoverBorder(graphics, bounds, argbColor);
     }
 
     private void drawEditorHoverBorder(GuiGraphics graphics, ElementBounds bounds, int argbColor) {
