@@ -1,6 +1,6 @@
 package de.keksuccino.drippyloadingscreen;
 
-import de.keksuccino.drippyloadingscreen.neoforge.EarlyLoadingPreviewScreen;
+import de.keksuccino.drippyloadingscreen.neoforge.EarlyLoadingEditorScreen;
 import de.keksuccino.fancymenu.events.screen.InitOrResizeScreenEvent;
 import de.keksuccino.fancymenu.util.event.acara.EventListener;
 import de.keksuccino.fancymenu.util.rendering.ui.widget.button.ExtendedButton;
@@ -17,13 +17,13 @@ public class TestNeoForge {
     @EventListener
     public void onRenderPost(InitOrResizeScreenEvent.Post e) {
 
-        if (e.getScreen() instanceof TitleScreen) {
-
-            e.addRenderableWidget(new ExtendedButton(60, 60, 200, 20, "Open Early Loading Preview", button -> {
-                Minecraft.getInstance().setScreen(new EarlyLoadingPreviewScreen());
-            }));
-
-        }
+//        if (e.getScreen() instanceof TitleScreen) {
+//
+//            e.addRenderableWidget(new ExtendedButton(60, 60, 200, 20, "Open Early Loading Preview", button -> {
+//                Minecraft.getInstance().setScreen(new EarlyLoadingEditorScreen());
+//            }));
+//
+//        }
 
     }
 

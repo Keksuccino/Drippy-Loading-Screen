@@ -1,9 +1,10 @@
-package de.keksuccino.drippyloadingscreen.earlywindow;
+package de.keksuccino.drippyloadingscreen.earlywindow.window;
 
-import de.keksuccino.drippyloadingscreen.earlywindow.config.EarlyLoadingOptions;
-import de.keksuccino.drippyloadingscreen.earlywindow.config.EarlyLoadingOptionsLoader;
-import de.keksuccino.drippyloadingscreen.earlywindow.texture.EarlyWindowTextureLoader;
-import de.keksuccino.drippyloadingscreen.earlywindow.texture.EarlyWindowTextureLoader.LoadedTexture;
+import de.keksuccino.drippyloadingscreen.earlywindow.window.config.EarlyLoadingOptions;
+import de.keksuccino.drippyloadingscreen.earlywindow.window.config.EarlyLoadingOptionsLoader;
+import de.keksuccino.drippyloadingscreen.earlywindow.window.sync.EarlyWindowReferenceSizeStore;
+import de.keksuccino.drippyloadingscreen.earlywindow.window.texture.EarlyWindowTextureLoader;
+import de.keksuccino.drippyloadingscreen.earlywindow.window.texture.EarlyWindowTextureLoader.LoadedTexture;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.nio.ByteBuffer;
@@ -80,6 +81,7 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
     private GLCapabilities renderCapabilities;
 
     private Path gameDirectory;
+    private Path drippyConfigDirectory;
     private EarlyLoadingOptions options = EarlyLoadingOptions.defaults();
     private ColorScheme colorScheme = ColorScheme.red();
     private EarlyWindowTextureLoader textureLoader;
@@ -113,6 +115,7 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
         this.gameDirectory = FMLPaths.GAMEDIR.get();
         this.textureLoader = new EarlyWindowTextureLoader(this.gameDirectory, DrippyEarlyWindowProvider.class.getClassLoader());
         Path configDir = FMLPaths.CONFIGDIR.get();
+        this.drippyConfigDirectory = configDir.resolve("drippyloadingscreen");
         this.options = new EarlyLoadingOptionsLoader(configDir).load();
         this.effectiveWindowTitle = this.options.windowTitle();
         this.colorScheme = resolveColorScheme();
@@ -141,6 +144,7 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
         this.windowHeight = configuredHeight;
         this.baseWindowWidth = configuredWidth;
         this.baseWindowHeight = configuredHeight;
+        EarlyWindowReferenceSizeStore.persist(this.drippyConfigDirectory, this.baseWindowWidth, this.baseWindowHeight);
 
         GLFW.glfwDefaultWindowHints();
         GLFW.glfwWindowHint(GLFW.GLFW_VISIBLE, GLFW.GLFW_TRUE);

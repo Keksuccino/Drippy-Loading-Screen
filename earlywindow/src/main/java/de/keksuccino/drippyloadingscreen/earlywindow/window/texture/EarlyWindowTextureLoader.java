@@ -1,4 +1,4 @@
-package de.keksuccino.drippyloadingscreen.earlywindow.texture;
+package de.keksuccino.drippyloadingscreen.earlywindow.window.texture;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;

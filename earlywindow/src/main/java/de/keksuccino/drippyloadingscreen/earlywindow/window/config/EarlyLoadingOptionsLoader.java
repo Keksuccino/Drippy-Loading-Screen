@@ -1,4 +1,4 @@
-package de.keksuccino.drippyloadingscreen.earlywindow.config;
+package de.keksuccino.drippyloadingscreen.earlywindow.window.config;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;

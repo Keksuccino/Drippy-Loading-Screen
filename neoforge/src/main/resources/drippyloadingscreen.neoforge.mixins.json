@@ -5,7 +5,8 @@
   "mixins": [
   ],
   "client": [
-    "client.MixinNeoForgeLoadingOverlay"
+    "client.MixinNeoForgeLoadingOverlay",
+    "client.MixinNeoForgeCustomizationOverlayUI"
   ],
   "injectors": {
     "defaultRequire": 1

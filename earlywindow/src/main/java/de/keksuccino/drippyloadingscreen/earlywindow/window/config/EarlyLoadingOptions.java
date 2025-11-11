@@ -1,4 +1,4 @@
-package de.keksuccino.drippyloadingscreen.earlywindow.config;
+package de.keksuccino.drippyloadingscreen.earlywindow.window.config;
 
 /**
  * Immutable view of the subset of Drippy options that are relevant for the early loading window.

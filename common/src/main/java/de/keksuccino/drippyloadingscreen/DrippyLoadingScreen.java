@@ -86,4 +86,12 @@ public class DrippyLoadingScreen {
 		return FileUtils.createDirectory(directory);
 	}
 
+    public static boolean isEarlyLoadingModulePresent() {
+        try {
+            String s = System.getProperty("drippyloadingscreen.earlywindow.session");
+            return (s != null) && !s.isBlank();
+        } catch (Exception ignore) {}
+        return false;
+    }
+
 }

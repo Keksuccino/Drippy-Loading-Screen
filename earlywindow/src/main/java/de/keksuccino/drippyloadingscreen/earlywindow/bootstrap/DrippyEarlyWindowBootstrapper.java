@@ -1,7 +1,9 @@
-package de.keksuccino.drippyloadingscreen.bootstrap;
+package de.keksuccino.drippyloadingscreen.earlywindow.bootstrap;
 
-import de.keksuccino.drippyloadingscreen.earlywindow.DrippyEarlyWindowProvider;
+import de.keksuccino.drippyloadingscreen.earlywindow.window.DrippyEarlyWindowProvider;
 import java.util.Objects;
+import java.util.UUID;
+
 import net.neoforged.fml.loading.FMLConfig;
 import net.neoforged.neoforgespi.earlywindow.GraphicsBootstrapper;
 import org.apache.logging.log4j.LogManager;
@@ -18,6 +20,10 @@ public class DrippyEarlyWindowBootstrapper implements GraphicsBootstrapper {
 
     @Override
     public void bootstrap(String[] arguments) {
+
+        // This is to inform Drippy that the early loading module is present
+        String sessionToken = UUID.randomUUID().toString();
+        System.setProperty("drippyloadingscreen.earlywindow.session", sessionToken);
 
         if (!FMLConfig.getBoolConfigValue(FMLConfig.ConfigValue.EARLY_WINDOW_CONTROL)) {
             return;

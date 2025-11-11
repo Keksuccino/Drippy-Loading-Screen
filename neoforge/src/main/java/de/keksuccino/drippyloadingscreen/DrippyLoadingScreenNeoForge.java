@@ -1,5 +1,6 @@
 package de.keksuccino.drippyloadingscreen;
 
+import de.keksuccino.drippyloadingscreen.neoforge.EarlyLoadingEditorScreen;
 import de.keksuccino.fancymenu.util.event.acara.EventHandler;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
@@ -11,6 +12,8 @@ public class DrippyLoadingScreenNeoForge {
     public DrippyLoadingScreenNeoForge(@NotNull IEventBus eventBus) {
 
         DrippyLoadingScreen.init();
+
+        DrippyEvents.earlyLoadingEditorScreenSupplier = EarlyLoadingEditorScreen::new;
 
         EventHandler.INSTANCE.registerListenersOf(new TestNeoForge());
         

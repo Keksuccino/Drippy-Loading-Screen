@@ -32,17 +32,22 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Properties;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Mirrors the early-window renderer inside an in-game {@link Screen} so users can preview their setup without leaving
- * Minecraft. Rendering intentionally follows {@link de.keksuccino.drippyloadingscreen.earlywindow.DrippyEarlyWindowProvider}.
+ * Minecraft. Rendering intentionally follows {@link de.keksuccino.drippyloadingscreen.earlywindow.window.DrippyEarlyWindowProvider}.
  */
-public class EarlyLoadingPreviewScreen extends Screen {
+public class EarlyLoadingEditorScreen extends Screen {
 
     private static final Logger LOGGER = LogManager.getLogger();
 
@@ -63,6 +68,7 @@ public class EarlyLoadingPreviewScreen extends Screen {
         return name.endsWith(".png") || name.endsWith(".apng");
     };
     private static final FileTypeGroup<ImageFileType> PNG_APNG_FILE_TYPES = FileTypeGroup.of(FileTypes.PNG_IMAGE, FileTypes.APNG_IMAGE);
+    private static final String REFERENCE_SIZE_FILE = "early_window_reference.properties";
 
     private static final int DEFAULT_REFERENCE_WIDTH = 854;
     private static final int DEFAULT_REFERENCE_HEIGHT = 480;
@@ -88,6 +94,9 @@ public class EarlyLoadingPreviewScreen extends Screen {
     private EarlyLoadingVisualOptions visualOptions;
     private TextureSuppliers textureSuppliers;
     private ColorScheme colorScheme;
+    private boolean referenceSizeLoaded;
+    @Nullable
+    private StoredReferenceSize cachedReferenceSize;
 
     private ContextMenu backgroundContextMenu;
     private ContextMenu logoContextMenu;
@@ -113,7 +122,7 @@ public class EarlyLoadingPreviewScreen extends Screen {
     private final List<DebugLoggerMessage> loggerMessages = new ArrayList<>();
     private long lastLoggerMessageNanos;
 
-    public EarlyLoadingPreviewScreen() {
+    public EarlyLoadingEditorScreen() {
         super(TITLE);
         this.visualOptions = EarlyLoadingVisualOptions.from(DrippyLoadingScreen.getOptions());
         this.textureSuppliers = new TextureSuppliers(this.visualOptions);
@@ -571,6 +580,8 @@ public class EarlyLoadingPreviewScreen extends Screen {
                         CommonCycles.cycleEnabledDisabled("drippyloadingscreen.early_loading.context.background.preserve_aspect_ratio", options.earlyLoadingBackgroundPreserveAspectRatio.getValue())
                                 .addCycleListener(value -> applyOptionChange(() -> options.earlyLoadingBackgroundPreserveAspectRatio.setValue(value.getAsBoolean()))));
 
+        menu.addSeparatorEntry("separator_after_image");
+
         ContextMenu windowSizeMenu = new ContextMenu();
         menu.addSubMenuEntry("background_window_size", Component.translatable("drippyloadingscreen.early_loading.context.background.window_size"), windowSizeMenu);
         addIntegerInputEntry(windowSizeMenu, "background_window_width", Component.translatable("drippyloadingscreen.early_loading.context.common.width"), options.earlyLoadingWindowWidth);
@@ -595,6 +606,8 @@ public class EarlyLoadingPreviewScreen extends Screen {
 
         addImageChooserEntry(menu, "logo_set_image", Component.translatable("drippyloadingscreen.early_loading.context.logo.set_image"), options.earlyLoadingLogoTexturePath);
 
+        menu.addSeparatorEntry("separator_after_image");
+
         ContextMenu sizeMenu = new ContextMenu();
         menu.addSubMenuEntry("logo_size", Component.translatable("drippyloadingscreen.early_loading.context.logo.size"), sizeMenu);
         addIntegerInputEntry(sizeMenu, "logo_width", Component.translatable("drippyloadingscreen.early_loading.context.common.width"), options.earlyLoadingLogoWidth);
@@ -604,6 +617,8 @@ public class EarlyLoadingPreviewScreen extends Screen {
         menu.addSubMenuEntry("logo_offset", Component.translatable("drippyloadingscreen.early_loading.context.logo.offset"), offsetMenu);
         addIntegerInputEntry(offsetMenu, "logo_offset_x", Component.translatable("drippyloadingscreen.early_loading.context.common.offset_x"), options.earlyLoadingLogoPositionOffsetX);
         addIntegerInputEntry(offsetMenu, "logo_offset_y", Component.translatable("drippyloadingscreen.early_loading.context.common.offset_y"), options.earlyLoadingLogoPositionOffsetY);
+
+        menu.addSeparatorEntry("separator_after_offset");
 
         menu.addValueCycleEntry("logo_hide",
                         CommonCycles.cycleEnabledDisabled("drippyloadingscreen.early_loading.context.common.hide_element", options.earlyLoadingHideLogo.getValue())
@@ -621,6 +636,8 @@ public class EarlyLoadingPreviewScreen extends Screen {
         addImageChooserEntry(menu, "progress_set_background", Component.translatable("drippyloadingscreen.early_loading.context.progress.set_background"), options.earlyLoadingBarBackgroundTexturePath);
         addImageChooserEntry(menu, "progress_set_progress", Component.translatable("drippyloadingscreen.early_loading.context.progress.set_progress"), options.earlyLoadingBarProgressTexturePath);
 
+        menu.addSeparatorEntry("separator_after_image");
+
         ContextMenu sizeMenu = new ContextMenu();
         menu.addSubMenuEntry("progress_size", Component.translatable("drippyloadingscreen.early_loading.context.progress.size"), sizeMenu);
         addIntegerInputEntry(sizeMenu, "progress_width", Component.translatable("drippyloadingscreen.early_loading.context.common.width"), options.earlyLoadingBarWidth);
@@ -630,6 +647,8 @@ public class EarlyLoadingPreviewScreen extends Screen {
         menu.addSubMenuEntry("progress_offset", Component.translatable("drippyloadingscreen.early_loading.context.progress.offset"), offsetMenu);
         addIntegerInputEntry(offsetMenu, "progress_offset_x", Component.translatable("drippyloadingscreen.early_loading.context.common.offset_x"), options.earlyLoadingBarPositionOffsetX);
         addIntegerInputEntry(offsetMenu, "progress_offset_y", Component.translatable("drippyloadingscreen.early_loading.context.common.offset_y"), options.earlyLoadingBarPositionOffsetY);
+
+        menu.addSeparatorEntry("separator_after_offset");
 
         menu.addValueCycleEntry("progress_hide",
                         CommonCycles.cycleEnabledDisabled("drippyloadingscreen.early_loading.context.common.hide_element", options.earlyLoadingHideBar.getValue())
@@ -647,6 +666,8 @@ public class EarlyLoadingPreviewScreen extends Screen {
         String prefix = anchor.name().toLowerCase(Locale.ROOT);
 
         addImageChooserEntry(menu, prefix + "_set_image", Component.translatable("drippyloadingscreen.early_loading.context.watermark.set_image"), access.texturePath());
+
+        menu.addSeparatorEntry("separator_after_image");
 
         ContextMenu sizeMenu = new ContextMenu();
         menu.addSubMenuEntry(prefix + "_size", Component.translatable("drippyloadingscreen.early_loading.context.watermark.size"), sizeMenu);
@@ -940,6 +961,10 @@ public class EarlyLoadingPreviewScreen extends Screen {
         if (this.visualOptions.windowWidthOverride() > 0) {
             return this.visualOptions.windowWidthOverride();
         }
+        StoredReferenceSize referenceSize = getCachedReferenceSize();
+        if (referenceSize != null && referenceSize.width() > 0) {
+            return referenceSize.width();
+        }
         int configured = FMLConfig.getIntConfigValue(FMLConfig.ConfigValue.EARLY_WINDOW_WIDTH);
         return configured > 0 ? configured : DEFAULT_REFERENCE_WIDTH;
     }
@@ -948,8 +973,66 @@ public class EarlyLoadingPreviewScreen extends Screen {
         if (this.visualOptions.windowHeightOverride() > 0) {
             return this.visualOptions.windowHeightOverride();
         }
+        StoredReferenceSize referenceSize = getCachedReferenceSize();
+        if (referenceSize != null && referenceSize.height() > 0) {
+            return referenceSize.height();
+        }
         int configured = FMLConfig.getIntConfigValue(FMLConfig.ConfigValue.EARLY_WINDOW_HEIGHT);
         return configured > 0 ? configured : DEFAULT_REFERENCE_HEIGHT;
+    }
+
+    @Nullable
+    private StoredReferenceSize getCachedReferenceSize() {
+        if (!this.referenceSizeLoaded) {
+            this.referenceSizeLoaded = true;
+            this.cachedReferenceSize = loadReferenceSizeFromDisk();
+        }
+        return this.cachedReferenceSize;
+    }
+
+    @Nullable
+    private StoredReferenceSize loadReferenceSizeFromDisk() {
+        Path configDir = DrippyLoadingScreen.MOD_DIR.toPath();
+        Path file = configDir.resolve(REFERENCE_SIZE_FILE);
+        if (!Files.isRegularFile(file)) {
+            return null;
+        }
+        Properties props = new Properties();
+        try (InputStream in = Files.newInputStream(file)) {
+            props.load(in);
+        } catch (IOException ex) {
+            LOGGER.debug("[DRIPPY LOADING SCREEN] Failed to read early-window reference size from {}", file, ex);
+            return null;
+        }
+        int width = parseInt(props.getProperty("width"));
+        int height = parseInt(props.getProperty("height"));
+        long timestamp = parseLong(props.getProperty("timestamp"));
+        if (width <= 0 || height <= 0) {
+            return null;
+        }
+        return new StoredReferenceSize(width, height, timestamp);
+    }
+
+    private static int parseInt(@Nullable String raw) {
+        if (raw == null) {
+            return -1;
+        }
+        try {
+            return Integer.parseInt(raw.trim());
+        } catch (NumberFormatException ex) {
+            return -1;
+        }
+    }
+
+    private static long parseLong(@Nullable String raw) {
+        if (raw == null) {
+            return 0L;
+        }
+        try {
+            return Long.parseLong(raw.trim());
+        } catch (NumberFormatException ex) {
+            return 0L;
+        }
     }
 
     private static String sanitizeLogMessage(@Nullable String raw) {
@@ -1056,6 +1139,8 @@ public class EarlyLoadingPreviewScreen extends Screen {
             return new ColorScheme(new Color(0.0f, 0.0f, 0.0f), new Color(1.0f, 1.0f, 1.0f));
         }
     }
+
+    private record StoredReferenceSize(int width, int height, long timestampMillis) {}
 
     private record WatermarkOptionAccess(
             Options.Option<String> texturePath,
