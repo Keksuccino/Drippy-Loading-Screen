@@ -753,7 +753,7 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
         }
         HttpRequest request = HttpRequest.newBuilder(uri)
                 .timeout(WEB_TEXTURE_TIMEOUT)
-                .header("Accept", "image/apng,image/png,image/webp,image/*;q=0.8,*/*;q=0.5")
+                .header("Accept", "image/apng,image/png,image/jpeg,image/gif,image/*;q=0.8,*/*;q=0.5")
                 .GET()
                 .build();
         httpClient().sendAsync(request, HttpResponse.BodyHandlers.ofByteArray())
