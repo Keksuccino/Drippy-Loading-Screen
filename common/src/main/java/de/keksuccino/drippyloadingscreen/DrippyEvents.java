@@ -99,6 +99,8 @@ public class DrippyEvents {
                 @Override
                 public void render(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partial) {
 
+                    this.alpha = 1.0F;
+
                     var m = CustomizationOverlay.getCurrentMenuBarInstance();
                     if ((m == null) || (!m.isUserNavigatingInMenuBar() && !drippyMenu.isUserNavigatingInMenu())) {
                         TooltipHandler.INSTANCE.addTooltip(Tooltip.of(LocalizationUtils.splitLocalizedLines("drippyloadingscreen.edit_loading_screen.desc")).setDefaultStyle().setScale(UIBase.getUIScale()), () -> this.isHovered, false, true);

@@ -91,6 +91,8 @@ public class EarlyLoadingEditorScreen extends Screen {
             "Waiting for Minecraft bootstrap",
             "Completing early window handoff"
     };
+    private static final int RESIZE_HANDLE_SIZE = 8;
+    private static final float MIN_RESIZE_SIZE = 8.0f;
 
     private EarlyLoadingVisualOptions visualOptions;
     private TextureSuppliers textureSuppliers;
@@ -104,10 +106,19 @@ public class EarlyLoadingEditorScreen extends Screen {
     private ContextMenu progressBarContextMenu;
     private final EnumMap<WatermarkAnchor, ContextMenu> watermarkContextMenus = new EnumMap<>(WatermarkAnchor.class);
     private final EnumMap<WatermarkAnchor, ElementBounds> watermarkBounds = new EnumMap<>(WatermarkAnchor.class);
+    private final EnumMap<SelectableElement, ElementGeometry> elementGeometries = new EnumMap<>(SelectableElement.class);
     private final List<ContextMenu> contextMenus = new ArrayList<>();
     private ElementBounds backgroundBounds;
     private ElementBounds logoBounds;
     private ElementBounds progressBarBounds;
+    @Nullable
+    private SelectableElement selectedElement;
+    @Nullable
+    private ResizeSession activeResize;
+    @Nullable
+    private RenderMetrics lastRenderMetrics;
+    private float lastUiScale = 1.0f;
+    private float lastProgressDefaultY;
 
     private float baseWidth;
     private float baseHeight;
@@ -155,15 +166,21 @@ public class EarlyLoadingEditorScreen extends Screen {
         this.logoBounds = null;
         this.progressBarBounds = null;
         this.watermarkBounds.clear();
+        this.elementGeometries.clear();
         updateProgressMetrics();
         RenderMetrics metrics = captureRenderMetrics();
+        this.lastRenderMetrics = metrics;
         renderBackgroundLayer(graphics, metrics);
         float uiScale = computeUiScale(metrics);
+        this.lastUiScale = Math.max(0.001f, uiScale);
         float logoBottom = renderLogoLayer(graphics, metrics, uiScale);
         renderProgressBar(graphics, metrics, logoBottom, uiScale);
         renderWatermarks(graphics, metrics, uiScale);
         renderLoggerOverlay(graphics, metrics, uiScale);
         renderElementHoverIndicators(graphics, mouseX, mouseY);
+        if (this.selectedElement != null && !this.elementGeometries.containsKey(this.selectedElement)) {
+            setSelectedElement(null);
+        }
         super.render(graphics, mouseX, mouseY, partialTick);
     }
 
@@ -177,6 +194,22 @@ public class EarlyLoadingEditorScreen extends Screen {
         if (super.mouseClicked(mouseX, mouseY, button)) {
             return true;
         }
+        if (button == 0) {
+            if (tryBeginResize(mouseX, mouseY)) {
+                return true;
+            }
+            SelectableElement hit = hitTestElement(mouseX, mouseY);
+            if (hit != null) {
+                setSelectedElement(hit);
+                if (!isAnyContextMenuHovered()) {
+                    closeAllContextMenus();
+                }
+                return true;
+            }
+            if (this.selectedElement != null) {
+                setSelectedElement(null);
+            }
+        }
         if (button == 1 && openContextMenuAt(mouseX, mouseY)) {
             return true;
         }
@@ -184,6 +217,24 @@ public class EarlyLoadingEditorScreen extends Screen {
             closeAllContextMenus();
         }
         return false;
+    }
+
+    @Override
+    public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
+        if (this.activeResize != null && button == 0) {
+            handleResizeDrag(mouseX, mouseY);
+            return true;
+        }
+        return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+    }
+
+    @Override
+    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+        if (button == 0 && this.activeResize != null) {
+            this.activeResize = null;
+            return true;
+        }
+        return super.mouseReleased(mouseX, mouseY, button);
     }
 
     @Override
@@ -237,6 +288,7 @@ public class EarlyLoadingEditorScreen extends Screen {
         float guiWidth = metrics.toGui(width);
         float guiHeight = metrics.toGui(height);
         this.logoBounds = new ElementBounds(guiX, guiY, guiWidth, guiHeight);
+        registerElementGeometry(SelectableElement.LOGO, this.logoBounds, x, y, width, height);
         if (this.visualOptions.hideLogo()) {
             drawPlaceholderOverlay(graphics, guiX, guiY, guiWidth, guiHeight);
             return y + height;
@@ -271,6 +323,7 @@ public class EarlyLoadingEditorScreen extends Screen {
         float spacing = 32.0f * uiScale;
         float fallbackSpacing = 20.0f * uiScale;
         float defaultY = (logoBottom > 0.0f ? logoBottom + spacing : screenHeight / 2.0f + fallbackSpacing);
+        this.lastProgressDefaultY = defaultY;
         float minY = 10.0f * uiScale;
         float maxY = Math.max(minY, screenHeight - height - minY);
         float baseY = Mth.clamp(defaultY + offsetY, minY, maxY);
@@ -283,6 +336,7 @@ public class EarlyLoadingEditorScreen extends Screen {
         float guiWidth = metrics.toGui(width);
         float guiHeight = metrics.toGui(height);
         this.progressBarBounds = new ElementBounds(guiBaseX, guiBaseY, guiWidth, guiHeight);
+        registerElementGeometry(SelectableElement.PROGRESS_BAR, this.progressBarBounds, baseX, baseY, width, height);
         if (this.visualOptions.hideBar()) {
             drawPlaceholderOverlay(graphics, guiBaseX, guiBaseY, guiWidth, guiHeight);
             return;
@@ -320,30 +374,29 @@ public class EarlyLoadingEditorScreen extends Screen {
     }
 
     private void renderElementHoverIndicators(GuiGraphics graphics, double mouseX, double mouseY) {
-        int borderColor = UIBase.getUIColorTheme().layout_editor_element_border_color_normal.getColorInt();
-        drawHoverBorderIfNeeded(graphics, this.logoBounds, this.logoContextMenu, mouseX, mouseY, borderColor);
-        drawHoverBorderIfNeeded(graphics, this.progressBarBounds, this.progressBarContextMenu, mouseX, mouseY, borderColor);
-        for (WatermarkAnchor anchor : WatermarkAnchor.values()) {
-            drawHoverBorderIfNeeded(graphics,
-                    this.watermarkBounds.get(anchor),
-                    this.watermarkContextMenus.get(anchor),
-                    mouseX,
-                    mouseY,
-                    borderColor);
-        }
-    }
-
-    private void drawHoverBorderIfNeeded(GuiGraphics graphics, @Nullable ElementBounds bounds, @Nullable ContextMenu menu,
-                                         double mouseX, double mouseY, int argbColor) {
-        if (bounds == null) {
+        if (this.elementGeometries.isEmpty()) {
             return;
         }
-        boolean hovered = bounds.contains(mouseX, mouseY);
-        boolean menuOpen = menu != null && menu.isOpen();
-        if (!hovered && !menuOpen) {
-            return;
+        int hoverColor = UIBase.getUIColorTheme().layout_editor_element_border_color_normal.getColorInt();
+        int selectedColor = UIBase.getUIColorTheme().layout_editor_element_border_color_selected.getColorInt();
+        for (SelectableElement element : SelectableElement.values()) {
+            ElementGeometry geometry = this.elementGeometries.get(element);
+            if (geometry == null) {
+                continue;
+            }
+            boolean isSelected = element == this.selectedElement;
+            boolean hovered = geometry.bounds().contains(mouseX, mouseY);
+            ContextMenu menu = getContextMenuFor(element);
+            boolean menuOpen = menu != null && menu.isOpen();
+            if (!isSelected && !hovered && !menuOpen) {
+                continue;
+            }
+            int color = isSelected ? selectedColor : hoverColor;
+            drawEditorHoverBorder(graphics, geometry.bounds(), color);
+            if (isSelected) {
+                drawResizeHandles(graphics, geometry.bounds(), color);
+            }
         }
-        drawEditorHoverBorder(graphics, bounds, argbColor);
     }
 
     private void drawEditorHoverBorder(GuiGraphics graphics, ElementBounds bounds, int argbColor) {
@@ -359,6 +412,25 @@ public class EarlyLoadingEditorScreen extends Screen {
         graphics.fill(left + 1, bottom - 1, right - 1, bottom, argbColor);
         graphics.fill(left, top, left + 1, bottom, argbColor);
         graphics.fill(right - 1, top, right, bottom, argbColor);
+    }
+
+    private void drawResizeHandles(GuiGraphics graphics, ElementBounds bounds, int argbColor) {
+        int half = RESIZE_HANDLE_SIZE / 2;
+        float left = bounds.x();
+        float top = bounds.y();
+        float right = bounds.x() + bounds.width();
+        float bottom = bounds.y() + bounds.height();
+        drawHandle(graphics, left, top, half, argbColor);
+        drawHandle(graphics, right, top, half, argbColor);
+        drawHandle(graphics, left, bottom, half, argbColor);
+        drawHandle(graphics, right, bottom, half, argbColor);
+    }
+
+    private void drawHandle(GuiGraphics graphics, float centerX, float centerY, int half, int color) {
+        int cx = Math.round(centerX);
+        int cy = Math.round(centerY);
+        RenderSystem.enableBlend();
+        graphics.fill(cx - half, cy - half, cx + half, cy + half, color);
     }
 
     private void renderWatermark(GuiGraphics graphics, RenderMetrics metrics, @Nullable ResourceSupplier<ITexture> supplier, int configuredWidth, int configuredHeight,
@@ -396,10 +468,12 @@ public class EarlyLoadingEditorScreen extends Screen {
             }
         }
         float guiX = metrics.toGui(x);
-        float guiY = metrics.toGui(y);
-        float guiWidth = metrics.toGui(width);
-        float guiHeight = metrics.toGui(height);
-        this.watermarkBounds.put(anchor, new ElementBounds(guiX, guiY, guiWidth, guiHeight));
+       float guiY = metrics.toGui(y);
+       float guiWidth = metrics.toGui(width);
+       float guiHeight = metrics.toGui(height);
+        ElementBounds bounds = new ElementBounds(guiX, guiY, guiWidth, guiHeight);
+        this.watermarkBounds.put(anchor, bounds);
+        registerElementGeometry(SelectableElement.fromAnchor(anchor), bounds, x, y, width, height);
         if (hasTexture) {
             drawTexture(graphics, texture, guiX, guiY, guiWidth, guiHeight);
         } else {
@@ -670,6 +744,212 @@ public class EarlyLoadingEditorScreen extends Screen {
         graphics.disableScissor();
     }
 
+    private void registerElementGeometry(SelectableElement element, ElementBounds bounds, float absoluteX, float absoluteY, float absoluteWidth, float absoluteHeight) {
+        this.elementGeometries.put(element, new ElementGeometry(bounds, absoluteX, absoluteY, absoluteWidth, absoluteHeight));
+    }
+
+    @Nullable
+    private SelectableElement hitTestElement(double mouseX, double mouseY) {
+        if (this.progressBarBounds != null && this.progressBarBounds.contains(mouseX, mouseY)) {
+            return SelectableElement.PROGRESS_BAR;
+        }
+        if (this.logoBounds != null && this.logoBounds.contains(mouseX, mouseY)) {
+            return SelectableElement.LOGO;
+        }
+        for (WatermarkAnchor anchor : WatermarkAnchor.values()) {
+            ElementBounds bounds = this.watermarkBounds.get(anchor);
+            if (bounds != null && bounds.contains(mouseX, mouseY)) {
+                return SelectableElement.fromAnchor(anchor);
+            }
+        }
+        return null;
+    }
+
+    private void setSelectedElement(@Nullable SelectableElement element) {
+        if (this.selectedElement == element) {
+            return;
+        }
+        this.selectedElement = element;
+        if (element == null) {
+            this.activeResize = null;
+        }
+    }
+
+    private boolean tryBeginResize(double mouseX, double mouseY) {
+        if (this.selectedElement == null) {
+            return false;
+        }
+        ElementGeometry geometry = this.elementGeometries.get(this.selectedElement);
+        if (geometry == null) {
+            return false;
+        }
+        ResizeHandle handle = detectHandle(geometry.bounds(), mouseX, mouseY);
+        if (handle == null) {
+            return false;
+        }
+        float left = geometry.absoluteX();
+        float top = geometry.absoluteY();
+        float right = left + geometry.width();
+        float bottom = top + geometry.height();
+        this.activeResize = new ResizeSession(this.selectedElement, handle, left, top, right, bottom);
+        closeAllContextMenus();
+        return true;
+    }
+
+    @Nullable
+    private ResizeHandle detectHandle(ElementBounds bounds, double mouseX, double mouseY) {
+        int half = RESIZE_HANDLE_SIZE / 2;
+        float left = bounds.x();
+        float top = bounds.y();
+        float right = bounds.x() + bounds.width();
+        float bottom = bounds.y() + bounds.height();
+        if (isWithinHandle(left, top, mouseX, mouseY, half)) {
+            return ResizeHandle.TOP_LEFT;
+        }
+        if (isWithinHandle(right, top, mouseX, mouseY, half)) {
+            return ResizeHandle.TOP_RIGHT;
+        }
+        if (isWithinHandle(left, bottom, mouseX, mouseY, half)) {
+            return ResizeHandle.BOTTOM_LEFT;
+        }
+        if (isWithinHandle(right, bottom, mouseX, mouseY, half)) {
+            return ResizeHandle.BOTTOM_RIGHT;
+        }
+        return null;
+    }
+
+    private boolean isWithinHandle(float centerX, float centerY, double mouseX, double mouseY, int half) {
+        double minX = centerX - half;
+        double maxX = centerX + half;
+        double minY = centerY - half;
+        double maxY = centerY + half;
+        return mouseX >= minX && mouseX <= maxX && mouseY >= minY && mouseY <= maxY;
+    }
+
+    private void handleResizeDrag(double mouseX, double mouseY) {
+        if (this.activeResize == null || this.lastRenderMetrics == null) {
+            return;
+        }
+        float guiFactor = Math.max(this.lastRenderMetrics.guiScaleFactor(), 0.0001f);
+        float mouseAbsX = (float) (mouseX / guiFactor);
+        float mouseAbsY = (float) (mouseY / guiFactor);
+        float clampedX = Mth.clamp(mouseAbsX, 0.0f, this.lastRenderMetrics.absoluteWidth());
+        float clampedY = Mth.clamp(mouseAbsY, 0.0f, this.lastRenderMetrics.absoluteHeight());
+        float left = this.activeResize.initialLeft();
+        float right = this.activeResize.initialRight();
+        if (this.activeResize.handle().adjustsLeft()) {
+            left = Math.min(clampedX, this.activeResize.initialRight() - MIN_RESIZE_SIZE);
+        }
+        if (this.activeResize.handle().adjustsRight()) {
+            right = Math.max(clampedX, left + MIN_RESIZE_SIZE);
+        }
+        float top = this.activeResize.initialTop();
+        float bottom = this.activeResize.initialBottom();
+        if (this.activeResize.handle().adjustsTop()) {
+            top = Math.min(clampedY, this.activeResize.initialBottom() - MIN_RESIZE_SIZE);
+        }
+        if (this.activeResize.handle().adjustsBottom()) {
+            bottom = Math.max(clampedY, top + MIN_RESIZE_SIZE);
+        }
+        float width = Math.max(MIN_RESIZE_SIZE, right - left);
+        float height = Math.max(MIN_RESIZE_SIZE, bottom - top);
+        applyResizedGeometry(this.activeResize.element(), left, top, width, height);
+    }
+
+    private void applyResizedGeometry(SelectableElement element, float newLeft, float newTop, float newWidth, float newHeight) {
+        if (this.lastRenderMetrics == null) {
+            return;
+        }
+        float uiScale = Math.max(0.001f, this.lastUiScale);
+        Options options = DrippyLoadingScreen.getOptions();
+        float screenWidth = this.lastRenderMetrics.absoluteWidth();
+        float screenHeight = this.lastRenderMetrics.absoluteHeight();
+        switch (element) {
+            case LOGO -> {
+                int widthConfig = Math.max(1, Math.round(newWidth / uiScale));
+                int heightConfig = Math.max(1, Math.round(newHeight / uiScale));
+                float midpoint = (screenWidth - newWidth) / 2.0f;
+                int offsetX = Math.round((newLeft - midpoint) / uiScale);
+                float baseline = screenHeight * 0.35f;
+                int offsetY = Math.round((newTop - baseline) / uiScale);
+                applyOptionChange(() -> {
+                    options.earlyLoadingLogoWidth.setValue(widthConfig);
+                    options.earlyLoadingLogoHeight.setValue(heightConfig);
+                    options.earlyLoadingLogoPositionOffsetX.setValue(offsetX);
+                    options.earlyLoadingLogoPositionOffsetY.setValue(offsetY);
+                });
+            }
+            case PROGRESS_BAR -> {
+                int widthConfig = Math.max(32, Math.round(newWidth / uiScale));
+                int heightConfig = Math.max(6, Math.round(newHeight / uiScale));
+                float midpoint = (screenWidth - newWidth) / 2.0f;
+                int offsetX = Math.round((newLeft - midpoint) / uiScale);
+                float defaultY = this.lastProgressDefaultY;
+                if (!Float.isFinite(defaultY)) {
+                    defaultY = newTop;
+                }
+                int offsetY = Math.round((newTop - defaultY) / uiScale);
+                applyOptionChange(() -> {
+                    options.earlyLoadingBarWidth.setValue(widthConfig);
+                    options.earlyLoadingBarHeight.setValue(heightConfig);
+                    options.earlyLoadingBarPositionOffsetX.setValue(offsetX);
+                    options.earlyLoadingBarPositionOffsetY.setValue(offsetY);
+                });
+            }
+            case WATERMARK_TOP_LEFT, WATERMARK_TOP_RIGHT, WATERMARK_BOTTOM_LEFT, WATERMARK_BOTTOM_RIGHT -> {
+                WatermarkAnchor anchor = element.watermarkAnchor();
+                if (anchor == null) {
+                    return;
+                }
+                WatermarkOptionAccess access = resolveWatermarkOptions(options, anchor);
+                int widthConfig = Math.max(1, Math.round(newWidth / uiScale));
+                int heightConfig = Math.max(1, Math.round(newHeight / uiScale));
+                int offsetX;
+                int offsetY;
+                switch (anchor) {
+                    case TOP_LEFT -> {
+                        offsetX = Math.round(newLeft / uiScale);
+                        offsetY = Math.round(newTop / uiScale);
+                    }
+                    case TOP_RIGHT -> {
+                        offsetX = Math.round((newLeft - (screenWidth - newWidth)) / uiScale);
+                        offsetY = Math.round(newTop / uiScale);
+                    }
+                    case BOTTOM_LEFT -> {
+                        offsetX = Math.round(newLeft / uiScale);
+                        offsetY = Math.round((newTop - (screenHeight - newHeight)) / uiScale);
+                    }
+                    case BOTTOM_RIGHT -> {
+                        offsetX = Math.round((newLeft - (screenWidth - newWidth)) / uiScale);
+                        offsetY = Math.round((newTop - (screenHeight - newHeight)) / uiScale);
+                    }
+                    default -> {
+                        offsetX = 0;
+                        offsetY = 0;
+                    }
+                }
+                applyOptionChange(() -> {
+                    access.width.setValue(widthConfig);
+                    access.height.setValue(heightConfig);
+                    access.offsetX.setValue(offsetX);
+                    access.offsetY.setValue(offsetY);
+                });
+            }
+        }
+    }
+
+    @Nullable
+    private ContextMenu getContextMenuFor(SelectableElement element) {
+        return switch (element) {
+            case LOGO -> this.logoContextMenu;
+            case PROGRESS_BAR -> this.progressBarContextMenu;
+            case WATERMARK_TOP_LEFT -> this.watermarkContextMenus.get(WatermarkAnchor.TOP_LEFT);
+            case WATERMARK_TOP_RIGHT -> this.watermarkContextMenus.get(WatermarkAnchor.TOP_RIGHT);
+            case WATERMARK_BOTTOM_LEFT -> this.watermarkContextMenus.get(WatermarkAnchor.BOTTOM_LEFT);
+            case WATERMARK_BOTTOM_RIGHT -> this.watermarkContextMenus.get(WatermarkAnchor.BOTTOM_RIGHT);
+        };
+    }
+
     private void rebuildContextMenus() {
         for (ContextMenu menu : this.contextMenus) {
             this.removeWidget(menu);
@@ -923,14 +1203,17 @@ public class EarlyLoadingEditorScreen extends Screen {
 
     private boolean openContextMenuAt(double mouseX, double mouseY) {
         if (this.progressBarBounds != null && this.progressBarBounds.contains(mouseX, mouseY)) {
+            setSelectedElement(SelectableElement.PROGRESS_BAR);
             return openContextMenu(this.progressBarContextMenu);
         }
         if (this.logoBounds != null && this.logoBounds.contains(mouseX, mouseY)) {
+            setSelectedElement(SelectableElement.LOGO);
             return openContextMenu(this.logoContextMenu);
         }
         for (WatermarkAnchor anchor : WatermarkAnchor.values()) {
             ElementBounds bounds = this.watermarkBounds.get(anchor);
             if (bounds != null && bounds.contains(mouseX, mouseY)) {
+                setSelectedElement(SelectableElement.fromAnchor(anchor));
                 return openContextMenu(this.watermarkContextMenus.get(anchor));
             }
         }
@@ -938,6 +1221,7 @@ public class EarlyLoadingEditorScreen extends Screen {
             this.backgroundBounds = new ElementBounds(0.0f, 0.0f, this.width, this.height);
         }
         if (this.backgroundBounds.contains(mouseX, mouseY)) {
+            setSelectedElement(null);
             return openContextMenu(this.backgroundContextMenu);
         }
         return false;
@@ -1229,6 +1513,36 @@ public class EarlyLoadingEditorScreen extends Screen {
         BOTTOM_RIGHT
     }
 
+    private enum SelectableElement {
+        LOGO(null),
+        PROGRESS_BAR(null),
+        WATERMARK_TOP_LEFT(WatermarkAnchor.TOP_LEFT),
+        WATERMARK_TOP_RIGHT(WatermarkAnchor.TOP_RIGHT),
+        WATERMARK_BOTTOM_LEFT(WatermarkAnchor.BOTTOM_LEFT),
+        WATERMARK_BOTTOM_RIGHT(WatermarkAnchor.BOTTOM_RIGHT);
+
+        @Nullable
+        private final WatermarkAnchor watermarkAnchor;
+
+        SelectableElement(@Nullable WatermarkAnchor watermarkAnchor) {
+            this.watermarkAnchor = watermarkAnchor;
+        }
+
+        @Nullable
+        private WatermarkAnchor watermarkAnchor() {
+            return this.watermarkAnchor;
+        }
+
+        private static SelectableElement fromAnchor(WatermarkAnchor anchor) {
+            return switch (anchor) {
+                case TOP_LEFT -> WATERMARK_TOP_LEFT;
+                case TOP_RIGHT -> WATERMARK_TOP_RIGHT;
+                case BOTTOM_LEFT -> WATERMARK_BOTTOM_LEFT;
+                case BOTTOM_RIGHT -> WATERMARK_BOTTOM_RIGHT;
+            };
+        }
+    }
+
     private record RenderMetrics(float absoluteWidth, float absoluteHeight, float guiScaleFactor) {
         private float toGui(float absolute) {
             return absolute * this.guiScaleFactor;
@@ -1240,6 +1554,10 @@ public class EarlyLoadingEditorScreen extends Screen {
             return px >= this.x && px <= this.x + this.width && py >= this.y && py <= this.y + this.height;
         }
     }
+
+    private record ElementGeometry(ElementBounds bounds, float absoluteX, float absoluteY, float width, float height) {}
+
+    private record ResizeSession(SelectableElement element, ResizeHandle handle, float initialLeft, float initialTop, float initialRight, float initialBottom) {}
 
     private record ProgressFrameMetrics(float borderThickness, float horizontalInset, float verticalInset) {}
 
@@ -1282,6 +1600,41 @@ public class EarlyLoadingEditorScreen extends Screen {
             Options.Option<Integer> offsetX,
             Options.Option<Integer> offsetY
     ) {}
+
+    private enum ResizeHandle {
+        TOP_LEFT(true, true, false, false),
+        TOP_RIGHT(false, true, true, false),
+        BOTTOM_LEFT(true, false, false, true),
+        BOTTOM_RIGHT(false, false, true, true);
+
+        private final boolean adjustsLeft;
+        private final boolean adjustsTop;
+        private final boolean adjustsRight;
+        private final boolean adjustsBottom;
+
+        ResizeHandle(boolean adjustsLeft, boolean adjustsTop, boolean adjustsRight, boolean adjustsBottom) {
+            this.adjustsLeft = adjustsLeft;
+            this.adjustsTop = adjustsTop;
+            this.adjustsRight = adjustsRight;
+            this.adjustsBottom = adjustsBottom;
+        }
+
+        private boolean adjustsLeft() {
+            return this.adjustsLeft;
+        }
+
+        private boolean adjustsTop() {
+            return this.adjustsTop;
+        }
+
+        private boolean adjustsRight() {
+            return this.adjustsRight;
+        }
+
+        private boolean adjustsBottom() {
+            return this.adjustsBottom;
+        }
+    }
 
     private record EarlyLoadingVisualOptions(
             String backgroundTexturePath,
