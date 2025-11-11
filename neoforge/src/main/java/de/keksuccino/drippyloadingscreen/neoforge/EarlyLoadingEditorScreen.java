@@ -825,11 +825,13 @@ public class EarlyLoadingEditorScreen extends Screen {
         }
         float left = geometry.absoluteX();
         float top = geometry.absoluteY();
-        float right = left + geometry.width();
-        float bottom = top + geometry.height();
+        float width = geometry.width();
+        float height = geometry.height();
+        float right = left + width;
+        float bottom = top + height;
         this.activeMove = null;
         this.pendingMove = null;
-        this.activeResize = new ResizeSession(this.selectedElement, handle, left, top, right, bottom);
+        this.activeResize = new ResizeSession(this.selectedElement, handle, left, top, right, bottom, width, height);
         closeAllContextMenus();
         return true;
     }
@@ -947,6 +949,11 @@ public class EarlyLoadingEditorScreen extends Screen {
         if (this.activeResize.handle().adjustsBottom()) {
             bottom = Math.max(clampedY, top + MIN_RESIZE_SIZE);
         }
+        RectBounds bounds = maybeLockAspectRatio(new RectBounds(left, top, right, bottom));
+        left = bounds.left();
+        top = bounds.top();
+        right = bounds.right();
+        bottom = bounds.bottom();
         float width = Math.max(MIN_RESIZE_SIZE, right - left);
         float height = Math.max(MIN_RESIZE_SIZE, bottom - top);
         applyResizedGeometry(this.activeResize.element(), left, top, width, height);
@@ -968,6 +975,116 @@ public class EarlyLoadingEditorScreen extends Screen {
         newLeft = Mth.clamp(newLeft, 0.0f, maxLeft);
         newTop = Mth.clamp(newTop, 0.0f, maxTop);
         applyResizedGeometry(this.activeMove.element(), newLeft, newTop, width, height);
+    }
+
+    private RectBounds maybeLockAspectRatio(RectBounds bounds) {
+        if (this.activeResize == null || this.lastRenderMetrics == null || !Screen.hasShiftDown()) {
+            return bounds;
+        }
+        float initialWidth = Math.max(MIN_RESIZE_SIZE, this.activeResize.initialWidth());
+        float initialHeight = Math.max(MIN_RESIZE_SIZE, this.activeResize.initialHeight());
+        if (initialWidth <= 0.0f || initialHeight <= 0.0f) {
+            return bounds;
+        }
+        float aspect = initialWidth / initialHeight;
+        if (!Float.isFinite(aspect) || aspect <= 0.0f) {
+            return bounds;
+        }
+        float width = Math.max(MIN_RESIZE_SIZE, bounds.right() - bounds.left());
+        float height = Math.max(MIN_RESIZE_SIZE, bounds.bottom() - bounds.top());
+        float targetHeight = width / aspect;
+        float targetWidth = height * aspect;
+        boolean canAdjustWidth = this.activeResize.handle().adjustsLeft() || this.activeResize.handle().adjustsRight();
+        boolean canAdjustHeight = this.activeResize.handle().adjustsTop() || this.activeResize.handle().adjustsBottom();
+        if (canAdjustWidth && !canAdjustHeight) {
+            return adjustHeightForAspect(bounds, targetHeight);
+        }
+        if (!canAdjustWidth && canAdjustHeight) {
+            return adjustWidthForAspect(bounds, targetWidth);
+        }
+        if (!canAdjustWidth && !canAdjustHeight) {
+            return bounds;
+        }
+        float widthDiff = Math.abs(targetWidth - width);
+        float heightDiff = Math.abs(targetHeight - height);
+        if (!canAdjustHeight || widthDiff < heightDiff) {
+            return adjustWidthForAspect(bounds, targetWidth);
+        }
+        return adjustHeightForAspect(bounds, targetHeight);
+    }
+
+    private RectBounds adjustWidthForAspect(RectBounds bounds, float desiredWidth) {
+        if (this.lastRenderMetrics == null || this.activeResize == null) {
+            return bounds;
+        }
+        float screenWidth = this.lastRenderMetrics.absoluteWidth();
+        float width = Mth.clamp(desiredWidth, MIN_RESIZE_SIZE, screenWidth);
+        float left = bounds.left();
+        float right = bounds.right();
+        ResizeHandle handle = this.activeResize.handle();
+        boolean adjustsLeft = handle.adjustsLeft();
+        boolean adjustsRight = handle.adjustsRight();
+        if (adjustsLeft && !adjustsRight) {
+            left = right - width;
+        } else if (!adjustsLeft && adjustsRight) {
+            right = left + width;
+        } else if (adjustsLeft && adjustsRight) {
+            float center = (left + right) / 2.0f;
+            left = center - width / 2.0f;
+            right = center + width / 2.0f;
+        } else {
+            right = left + width;
+        }
+        if (left < 0.0f) {
+            float shift = -left;
+            left = 0.0f;
+            right += shift;
+        }
+        if (right > screenWidth) {
+            float shift = right - screenWidth;
+            right = screenWidth;
+            left -= shift;
+        }
+        left = Mth.clamp(left, 0.0f, Math.max(0.0f, screenWidth - MIN_RESIZE_SIZE));
+        right = Mth.clamp(right, left + MIN_RESIZE_SIZE, screenWidth);
+        return new RectBounds(left, bounds.top(), right, bounds.bottom());
+    }
+
+    private RectBounds adjustHeightForAspect(RectBounds bounds, float desiredHeight) {
+        if (this.lastRenderMetrics == null || this.activeResize == null) {
+            return bounds;
+        }
+        float screenHeight = this.lastRenderMetrics.absoluteHeight();
+        float height = Mth.clamp(desiredHeight, MIN_RESIZE_SIZE, screenHeight);
+        float top = bounds.top();
+        float bottom = bounds.bottom();
+        ResizeHandle handle = this.activeResize.handle();
+        boolean adjustsTop = handle.adjustsTop();
+        boolean adjustsBottom = handle.adjustsBottom();
+        if (adjustsTop && !adjustsBottom) {
+            top = bottom - height;
+        } else if (!adjustsTop && adjustsBottom) {
+            bottom = top + height;
+        } else if (adjustsTop && adjustsBottom) {
+            float center = (top + bottom) / 2.0f;
+            top = center - height / 2.0f;
+            bottom = center + height / 2.0f;
+        } else {
+            bottom = top + height;
+        }
+        if (top < 0.0f) {
+            float shift = -top;
+            top = 0.0f;
+            bottom += shift;
+        }
+        if (bottom > screenHeight) {
+            float shift = bottom - screenHeight;
+            bottom = screenHeight;
+            top -= shift;
+        }
+        top = Mth.clamp(top, 0.0f, Math.max(0.0f, screenHeight - MIN_RESIZE_SIZE));
+        bottom = Mth.clamp(bottom, top + MIN_RESIZE_SIZE, screenHeight);
+        return new RectBounds(bounds.left(), top, bounds.right(), bottom);
     }
 
     private void applyResizedGeometry(SelectableElement element, float newLeft, float newTop, float newWidth, float newHeight) {
@@ -1671,7 +1788,10 @@ public class EarlyLoadingEditorScreen extends Screen {
 
     private record ElementGeometry(ElementBounds bounds, float absoluteX, float absoluteY, float width, float height) {}
 
-    private record ResizeSession(SelectableElement element, ResizeHandle handle, float initialLeft, float initialTop, float initialRight, float initialBottom) {}
+    private record RectBounds(float left, float top, float right, float bottom) {}
+
+    private record ResizeSession(SelectableElement element, ResizeHandle handle, float initialLeft, float initialTop,
+                                 float initialRight, float initialBottom, float initialWidth, float initialHeight) {}
 
     private record MoveSession(SelectableElement element, float grabOffsetX, float grabOffsetY, float width, float height) {}
 
