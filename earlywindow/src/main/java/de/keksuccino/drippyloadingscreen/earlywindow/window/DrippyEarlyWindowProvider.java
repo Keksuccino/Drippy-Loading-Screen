@@ -443,7 +443,7 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
         baseX = clamp(baseX, minX, maxX);
 
         boolean vanillaBar = this.barBackgroundTexture == null && this.barProgressTexture == null;
-        ProgressFrameMetrics frameMetrics = vanillaBar ? computeProgressFrameMetrics(width, height) : null;
+        ProgressFrameMetrics frameMetrics = vanillaBar ? computeProgressFrameMetrics(width, height, computeGuiPixelScale()) : null;
         if (this.barBackgroundTexture != null) {
             drawTexturedQuad(baseX, baseY, width, height, this.barBackgroundTexture, 0.0f, 0.0f, 1.0f, 1.0f);
         } else if (vanillaBar && frameMetrics != null) {
@@ -660,14 +660,22 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
         }
     }
 
-    private ProgressFrameMetrics computeProgressFrameMetrics(float width, float height) {
+    private ProgressFrameMetrics computeProgressFrameMetrics(float width, float height, float pixelScale) {
         float safeWidth = Math.max(1.0f, width);
         float safeHeight = Math.max(1.0f, height);
         float maxBorder = Math.min(safeWidth, safeHeight) / 2.0f;
-        float border = Math.min(1.0f, maxBorder);
-        float horizontalInset = Math.min(2.0f, Math.max(border, (safeWidth - border * 2.0f) / 2.0f));
-        float verticalInset = Math.min(2.0f, Math.max(border, (safeHeight - border * 2.0f) / 2.0f));
-        return new ProgressFrameMetrics(border, horizontalInset, verticalInset);
+        float scaledBorder = Math.min(maxBorder, Math.max(1.0f, pixelScale));
+        float scaledHorizontalInset = Math.min(safeWidth / 2.0f, Math.max(scaledBorder, pixelScale * 2.0f));
+        float scaledVerticalInset = Math.min(safeHeight / 2.0f, Math.max(scaledBorder, pixelScale * 2.0f));
+        if (safeWidth - scaledHorizontalInset * 2.0f < 1.0f) {
+            float fallbackInset = Math.max(scaledBorder, (safeWidth - 1.0f) / 2.0f);
+            scaledHorizontalInset = Math.min(safeWidth / 2.0f, fallbackInset);
+        }
+        if (safeHeight - scaledVerticalInset * 2.0f < 1.0f) {
+            float fallbackInset = Math.max(scaledBorder, (safeHeight - 1.0f) / 2.0f);
+            scaledVerticalInset = Math.min(safeHeight / 2.0f, fallbackInset);
+        }
+        return new ProgressFrameMetrics(scaledBorder, scaledHorizontalInset, scaledVerticalInset);
     }
 
     private void drawVanillaProgressFrame(float baseX, float baseY, float width, float height, ProgressFrameMetrics metrics) {
@@ -1080,6 +1088,19 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
         float scaleY = this.windowHeight / baseH;
         float scale = Math.min(scaleX, scaleY);
         return Math.max(0.1f, scale);
+    }
+
+    private float computeGuiPixelScale() {
+        int safeWidth = Math.max(1, this.framebufferWidth);
+        int safeHeight = Math.max(1, this.framebufferHeight);
+        int scale = 1;
+        int maxScale = 8;
+        while (scale < maxScale
+                && safeWidth / (scale + 1) >= 320
+                && safeHeight / (scale + 1) >= 240) {
+            scale++;
+        }
+        return (float) scale;
     }
 
     private static float clamp(float value, float min, float max) {
