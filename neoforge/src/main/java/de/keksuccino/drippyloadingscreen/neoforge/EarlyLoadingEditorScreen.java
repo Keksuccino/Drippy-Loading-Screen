@@ -93,6 +93,7 @@ public class EarlyLoadingEditorScreen extends Screen {
     };
     private static final int RESIZE_HANDLE_SIZE = 4;
     private static final float MIN_RESIZE_SIZE = 8.0f;
+    private static final float ELEMENT_DRAG_CRUMPLE_ZONE = 5.0f;
 
     private EarlyLoadingVisualOptions visualOptions;
     private TextureSuppliers textureSuppliers;
@@ -117,6 +118,8 @@ public class EarlyLoadingEditorScreen extends Screen {
     private ResizeSession activeResize;
     @Nullable
     private MoveSession activeMove;
+    @Nullable
+    private PendingMove pendingMove;
     @Nullable
     private RenderMetrics lastRenderMetrics;
     private float lastUiScale = 1.0f;
@@ -203,7 +206,7 @@ public class EarlyLoadingEditorScreen extends Screen {
             SelectableElement hit = hitTestElement(mouseX, mouseY);
             if (hit != null) {
                 setSelectedElement(hit);
-                beginMoveSession(hit, mouseX, mouseY);
+                prepareMoveSession(hit, mouseX, mouseY);
                 if (!isAnyContextMenuHovered()) {
                     closeAllContextMenus();
                 }
@@ -229,6 +232,7 @@ public class EarlyLoadingEditorScreen extends Screen {
                 handleResizeDrag(mouseX, mouseY);
                 return true;
             }
+            ensureMoveSessionStarted(mouseX, mouseY);
             if (this.activeMove != null) {
                 handleMoveDrag(mouseX, mouseY);
                 return true;
@@ -247,6 +251,10 @@ public class EarlyLoadingEditorScreen extends Screen {
             }
             if (this.activeMove != null) {
                 this.activeMove = null;
+                handled = true;
+            }
+            if (this.pendingMove != null) {
+                this.pendingMove = null;
                 handled = true;
             }
             if (handled) {
@@ -797,6 +805,7 @@ public class EarlyLoadingEditorScreen extends Screen {
         this.selectedElement = element;
         this.activeResize = null;
         this.activeMove = null;
+        this.pendingMove = null;
         if (element == null) {
             return;
         }
@@ -819,19 +828,22 @@ public class EarlyLoadingEditorScreen extends Screen {
         float right = left + geometry.width();
         float bottom = top + geometry.height();
         this.activeMove = null;
+        this.pendingMove = null;
         this.activeResize = new ResizeSession(this.selectedElement, handle, left, top, right, bottom);
         closeAllContextMenus();
         return true;
     }
 
-    private void beginMoveSession(SelectableElement element, double mouseX, double mouseY) {
+    private void prepareMoveSession(SelectableElement element, double mouseX, double mouseY) {
         if (this.lastRenderMetrics == null) {
             this.activeMove = null;
+            this.pendingMove = null;
             return;
         }
         ElementGeometry geometry = this.elementGeometries.get(element);
         if (geometry == null) {
             this.activeMove = null;
+            this.pendingMove = null;
             return;
         }
         float guiFactor = Math.max(this.lastRenderMetrics.guiScaleFactor(), 0.0001f);
@@ -840,7 +852,30 @@ public class EarlyLoadingEditorScreen extends Screen {
         float grabOffsetX = mouseAbsX - geometry.absoluteX();
         float grabOffsetY = mouseAbsY - geometry.absoluteY();
         this.activeResize = null;
-        this.activeMove = new MoveSession(element, grabOffsetX, grabOffsetY, geometry.width(), geometry.height());
+        this.activeMove = null;
+        this.pendingMove = new PendingMove(element, mouseAbsX, mouseAbsY, grabOffsetX, grabOffsetY, geometry.width(), geometry.height());
+    }
+
+    private void ensureMoveSessionStarted(double mouseX, double mouseY) {
+        if (this.pendingMove == null || this.lastRenderMetrics == null) {
+            return;
+        }
+        float guiFactor = Math.max(this.lastRenderMetrics.guiScaleFactor(), 0.0001f);
+        float mouseAbsX = (float) (mouseX / guiFactor);
+        float mouseAbsY = (float) (mouseY / guiFactor);
+        float deltaX = Math.abs(mouseAbsX - this.pendingMove.initialMouseX());
+        float deltaY = Math.abs(mouseAbsY - this.pendingMove.initialMouseY());
+        if (deltaX < ELEMENT_DRAG_CRUMPLE_ZONE && deltaY < ELEMENT_DRAG_CRUMPLE_ZONE) {
+            return;
+        }
+        this.activeMove = new MoveSession(
+                this.pendingMove.element(),
+                this.pendingMove.grabOffsetX(),
+                this.pendingMove.grabOffsetY(),
+                this.pendingMove.width(),
+                this.pendingMove.height()
+        );
+        this.pendingMove = null;
     }
 
     @Nullable
@@ -1639,6 +1674,9 @@ public class EarlyLoadingEditorScreen extends Screen {
     private record ResizeSession(SelectableElement element, ResizeHandle handle, float initialLeft, float initialTop, float initialRight, float initialBottom) {}
 
     private record MoveSession(SelectableElement element, float grabOffsetX, float grabOffsetY, float width, float height) {}
+
+    private record PendingMove(SelectableElement element, float initialMouseX, float initialMouseY, float grabOffsetX, float grabOffsetY,
+                               float width, float height) {}
 
     private record ProgressFrameMetrics(float borderThickness, float horizontalInset, float verticalInset) {}
 
