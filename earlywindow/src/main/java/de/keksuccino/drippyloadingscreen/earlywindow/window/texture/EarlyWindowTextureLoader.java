@@ -1,6 +1,7 @@
 package de.keksuccino.drippyloadingscreen.earlywindow.window.texture;
 
 import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
@@ -58,6 +59,19 @@ public final class EarlyWindowTextureLoader {
         return uploadTextureFromPath(resolved);
     }
 
+    public LoadedTexture loadTextureFromBytes(byte[] data, boolean supportApng, String label) {
+        if (data == null || data.length == 0) {
+            return null;
+        }
+        if (supportApng) {
+            LoadedTexture animated = loadApngTexture(data, label);
+            if (animated != null) {
+                return animated;
+            }
+        }
+        return uploadTextureFromBytes(data, label);
+    }
+
     public LoadedTexture loadBundledTexture(String resourcePath) {
         if (resourcePath == null || resourcePath.isBlank()) {
             return null;
@@ -83,14 +97,20 @@ public final class EarlyWindowTextureLoader {
 
     private LoadedTexture loadApngTexture(Path path) {
         try (InputStream stream = new BufferedInputStream(Files.newInputStream(path))) {
-            Argb8888BitmapSequence sequence = Png.readArgb8888BitmapSequence(stream);
-            if (sequence == null || !sequence.isAnimated()) {
-                return null;
-            }
-            return uploadApngSequence(sequence);
+            return decodeApng(stream);
         } catch (IOException | RuntimeException | PngException ex) {
             LOGGER.warn("[DRIPPY LOADING SCREEN] Failed to decode APNG texture {}: {}", path, ex.getMessage());
             LOGGER.debug("[DRIPPY LOADING SCREEN] Detailed APNG decode failure for {}", path, ex);
+            return null;
+        }
+    }
+
+    private LoadedTexture loadApngTexture(byte[] data, String label) {
+        try (InputStream stream = new BufferedInputStream(new ByteArrayInputStream(data))) {
+            return decodeApng(stream);
+        } catch (IOException | RuntimeException | PngException ex) {
+            LOGGER.warn("[DRIPPY LOADING SCREEN] Failed to decode APNG texture {}: {}", label, ex.getMessage());
+            LOGGER.debug("[DRIPPY LOADING SCREEN] Detailed APNG decode failure for {}", label, ex);
             return null;
         }
     }
@@ -278,6 +298,14 @@ public final class EarlyWindowTextureLoader {
         }
     }
 
+    private LoadedTexture decodeApng(InputStream stream) throws IOException, PngException {
+        Argb8888BitmapSequence sequence = Png.readArgb8888BitmapSequence(stream);
+        if (sequence == null || !sequence.isAnimated()) {
+            return null;
+        }
+        return uploadApngSequence(sequence);
+    }
+
     private LoadedTexture uploadTextureFromPath(Path path) {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             var width = stack.mallocInt(1);
@@ -294,6 +322,16 @@ public final class EarlyWindowTextureLoader {
             } finally {
                 STBImage.stbi_image_free(image);
             }
+        }
+    }
+
+    private LoadedTexture uploadTextureFromBytes(byte[] data, String label) {
+        ByteBuffer buffer = MemoryUtil.memAlloc(data.length);
+        buffer.put(data).flip();
+        try {
+            return decodeTexture(buffer, label);
+        } finally {
+            MemoryUtil.memFree(buffer);
         }
     }
 

@@ -707,7 +707,7 @@ public class EarlyLoadingEditorScreen extends Screen {
                         ResourceSupplier::image,
                         defaultSupplier,
                         () -> createRawImageSupplier(option.getValue()),
-                        supplier -> applyOptionChange(() -> option.setValue(normalizeResourceSource(supplier.getSourceWithPrefix()))),
+                        supplier -> applyOptionChange(() -> option.setValue(normalizeResourceSource(supplier.getSourceWithoutPrefix()))),
                         label,
                         true,
                         PNG_APNG_FILE_TYPES,
@@ -787,10 +787,10 @@ public class EarlyLoadingEditorScreen extends Screen {
         if (trimmed.isEmpty()) {
             return "";
         }
-        ResourceSourceType type = ResourceSourceType.getSourceTypeOf(trimmed);
-        if (type == ResourceSourceType.LOCAL) {
-            return ResourceSourceType.getWithoutSourcePrefix(trimmed);
-        }
+//        ResourceSourceType type = ResourceSourceType.getSourceTypeOf(trimmed);
+//        if (type == ResourceSourceType.LOCAL) {
+//            return ResourceSourceType.getWithoutSourcePrefix(trimmed);
+//        }
         return trimmed;
     }
 

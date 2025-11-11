@@ -7,13 +7,20 @@ import de.keksuccino.drippyloadingscreen.earlywindow.window.texture.EarlyWindowT
 import de.keksuccino.drippyloadingscreen.earlywindow.window.texture.EarlyWindowTextureLoader.LoadedTexture;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Consumer;
 import java.util.function.IntConsumer;
@@ -63,6 +70,7 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
             "Waiting for Minecraft bootstrap",
             "Completing early window handoff"
     };
+    private static final Duration WEB_TEXTURE_TIMEOUT = Duration.ofSeconds(20);
 
     private long window;
     private boolean running;
@@ -79,6 +87,8 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
     private Constructor<?> overlayConstructor;
     private Thread renderThread;
     private GLCapabilities renderCapabilities;
+    private final ConcurrentLinkedQueue<PendingTextureUpload> pendingWebTextures = new ConcurrentLinkedQueue<>();
+    private HttpClient httpClient;
 
     private Path gameDirectory;
     private Path drippyConfigDirectory;
@@ -325,6 +335,7 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
     }
 
     private void drawFrame() {
+        processPendingWebTextures();
         updateProgressMetrics();
         this.currentFrameTimestampNanos = System.nanoTime();
 
@@ -682,17 +693,35 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
         if (this.textureLoader == null) {
             this.textureLoader = new EarlyWindowTextureLoader(this.gameDirectory, DrippyEarlyWindowProvider.class.getClassLoader());
         }
-        this.backgroundTexture = this.textureLoader.loadUserTexture(this.options.backgroundTexturePath(), true);
-        this.logoTexture = this.textureLoader.loadUserTexture(this.options.logoTexturePath(), true);
-        if (this.logoTexture == null) {
+        TexturePathOrigin logoOrigin = loadConfiguredTexture(this.options.logoTexturePath(), true, texture -> this.logoTexture = texture, "logo texture");
+        if (this.logoTexture == null && logoOrigin != TexturePathOrigin.REMOTE) {
             this.logoTexture = this.textureLoader.loadBundledTexture(MOJANG_LOGO_PATH);
         }
-        this.barBackgroundTexture = this.textureLoader.loadUserTexture(this.options.barBackgroundTexturePath(), true);
-        this.barProgressTexture = this.textureLoader.loadUserTexture(this.options.barProgressTexturePath(), true);
-        this.topLeftWatermarkTexture = this.textureLoader.loadUserTexture(this.options.topLeftWatermarkTexturePath(), true);
-        this.topRightWatermarkTexture = this.textureLoader.loadUserTexture(this.options.topRightWatermarkTexturePath(), true);
-        this.bottomLeftWatermarkTexture = this.textureLoader.loadUserTexture(this.options.bottomLeftWatermarkTexturePath(), true);
-        this.bottomRightWatermarkTexture = this.textureLoader.loadUserTexture(this.options.bottomRightWatermarkTexturePath(), true);
+        loadConfiguredTexture(this.options.backgroundTexturePath(), true, texture -> this.backgroundTexture = texture, "background texture");
+        loadConfiguredTexture(this.options.barBackgroundTexturePath(), true, texture -> this.barBackgroundTexture = texture, "bar background texture");
+        loadConfiguredTexture(this.options.barProgressTexturePath(), true, texture -> this.barProgressTexture = texture, "bar progress texture");
+        loadConfiguredTexture(this.options.topLeftWatermarkTexturePath(), true, texture -> this.topLeftWatermarkTexture = texture, "top-left watermark texture");
+        loadConfiguredTexture(this.options.topRightWatermarkTexturePath(), true, texture -> this.topRightWatermarkTexture = texture, "top-right watermark texture");
+        loadConfiguredTexture(this.options.bottomLeftWatermarkTexturePath(), true, texture -> this.bottomLeftWatermarkTexture = texture, "bottom-left watermark texture");
+        loadConfiguredTexture(this.options.bottomRightWatermarkTexturePath(), true, texture -> this.bottomRightWatermarkTexture = texture, "bottom-right watermark texture");
+    }
+
+    private TexturePathOrigin loadConfiguredTexture(String configuredPath, boolean supportApng, Consumer<LoadedTexture> setter, String label) {
+        if (setter == null) {
+            return TexturePathOrigin.NONE;
+        }
+        if (configuredPath == null || configuredPath.isBlank()) {
+            setter.accept(null);
+            return TexturePathOrigin.NONE;
+        }
+        if (isWebSource(configuredPath)) {
+            setter.accept(null);
+            enqueueWebTexture(configuredPath, supportApng, setter, label);
+            return TexturePathOrigin.REMOTE;
+        }
+        LoadedTexture texture = this.textureLoader.loadUserTexture(configuredPath, supportApng);
+        setter.accept(texture);
+        return TexturePathOrigin.LOCAL;
     }
 
     private void cleanupTextures() {
@@ -704,12 +733,131 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
         deleteTexture(this.topRightWatermarkTexture);
         deleteTexture(this.bottomLeftWatermarkTexture);
         deleteTexture(this.bottomRightWatermarkTexture);
+        this.pendingWebTextures.clear();
     }
 
     private void deleteTexture(LoadedTexture texture) {
         if (texture != null) {
             texture.delete();
         }
+    }
+
+    private void enqueueWebTexture(String source, boolean supportApng, Consumer<LoadedTexture> setter, String label) {
+        URI uri;
+        try {
+            uri = URI.create(source.trim());
+        } catch (IllegalArgumentException ex) {
+            LOGGER.warn("[DRIPPY LOADING SCREEN] Ignoring invalid URL '{}' for {}", source, label);
+            LOGGER.debug("[DRIPPY LOADING SCREEN] Detailed invalid URL reason for {}", label, ex);
+            return;
+        }
+        HttpRequest request = HttpRequest.newBuilder(uri)
+                .timeout(WEB_TEXTURE_TIMEOUT)
+                .header("Accept", "image/apng,image/png,image/webp,image/*;q=0.8,*/*;q=0.5")
+                .GET()
+                .build();
+        httpClient().sendAsync(request, HttpResponse.BodyHandlers.ofByteArray())
+                .whenComplete((response, throwable) -> {
+                    if (throwable != null) {
+                        LOGGER.warn("[DRIPPY LOADING SCREEN] Failed to fetch web texture {} from {}", label, source);
+                        LOGGER.debug("[DRIPPY LOADING SCREEN] Detailed fetch failure for {}", label, throwable);
+                        return;
+                    }
+                    if (response == null) {
+                        LOGGER.warn("[DRIPPY LOADING SCREEN] Missing response while fetching web texture {} from {}", label, source);
+                        return;
+                    }
+                    int status = response.statusCode();
+                    if (status < 200 || status >= 300) {
+                        LOGGER.warn("[DRIPPY LOADING SCREEN] Web texture {} returned HTTP {} from {}", label, status, source);
+                        return;
+                    }
+                    byte[] body = response.body();
+                    if (body == null || body.length == 0) {
+                        LOGGER.warn("[DRIPPY LOADING SCREEN] Web texture {} from {} returned empty body", label, source);
+                        return;
+                    }
+                    this.pendingWebTextures.add(new PendingTextureUpload(body, supportApng, setter, label));
+                });
+    }
+
+    private HttpClient httpClient() {
+        if (this.httpClient == null) {
+            this.httpClient = HttpClient.newBuilder()
+                    .followRedirects(HttpClient.Redirect.NORMAL)
+                    .connectTimeout(WEB_TEXTURE_TIMEOUT)
+                    .build();
+        }
+        return this.httpClient;
+    }
+
+    private boolean isWebSource(String configuredPath) {
+        if (configuredPath == null) {
+            return false;
+        }
+        String trimmed = configuredPath.trim();
+        if (trimmed.isEmpty()) {
+            return false;
+        }
+        String lower = trimmed.toLowerCase(Locale.ROOT);
+        return lower.startsWith("http://") || lower.startsWith("https://");
+    }
+
+    private void processPendingWebTextures() {
+        if (this.pendingWebTextures.isEmpty()) {
+            return;
+        }
+        if (this.textureLoader == null) {
+            this.textureLoader = new EarlyWindowTextureLoader(this.gameDirectory, DrippyEarlyWindowProvider.class.getClassLoader());
+        }
+        PendingTextureUpload pending;
+        while ((pending = this.pendingWebTextures.poll()) != null) {
+            try {
+                LoadedTexture texture = this.textureLoader.loadTextureFromBytes(pending.data(), pending.supportsApng(), pending.label());
+                if (texture != null) {
+                    pending.setter().accept(texture);
+                }
+            } catch (Exception ex) {
+                LOGGER.warn("[DRIPPY LOADING SCREEN] Failed to create web texture {}", pending.label());
+                LOGGER.debug("[DRIPPY LOADING SCREEN] Detailed web texture failure for {}", pending.label(), ex);
+            }
+        }
+    }
+
+    private static final class PendingTextureUpload {
+        private final byte[] data;
+        private final boolean supportsApng;
+        private final Consumer<LoadedTexture> setter;
+        private final String label;
+
+        private PendingTextureUpload(byte[] data, boolean supportsApng, Consumer<LoadedTexture> setter, String label) {
+            this.data = data;
+            this.supportsApng = supportsApng;
+            this.setter = setter;
+            this.label = label;
+        }
+
+        private byte[] data() {
+            return this.data;
+        }
+
+        private boolean supportsApng() {
+            return this.supportsApng;
+        }
+
+        private Consumer<LoadedTexture> setter() {
+            return this.setter;
+        }
+
+        private String label() {
+            return this.label;
+        }
+    }
+
+    private enum TexturePathOrigin {
+        NONE,
+        LOCAL,
+        REMOTE
     }
 
     private void updateProgressMetrics() {
