@@ -3,9 +3,11 @@ package de.keksuccino.drippyloadingscreen.mixin.mixins.common.client;
 import de.keksuccino.drippyloadingscreen.customization.DrippyOverlayScreen;
 import de.keksuccino.fancymenu.customization.element.ElementBuilder;
 import de.keksuccino.fancymenu.customization.element.elements.audio.AudioElementBuilder;
+import de.keksuccino.fancymenu.customization.element.elements.browser.BrowserElementBuilder;
 import de.keksuccino.fancymenu.customization.element.elements.button.custombutton.ButtonElementBuilder;
 import de.keksuccino.fancymenu.customization.element.elements.checkbox.CheckboxElementBuilder;
 import de.keksuccino.fancymenu.customization.element.elements.cursor.CursorElementBuilder;
+import de.keksuccino.fancymenu.customization.element.elements.dragger.DraggerElementBuilder;
 import de.keksuccino.fancymenu.customization.element.elements.inputfield.InputFieldElementBuilder;
 import de.keksuccino.fancymenu.customization.element.elements.item.ItemElementBuilder;
 import de.keksuccino.fancymenu.customization.element.elements.musiccontroller.MusicControllerElementBuilder;
@@ -47,6 +49,10 @@ public class MixinElementBuilder {
             if (self instanceof InputFieldElementBuilder) info.setReturnValue(false);
 
             if (self instanceof TooltipElementBuilder) info.setReturnValue(false);
+
+            if (self instanceof DraggerElementBuilder) info.setReturnValue(false);
+
+            if (self instanceof BrowserElementBuilder) info.setReturnValue(false);
 
         }
 
