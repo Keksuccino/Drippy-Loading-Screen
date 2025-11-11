@@ -1232,7 +1232,6 @@ public class EarlyLoadingEditorScreen extends Screen {
         menu.addValueCycleEntry("background_hide_logger",
                         CommonCycles.cycleEnabledDisabled("drippyloadingscreen.early_loading.context.background.hide_logger", options.earlyLoadingHideLogger.getValue())
                                 .addCycleListener(value -> applyOptionChange(() -> options.earlyLoadingHideLogger.setValue(value.getAsBoolean()))));
-
         return menu;
 
     }
@@ -1262,6 +1261,9 @@ public class EarlyLoadingEditorScreen extends Screen {
                         CommonCycles.cycleEnabledDisabled("drippyloadingscreen.early_loading.context.common.hide_element", options.earlyLoadingHideLogo.getValue())
                                 .addCycleListener(value -> applyOptionChange(() -> options.earlyLoadingHideLogo.setValue(value.getAsBoolean()))));
 
+        menu.addSeparatorEntry("logo_separator_before_restore_aspect");
+        menu.addClickableEntry("logo_restore_aspect", Component.translatable("drippyloadingscreen.early_loading.context.common.restore_aspect_ratio"),
+                (ctx, entry) -> restoreLogoAspect(options)).setIsActiveSupplier((contextMenu, contextMenuEntry) -> hasCustomLogo(options));
         return menu;
 
     }
@@ -1292,6 +1294,9 @@ public class EarlyLoadingEditorScreen extends Screen {
                         CommonCycles.cycleEnabledDisabled("drippyloadingscreen.early_loading.context.common.hide_element", options.earlyLoadingHideBar.getValue())
                                 .addCycleListener(value -> applyOptionChange(() -> options.earlyLoadingHideBar.setValue(value.getAsBoolean()))));
 
+        menu.addSeparatorEntry("progress_separator_before_restore_aspect");
+        menu.addClickableEntry("progress_restore_aspect", Component.translatable("drippyloadingscreen.early_loading.context.common.restore_aspect_ratio"),
+                (ctx, entry) -> restoreProgressAspect(options)).setIsActiveSupplier((contextMenu, contextMenuEntry) -> canRestoreProgressAspect(options));
         return menu;
 
     }
@@ -1316,6 +1321,10 @@ public class EarlyLoadingEditorScreen extends Screen {
         menu.addSubMenuEntry(prefix + "_offset", Component.translatable("drippyloadingscreen.early_loading.context.watermark.offset"), offsetMenu);
         addIntegerInputEntry(offsetMenu, prefix + "_offset_x", Component.translatable("drippyloadingscreen.early_loading.context.common.offset_x"), access.offsetX());
         addIntegerInputEntry(offsetMenu, prefix + "_offset_y", Component.translatable("drippyloadingscreen.early_loading.context.common.offset_y"), access.offsetY());
+
+        menu.addSeparatorEntry(prefix + "_separator_before_restore_aspect");
+        menu.addClickableEntry(prefix + "_restore_aspect", Component.translatable("drippyloadingscreen.early_loading.context.common.restore_aspect_ratio"),
+                (ctx, entry) -> restoreWatermarkAspect(anchor)).setIsActiveSupplier((contextMenu, contextMenuEntry) -> hasCustomWatermarkTexture(anchor));
 
         return menu;
 
@@ -1366,6 +1375,158 @@ public class EarlyLoadingEditorScreen extends Screen {
             LOGGER.warn("[DRIPPY LOADING SCREEN] Failed to build image supplier for {}", source, ex);
             return ResourceSupplier.empty(ITexture.class, FileMediaType.IMAGE);
         }
+    }
+
+    private void restoreLogoAspect(Options options) {
+        TextureDimensions dims = resolveTextureDimensions(options.earlyLoadingLogoTexturePath.getValue());
+        if (dims == null) {
+            LOGGER.warn("[DRIPPY LOADING SCREEN] Cannot restore logo aspect ratio because the custom texture is unavailable.");
+            return;
+        }
+        if (!restoreAspectRatioFromDimensions(options.earlyLoadingLogoWidth, options.earlyLoadingLogoHeight, 1, 1, dims)) {
+            LOGGER.warn("[DRIPPY LOADING SCREEN] Failed to compute aspect ratio for the logo texture.");
+        }
+    }
+
+    private void restoreProgressAspect(Options options) {
+        TextureDimensions dims = resolveTextureDimensions(options.earlyLoadingBarBackgroundTexturePath.getValue());
+        if (dims == null) {
+            dims = resolveTextureDimensions(options.earlyLoadingBarProgressTexturePath.getValue());
+        }
+        if (dims == null) {
+            LOGGER.warn("[DRIPPY LOADING SCREEN] Cannot restore progress bar aspect ratio because no custom bar texture is available.");
+            return;
+        }
+        if (!restoreAspectRatioFromDimensions(options.earlyLoadingBarWidth, options.earlyLoadingBarHeight, 32, 6, dims)) {
+            LOGGER.warn("[DRIPPY LOADING SCREEN] Failed to compute aspect ratio for the progress bar texture.");
+        }
+    }
+
+    private void restoreWatermarkAspect(WatermarkAnchor anchor) {
+        Options options = DrippyLoadingScreen.getOptions();
+        WatermarkOptionAccess access = resolveWatermarkOptions(options, anchor);
+        TextureDimensions dims = resolveTextureDimensions(access.texturePath().getValue());
+        if (dims == null) {
+            LOGGER.warn("[DRIPPY LOADING SCREEN] Cannot restore aspect ratio for {} watermark because the texture is unavailable.", anchor);
+            return;
+        }
+        if (!restoreAspectRatioFromDimensions(access.width(), access.height(), 1, 1, dims)) {
+            LOGGER.warn("[DRIPPY LOADING SCREEN] Failed to compute aspect ratio for {} watermark texture.", anchor);
+        }
+    }
+
+    private boolean restoreAspectRatioFromDimensions(Options.Option<Integer> widthOption, Options.Option<Integer> heightOption,
+                                                     int minWidth, int minHeight, TextureDimensions dims) {
+        AspectSize target = calculateAspectSize(widthOption.getValue(), heightOption.getValue(), dims.width(), dims.height(), minWidth, minHeight);
+        if (target == null) {
+            return false;
+        }
+        applyOptionChange(() -> {
+            widthOption.setValue(target.width());
+            heightOption.setValue(target.height());
+        });
+        return true;
+    }
+
+    private boolean hasCustomLogo(Options options) {
+        return hasCustomTexture(options.earlyLoadingLogoTexturePath.getValue());
+    }
+
+    private boolean canRestoreProgressAspect(Options options) {
+        return hasCustomTexture(options.earlyLoadingBarBackgroundTexturePath.getValue())
+                || hasCustomTexture(options.earlyLoadingBarProgressTexturePath.getValue());
+    }
+
+    private boolean hasCustomWatermarkTexture(WatermarkAnchor anchor) {
+        Options options = DrippyLoadingScreen.getOptions();
+        WatermarkOptionAccess access = resolveWatermarkOptions(options, anchor);
+        return hasCustomTexture(access.texturePath().getValue());
+    }
+
+    private boolean hasCustomTexture(@Nullable String source) {
+        return sanitizeTextureValue(source) != null;
+    }
+
+    @Nullable
+    private TextureDimensions resolveTextureDimensions(@Nullable String source) {
+        String sanitized = sanitizeTextureValue(source);
+        if (sanitized == null) {
+            return null;
+        }
+        ResourceSupplier<ITexture> supplier = createRawImageSupplier(sanitized);
+        ITexture texture = supplier.get();
+        DrippyUtils.waitForTexture(texture);
+        if (texture == null || !texture.isReady()) {
+            return null;
+        }
+        int width = Math.max(1, texture.getWidth());
+        int height = Math.max(1, texture.getHeight());
+        if (width <= 0 || height <= 0) {
+            return null;
+        }
+        return new TextureDimensions(width, height);
+    }
+
+    @Nullable
+    private AspectSize calculateAspectSize(int configuredWidth, int configuredHeight, int textureWidth, int textureHeight,
+                                           int minWidth, int minHeight) {
+        if (textureWidth <= 0 || textureHeight <= 0) {
+            return null;
+        }
+        float aspect = textureWidth / (float) textureHeight;
+        if (!Float.isFinite(aspect) || aspect <= 0.0f) {
+            return null;
+        }
+        int resolvedWidth = configuredWidth > 0 ? configuredWidth : textureWidth;
+        int resolvedHeight = configuredHeight > 0 ? configuredHeight : textureHeight;
+        if (configuredWidth <= 0 && configuredHeight <= 0) {
+            return adjustWidthToAspect(aspect, minWidth, minHeight, resolvedHeight);
+        }
+        resolvedWidth = Math.max(minWidth, resolvedWidth);
+        resolvedHeight = Math.max(minHeight, resolvedHeight);
+        AspectSize widthLocked = adjustWidthToAspect(aspect, minWidth, minHeight, resolvedHeight);
+        AspectSize heightLocked = adjustHeightToAspect(aspect, minWidth, minHeight, resolvedWidth);
+        if (configuredWidth <= 0) {
+            return widthLocked;
+        }
+        if (configuredHeight <= 0) {
+            return heightLocked;
+        }
+        long widthCost = aspectFitCost(widthLocked, resolvedWidth, resolvedHeight);
+        long heightCost = aspectFitCost(heightLocked, resolvedWidth, resolvedHeight);
+        return (widthCost <= heightCost) ? widthLocked : heightLocked;
+    }
+
+    private AspectSize adjustWidthToAspect(float aspect, int minWidth, int minHeight, int baseHeight) {
+        int height = Math.max(minHeight, baseHeight);
+        int width = Math.max(minWidth, Math.max(1, Math.round(height * aspect)));
+        if (aspect > 0.0f) {
+            int recomputedHeight = Math.max(minHeight, Math.max(1, Math.round(width / aspect)));
+            if (recomputedHeight != height) {
+                height = recomputedHeight;
+                width = Math.max(minWidth, Math.max(1, Math.round(height * aspect)));
+            }
+        }
+        return new AspectSize(width, height);
+    }
+
+    private AspectSize adjustHeightToAspect(float aspect, int minWidth, int minHeight, int baseWidth) {
+        int width = Math.max(minWidth, baseWidth);
+        int height = Math.max(minHeight, Math.max(1, Math.round(width / aspect)));
+        if (aspect > 0.0f) {
+            int recomputedWidth = Math.max(minWidth, Math.max(1, Math.round(height * aspect)));
+            if (recomputedWidth != width) {
+                width = recomputedWidth;
+                height = Math.max(minHeight, Math.max(1, Math.round(width / aspect)));
+            }
+        }
+        return new AspectSize(width, height);
+    }
+
+    private long aspectFitCost(AspectSize candidate, int referenceWidth, int referenceHeight) {
+        long widthDiff = Math.abs((long) candidate.width() - referenceWidth);
+        long heightDiff = Math.abs((long) candidate.height() - referenceHeight);
+        return widthDiff + heightDiff;
     }
 
     private void applyOptionChange(Runnable task) {
@@ -1789,6 +1950,10 @@ public class EarlyLoadingEditorScreen extends Screen {
     private record ElementGeometry(ElementBounds bounds, float absoluteX, float absoluteY, float width, float height) {}
 
     private record RectBounds(float left, float top, float right, float bottom) {}
+
+    private record AspectSize(int width, int height) {}
+
+    private record TextureDimensions(int width, int height) {}
 
     private record ResizeSession(SelectableElement element, ResizeHandle handle, float initialLeft, float initialTop,
                                  float initialRight, float initialBottom, float initialWidth, float initialHeight) {}

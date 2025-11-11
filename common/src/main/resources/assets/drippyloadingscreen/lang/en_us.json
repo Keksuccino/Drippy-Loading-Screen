@@ -42,5 +42,6 @@
   "drippyloadingscreen.early_loading.context.common.height": "Set Height",
   "drippyloadingscreen.early_loading.context.common.offset_x": "Set X Offset",
   "drippyloadingscreen.early_loading.context.common.offset_y": "Set Y Offset",
-  "drippyloadingscreen.early_loading.context.common.hide_element": "Hide Element: %s"
+  "drippyloadingscreen.early_loading.context.common.hide_element": "Hide Element: %s",
+  "drippyloadingscreen.early_loading.context.common.restore_aspect_ratio": "Restore Aspect Ratio"
 }
