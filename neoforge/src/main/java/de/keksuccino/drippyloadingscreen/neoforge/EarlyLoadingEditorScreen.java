@@ -54,6 +54,7 @@ public class EarlyLoadingEditorScreen extends Screen {
     private static final Component TITLE = Component.translatable("drippyloadingscreen.screen.early_loading_preview");
     private static final ResourceLocation MOJANG_LOGO_LOCATION = ResourceLocation.fromNamespaceAndPath("minecraft", "textures/gui/title/mojangstudios.png");
     private static final ResourceSupplier<ITexture> MOJANG_LOGO_SUPPLIER = createBundledSupplier(MOJANG_LOGO_LOCATION);
+    private static final float MOJANG_LOGO_U_OVERLAP = 0.0625f;
 
     private static final String[] PLACEHOLDER_TEXTURE_VALUES = {
             "/config/fancymenu/assets/some_image.png",
@@ -217,7 +218,8 @@ public class EarlyLoadingEditorScreen extends Screen {
     }
 
     private float renderLogoLayer(GuiGraphics graphics, RenderMetrics metrics, float uiScale) {
-        TextureInfo logoTexture = resolveLogoTexture();
+        LogoTexture logo = resolveLogoTexture();
+        TextureInfo logoTexture = logo.texture();
         float scaledOffsetY = this.visualOptions.logoOffsetY() * uiScale;
         int textureWidth = logoTexture.isValid() ? logoTexture.width() : 0;
         int textureHeight = logoTexture.isValid() ? logoTexture.height() : 0;
@@ -241,7 +243,11 @@ public class EarlyLoadingEditorScreen extends Screen {
         if (!logoTexture.isValid()) {
             return y + height;
         }
-        drawTexture(graphics, logoTexture, guiX, guiY, guiWidth, guiHeight);
+        if (logo.useBundledLayout()) {
+            drawBundledMojangLogo(graphics, logoTexture, guiX, guiY, guiWidth, guiHeight);
+        } else {
+            drawTexture(graphics, logoTexture, guiX, guiY, guiWidth, guiHeight);
+        }
         return y + height;
     }
 
@@ -489,6 +495,25 @@ public class EarlyLoadingEditorScreen extends Screen {
         int drawY = Math.round(y);
         RenderSystem.enableBlend();
         graphics.blit(texture.location(), drawX, drawY, 0.0f, 0.0f, drawWidth, drawHeight, drawWidth, drawHeight);
+    }
+
+    private void drawBundledMojangLogo(GuiGraphics graphics, TextureInfo texture, float x, float y, float width, float height) {
+        if (!texture.isValid()) {
+            return;
+        }
+        int drawX = Math.round(x);
+        int drawY = Math.round(y);
+        int totalWidth = Math.max(1, Math.round(width));
+        int totalHeight = Math.max(1, Math.round(height));
+        int leftWidth = Math.max(1, totalWidth / 2);
+        int rightWidth = Math.max(1, totalWidth - leftWidth);
+        int textureWidth = Math.max(1, texture.width());
+        int textureHeight = Math.max(1, texture.height());
+        int topPixels = Math.max(1, textureHeight / 2);
+        int bottomPixels = Math.max(1, textureHeight - topPixels);
+        RenderSystem.enableBlend();
+        graphics.blit(texture.location(), drawX, drawY, leftWidth, totalHeight, -MOJANG_LOGO_U_OVERLAP, 0.0f, textureWidth, topPixels, textureWidth, textureHeight);
+        graphics.blit(texture.location(), drawX + leftWidth, drawY, rightWidth, totalHeight, MOJANG_LOGO_U_OVERLAP, topPixels, textureWidth, bottomPixels, textureWidth, textureHeight);
     }
 
     private void drawSolidRect(GuiGraphics graphics, float x, float y, float width, float height, Color color, float alpha) {
@@ -840,12 +865,14 @@ public class EarlyLoadingEditorScreen extends Screen {
         return false;
     }
 
-    private TextureInfo resolveLogoTexture() {
+    private LogoTexture resolveLogoTexture() {
         TextureInfo custom = fetchTexture(this.textureSuppliers.logo());
         if (custom.isValid()) {
-            return custom;
+            return new LogoTexture(custom, false);
         }
-        return fetchTexture(MOJANG_LOGO_SUPPLIER);
+        TextureInfo bundled = fetchTexture(MOJANG_LOGO_SUPPLIER);
+        boolean hasBundled = bundled.isValid();
+        return new LogoTexture(bundled, hasBundled);
     }
 
     private TextureInfo fetchTexture(@Nullable ResourceSupplier<ITexture> supplier) {
@@ -1119,6 +1146,8 @@ public class EarlyLoadingEditorScreen extends Screen {
             return this.location != null && this.width > 0 && this.height > 0;
         }
     }
+
+    private record LogoTexture(TextureInfo texture, boolean useBundledLayout) {}
 
     private record LoggerLine(String text, float alpha) {}
 

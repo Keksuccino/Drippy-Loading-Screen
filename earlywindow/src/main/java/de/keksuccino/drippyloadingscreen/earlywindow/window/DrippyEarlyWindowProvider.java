@@ -70,6 +70,7 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
             "Waiting for Minecraft bootstrap",
             "Completing early window handoff"
     };
+    private static final float MOJANG_LOGO_U_OVERLAP = 0.0625f;
     private static final Duration WEB_TEXTURE_TIMEOUT = Duration.ofSeconds(20);
 
     private long window;
@@ -105,6 +106,7 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
     private LoadedTexture topRightWatermarkTexture;
     private LoadedTexture bottomLeftWatermarkTexture;
     private LoadedTexture bottomRightWatermarkTexture;
+    private boolean useBundledMojangLogo;
     private final ByteBuffer loggerVertexBuffer = BufferUtils.createByteBuffer(LOGGER_VERTEX_BUFFER_CAPACITY);
     private final List<DebugLoggerMessage> loggerDebugMessages = new ArrayList<>();
     private long lastDebugMessageNanos;
@@ -405,7 +407,11 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
         float x = (this.windowWidth - width) / 2.0f + offsetX;
         float baseline = this.windowHeight * 0.35f;
         float y = baseline + scaledOffsetY;
-        drawTexturedQuad(x, y, width, height, this.logoTexture, 0.0f, 0.0f, 1.0f, 1.0f);
+        if (this.useBundledMojangLogo) {
+            drawBundledMojangLogo(x, y, width, height, this.logoTexture);
+        } else {
+            drawTexturedQuad(x, y, width, height, this.logoTexture, 0.0f, 0.0f, 1.0f, 1.0f);
+        }
         return y + height;
     }
 
@@ -689,13 +695,29 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
         GL11.glDisable(GL11.GL_TEXTURE_2D);
     }
 
+    private void drawBundledMojangLogo(float x, float y, float width, float height, LoadedTexture texture) {
+        if (texture == null) {
+            return;
+        }
+        float leftWidth = width * 0.5f;
+        float rightWidth = width - leftWidth;
+        float texWidth = Math.max(1.0f, (float) texture.width());
+        float texHeight = Math.max(1.0f, (float) texture.height());
+        float margin = MOJANG_LOGO_U_OVERLAP / texWidth;
+        float halfV = (texture.height() * 0.5f) / texHeight;
+        drawTexturedQuad(x, y, leftWidth, height, texture, -margin, 0.0f, 1.0f - margin, halfV);
+        drawTexturedQuad(x + leftWidth, y, rightWidth, height, texture, margin, halfV, 1.0f + margin, 1.0f);
+    }
+
     private void loadTextures() {
         if (this.textureLoader == null) {
             this.textureLoader = new EarlyWindowTextureLoader(this.gameDirectory, DrippyEarlyWindowProvider.class.getClassLoader());
         }
+        this.useBundledMojangLogo = false;
         TexturePathOrigin logoOrigin = loadConfiguredTexture(this.options.logoTexturePath(), true, texture -> this.logoTexture = texture, "logo texture");
         if (this.logoTexture == null && logoOrigin != TexturePathOrigin.REMOTE) {
             this.logoTexture = this.textureLoader.loadBundledTexture(MOJANG_LOGO_PATH);
+            this.useBundledMojangLogo = this.logoTexture != null;
         }
         loadConfiguredTexture(this.options.backgroundTexturePath(), true, texture -> this.backgroundTexture = texture, "background texture");
         loadConfiguredTexture(this.options.barBackgroundTexturePath(), true, texture -> this.barBackgroundTexture = texture, "bar background texture");
