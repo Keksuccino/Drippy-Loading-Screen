@@ -1225,6 +1225,8 @@ public class EarlyLoadingEditorScreen extends Screen {
         addIntegerInputEntry(windowSizeMenu, "background_window_width", Component.translatable("drippyloadingscreen.early_loading.context.common.width"), options.earlyLoadingWindowWidth);
         addIntegerInputEntry(windowSizeMenu, "background_window_height", Component.translatable("drippyloadingscreen.early_loading.context.common.height"), options.earlyLoadingWindowHeight);
 
+        menu.addSeparatorEntry("separator_before_window_title");
+
         addStringInputEntry(menu, "background_window_title", Component.translatable("drippyloadingscreen.early_loading.context.background.window_title"), options.earlyLoadingWindowTitle);
 
         menu.addSeparatorEntry("separator_after_window_title");
