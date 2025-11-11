@@ -5,8 +5,16 @@ import com.mojang.math.Axis;
 import de.keksuccino.drippyloadingscreen.DrippyLoadingScreen;
 import de.keksuccino.drippyloadingscreen.DrippyUtils;
 import de.keksuccino.drippyloadingscreen.Options;
+import de.keksuccino.fancymenu.util.cycle.CommonCycles;
+import de.keksuccino.fancymenu.util.file.FileFilter;
 import de.keksuccino.fancymenu.util.file.type.FileMediaType;
+import de.keksuccino.fancymenu.util.file.type.groups.FileTypeGroup;
+import de.keksuccino.fancymenu.util.file.type.types.FileTypes;
+import de.keksuccino.fancymenu.util.file.type.types.ImageFileType;
+import de.keksuccino.fancymenu.util.rendering.ui.NonStackableOverlayUI;
 import de.keksuccino.fancymenu.util.rendering.ui.UIBase;
+import de.keksuccino.fancymenu.util.rendering.ui.contextmenu.v2.ContextMenu;
+import de.keksuccino.fancymenu.util.rendering.ui.screen.resource.ResourceChooserScreen;
 import de.keksuccino.fancymenu.util.resource.ResourceSource;
 import de.keksuccino.fancymenu.util.resource.ResourceSourceType;
 import de.keksuccino.fancymenu.util.resource.ResourceSupplier;
@@ -25,7 +33,9 @@ import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -45,6 +55,14 @@ public class EarlyLoadingPreviewScreen extends Screen {
             "/config/fancymenu/assets/some_bar_background_image.png",
             "/config/fancymenu/assets/some_bar_progress_image.png"
     };
+    private static final FileFilter PNG_APNG_FILE_FILTER = file -> {
+        if (file.isDirectory()) {
+            return true;
+        }
+        String name = file.getName().toLowerCase(Locale.ROOT);
+        return name.endsWith(".png") || name.endsWith(".apng");
+    };
+    private static final FileTypeGroup<ImageFileType> PNG_APNG_FILE_TYPES = FileTypeGroup.of(FileTypes.PNG_IMAGE, FileTypes.APNG_IMAGE);
 
     private static final int DEFAULT_REFERENCE_WIDTH = 854;
     private static final int DEFAULT_REFERENCE_HEIGHT = 480;
@@ -67,9 +85,19 @@ public class EarlyLoadingPreviewScreen extends Screen {
             "Completing early window handoff"
     };
 
-    private final EarlyLoadingVisualOptions visualOptions;
-    private final TextureSuppliers textureSuppliers;
+    private EarlyLoadingVisualOptions visualOptions;
+    private TextureSuppliers textureSuppliers;
     private ColorScheme colorScheme;
+
+    private ContextMenu backgroundContextMenu;
+    private ContextMenu logoContextMenu;
+    private ContextMenu progressBarContextMenu;
+    private final EnumMap<WatermarkAnchor, ContextMenu> watermarkContextMenus = new EnumMap<>(WatermarkAnchor.class);
+    private final EnumMap<WatermarkAnchor, ElementBounds> watermarkBounds = new EnumMap<>(WatermarkAnchor.class);
+    private final List<ContextMenu> contextMenus = new ArrayList<>();
+    private ElementBounds backgroundBounds;
+    private ElementBounds logoBounds;
+    private ElementBounds progressBarBounds;
 
     private float baseWidth;
     private float baseHeight;
@@ -90,24 +118,33 @@ public class EarlyLoadingPreviewScreen extends Screen {
         this.visualOptions = EarlyLoadingVisualOptions.from(DrippyLoadingScreen.getOptions());
         this.textureSuppliers = new TextureSuppliers(this.visualOptions);
         this.colorScheme = resolveColorScheme();
-    }
-
-    @Override
-    protected void init() {
-        super.init();
         this.baseWidth = resolveReferenceWidth();
         this.baseHeight = resolveReferenceHeight();
     }
 
     @Override
+    protected void init() {
+        super.init();
+        syncVisualOptionsFromConfig();
+        this.baseWidth = resolveReferenceWidth();
+        this.baseHeight = resolveReferenceHeight();
+        rebuildContextMenus();
+    }
+
+    @Override
     public void tick() {
         super.tick();
+        syncVisualOptionsFromConfig();
         this.colorScheme = resolveColorScheme();
     }
 
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         RenderSystem.enableBlend();
+        this.backgroundBounds = new ElementBounds(0.0f, 0.0f, this.width, this.height);
+        this.logoBounds = null;
+        this.progressBarBounds = null;
+        this.watermarkBounds.clear();
         updateProgressMetrics();
         RenderMetrics metrics = captureRenderMetrics();
         renderBackgroundLayer(graphics, metrics);
@@ -122,6 +159,26 @@ public class EarlyLoadingPreviewScreen extends Screen {
     @Override
     public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         // Background is fully controlled by render().
+    }
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (super.mouseClicked(mouseX, mouseY, button)) {
+            return true;
+        }
+        if (button == 1 && openContextMenuAt(mouseX, mouseY)) {
+            return true;
+        }
+        if (button == 0 && !isAnyContextMenuHovered()) {
+            closeAllContextMenus();
+        }
+        return false;
+    }
+
+    @Override
+    public void removed() {
+        super.removed();
+        closeAllContextMenus();
     }
 
     private void renderBackgroundLayer(GuiGraphics graphics, RenderMetrics metrics) {
@@ -151,30 +208,35 @@ public class EarlyLoadingPreviewScreen extends Screen {
     }
 
     private float renderLogoLayer(GuiGraphics graphics, RenderMetrics metrics, float uiScale) {
-        float scaledOffsetY = this.visualOptions.logoOffsetY() * uiScale;
-        if (this.visualOptions.hideLogo()) {
-            return metrics.absoluteHeight() / 2.0f + scaledOffsetY;
-        }
         TextureInfo logoTexture = resolveLogoTexture();
-        if (!logoTexture.isValid()) {
-            return metrics.absoluteHeight() / 2.0f + scaledOffsetY;
-        }
-        float baseWidth = this.visualOptions.logoWidth() > 0 ? this.visualOptions.logoWidth() : logoTexture.width();
-        float baseHeight = this.visualOptions.logoHeight() > 0 ? this.visualOptions.logoHeight() : logoTexture.height();
+        float scaledOffsetY = this.visualOptions.logoOffsetY() * uiScale;
+        int textureWidth = logoTexture.isValid() ? logoTexture.width() : 0;
+        int textureHeight = logoTexture.isValid() ? logoTexture.height() : 0;
+        float baseWidth = this.visualOptions.logoWidth() > 0 ? this.visualOptions.logoWidth() : textureWidth;
+        float baseHeight = this.visualOptions.logoHeight() > 0 ? this.visualOptions.logoHeight() : textureHeight;
         float width = Math.max(1.0f, baseWidth * uiScale);
         float height = Math.max(1.0f, baseHeight * uiScale);
         float offsetX = this.visualOptions.logoOffsetX() * uiScale;
         float x = (metrics.absoluteWidth() - width) / 2.0f + offsetX;
         float baseline = metrics.absoluteHeight() * 0.35f;
         float y = baseline + scaledOffsetY;
-        drawTexture(graphics, logoTexture, metrics.toGui(x), metrics.toGui(y), metrics.toGui(width), metrics.toGui(height));
+        float guiX = metrics.toGui(x);
+        float guiY = metrics.toGui(y);
+        float guiWidth = metrics.toGui(width);
+        float guiHeight = metrics.toGui(height);
+        this.logoBounds = new ElementBounds(guiX, guiY, guiWidth, guiHeight);
+        if (this.visualOptions.hideLogo()) {
+            drawPlaceholderOverlay(graphics, guiX, guiY, guiWidth, guiHeight);
+            return y + height;
+        }
+        if (!logoTexture.isValid()) {
+            return y + height;
+        }
+        drawTexture(graphics, logoTexture, guiX, guiY, guiWidth, guiHeight);
         return y + height;
     }
 
     private void renderProgressBar(GuiGraphics graphics, RenderMetrics metrics, float logoBottom, float uiScale) {
-        if (this.visualOptions.hideBar()) {
-            return;
-        }
         float screenWidth = metrics.absoluteWidth();
         float screenHeight = metrics.absoluteHeight();
         int configuredWidth = Math.max(32, this.visualOptions.barWidth());
@@ -204,6 +266,11 @@ public class EarlyLoadingPreviewScreen extends Screen {
         float guiBaseY = metrics.toGui(baseY);
         float guiWidth = metrics.toGui(width);
         float guiHeight = metrics.toGui(height);
+        this.progressBarBounds = new ElementBounds(guiBaseX, guiBaseY, guiWidth, guiHeight);
+        if (this.visualOptions.hideBar()) {
+            drawPlaceholderOverlay(graphics, guiBaseX, guiBaseY, guiWidth, guiHeight);
+            return;
+        }
         TextureInfo barBackground = fetchTexture(this.textureSuppliers.barBackground());
         if (barBackground.isValid()) {
             drawTexture(graphics, barBackground, guiBaseX, guiBaseY, guiWidth, guiHeight);
@@ -269,10 +336,11 @@ public class EarlyLoadingPreviewScreen extends Screen {
         float guiY = metrics.toGui(y);
         float guiWidth = metrics.toGui(width);
         float guiHeight = metrics.toGui(height);
+        this.watermarkBounds.put(anchor, new ElementBounds(guiX, guiY, guiWidth, guiHeight));
         if (hasTexture) {
             drawTexture(graphics, texture, guiX, guiY, guiWidth, guiHeight);
         } else {
-            drawWatermarkPlaceholder(graphics, guiX, guiY, guiWidth, guiHeight);
+            drawPlaceholderOverlay(graphics, guiX, guiY, guiWidth, guiHeight);
         }
     }
 
@@ -437,7 +505,7 @@ public class EarlyLoadingPreviewScreen extends Screen {
         graphics.fill(right - 1, top, right, bottom, argb);
     }
 
-    private void drawWatermarkPlaceholder(GuiGraphics graphics, float x, float y, float width, float height) {
+    private void drawPlaceholderOverlay(GuiGraphics graphics, float x, float y, float width, float height) {
         if (width <= 1.0f || height <= 1.0f) {
             return;
         }
@@ -464,6 +532,291 @@ public class EarlyLoadingPreviewScreen extends Screen {
         }
         graphics.pose().popPose();
         graphics.disableScissor();
+    }
+
+    private void rebuildContextMenus() {
+        for (ContextMenu menu : this.contextMenus) {
+            this.removeWidget(menu);
+        }
+        this.contextMenus.clear();
+        this.watermarkContextMenus.clear();
+        this.backgroundContextMenu = createBackgroundContextMenu();
+        this.logoContextMenu = createLogoContextMenu();
+        this.progressBarContextMenu = createProgressBarContextMenu();
+        registerContextMenu(this.backgroundContextMenu);
+        registerContextMenu(this.logoContextMenu);
+        registerContextMenu(this.progressBarContextMenu);
+        for (WatermarkAnchor anchor : WatermarkAnchor.values()) {
+            ContextMenu menu = createWatermarkContextMenu(anchor);
+            this.watermarkContextMenus.put(anchor, menu);
+            registerContextMenu(menu);
+        }
+    }
+
+    private void registerContextMenu(@Nullable ContextMenu menu) {
+        if (menu == null) {
+            return;
+        }
+        this.contextMenus.add(menu);
+        this.addRenderableWidget(menu);
+    }
+
+    private ContextMenu createBackgroundContextMenu() {
+
+        ContextMenu menu = new ContextMenu().setForceUIScale(true);
+        Options options = DrippyLoadingScreen.getOptions();
+
+        addImageChooserEntry(menu, "background_set_image", Component.translatable("drippyloadingscreen.early_loading.context.background.set_image"), options.earlyLoadingBackgroundTexturePath);
+        menu.addValueCycleEntry("background_preserve_aspect_ratio",
+                        CommonCycles.cycleEnabledDisabled("drippyloadingscreen.early_loading.context.background.preserve_aspect_ratio", options.earlyLoadingBackgroundPreserveAspectRatio.getValue())
+                                .addCycleListener(value -> applyOptionChange(() -> options.earlyLoadingBackgroundPreserveAspectRatio.setValue(value.getAsBoolean()))));
+
+        ContextMenu windowSizeMenu = new ContextMenu();
+        menu.addSubMenuEntry("background_window_size", Component.translatable("drippyloadingscreen.early_loading.context.background.window_size"), windowSizeMenu);
+        addIntegerInputEntry(windowSizeMenu, "background_window_width", Component.translatable("drippyloadingscreen.early_loading.context.common.width"), options.earlyLoadingWindowWidth);
+        addIntegerInputEntry(windowSizeMenu, "background_window_height", Component.translatable("drippyloadingscreen.early_loading.context.common.height"), options.earlyLoadingWindowHeight);
+
+        addStringInputEntry(menu, "background_window_title", Component.translatable("drippyloadingscreen.early_loading.context.background.window_title"), options.earlyLoadingWindowTitle);
+
+        menu.addSeparatorEntry("separator_after_window_title");
+
+        menu.addValueCycleEntry("background_hide_logger",
+                        CommonCycles.cycleEnabledDisabled("drippyloadingscreen.early_loading.context.background.hide_logger", options.earlyLoadingHideLogger.getValue())
+                                .addCycleListener(value -> applyOptionChange(() -> options.earlyLoadingHideLogger.setValue(value.getAsBoolean()))));
+
+        return menu;
+
+    }
+
+    private ContextMenu createLogoContextMenu() {
+
+        ContextMenu menu = new ContextMenu().setForceUIScale(true);
+        Options options = DrippyLoadingScreen.getOptions();
+
+        addImageChooserEntry(menu, "logo_set_image", Component.translatable("drippyloadingscreen.early_loading.context.logo.set_image"), options.earlyLoadingLogoTexturePath);
+
+        ContextMenu sizeMenu = new ContextMenu();
+        menu.addSubMenuEntry("logo_size", Component.translatable("drippyloadingscreen.early_loading.context.logo.size"), sizeMenu);
+        addIntegerInputEntry(sizeMenu, "logo_width", Component.translatable("drippyloadingscreen.early_loading.context.common.width"), options.earlyLoadingLogoWidth);
+        addIntegerInputEntry(sizeMenu, "logo_height", Component.translatable("drippyloadingscreen.early_loading.context.common.height"), options.earlyLoadingLogoHeight);
+
+        ContextMenu offsetMenu = new ContextMenu();
+        menu.addSubMenuEntry("logo_offset", Component.translatable("drippyloadingscreen.early_loading.context.logo.offset"), offsetMenu);
+        addIntegerInputEntry(offsetMenu, "logo_offset_x", Component.translatable("drippyloadingscreen.early_loading.context.common.offset_x"), options.earlyLoadingLogoPositionOffsetX);
+        addIntegerInputEntry(offsetMenu, "logo_offset_y", Component.translatable("drippyloadingscreen.early_loading.context.common.offset_y"), options.earlyLoadingLogoPositionOffsetY);
+
+        menu.addValueCycleEntry("logo_hide",
+                        CommonCycles.cycleEnabledDisabled("drippyloadingscreen.early_loading.context.common.hide_element", options.earlyLoadingHideLogo.getValue())
+                                .addCycleListener(value -> applyOptionChange(() -> options.earlyLoadingHideLogo.setValue(value.getAsBoolean()))));
+
+        return menu;
+
+    }
+
+    private ContextMenu createProgressBarContextMenu() {
+
+        ContextMenu menu = new ContextMenu().setForceUIScale(true);
+        Options options = DrippyLoadingScreen.getOptions();
+
+        addImageChooserEntry(menu, "progress_set_background", Component.translatable("drippyloadingscreen.early_loading.context.progress.set_background"), options.earlyLoadingBarBackgroundTexturePath);
+        addImageChooserEntry(menu, "progress_set_progress", Component.translatable("drippyloadingscreen.early_loading.context.progress.set_progress"), options.earlyLoadingBarProgressTexturePath);
+
+        ContextMenu sizeMenu = new ContextMenu();
+        menu.addSubMenuEntry("progress_size", Component.translatable("drippyloadingscreen.early_loading.context.progress.size"), sizeMenu);
+        addIntegerInputEntry(sizeMenu, "progress_width", Component.translatable("drippyloadingscreen.early_loading.context.common.width"), options.earlyLoadingBarWidth);
+        addIntegerInputEntry(sizeMenu, "progress_height", Component.translatable("drippyloadingscreen.early_loading.context.common.height"), options.earlyLoadingBarHeight);
+
+        ContextMenu offsetMenu = new ContextMenu();
+        menu.addSubMenuEntry("progress_offset", Component.translatable("drippyloadingscreen.early_loading.context.progress.offset"), offsetMenu);
+        addIntegerInputEntry(offsetMenu, "progress_offset_x", Component.translatable("drippyloadingscreen.early_loading.context.common.offset_x"), options.earlyLoadingBarPositionOffsetX);
+        addIntegerInputEntry(offsetMenu, "progress_offset_y", Component.translatable("drippyloadingscreen.early_loading.context.common.offset_y"), options.earlyLoadingBarPositionOffsetY);
+
+        menu.addValueCycleEntry("progress_hide",
+                        CommonCycles.cycleEnabledDisabled("drippyloadingscreen.early_loading.context.common.hide_element", options.earlyLoadingHideBar.getValue())
+                                .addCycleListener(value -> applyOptionChange(() -> options.earlyLoadingHideBar.setValue(value.getAsBoolean()))));
+
+        return menu;
+
+    }
+
+    private ContextMenu createWatermarkContextMenu(WatermarkAnchor anchor) {
+
+        ContextMenu menu = new ContextMenu().setForceUIScale(true);
+        Options options = DrippyLoadingScreen.getOptions();
+        WatermarkOptionAccess access = resolveWatermarkOptions(options, anchor);
+        String prefix = anchor.name().toLowerCase(Locale.ROOT);
+
+        addImageChooserEntry(menu, prefix + "_set_image", Component.translatable("drippyloadingscreen.early_loading.context.watermark.set_image"), access.texturePath());
+
+        ContextMenu sizeMenu = new ContextMenu();
+        menu.addSubMenuEntry(prefix + "_size", Component.translatable("drippyloadingscreen.early_loading.context.watermark.size"), sizeMenu);
+        addIntegerInputEntry(sizeMenu, prefix + "_width", Component.translatable("drippyloadingscreen.early_loading.context.common.width"), access.width());
+        addIntegerInputEntry(sizeMenu, prefix + "_height", Component.translatable("drippyloadingscreen.early_loading.context.common.height"), access.height());
+
+        ContextMenu offsetMenu = new ContextMenu();
+        menu.addSubMenuEntry(prefix + "_offset", Component.translatable("drippyloadingscreen.early_loading.context.watermark.offset"), offsetMenu);
+        addIntegerInputEntry(offsetMenu, prefix + "_offset_x", Component.translatable("drippyloadingscreen.early_loading.context.common.offset_x"), access.offsetX());
+        addIntegerInputEntry(offsetMenu, prefix + "_offset_y", Component.translatable("drippyloadingscreen.early_loading.context.common.offset_y"), access.offsetY());
+
+        return menu;
+
+    }
+
+    private void addIntegerInputEntry(ContextMenu menu, String entryIdentifier, Component label, Options.Option<Integer> option) {
+        NonStackableOverlayUI.addIntegerInputContextMenuEntryTo(menu, entryIdentifier, label,
+                        option::getValue,
+                        value -> applyOptionChange(() -> option.setValue(value != null ? value : option.getDefaultValue())),
+                        true, option.getDefaultValue(), null, null)
+                .setStackable(false);
+    }
+
+    private void addStringInputEntry(ContextMenu menu, String entryIdentifier, Component label, Options.Option<String> option) {
+        NonStackableOverlayUI.addInputContextMenuEntryTo(menu, entryIdentifier, label,
+                        option::getValue,
+                        value -> applyOptionChange(() -> option.setValue((value != null) ? value : option.getDefaultValue())),
+                        true, option.getDefaultValue(), null, false, false, null, null)
+                .setStackable(false);
+    }
+
+    private void addImageChooserEntry(ContextMenu menu, String entryIdentifier, Component label, Options.Option<String> option) {
+        final ResourceChooserScreen<ITexture, ImageFileType> chooser = ResourceChooserScreen.image(PNG_APNG_FILE_FILTER, s -> {});
+        ResourceSupplier<ITexture> defaultSupplier = createRawImageSupplier(option.getDefaultValue());
+        NonStackableOverlayUI.addGenericResourceChooserContextMenuEntryTo(menu, entryIdentifier,
+                        () -> chooser,
+                        ResourceSupplier::image,
+                        defaultSupplier,
+                        () -> createRawImageSupplier(option.getValue()),
+                        supplier -> applyOptionChange(() -> option.setValue(normalizeResourceSource(supplier.getSourceWithPrefix()))),
+                        label,
+                        true,
+                        PNG_APNG_FILE_TYPES,
+                        PNG_APNG_FILE_FILTER,
+                        false,
+                        true,
+                        true)
+                .setStackable(false);
+    }
+
+    private static ResourceSupplier<ITexture> createRawImageSupplier(@Nullable String source) {
+        if (source == null || source.isBlank()) {
+            return ResourceSupplier.empty(ITexture.class, FileMediaType.IMAGE);
+        }
+        try {
+            return ResourceSupplier.image(source);
+        } catch (Exception ex) {
+            LOGGER.warn("[DRIPPY LOADING SCREEN] Failed to build image supplier for {}", source, ex);
+            return ResourceSupplier.empty(ITexture.class, FileMediaType.IMAGE);
+        }
+    }
+
+    private void applyOptionChange(Runnable task) {
+        task.run();
+        syncVisualOptionsFromConfig();
+    }
+
+    private void syncVisualOptionsFromConfig() {
+        Options options = DrippyLoadingScreen.getOptions();
+        EarlyLoadingVisualOptions latest = EarlyLoadingVisualOptions.from(options);
+        if (!latest.equals(this.visualOptions)) {
+            this.visualOptions = latest;
+            this.textureSuppliers = new TextureSuppliers(latest);
+            this.baseWidth = resolveReferenceWidth();
+            this.baseHeight = resolveReferenceHeight();
+        }
+    }
+
+    private WatermarkOptionAccess resolveWatermarkOptions(Options options, WatermarkAnchor anchor) {
+        return switch (anchor) {
+            case TOP_LEFT -> new WatermarkOptionAccess(
+                    options.earlyLoadingTopLeftWatermarkTexturePath,
+                    options.earlyLoadingTopLeftWatermarkTextureWidth,
+                    options.earlyLoadingTopLeftWatermarkTextureHeight,
+                    options.earlyLoadingTopLeftWatermarkTexturePositionOffsetX,
+                    options.earlyLoadingTopLeftWatermarkTexturePositionOffsetY
+            );
+            case TOP_RIGHT -> new WatermarkOptionAccess(
+                    options.earlyLoadingTopRightWatermarkTexturePath,
+                    options.earlyLoadingTopRightWatermarkTextureWidth,
+                    options.earlyLoadingTopRightWatermarkTextureHeight,
+                    options.earlyLoadingTopRightWatermarkTexturePositionOffsetX,
+                    options.earlyLoadingTopRightWatermarkTexturePositionOffsetY
+            );
+            case BOTTOM_LEFT -> new WatermarkOptionAccess(
+                    options.earlyLoadingBottomLeftWatermarkTexturePath,
+                    options.earlyLoadingBottomLeftWatermarkTextureWidth,
+                    options.earlyLoadingBottomLeftWatermarkTextureHeight,
+                    options.earlyLoadingBottomLeftWatermarkTexturePositionOffsetX,
+                    options.earlyLoadingBottomLeftWatermarkTexturePositionOffsetY
+            );
+            case BOTTOM_RIGHT -> new WatermarkOptionAccess(
+                    options.earlyLoadingBottomRightWatermarkTexturePath,
+                    options.earlyLoadingBottomRightWatermarkTextureWidth,
+                    options.earlyLoadingBottomRightWatermarkTextureHeight,
+                    options.earlyLoadingBottomRightWatermarkTexturePositionOffsetX,
+                    options.earlyLoadingBottomRightWatermarkTexturePositionOffsetY
+            );
+        };
+    }
+
+    private static String normalizeResourceSource(@Nullable String sourceWithPrefix) {
+        if (sourceWithPrefix == null) {
+            return "";
+        }
+        String trimmed = sourceWithPrefix.trim();
+        if (trimmed.isEmpty()) {
+            return "";
+        }
+        ResourceSourceType type = ResourceSourceType.getSourceTypeOf(trimmed);
+        if (type == ResourceSourceType.LOCAL) {
+            return ResourceSourceType.getWithoutSourcePrefix(trimmed);
+        }
+        return trimmed;
+    }
+
+    private boolean openContextMenuAt(double mouseX, double mouseY) {
+        if (this.progressBarBounds != null && this.progressBarBounds.contains(mouseX, mouseY)) {
+            return openContextMenu(this.progressBarContextMenu);
+        }
+        if (this.logoBounds != null && this.logoBounds.contains(mouseX, mouseY)) {
+            return openContextMenu(this.logoContextMenu);
+        }
+        for (WatermarkAnchor anchor : WatermarkAnchor.values()) {
+            ElementBounds bounds = this.watermarkBounds.get(anchor);
+            if (bounds != null && bounds.contains(mouseX, mouseY)) {
+                return openContextMenu(this.watermarkContextMenus.get(anchor));
+            }
+        }
+        if (this.backgroundBounds == null) {
+            this.backgroundBounds = new ElementBounds(0.0f, 0.0f, this.width, this.height);
+        }
+        if (this.backgroundBounds.contains(mouseX, mouseY)) {
+            return openContextMenu(this.backgroundContextMenu);
+        }
+        return false;
+    }
+
+    private boolean openContextMenu(@Nullable ContextMenu menu) {
+        if (menu == null) {
+            return false;
+        }
+        closeAllContextMenus();
+        menu.openMenuAtMouse();
+        return true;
+    }
+
+    private void closeAllContextMenus() {
+        for (ContextMenu menu : this.contextMenus) {
+            menu.closeMenu();
+        }
+    }
+
+    private boolean isAnyContextMenuHovered() {
+        for (ContextMenu menu : this.contextMenus) {
+            if (menu.isOpen() && (menu.isHovered() || menu.isUserNavigatingInMenu())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private TextureInfo resolveLogoTexture() {
@@ -670,6 +1023,12 @@ public class EarlyLoadingPreviewScreen extends Screen {
         }
     }
 
+    private record ElementBounds(float x, float y, float width, float height) {
+        private boolean contains(double px, double py) {
+            return px >= this.x && px <= this.x + this.width && py >= this.y && py <= this.y + this.height;
+        }
+    }
+
     private record TextureInfo(@Nullable ResourceLocation location, int width, int height) {
         private static final TextureInfo EMPTY = new TextureInfo(null, 0, 0);
 
@@ -697,6 +1056,14 @@ public class EarlyLoadingPreviewScreen extends Screen {
             return new ColorScheme(new Color(0.0f, 0.0f, 0.0f), new Color(1.0f, 1.0f, 1.0f));
         }
     }
+
+    private record WatermarkOptionAccess(
+            Options.Option<String> texturePath,
+            Options.Option<Integer> width,
+            Options.Option<Integer> height,
+            Options.Option<Integer> offsetX,
+            Options.Option<Integer> offsetY
+    ) {}
 
     private record EarlyLoadingVisualOptions(
             String backgroundTexturePath,
