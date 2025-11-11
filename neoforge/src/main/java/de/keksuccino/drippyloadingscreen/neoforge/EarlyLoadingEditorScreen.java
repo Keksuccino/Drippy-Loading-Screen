@@ -163,6 +163,7 @@ public class EarlyLoadingEditorScreen extends Screen {
         renderProgressBar(graphics, metrics, logoBottom, uiScale);
         renderWatermarks(graphics, metrics, uiScale);
         renderLoggerOverlay(graphics, metrics, uiScale);
+        renderElementHoverIndicators(graphics, mouseX, mouseY);
         super.render(graphics, mouseX, mouseY, partialTick);
     }
 
@@ -316,6 +317,37 @@ public class EarlyLoadingEditorScreen extends Screen {
                 this.visualOptions.bottomLeftOffsetX(), this.visualOptions.bottomLeftOffsetY(), WatermarkAnchor.BOTTOM_LEFT, uiScale);
         renderWatermark(graphics, metrics, this.textureSuppliers.bottomRight(), this.visualOptions.bottomRightWidth(), this.visualOptions.bottomRightHeight(),
                 this.visualOptions.bottomRightOffsetX(), this.visualOptions.bottomRightOffsetY(), WatermarkAnchor.BOTTOM_RIGHT, uiScale);
+    }
+
+    private void renderElementHoverIndicators(GuiGraphics graphics, double mouseX, double mouseY) {
+        int borderColor = UIBase.getUIColorTheme().layout_editor_element_border_color_normal.getColorInt();
+        if (this.logoBounds != null && this.logoBounds.contains(mouseX, mouseY)) {
+            drawEditorHoverBorder(graphics, this.logoBounds, borderColor);
+        } else if (this.progressBarBounds != null && this.progressBarBounds.contains(mouseX, mouseY)) {
+            drawEditorHoverBorder(graphics, this.progressBarBounds, borderColor);
+        } else {
+            for (ElementBounds bounds : this.watermarkBounds.values()) {
+                if (bounds != null && bounds.contains(mouseX, mouseY)) {
+                    drawEditorHoverBorder(graphics, bounds, borderColor);
+                    break;
+                }
+            }
+        }
+    }
+
+    private void drawEditorHoverBorder(GuiGraphics graphics, ElementBounds bounds, int argbColor) {
+        int left = Math.round(bounds.x());
+        int top = Math.round(bounds.y());
+        int right = Math.round(bounds.x() + bounds.width());
+        int bottom = Math.round(bounds.y() + bounds.height());
+        if ((right - left) < 2 || (bottom - top) < 2) {
+            return;
+        }
+        RenderSystem.enableBlend();
+        graphics.fill(left + 1, top, right - 1, top + 1, argbColor);
+        graphics.fill(left + 1, bottom - 1, right - 1, bottom, argbColor);
+        graphics.fill(left, top, left + 1, bottom, argbColor);
+        graphics.fill(right - 1, top, right, bottom, argbColor);
     }
 
     private void renderWatermark(GuiGraphics graphics, RenderMetrics metrics, @Nullable ResourceSupplier<ITexture> supplier, int configuredWidth, int configuredHeight,
