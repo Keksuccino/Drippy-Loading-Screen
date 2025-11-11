@@ -91,7 +91,7 @@ public class EarlyLoadingEditorScreen extends Screen {
             "Waiting for Minecraft bootstrap",
             "Completing early window handoff"
     };
-    private static final int RESIZE_HANDLE_SIZE = 8;
+    private static final int RESIZE_HANDLE_SIZE = 4;
     private static final float MIN_RESIZE_SIZE = 8.0f;
 
     private EarlyLoadingVisualOptions visualOptions;
@@ -420,9 +420,15 @@ public class EarlyLoadingEditorScreen extends Screen {
         float top = bounds.y();
         float right = bounds.x() + bounds.width();
         float bottom = bounds.y() + bounds.height();
+        float centerX = (left + right) / 2.0f;
+        float centerY = (top + bottom) / 2.0f;
         drawHandle(graphics, left, top, half, argbColor);
+        drawHandle(graphics, centerX, top, half, argbColor);
         drawHandle(graphics, right, top, half, argbColor);
+        drawHandle(graphics, left, centerY, half, argbColor);
+        drawHandle(graphics, right, centerY, half, argbColor);
         drawHandle(graphics, left, bottom, half, argbColor);
+        drawHandle(graphics, centerX, bottom, half, argbColor);
         drawHandle(graphics, right, bottom, half, argbColor);
     }
 
@@ -803,6 +809,8 @@ public class EarlyLoadingEditorScreen extends Screen {
         float top = bounds.y();
         float right = bounds.x() + bounds.width();
         float bottom = bounds.y() + bounds.height();
+        float centerX = (left + right) / 2.0f;
+        float centerY = (top + bottom) / 2.0f;
         if (isWithinHandle(left, top, mouseX, mouseY, half)) {
             return ResizeHandle.TOP_LEFT;
         }
@@ -814,6 +822,18 @@ public class EarlyLoadingEditorScreen extends Screen {
         }
         if (isWithinHandle(right, bottom, mouseX, mouseY, half)) {
             return ResizeHandle.BOTTOM_RIGHT;
+        }
+        if (isWithinHandle(centerX, top, mouseX, mouseY, half)) {
+            return ResizeHandle.TOP;
+        }
+        if (isWithinHandle(centerX, bottom, mouseX, mouseY, half)) {
+            return ResizeHandle.BOTTOM;
+        }
+        if (isWithinHandle(left, centerY, mouseX, mouseY, half)) {
+            return ResizeHandle.LEFT;
+        }
+        if (isWithinHandle(right, centerY, mouseX, mouseY, half)) {
+            return ResizeHandle.RIGHT;
         }
         return null;
     }
@@ -1605,7 +1625,11 @@ public class EarlyLoadingEditorScreen extends Screen {
         TOP_LEFT(true, true, false, false),
         TOP_RIGHT(false, true, true, false),
         BOTTOM_LEFT(true, false, false, true),
-        BOTTOM_RIGHT(false, false, true, true);
+        BOTTOM_RIGHT(false, false, true, true),
+        TOP(false, true, false, false),
+        RIGHT(false, false, true, false),
+        BOTTOM(false, false, false, true),
+        LEFT(true, false, false, false);
 
         private final boolean adjustsLeft;
         private final boolean adjustsTop;
