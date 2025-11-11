@@ -287,18 +287,23 @@ public class EarlyLoadingEditorScreen extends Screen {
             return;
         }
         TextureInfo barBackground = fetchTexture(this.textureSuppliers.barBackground());
+        TextureInfo barProgress = fetchTexture(this.textureSuppliers.barProgress());
+        boolean vanillaBar = !barBackground.isValid() && !barProgress.isValid();
+        ProgressFrameMetrics frameMetrics = vanillaBar ? computeProgressFrameMetrics(guiWidth, guiHeight) : null;
         if (barBackground.isValid()) {
             drawTexture(graphics, barBackground, guiBaseX, guiBaseY, guiWidth, guiHeight);
+        } else if (vanillaBar && frameMetrics != null) {
+            drawVanillaProgressFrame(graphics, guiBaseX, guiBaseY, guiWidth, guiHeight, frameMetrics);
         } else {
             drawSolidRect(graphics, guiBaseX, guiBaseY, guiWidth, guiHeight, this.colorScheme.background().withBrightness(0.5f), 0.9f);
             drawOutline(graphics, guiBaseX, guiBaseY, guiWidth, guiHeight, this.colorScheme.foreground(), 1.0f);
         }
 
         if (this.progressIndeterminate) {
-            drawIndeterminateProgress(graphics, guiBaseX, guiBaseY, guiWidth, guiHeight);
+            drawIndeterminateProgress(graphics, guiBaseX, guiBaseY, guiWidth, guiHeight, frameMetrics, barProgress);
         } else {
             float clamped = Mth.clamp(this.displayedProgress, 0.0f, 1.0f);
-            drawProgressSegment(graphics, guiBaseX, guiBaseY, guiWidth, guiHeight, 0.0f, clamped);
+            drawProgressSegment(graphics, guiBaseX, guiBaseY, guiWidth, guiHeight, 0.0f, clamped, frameMetrics, barProgress);
         }
     }
 
@@ -442,29 +447,83 @@ public class EarlyLoadingEditorScreen extends Screen {
         }
     }
 
-    private void drawIndeterminateProgress(GuiGraphics graphics, float x, float y, float width, float height) {
+    private void drawIndeterminateProgress(GuiGraphics graphics, float x, float y, float width, float height,
+                                           ProgressFrameMetrics frameMetrics, TextureInfo progressTexture) {
         float start = this.indeterminateOffset;
         float end = start + INDETERMINATE_SEGMENT_WIDTH;
         if (end <= 1.0f) {
-            drawProgressSegment(graphics, x, y, width, height, start, end);
+            drawProgressSegment(graphics, x, y, width, height, start, end, frameMetrics, progressTexture);
         } else {
-            drawProgressSegment(graphics, x, y, width, height, start, 1.0f);
-            drawProgressSegment(graphics, x, y, width, height, 0.0f, end - 1.0f);
+            drawProgressSegment(graphics, x, y, width, height, start, 1.0f, frameMetrics, progressTexture);
+            drawProgressSegment(graphics, x, y, width, height, 0.0f, end - 1.0f, frameMetrics, progressTexture);
         }
     }
 
-    private void drawProgressSegment(GuiGraphics graphics, float baseX, float baseY, float width, float height, float start, float end) {
+    private void drawProgressSegment(GuiGraphics graphics, float baseX, float baseY, float width, float height,
+                                     float start, float end, ProgressFrameMetrics frameMetrics, TextureInfo progressTexture) {
         if (end <= start) {
             return;
         }
-        TextureInfo progressTexture = fetchTexture(this.textureSuppliers.barProgress());
         if (progressTexture.isValid()) {
             drawProgressTextureClipped(graphics, progressTexture, baseX, baseY, width, height, start, end);
+        } else if (frameMetrics != null) {
+            drawVanillaProgressSegment(graphics, baseX, baseY, width, height, start, end, frameMetrics);
         } else {
             float segmentWidth = width * (end - start);
             float segmentX = baseX + width * start;
             drawSolidRect(graphics, segmentX, baseY, segmentWidth, height, this.colorScheme.foreground(), 1.0f);
         }
+    }
+
+    private ProgressFrameMetrics computeProgressFrameMetrics(float width, float height) {
+        float safeWidth = Math.max(1.0f, width);
+        float safeHeight = Math.max(1.0f, height);
+        float maxBorder = Math.min(safeWidth, safeHeight) / 2.0f;
+        float border = Math.min(1.0f, maxBorder);
+        float horizontalInset = Math.min(2.0f, Math.max(border, (safeWidth - border * 2.0f) / 2.0f));
+        float verticalInset = Math.min(2.0f, Math.max(border, (safeHeight - border * 2.0f) / 2.0f));
+        return new ProgressFrameMetrics(border, horizontalInset, verticalInset);
+    }
+
+    private void drawVanillaProgressFrame(GuiGraphics graphics, float baseX, float baseY, float width, float height,
+                                          ProgressFrameMetrics metrics) {
+        if (metrics == null) {
+            return;
+        }
+        Color color = this.colorScheme.foreground();
+        float border = Math.max(0.0f, metrics.borderThickness());
+        float horizontalWidth = Math.max(border, width - border * 2.0f);
+        drawSolidRect(graphics, baseX, baseY, border, height, color, 1.0f);
+        drawSolidRect(graphics, baseX + width - border, baseY, border, height, color, 1.0f);
+        drawSolidRect(graphics, baseX + border, baseY, horizontalWidth, border, color, 1.0f);
+        drawSolidRect(graphics, baseX + border, baseY + height - border, horizontalWidth, border, color, 1.0f);
+    }
+
+    private void drawVanillaProgressSegment(GuiGraphics graphics, float baseX, float baseY, float width, float height,
+                                            float start, float end, ProgressFrameMetrics metrics) {
+        if (metrics == null) {
+            return;
+        }
+        float clampedStart = Mth.clamp(start, 0.0f, 1.0f);
+        float clampedEnd = Mth.clamp(end, 0.0f, 1.0f);
+        if (clampedEnd <= clampedStart) {
+            return;
+        }
+        float innerLeft = baseX + metrics.horizontalInset();
+        float innerRight = baseX + width - metrics.horizontalInset();
+        float innerWidth = Math.max(0.0f, innerRight - innerLeft);
+        if (innerWidth <= 0.0f) {
+            return;
+        }
+        float x0 = innerLeft + innerWidth * clampedStart;
+        float x1 = innerLeft + innerWidth * clampedEnd;
+        float segmentWidth = Math.max(0.0f, x1 - x0);
+        float innerTop = baseY + metrics.verticalInset();
+        float innerHeight = Math.max(0.0f, height - metrics.verticalInset() * 2.0f);
+        if (segmentWidth <= 0.0f || innerHeight <= 0.0f) {
+            return;
+        }
+        drawSolidRect(graphics, x0, innerTop, segmentWidth, innerHeight, this.colorScheme.foreground(), 1.0f);
     }
 
     private void drawProgressTextureClipped(GuiGraphics graphics, TextureInfo texture, float baseX, float baseY, float width, float height, float start, float end) {
@@ -1138,6 +1197,8 @@ public class EarlyLoadingEditorScreen extends Screen {
             return px >= this.x && px <= this.x + this.width && py >= this.y && py <= this.y + this.height;
         }
     }
+
+    private record ProgressFrameMetrics(float borderThickness, float horizontalInset, float verticalInset) {}
 
     private record TextureInfo(@Nullable ResourceLocation location, int width, int height) {
         private static final TextureInfo EMPTY = new TextureInfo(null, 0, 0);

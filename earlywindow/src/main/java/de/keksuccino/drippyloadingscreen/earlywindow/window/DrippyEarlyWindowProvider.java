@@ -442,17 +442,22 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
         float maxX = Math.max(minX, this.windowWidth - width - minX);
         baseX = clamp(baseX, minX, maxX);
 
+        boolean vanillaBar = this.barBackgroundTexture == null && this.barProgressTexture == null;
+        ProgressFrameMetrics frameMetrics = vanillaBar ? computeProgressFrameMetrics(width, height) : null;
         if (this.barBackgroundTexture != null) {
             drawTexturedQuad(baseX, baseY, width, height, this.barBackgroundTexture, 0.0f, 0.0f, 1.0f, 1.0f);
+        } else if (vanillaBar && frameMetrics != null) {
+            drawVanillaProgressFrame(baseX, baseY, width, height, frameMetrics);
         } else {
             drawSolidQuad(baseX, baseY, width, height, this.colorScheme.background().withBrightness(0.5f), 0.9f);
             drawRectangleOutline(baseX, baseY, width, height, this.colorScheme.foreground(), 1.0f);
         }
 
         if (this.progressIndeterminate) {
-            drawIndeterminateProgress(baseX, baseY, width, height);
+            drawIndeterminateProgress(baseX, baseY, width, height, frameMetrics);
         } else {
-            drawProgressSegment(baseX, baseY, width, height, 0.0f, Math.max(0.0f, Math.min(1.0f, this.displayedProgress)));
+            float clampedProgress = Math.max(0.0f, Math.min(1.0f, this.displayedProgress));
+            drawProgressSegment(baseX, baseY, width, height, 0.0f, clampedProgress, frameMetrics);
         }
     }
 
@@ -629,18 +634,18 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
         return debugMessages;
     }
 
-    private void drawIndeterminateProgress(float x, float y, float width, float height) {
+    private void drawIndeterminateProgress(float x, float y, float width, float height, ProgressFrameMetrics frameMetrics) {
         float start = this.indeterminateOffset;
         float end = start + INDETERMINATE_SEGMENT_WIDTH;
         if (end <= 1.0f) {
-            drawProgressSegment(x, y, width, height, start, end);
+            drawProgressSegment(x, y, width, height, start, end, frameMetrics);
         } else {
-            drawProgressSegment(x, y, width, height, start, 1.0f);
-            drawProgressSegment(x, y, width, height, 0.0f, end - 1.0f);
+            drawProgressSegment(x, y, width, height, start, 1.0f, frameMetrics);
+            drawProgressSegment(x, y, width, height, 0.0f, end - 1.0f, frameMetrics);
         }
     }
 
-    private void drawProgressSegment(float baseX, float baseY, float width, float height, float start, float end) {
+    private void drawProgressSegment(float baseX, float baseY, float width, float height, float start, float end, ProgressFrameMetrics frameMetrics) {
         if (end <= start) {
             return;
         }
@@ -648,9 +653,60 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
         float segmentX = baseX + width * start;
         if (this.barProgressTexture != null) {
             drawTexturedQuad(segmentX, baseY, segmentWidth, height, this.barProgressTexture, start, 0.0f, end, 1.0f);
+        } else if (frameMetrics != null) {
+            drawVanillaProgressSegment(baseX, baseY, width, height, start, end, frameMetrics);
         } else {
             drawSolidQuad(segmentX, baseY, segmentWidth, height, this.colorScheme.foreground(), 1.0f);
         }
+    }
+
+    private ProgressFrameMetrics computeProgressFrameMetrics(float width, float height) {
+        float safeWidth = Math.max(1.0f, width);
+        float safeHeight = Math.max(1.0f, height);
+        float maxBorder = Math.min(safeWidth, safeHeight) / 2.0f;
+        float border = Math.min(1.0f, maxBorder);
+        float horizontalInset = Math.min(2.0f, Math.max(border, (safeWidth - border * 2.0f) / 2.0f));
+        float verticalInset = Math.min(2.0f, Math.max(border, (safeHeight - border * 2.0f) / 2.0f));
+        return new ProgressFrameMetrics(border, horizontalInset, verticalInset);
+    }
+
+    private void drawVanillaProgressFrame(float baseX, float baseY, float width, float height, ProgressFrameMetrics metrics) {
+        if (metrics == null) {
+            return;
+        }
+        Color color = this.colorScheme.foreground();
+        float border = Math.max(0.0f, metrics.borderThickness());
+        float horizontalWidth = Math.max(border, width - border * 2.0f);
+        drawSolidQuad(baseX, baseY, border, height, color, 1.0f);
+        drawSolidQuad(baseX + width - border, baseY, border, height, color, 1.0f);
+        drawSolidQuad(baseX + border, baseY, horizontalWidth, border, color, 1.0f);
+        drawSolidQuad(baseX + border, baseY + height - border, horizontalWidth, border, color, 1.0f);
+    }
+
+    private void drawVanillaProgressSegment(float baseX, float baseY, float width, float height, float start, float end, ProgressFrameMetrics metrics) {
+        if (metrics == null) {
+            return;
+        }
+        float clampedStart = clamp(start, 0.0f, 1.0f);
+        float clampedEnd = clamp(end, 0.0f, 1.0f);
+        if (clampedEnd <= clampedStart) {
+            return;
+        }
+        float innerLeft = baseX + metrics.horizontalInset();
+        float innerRight = baseX + width - metrics.horizontalInset();
+        float innerWidth = Math.max(0.0f, innerRight - innerLeft);
+        if (innerWidth <= 0.0f) {
+            return;
+        }
+        float x0 = innerLeft + innerWidth * clampedStart;
+        float x1 = innerLeft + innerWidth * clampedEnd;
+        float segmentWidth = Math.max(0.0f, x1 - x0);
+        float innerTop = baseY + metrics.verticalInset();
+        float innerHeight = Math.max(0.0f, height - metrics.verticalInset() * 2.0f);
+        if (segmentWidth <= 0.0f || innerHeight <= 0.0f) {
+            return;
+        }
+        drawSolidQuad(x0, innerTop, segmentWidth, innerHeight, this.colorScheme.foreground(), 1.0f);
     }
 
     private void drawSolidQuad(float x, float y, float width, float height, Color color, float alpha) {
@@ -979,6 +1035,8 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
     private record LoggerLine(String text, float alpha) {}
 
     private record DebugLoggerMessage(String text, long createdAtNanos) {}
+
+    private record ProgressFrameMetrics(float borderThickness, float horizontalInset, float verticalInset) {}
 
     private record Color(float r, float g, float b) {
         private Color withBrightness(float factor) {
