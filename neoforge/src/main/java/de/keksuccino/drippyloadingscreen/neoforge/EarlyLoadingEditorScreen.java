@@ -5,6 +5,7 @@ import com.mojang.math.Axis;
 import de.keksuccino.drippyloadingscreen.DrippyLoadingScreen;
 import de.keksuccino.drippyloadingscreen.DrippyUtils;
 import de.keksuccino.drippyloadingscreen.Options;
+import de.keksuccino.fancymenu.FancyMenu;
 import de.keksuccino.fancymenu.util.cycle.CommonCycles;
 import de.keksuccino.fancymenu.util.file.FileFilter;
 import de.keksuccino.fancymenu.util.file.type.FileMediaType;
@@ -176,6 +177,7 @@ public class EarlyLoadingEditorScreen extends Screen {
         RenderMetrics metrics = captureRenderMetrics();
         this.lastRenderMetrics = metrics;
         renderBackgroundLayer(graphics, metrics);
+        renderEditorGrid(graphics);
         float uiScale = computeUiScale(metrics);
         this.lastUiScale = Math.max(0.001f, uiScale);
         float logoBottom = renderLogoLayer(graphics, metrics, uiScale);
@@ -294,6 +296,54 @@ public class EarlyLoadingEditorScreen extends Screen {
             }
         }
         drawTexture(graphics, background, metrics.toGui(x), metrics.toGui(y), metrics.toGui(drawWidth), metrics.toGui(drawHeight));
+    }
+
+    private void renderEditorGrid(GuiGraphics graphics) {
+        if (!FancyMenu.getOptions().showLayoutEditorGrid.getValue()) {
+            return;
+        }
+        float scale = UIBase.calculateFixedScale(1.0f);
+        int scaledWidth = (int) ((float) this.width / scale);
+        int scaledHeight = (int) ((float) this.height / scale);
+
+        graphics.pose().pushPose();
+        graphics.pose().scale(scale, scale, scale);
+
+        int gridSize = FancyMenu.getOptions().layoutEditorGridSize.getValue();
+        int lineThickness = 1;
+
+        int centerColor = UIBase.getUIColorTheme().layout_editor_grid_color_center.getColorInt();
+        int normalColor = UIBase.getUIColorTheme().layout_editor_grid_color_normal.getColorInt();
+
+        graphics.fill((scaledWidth / 2) - 1, 0, (scaledWidth / 2) + 1, scaledHeight, centerColor);
+
+        int linesVerticalToLeftPosX = (scaledWidth / 2) - gridSize - 1;
+        while (linesVerticalToLeftPosX > 0) {
+            graphics.fill(linesVerticalToLeftPosX, 0, linesVerticalToLeftPosX + lineThickness, scaledHeight, normalColor);
+            linesVerticalToLeftPosX -= gridSize;
+        }
+
+        int linesVerticalToRightPosX = (scaledWidth / 2) + gridSize;
+        while (linesVerticalToRightPosX < scaledWidth) {
+            graphics.fill(linesVerticalToRightPosX, 0, linesVerticalToRightPosX + lineThickness, scaledHeight, normalColor);
+            linesVerticalToRightPosX += gridSize;
+        }
+
+        graphics.fill(0, (scaledHeight / 2) - 1, scaledWidth, (scaledHeight / 2) + 1, centerColor);
+
+        int linesHorizontalToTopPosY = (scaledHeight / 2) - gridSize - 1;
+        while (linesHorizontalToTopPosY > 0) {
+            graphics.fill(0, linesHorizontalToTopPosY, scaledWidth, linesHorizontalToTopPosY + lineThickness, normalColor);
+            linesHorizontalToTopPosY -= gridSize;
+        }
+
+        int linesHorizontalToBottomPosY = (scaledHeight / 2) + gridSize;
+        while (linesHorizontalToBottomPosY < scaledHeight) {
+            graphics.fill(0, linesHorizontalToBottomPosY, scaledWidth, linesHorizontalToBottomPosY + lineThickness, normalColor);
+            linesHorizontalToBottomPosY += gridSize;
+        }
+
+        graphics.pose().popPose();
     }
 
     private float renderLogoLayer(GuiGraphics graphics, RenderMetrics metrics, float uiScale) {
