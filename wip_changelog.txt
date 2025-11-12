@@ -17,6 +17,7 @@ DRIPPY LOADING SCREEN v3.1.0 | CHANGELOG [ !! WIP !! NOT READY YET !! WIP !! ]
   - Simplified Chinese (zh_cn)
   - Brazilian Portuguese (pt_br)
 - Improved how Drippy hooks into NeoForge's custom loading screen and "takes over", to make it more stable and break less other mods that inject logic in there
+  - This only applies when the "Drippy Early Loading Module" is not used (otherwise a completely custom loading rendering is used)
 - Fixed loading screen not fading in correctly like the Vanilla one (#75, #71)
 - Fixed "Vanilla-Like Loading Bar" element ignoring alpha in the HEX color value set as element color (#70)
 - Fixed some parts of the screen behind the loading overlay shining through, like text (#65)
