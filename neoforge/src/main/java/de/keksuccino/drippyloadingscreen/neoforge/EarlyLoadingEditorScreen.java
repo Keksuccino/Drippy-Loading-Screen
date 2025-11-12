@@ -95,6 +95,8 @@ public class EarlyLoadingEditorScreen extends Screen {
     private static final int RESIZE_HANDLE_SIZE = 4;
     private static final float MIN_RESIZE_SIZE = 8.0f;
     private static final float ELEMENT_DRAG_CRUMPLE_ZONE = 5.0f;
+    private static final float GRID_CONTRAST_THRESHOLD_CENTER = 1.04f;
+    private static final float GRID_CONTRAST_THRESHOLD_NORMAL = 1.35f;
 
     private EarlyLoadingVisualOptions visualOptions;
     private TextureSuppliers textureSuppliers;
@@ -139,6 +141,13 @@ public class EarlyLoadingEditorScreen extends Screen {
 
     private final List<DebugLoggerMessage> loggerMessages = new ArrayList<>();
     private long lastLoggerMessageNanos;
+
+    private GridPalette cachedGridPalette;
+    private int cachedGridBaseCenterColor = Integer.MIN_VALUE;
+    private int cachedGridBaseNormalColor = Integer.MIN_VALUE;
+    private int cachedGridBackgroundColor = Integer.MIN_VALUE;
+    private boolean cachedGridBackgroundHasTexture;
+    private boolean lastBackgroundTextureValid;
 
     public EarlyLoadingEditorScreen() {
         super(TITLE);
@@ -275,6 +284,7 @@ public class EarlyLoadingEditorScreen extends Screen {
     private void renderBackgroundLayer(GuiGraphics graphics, RenderMetrics metrics) {
         graphics.fill(0, 0, this.width, this.height, toArgb(this.colorScheme.background(), 1.0f));
         TextureInfo background = fetchTexture(this.textureSuppliers.background());
+        this.lastBackgroundTextureValid = background.isValid();
         if (!background.isValid()) {
             return;
         }
@@ -302,6 +312,10 @@ public class EarlyLoadingEditorScreen extends Screen {
         if (!FancyMenu.getOptions().showLayoutEditorGrid.getValue()) {
             return;
         }
+        GridPalette gridPalette = getOrUpdateGridPalette();
+        int centerColor = gridPalette.centerColor();
+        int normalColor = gridPalette.normalColor();
+
         float scale = UIBase.calculateFixedScale(1.0f);
         int scaledWidth = (int) ((float) this.width / scale);
         int scaledHeight = (int) ((float) this.height / scale);
@@ -311,9 +325,6 @@ public class EarlyLoadingEditorScreen extends Screen {
 
         int gridSize = FancyMenu.getOptions().layoutEditorGridSize.getValue();
         int lineThickness = 1;
-
-        int centerColor = UIBase.getUIColorTheme().layout_editor_grid_color_center.getColorInt();
-        int normalColor = UIBase.getUIColorTheme().layout_editor_grid_color_normal.getColorInt();
 
         graphics.fill((scaledWidth / 2) - 1, 0, (scaledWidth / 2) + 1, scaledHeight, centerColor);
 
@@ -344,6 +355,86 @@ public class EarlyLoadingEditorScreen extends Screen {
         }
 
         graphics.pose().popPose();
+    }
+
+    private GridPalette getOrUpdateGridPalette() {
+        int baseCenter = UIBase.getUIColorTheme().layout_editor_grid_color_center.getColorInt();
+        int baseNormal = UIBase.getUIColorTheme().layout_editor_grid_color_normal.getColorInt();
+        int background = toArgb(this.colorScheme.background(), 1.0f);
+        boolean hasTexture = this.lastBackgroundTextureValid;
+        if ((this.cachedGridPalette == null)
+                || (baseCenter != this.cachedGridBaseCenterColor)
+                || (baseNormal != this.cachedGridBaseNormalColor)
+                || (background != this.cachedGridBackgroundColor)
+                || (hasTexture != this.cachedGridBackgroundHasTexture)) {
+            this.cachedGridPalette = buildGridPalette(baseCenter, baseNormal, background, hasTexture);
+            this.cachedGridBaseCenterColor = baseCenter;
+            this.cachedGridBaseNormalColor = baseNormal;
+            this.cachedGridBackgroundColor = background;
+            this.cachedGridBackgroundHasTexture = hasTexture;
+        }
+        return this.cachedGridPalette;
+    }
+
+    private static GridPalette buildGridPalette(int centerColor, int normalColor, int backgroundColor, boolean hasTexture) {
+        if (hasTexture) {
+            return new GridPalette(centerColor, normalColor);
+        }
+        int adjustedCenter = adjustGridColorForContrast(centerColor, backgroundColor, GRID_CONTRAST_THRESHOLD_CENTER);
+        int adjustedNormal = adjustGridColorForContrast(normalColor, backgroundColor, GRID_CONTRAST_THRESHOLD_NORMAL);
+        return new GridPalette(adjustedCenter, adjustedNormal);
+    }
+
+    private static int adjustGridColorForContrast(int gridColor, int backgroundColor, float threshold) {
+        return isGridContrastTooLow(backgroundColor, gridColor, threshold)
+                ? invertGridColor(gridColor)
+                : gridColor;
+    }
+
+    private static boolean isGridContrastTooLow(int backgroundColor, int gridColor, float threshold) {
+        float contrast = blendedContrastRatio(backgroundColor, gridColor);
+        return contrast < threshold;
+    }
+
+    private static float blendedContrastRatio(int backgroundColor, int gridColor) {
+        float backgroundLuminance = computeLuminance(backgroundColor);
+        float gridLuminance = computeBlendedLuminance(backgroundColor, gridColor);
+        float lighter = Math.max(backgroundLuminance, gridLuminance);
+        float darker = Math.min(backgroundLuminance, gridLuminance);
+        return (lighter + 0.05f) / (darker + 0.05f);
+    }
+
+    private static float computeLuminance(int color) {
+        float r = FastColor.ARGB32.red(color) / 255.0f;
+        float g = FastColor.ARGB32.green(color) / 255.0f;
+        float b = FastColor.ARGB32.blue(color) / 255.0f;
+        return 0.2126f * r + 0.7152f * g + 0.0722f * b;
+    }
+
+    private static float computeBlendedLuminance(int backgroundColor, int gridColor) {
+        float alpha = FastColor.ARGB32.alpha(gridColor) / 255.0f;
+        float bgR = FastColor.ARGB32.red(backgroundColor) / 255.0f;
+        float bgG = FastColor.ARGB32.green(backgroundColor) / 255.0f;
+        float bgB = FastColor.ARGB32.blue(backgroundColor) / 255.0f;
+        float fgR = FastColor.ARGB32.red(gridColor) / 255.0f;
+        float fgG = FastColor.ARGB32.green(gridColor) / 255.0f;
+        float fgB = FastColor.ARGB32.blue(gridColor) / 255.0f;
+        float blendedR = blendChannel(bgR, fgR, alpha);
+        float blendedG = blendChannel(bgG, fgG, alpha);
+        float blendedB = blendChannel(bgB, fgB, alpha);
+        return 0.2126f * blendedR + 0.7152f * blendedG + 0.0722f * blendedB;
+    }
+
+    private static float blendChannel(float background, float grid, float alpha) {
+        return background + ((grid - background) * alpha);
+    }
+
+    private static int invertGridColor(int color) {
+        int alpha = FastColor.ARGB32.alpha(color);
+        int invertedR = 255 - FastColor.ARGB32.red(color);
+        int invertedG = 255 - FastColor.ARGB32.green(color);
+        int invertedB = 255 - FastColor.ARGB32.blue(color);
+        return FastColor.ARGB32.color(alpha, invertedR, invertedG, invertedB);
     }
 
     private float renderLogoLayer(GuiGraphics graphics, RenderMetrics metrics, float uiScale) {
@@ -1998,6 +2089,8 @@ public class EarlyLoadingEditorScreen extends Screen {
             return px >= this.x && px <= this.x + this.width && py >= this.y && py <= this.y + this.height;
         }
     }
+
+    private record GridPalette(int centerColor, int normalColor) {}
 
     private record ElementGeometry(ElementBounds bounds, float absoluteX, float absoluteY, float width, float height) {}
 
