@@ -32,6 +32,7 @@ import net.minecraft.util.Mth;
 import net.neoforged.fml.loading.FMLConfig;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
@@ -45,10 +46,6 @@ import java.util.Locale;
 import java.util.Properties;
 import java.util.concurrent.ThreadLocalRandom;
 
-/**
- * Mirrors the early-window renderer inside an in-game {@link Screen} so users can preview their setup without leaving
- * Minecraft. Rendering intentionally follows {@link de.keksuccino.drippyloadingscreen.earlywindow.window.DrippyEarlyWindowProvider}.
- */
 public class EarlyLoadingEditorScreen extends Screen {
 
     private static final Logger LOGGER = LogManager.getLogger();
@@ -176,7 +173,7 @@ public class EarlyLoadingEditorScreen extends Screen {
     }
 
     @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+    public void render(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         RenderSystem.enableBlend();
         this.backgroundBounds = new ElementBounds(0.0f, 0.0f, this.width, this.height);
         this.logoBounds = null;
@@ -203,7 +200,7 @@ public class EarlyLoadingEditorScreen extends Screen {
     }
 
     @Override
-    public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+    public void renderBackground(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         // Background is fully controlled by render().
     }
 
@@ -861,7 +858,9 @@ public class EarlyLoadingEditorScreen extends Screen {
         int drawX = Math.round(x);
         int drawY = Math.round(y);
         RenderSystem.enableBlend();
-        graphics.blit(texture.location(), drawX, drawY, 0.0f, 0.0f, drawWidth, drawHeight, drawWidth, drawHeight);
+        ResourceLocation tex = texture.location();
+        if (tex == null) return;
+        graphics.blit(tex, drawX, drawY, 0.0f, 0.0f, drawWidth, drawHeight, drawWidth, drawHeight);
     }
 
     private void drawBundledMojangLogo(GuiGraphics graphics, TextureInfo texture, float x, float y, float width, float height) {
@@ -879,8 +878,10 @@ public class EarlyLoadingEditorScreen extends Screen {
         int topPixels = Math.max(1, textureHeight / 2);
         int bottomPixels = Math.max(1, textureHeight - topPixels);
         RenderSystem.enableBlend();
-        graphics.blit(texture.location(), drawX, drawY, leftWidth, totalHeight, -MOJANG_LOGO_U_OVERLAP, 0.0f, textureWidth, topPixels, textureWidth, textureHeight);
-        graphics.blit(texture.location(), drawX + leftWidth, drawY, rightWidth, totalHeight, MOJANG_LOGO_U_OVERLAP, topPixels, textureWidth, bottomPixels, textureWidth, textureHeight);
+        ResourceLocation tex = texture.location();
+        if (tex == null) return;
+        graphics.blit(tex, drawX, drawY, leftWidth, totalHeight, -MOJANG_LOGO_U_OVERLAP, 0.0f, textureWidth, topPixels, textureWidth, textureHeight);
+        graphics.blit(tex, drawX + leftWidth, drawY, rightWidth, totalHeight, MOJANG_LOGO_U_OVERLAP, topPixels, textureWidth, bottomPixels, textureWidth, textureHeight);
     }
 
     private void drawSolidRect(GuiGraphics graphics, float x, float y, float width, float height, Color color, float alpha) {
@@ -1432,7 +1433,7 @@ public class EarlyLoadingEditorScreen extends Screen {
 
         menu.addSeparatorEntry("logo_separator_before_restore_aspect");
         menu.addClickableEntry("logo_restore_aspect", Component.translatable("drippyloadingscreen.early_loading.context.common.restore_aspect_ratio"),
-                (ctx, entry) -> restoreLogoAspect(options)).setIsActiveSupplier((contextMenu, contextMenuEntry) -> hasCustomLogo(options));
+                (ctx, entry) -> restoreLogoAspect(options)).addIsActiveSupplier((contextMenu, contextMenuEntry) -> hasCustomLogo(options));
         return menu;
 
     }
@@ -1465,7 +1466,7 @@ public class EarlyLoadingEditorScreen extends Screen {
 
         menu.addSeparatorEntry("progress_separator_before_restore_aspect");
         menu.addClickableEntry("progress_restore_aspect", Component.translatable("drippyloadingscreen.early_loading.context.common.restore_aspect_ratio"),
-                (ctx, entry) -> restoreProgressAspect(options)).setIsActiveSupplier((contextMenu, contextMenuEntry) -> canRestoreProgressAspect(options));
+                (ctx, entry) -> restoreProgressAspect(options)).addIsActiveSupplier((contextMenu, contextMenuEntry) -> canRestoreProgressAspect(options));
         return menu;
 
     }
@@ -1493,7 +1494,7 @@ public class EarlyLoadingEditorScreen extends Screen {
 
         menu.addSeparatorEntry(prefix + "_separator_before_restore_aspect");
         menu.addClickableEntry(prefix + "_restore_aspect", Component.translatable("drippyloadingscreen.early_loading.context.common.restore_aspect_ratio"),
-                (ctx, entry) -> restoreWatermarkAspect(anchor)).setIsActiveSupplier((contextMenu, contextMenuEntry) -> hasCustomWatermarkTexture(anchor));
+                (ctx, entry) -> restoreWatermarkAspect(anchor)).addIsActiveSupplier((contextMenu, contextMenuEntry) -> hasCustomWatermarkTexture(anchor));
 
         return menu;
 
@@ -1630,9 +1631,6 @@ public class EarlyLoadingEditorScreen extends Screen {
         }
         int width = Math.max(1, texture.getWidth());
         int height = Math.max(1, texture.getHeight());
-        if (width <= 0 || height <= 0) {
-            return null;
-        }
         return new TextureDimensions(width, height);
     }
 
@@ -1747,18 +1745,14 @@ public class EarlyLoadingEditorScreen extends Screen {
         };
     }
 
-    private static String normalizeResourceSource(@Nullable String sourceWithPrefix) {
-        if (sourceWithPrefix == null) {
+    private static String normalizeResourceSource(@Nullable String source) {
+        if (source == null) {
             return "";
         }
-        String trimmed = sourceWithPrefix.trim();
+        String trimmed = source.trim();
         if (trimmed.isEmpty()) {
             return "";
         }
-//        ResourceSourceType type = ResourceSourceType.getSourceTypeOf(trimmed);
-//        if (type == ResourceSourceType.LOCAL) {
-//            return ResourceSourceType.getWithoutSourcePrefix(trimmed);
-//        }
         return trimmed;
     }
 
@@ -1882,7 +1876,7 @@ public class EarlyLoadingEditorScreen extends Screen {
 
     private static ColorScheme resolveColorScheme() {
         Minecraft minecraft = Minecraft.getInstance();
-        boolean dark = minecraft != null && minecraft.options != null && minecraft.options.darkMojangStudiosBackground().get();
+        boolean dark = minecraft.options.darkMojangStudiosBackground().get();
         return dark ? ColorScheme.dark() : ColorScheme.red();
     }
 
@@ -2026,7 +2020,7 @@ public class EarlyLoadingEditorScreen extends Screen {
             }
             char ch = trimmed.charAt(i);
             if (ch == '\r' || ch == '\n') {
-                if (builder.length() == 0 || builder.charAt(builder.length() - 1) == ' ') {
+                if (builder.isEmpty() || builder.charAt(builder.length() - 1) == ' ') {
                     continue;
                 }
                 builder.append(' ');
@@ -2055,15 +2049,9 @@ public class EarlyLoadingEditorScreen extends Screen {
 
     private RenderMetrics captureRenderMetrics() {
         Minecraft minecraft = Minecraft.getInstance();
-        if (minecraft != null && minecraft.getWindow() != null) {
-            float guiFactor = Math.max(UIBase.calculateFixedScale(1.0f), 1.0f / Math.max(1.0f, (float)minecraft.getWindow().getGuiScale()));
-            float absoluteWidth = Math.max(1.0f, minecraft.getWindow().getWidth());
-            float absoluteHeight = Math.max(1.0f, minecraft.getWindow().getHeight());
-            return new RenderMetrics(absoluteWidth, absoluteHeight, guiFactor);
-        }
-        float guiFactor = 1.0f;
-        float absoluteWidth = Math.max(1.0f, this.width);
-        float absoluteHeight = Math.max(1.0f, this.height);
+        float guiFactor = Math.max(UIBase.calculateFixedScale(1.0f), 1.0f / Math.max(1.0f, (float)minecraft.getWindow().getGuiScale()));
+        float absoluteWidth = Math.max(1.0f, minecraft.getWindow().getWidth());
+        float absoluteHeight = Math.max(1.0f, minecraft.getWindow().getHeight());
         return new RenderMetrics(absoluteWidth, absoluteHeight, guiFactor);
     }
 
