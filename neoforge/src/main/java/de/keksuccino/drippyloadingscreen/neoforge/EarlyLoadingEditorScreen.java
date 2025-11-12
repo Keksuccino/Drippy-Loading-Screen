@@ -656,9 +656,9 @@ public class EarlyLoadingEditorScreen extends Screen {
             }
         }
         float guiX = metrics.toGui(x);
-       float guiY = metrics.toGui(y);
-       float guiWidth = metrics.toGui(width);
-       float guiHeight = metrics.toGui(height);
+        float guiY = metrics.toGui(y);
+        float guiWidth = metrics.toGui(width);
+        float guiHeight = metrics.toGui(height);
         ElementBounds bounds = new ElementBounds(guiX, guiY, guiWidth, guiHeight);
         this.watermarkBounds.put(anchor, bounds);
         registerElementGeometry(SelectableElement.fromAnchor(anchor), bounds, x, y, width, height);
@@ -1383,8 +1383,8 @@ public class EarlyLoadingEditorScreen extends Screen {
 
         addImageChooserEntry(menu, "background_set_image", Component.translatable("drippyloadingscreen.early_loading.context.background.set_image"), options.earlyLoadingBackgroundTexturePath);
         menu.addValueCycleEntry("background_preserve_aspect_ratio",
-                        CommonCycles.cycleEnabledDisabled("drippyloadingscreen.early_loading.context.background.preserve_aspect_ratio", options.earlyLoadingBackgroundPreserveAspectRatio.getValue())
-                                .addCycleListener(value -> applyOptionChange(() -> options.earlyLoadingBackgroundPreserveAspectRatio.setValue(value.getAsBoolean()))));
+                CommonCycles.cycleEnabledDisabled("drippyloadingscreen.early_loading.context.background.preserve_aspect_ratio", options.earlyLoadingBackgroundPreserveAspectRatio.getValue())
+                        .addCycleListener(value -> applyOptionChange(() -> options.earlyLoadingBackgroundPreserveAspectRatio.setValue(value.getAsBoolean()))));
 
         menu.addSeparatorEntry("separator_after_image");
 
@@ -1400,8 +1400,8 @@ public class EarlyLoadingEditorScreen extends Screen {
         menu.addSeparatorEntry("separator_after_window_title");
 
         menu.addValueCycleEntry("background_hide_logger",
-                        CommonCycles.cycleEnabledDisabled("drippyloadingscreen.early_loading.context.background.hide_logger", options.earlyLoadingHideLogger.getValue())
-                                .addCycleListener(value -> applyOptionChange(() -> options.earlyLoadingHideLogger.setValue(value.getAsBoolean()))));
+                CommonCycles.cycleEnabledDisabled("drippyloadingscreen.early_loading.context.background.hide_logger", options.earlyLoadingHideLogger.getValue())
+                        .addCycleListener(value -> applyOptionChange(() -> options.earlyLoadingHideLogger.setValue(value.getAsBoolean()))));
         return menu;
 
     }
@@ -1428,8 +1428,8 @@ public class EarlyLoadingEditorScreen extends Screen {
         menu.addSeparatorEntry("separator_after_offset");
 
         menu.addValueCycleEntry("logo_hide",
-                        CommonCycles.cycleEnabledDisabled("drippyloadingscreen.early_loading.context.common.hide_element", options.earlyLoadingHideLogo.getValue())
-                                .addCycleListener(value -> applyOptionChange(() -> options.earlyLoadingHideLogo.setValue(value.getAsBoolean()))));
+                CommonCycles.cycleEnabledDisabled("drippyloadingscreen.early_loading.context.common.hide_element", options.earlyLoadingHideLogo.getValue())
+                        .addCycleListener(value -> applyOptionChange(() -> options.earlyLoadingHideLogo.setValue(value.getAsBoolean()))));
 
         menu.addSeparatorEntry("logo_separator_before_restore_aspect");
         menu.addClickableEntry("logo_restore_aspect", Component.translatable("drippyloadingscreen.early_loading.context.common.restore_aspect_ratio"),
@@ -1461,8 +1461,8 @@ public class EarlyLoadingEditorScreen extends Screen {
         menu.addSeparatorEntry("separator_after_offset");
 
         menu.addValueCycleEntry("progress_hide",
-                        CommonCycles.cycleEnabledDisabled("drippyloadingscreen.early_loading.context.common.hide_element", options.earlyLoadingHideBar.getValue())
-                                .addCycleListener(value -> applyOptionChange(() -> options.earlyLoadingHideBar.setValue(value.getAsBoolean()))));
+                CommonCycles.cycleEnabledDisabled("drippyloadingscreen.early_loading.context.common.hide_element", options.earlyLoadingHideBar.getValue())
+                        .addCycleListener(value -> applyOptionChange(() -> options.earlyLoadingHideBar.setValue(value.getAsBoolean()))));
 
         menu.addSeparatorEntry("progress_separator_before_restore_aspect");
         menu.addClickableEntry("progress_restore_aspect", Component.translatable("drippyloadingscreen.early_loading.context.common.restore_aspect_ratio"),
@@ -1585,8 +1585,7 @@ public class EarlyLoadingEditorScreen extends Screen {
         }
     }
 
-    private boolean restoreAspectRatioFromDimensions(Options.Option<Integer> widthOption, Options.Option<Integer> heightOption,
-                                                     int minWidth, int minHeight, TextureDimensions dims) {
+    private boolean restoreAspectRatioFromDimensions(Options.Option<Integer> widthOption, Options.Option<Integer> heightOption, int minWidth, int minHeight, TextureDimensions dims) {
         AspectSize target = calculateAspectSize(widthOption.getValue(), heightOption.getValue(), dims.width(), dims.height(), minWidth, minHeight);
         if (target == null) {
             return false;
@@ -2310,5 +2309,5 @@ public class EarlyLoadingEditorScreen extends Screen {
             );
         }
     }
-    
+
 }
