@@ -16,6 +16,7 @@ import de.keksuccino.fancymenu.util.rendering.ui.NonStackableOverlayUI;
 import de.keksuccino.fancymenu.util.rendering.ui.UIBase;
 import de.keksuccino.fancymenu.util.rendering.ui.contextmenu.v2.ContextMenu;
 import de.keksuccino.fancymenu.util.rendering.ui.screen.resource.ResourceChooserScreen;
+import de.keksuccino.fancymenu.util.rendering.ui.cursor.CursorHandler;
 import de.keksuccino.fancymenu.util.resource.ResourceSource;
 import de.keksuccino.fancymenu.util.resource.ResourceSourceType;
 import de.keksuccino.fancymenu.util.resource.ResourceSupplier;
@@ -194,6 +195,7 @@ public class EarlyLoadingEditorScreen extends Screen {
         renderWatermarks(graphics, metrics, uiScale);
         renderLoggerOverlay(graphics, metrics, uiScale);
         renderElementHoverIndicators(graphics, mouseX, mouseY);
+        updateCursorForResizeHandles(mouseX, mouseY);
         if (this.selectedElement != null && !this.elementGeometries.containsKey(this.selectedElement)) {
             setSelectedElement(null);
         }
@@ -565,6 +567,21 @@ public class EarlyLoadingEditorScreen extends Screen {
                 drawResizeHandles(graphics, geometry.bounds(), color);
             }
         }
+    }
+
+    private void updateCursorForResizeHandles(double mouseX, double mouseY) {
+        if (this.selectedElement == null) {
+            return;
+        }
+        ElementGeometry geometry = this.elementGeometries.get(this.selectedElement);
+        if (geometry == null) {
+            return;
+        }
+        ResizeHandle hoveredHandle = detectHandle(geometry.bounds(), mouseX, mouseY);
+        if (hoveredHandle == null) {
+            return;
+        }
+        CursorHandler.setClientTickCursor(resolveCursorForHandle(hoveredHandle));
     }
 
     private void drawEditorHoverBorder(GuiGraphics graphics, ElementBounds bounds, int argbColor) {
@@ -1063,6 +1080,15 @@ public class EarlyLoadingEditorScreen extends Screen {
         double minY = centerY - half;
         double maxY = centerY + half;
         return mouseX >= minX && mouseX <= maxX && mouseY >= minY && mouseY <= maxY;
+    }
+
+    private static long resolveCursorForHandle(ResizeHandle handle) {
+        boolean horizontal = handle.adjustsLeft() || handle.adjustsRight();
+        boolean vertical = handle.adjustsTop() || handle.adjustsBottom();
+        if (horizontal && vertical) {
+            return CursorHandler.CURSOR_RESIZE_ALL;
+        }
+        return horizontal ? CursorHandler.CURSOR_RESIZE_HORIZONTAL : CursorHandler.CURSOR_RESIZE_VERTICAL;
     }
 
     private void handleResizeDrag(double mouseX, double mouseY) {
