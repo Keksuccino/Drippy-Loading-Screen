@@ -10,7 +10,6 @@ import de.keksuccino.fancymenu.customization.screen.identifier.UniversalScreenId
 import de.keksuccino.fancymenu.util.event.acara.EventHandler;
 import de.keksuccino.drippyloadingscreen.platform.Services;
 import de.keksuccino.fancymenu.util.file.FileUtils;
-import de.keksuccino.fancymenu.util.file.GameDirectoryUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -22,7 +21,7 @@ public class DrippyLoadingScreen {
 	public static final String VERSION = "3.1.0";
 	public static final String MOD_LOADER = Services.PLATFORM.getPlatformName();
 	public static final String MOD_ID = "drippyloadingscreen";
-	public static final File MOD_DIR = createDirectory(new File(GameDirectoryUtils.getGameDirectory(), "/config/drippyloadingscreen"));
+    public static final File MOD_DIR = createDirectory(new File(Services.PLATFORM.getConfigDirectory(), "drippyloadingscreen"));
 
 	private static Options options;
 	private static boolean initialized = false;

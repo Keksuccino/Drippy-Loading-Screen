@@ -7,6 +7,8 @@ import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import net.minecraft.client.KeyMapping;
+
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -69,6 +71,16 @@ public class FabricPlatformHelper implements IPlatformHelper {
     @Override
     public InputConstants.Key getKeyMappingKey(KeyMapping keyMapping) {
         return KeyBindingHelper.getBoundKeyOf(keyMapping);
+    }
+
+    @Override
+    public File getGameDirectory() {
+        return FabricLoader.getInstance().getGameDir().toFile();
+    }
+
+    @Override
+    public File getConfigDirectory() {
+        return FabricLoader.getInstance().getConfigDir().toFile();
     }
 
 }

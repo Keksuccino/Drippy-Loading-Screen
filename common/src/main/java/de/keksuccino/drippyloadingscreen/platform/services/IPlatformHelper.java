@@ -2,6 +2,8 @@ package de.keksuccino.drippyloadingscreen.platform.services;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
+
+import java.io.File;
 import java.util.List;
 
 public interface IPlatformHelper {
@@ -30,6 +32,14 @@ public interface IPlatformHelper {
 
     /** A list with mod IDs of all loaded mods. **/
     List<String> getLoadedModIds();
+
+    /** The base game directory that does not depend on Minecraft client init. **/
+    File getGameDirectory();
+
+    /** The config directory, defaults to "config" inside the game directory. **/
+    default File getConfigDirectory() {
+        return new File(getGameDirectory(), "config");
+    }
 
     /**
      * Check if the game is currently in a development environment.

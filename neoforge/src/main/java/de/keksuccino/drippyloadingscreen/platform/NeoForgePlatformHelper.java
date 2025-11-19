@@ -8,7 +8,10 @@ import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.ModList;
 import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.fml.loading.FMLLoader;
+import net.neoforged.fml.loading.FMLPaths;
 import net.neoforged.neoforgespi.language.IModInfo;
+
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -71,6 +74,16 @@ public class NeoForgePlatformHelper implements IPlatformHelper {
     @Override
     public InputConstants.Key getKeyMappingKey(KeyMapping keyMapping) {
         return keyMapping.getKey();
+    }
+
+    @Override
+    public File getGameDirectory() {
+        return FMLPaths.GAMEDIR.get().toFile();
+    }
+
+    @Override
+    public File getConfigDirectory() {
+        return FMLPaths.CONFIGDIR.get().toFile();
     }
 
 }

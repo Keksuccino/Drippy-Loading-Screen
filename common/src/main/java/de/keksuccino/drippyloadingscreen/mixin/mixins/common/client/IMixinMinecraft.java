@@ -10,4 +10,14 @@ public interface IMixinMinecraft {
 
     @Accessor("fontManager") FontManager getFontManagerDrippy();
 
+    @Accessor(value = "reloadListenerRegisteredFancyMenu", remap = false)
+    static void setFancyMenuReloadListenerRegisteredDrippy(boolean value) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Accessor(value = "reloadListenerRegisteredFancyMenu", remap = false)
+    static boolean isFancyMenuReloadListenerRegisteredDrippy() {
+        throw new UnsupportedOperationException();
+    }
+
 }
