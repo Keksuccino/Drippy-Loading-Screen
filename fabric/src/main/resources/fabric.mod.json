@@ -25,11 +25,11 @@
     "drippyloadingscreen.fabric.mixins.json"
   ],
   "depends": {
-    "fabricloader": ">=0.15.2",
-    "fabric": ">=0.88.1",
-    "konkrete": ">=1.7.0",
-    "fancymenu": ">=3.5.0",
-    "minecraft": ">=1.20.1",
+    "fabricloader": ">=${fabric_loader_version}",
+    "fabric": ">=${fabric_short_version}",
+    "konkrete": ">=1.8.0",
+    "fancymenu": ">=3.8.0",
+    "minecraft": ">=${minecraft_version}",
     "java": ">=17"
   },
   "accessWidener": "drippyloadingscreen.accesswidener"
