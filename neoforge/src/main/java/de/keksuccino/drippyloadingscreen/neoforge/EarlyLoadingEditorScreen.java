@@ -1,7 +1,5 @@
 package de.keksuccino.drippyloadingscreen.neoforge;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.math.Axis;
 import de.keksuccino.drippyloadingscreen.DrippyLoadingScreen;
 import de.keksuccino.drippyloadingscreen.DrippyUtils;
 import de.keksuccino.drippyloadingscreen.Options;
@@ -246,12 +244,12 @@ public class EarlyLoadingEditorScreen extends Screen {
         double mouseY = event.y();
         if (button == 0) {
             if (this.activeResize != null) {
-                handleResizeDrag(mouseX, mouseY);
+                handleResizeDrag(mouseX, mouseY, event);
                 return true;
             }
             ensureMoveSessionStarted(mouseX, mouseY);
             if (this.activeMove != null) {
-                handleMoveDrag(mouseX, mouseY);
+                handleMoveDrag(mouseX, mouseY, event);
                 return true;
             }
         }
@@ -883,8 +881,8 @@ public class EarlyLoadingEditorScreen extends Screen {
         int bottomPixels = Math.max(1, textureHeight - topPixels);
         ResourceLocation tex = texture.location();
         if (tex == null) return;
-        graphics.blit(tex, drawX, drawY, leftWidth, totalHeight, -MOJANG_LOGO_U_OVERLAP, 0.0f, textureWidth, topPixels, textureWidth, textureHeight);
-        graphics.blit(tex, drawX + leftWidth, drawY, rightWidth, totalHeight, MOJANG_LOGO_U_OVERLAP, topPixels, textureWidth, bottomPixels, textureWidth, textureHeight);
+        graphics.blit(RenderPipelines.GUI_TEXTURED, tex, drawX, drawY, -MOJANG_LOGO_U_OVERLAP, 0.0f, leftWidth, totalHeight, textureWidth, topPixels, textureWidth, textureHeight);
+        graphics.blit(RenderPipelines.GUI_TEXTURED, tex, drawX + leftWidth, drawY, MOJANG_LOGO_U_OVERLAP, topPixels, rightWidth, totalHeight, textureWidth, bottomPixels, textureWidth, textureHeight);
     }
 
     private void drawSolidRect(GuiGraphics graphics, float x, float y, float width, float height, Color color, float alpha) {
@@ -922,8 +920,8 @@ public class EarlyLoadingEditorScreen extends Screen {
         int bottom = Math.max(top + 1, Math.round(y + height));
         graphics.enableScissor(left, top, right, bottom);
         graphics.pose().pushMatrix();
-        graphics.pose().translate(x + width / 2.0f, y + height / 2.0f, 0.0f);
-        graphics.pose().mulPose(Axis.ZP.rotationDegrees(-45.0f));
+        graphics.pose().translate(x + width / 2.0f, y + height / 2.0f);
+        graphics.pose().rotate(-45.0f * Mth.DEG_TO_RAD);
         float span = (float) Math.hypot(width, height) + 20.0f;
         float stripeSpacing = 20.0f;
         float stripeThickness = 6.0f;
@@ -1093,7 +1091,7 @@ public class EarlyLoadingEditorScreen extends Screen {
         return horizontal ? CursorHandler.CURSOR_RESIZE_HORIZONTAL : CursorHandler.CURSOR_RESIZE_VERTICAL;
     }
 
-    private void handleResizeDrag(double mouseX, double mouseY) {
+    private void handleResizeDrag(double mouseX, double mouseY, MouseButtonEvent event) {
         if (this.activeResize == null || this.lastRenderMetrics == null) {
             return;
         }
@@ -1118,7 +1116,7 @@ public class EarlyLoadingEditorScreen extends Screen {
         if (this.activeResize.handle().adjustsBottom()) {
             bottom = Math.max(clampedY, top + MIN_RESIZE_SIZE);
         }
-        RectBounds bounds = maybeLockAspectRatio(new RectBounds(left, top, right, bottom));
+        RectBounds bounds = maybeLockAspectRatio(new RectBounds(left, top, right, bottom), event);
         left = bounds.left();
         top = bounds.top();
         right = bounds.right();
@@ -1128,7 +1126,7 @@ public class EarlyLoadingEditorScreen extends Screen {
         applyResizedGeometry(this.activeResize.element(), left, top, width, height);
     }
 
-    private void handleMoveDrag(double mouseX, double mouseY) {
+    private void handleMoveDrag(double mouseX, double mouseY, MouseButtonEvent event) {
         if (this.activeMove == null || this.lastRenderMetrics == null) {
             return;
         }
@@ -1146,8 +1144,8 @@ public class EarlyLoadingEditorScreen extends Screen {
         applyResizedGeometry(this.activeMove.element(), newLeft, newTop, width, height);
     }
 
-    private RectBounds maybeLockAspectRatio(RectBounds bounds) {
-        if (this.activeResize == null || this.lastRenderMetrics == null || !Screen.hasShiftDown()) {
+    private RectBounds maybeLockAspectRatio(RectBounds bounds, MouseButtonEvent event) {
+        if (this.activeResize == null || this.lastRenderMetrics == null || !event.hasShiftDown()) {
             return bounds;
         }
         float initialWidth = Math.max(MIN_RESIZE_SIZE, this.activeResize.initialWidth());
