@@ -18,6 +18,11 @@ public class ColorMenuBackgroundBuilder extends MenuBackgroundBuilder<ColorMenuB
     }
 
     @Override
+    public boolean isDeprecated() {
+        return true;
+    }
+
+    @Override
     public void buildNewOrEditInstance(Screen currentScreen, @Nullable ColorMenuBackground backgroundToEdit, @NotNull Consumer<ColorMenuBackground> backgroundConsumer) {
         ColorMenuBackground back = (backgroundToEdit != null) ? (ColorMenuBackground) backgroundToEdit.copy() : null;
         if (back == null) {

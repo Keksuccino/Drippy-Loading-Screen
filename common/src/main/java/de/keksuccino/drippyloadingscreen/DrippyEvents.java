@@ -1,7 +1,7 @@
 package de.keksuccino.drippyloadingscreen;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import de.keksuccino.fancymenu.FancyMenu;
+import de.keksuccino.drippyloadingscreen.platform.Services;
 import de.keksuccino.fancymenu.customization.overlay.CustomizationOverlay;
 import de.keksuccino.fancymenu.events.screen.InitOrResizeScreenCompletedEvent;
 import de.keksuccino.fancymenu.events.screen.RenderScreenEvent;
@@ -11,16 +11,20 @@ import de.keksuccino.fancymenu.util.event.acara.EventListener;
 import de.keksuccino.fancymenu.util.rendering.RenderingUtils;
 import de.keksuccino.fancymenu.util.rendering.ui.UIBase;
 import de.keksuccino.fancymenu.util.rendering.ui.contextmenu.v2.ContextMenu;
+import de.keksuccino.fancymenu.util.rendering.ui.screen.NotificationScreen;
 import de.keksuccino.fancymenu.util.rendering.ui.tooltip.Tooltip;
 import de.keksuccino.fancymenu.util.rendering.ui.tooltip.TooltipHandler;
 import de.keksuccino.fancymenu.util.rendering.ui.widget.button.ExtendedButton;
 import net.minecraft.client.gui.GuiGraphics;
 import de.keksuccino.drippyloadingscreen.customization.DrippyOverlayScreen;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.function.Supplier;
 
 public class DrippyEvents {
 
@@ -29,6 +33,9 @@ public class DrippyEvents {
     private ContextMenu drippyMenu;
     //TODO übernehmen
     private ExtendedButton drippyButton;
+
+    @NotNull
+    public static Supplier<Screen> earlyLoadingEditorScreenSupplier = () -> null;
 
     @EventListener
     public void onInitOrResizeScreenCompleted(InitOrResizeScreenCompletedEvent e) {
@@ -42,6 +49,23 @@ public class DrippyEvents {
             this.drippyMenu.addClickableEntry("customize_loading_screen", Component.translatable("drippyloadingscreen.settings.customize_loading_screen"), (menu, entry) -> {
                 Minecraft.getInstance().setScreen(new DrippyOverlayScreen());
             }).setIcon(ContextMenu.IconFactory.getIcon("edit"));
+
+            if (Services.PLATFORM.getPlatformName().equalsIgnoreCase("neoforge")) {
+
+                this.drippyMenu.addClickableEntry("customize_early_loading_screen", Component.translatable("drippyloadingscreen.settings.customize_early_loading_screen"), (menu, entry) -> {
+                            if (DrippyLoadingScreen.isEarlyLoadingModulePresent()) {
+                                Screen s = earlyLoadingEditorScreenSupplier.get();
+                                if (s != null) Minecraft.getInstance().setScreen(s);
+                            } else {
+                                Screen current = Minecraft.getInstance().screen;
+                                Minecraft.getInstance().setScreen(NotificationScreen.error(aBoolean -> {
+                                    Minecraft.getInstance().setScreen(current);
+                                }, LocalizationUtils.splitLocalizedLines("drippyloadingscreen.settings.customize_early_loading_screen.module_missing")));
+                            }
+                        }).setIcon(ContextMenu.IconFactory.getIcon("edit"))
+                        .setTooltipSupplier((contextMenu, contextMenuEntry) -> Tooltip.of(Component.translatable("drippyloadingscreen.settings.customize_early_loading_screen.desc")));
+
+            }
 
             this.drippyMenu.addSeparatorEntry("separator_after_customize");
 
@@ -63,8 +87,8 @@ public class DrippyEvents {
                     .setTooltipSupplier((menu, entry) -> Tooltip.of(LocalizationUtils.splitLocalizedLines("drippyloadingscreen.settings.early_fade_out_elements.desc")));
 
             this.drippyMenu.addValueCycleEntry("fade_out_loading_screen",
-                            CommonCycles.cycleEnabledDisabled("drippyloadingscreen.settings.fade_out_loading_screen", DrippyLoadingScreen.getOptions().fadeOutLoadingScreen.getValue())
-                                    .addCycleListener(value -> DrippyLoadingScreen.getOptions().fadeOutLoadingScreen.setValue(value.getAsBoolean())))
+                            CommonCycles.cycleEnabledDisabled("drippyloadingscreen.settings.fade_out_loading_screen", DrippyLoadingScreen.getOptions().fadeInOutLoadingScreen.getValue())
+                                    .addCycleListener(value -> DrippyLoadingScreen.getOptions().fadeInOutLoadingScreen.setValue(value.getAsBoolean())))
                     .setTooltipSupplier((menu, entry) -> Tooltip.of(LocalizationUtils.splitLocalizedLines("drippyloadingscreen.settings.fade_out_loading_screen.desc")));
 
             //------------------------------
@@ -75,6 +99,8 @@ public class DrippyEvents {
 
                 @Override
                 public void render(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partial) {
+
+                    this.alpha = 1.0F;
 
                     var m = CustomizationOverlay.getCurrentMenuBarInstance();
                     if ((m == null) || (!m.isUserNavigatingInMenuBar() && !drippyMenu.isUserNavigatingInMenu())) {
@@ -115,8 +141,7 @@ public class DrippyEvents {
             };
             UIBase.applyDefaultWidgetSkinTo(editButton);
 
-            //TODO übernehmen
-            //2 because MenuBar and DebugOverlay need to be at pos 0 and 1
+            // 2 because MenuBar and DebugOverlay need to be at pos 0 and 1
             e.getWidgets().add(2, editButton);
             this.drippyButton = editButton;
             e.getWidgets().add(2, this.drippyMenu);
