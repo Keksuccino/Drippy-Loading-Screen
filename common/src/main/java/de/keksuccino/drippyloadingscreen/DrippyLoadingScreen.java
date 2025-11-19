@@ -19,7 +19,7 @@ public class DrippyLoadingScreen {
 
 	private static final Logger LOGGER = LogManager.getLogger();
 
-	public static final String VERSION = "3.0.16";
+	public static final String VERSION = "3.1.0";
 	public static final String MOD_LOADER = Services.PLATFORM.getPlatformName();
 	public static final String MOD_ID = "drippyloadingscreen";
 	public static final File MOD_DIR = createDirectory(new File(GameDirectoryUtils.getGameDirectory(), "/config/drippyloadingscreen"));
@@ -41,6 +41,8 @@ public class DrippyLoadingScreen {
 		if (Services.PLATFORM.isOnClient()) {
 
 			EventHandler.INSTANCE.registerListenersOf(new DrippyEvents());
+
+            EventHandler.INSTANCE.registerListenersOf(new Test());
 
 		}
 
@@ -83,5 +85,13 @@ public class DrippyLoadingScreen {
 	private static File createDirectory(@NotNull File directory) {
 		return FileUtils.createDirectory(directory);
 	}
+
+    public static boolean isEarlyLoadingModulePresent() {
+        try {
+            String s = System.getProperty("drippyloadingscreen.earlywindow.session");
+            return (s != null) && !s.isBlank();
+        } catch (Exception ignore) {}
+        return false;
+    }
 
 }

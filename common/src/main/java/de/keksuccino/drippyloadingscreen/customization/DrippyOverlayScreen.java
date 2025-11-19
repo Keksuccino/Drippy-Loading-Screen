@@ -66,7 +66,7 @@ public class DrippyOverlayScreen extends Screen {
         if (shouldRenderDefaultBackground) {
             graphics.fill(0, 0, this.width, this.height, replaceAlpha(color, (int)(this.backgroundOpacity * 255.0F)));
         }
-        EventHandler.INSTANCE.postEvent(new RenderedScreenBackgroundEvent(this, graphics));
+        EventHandler.INSTANCE.postEvent(new RenderedScreenBackgroundEvent(this, graphics, mouseX, mouseY, partial));
     }
 
     private static int replaceAlpha(int color, int alpha) {

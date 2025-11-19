@@ -25,7 +25,8 @@ plugins {
 }
 
 // This should match the folder name of the project, or else IDEA may complain (see https://youtrack.jetbrains.com/issue/IDEA-317606)
-rootProject.name = 'drippy-1.21.10'
+rootProject.name = 'drippy-1.21.1'
 include("common")
 include("fabric")
 include("neoforge")
+include("earlywindow")

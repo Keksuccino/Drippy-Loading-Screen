@@ -9,18 +9,18 @@
     "client.IMixinMinecraft",
     "client.MixinCustomizationOverlay",
     "client.MixinCustomizationOverlayUI",
-    "client.MixinFontManager",
-    "client.MixinGuiRenderState",
     "client.MixinImageElement",
     "client.MixinImageMenuBackground",
     "client.MixinLayout",
     "client.MixinLayoutEditorScreen",
     "client.MixinLayoutEditorUI",
     "client.MixinLoadingOverlay",
+    "client.MixinMenuBackgroundBuilder",
     "client.MixinPlayerEntityElement",
     "client.MixinProgressBarElement",
     "client.MixinScreenCustomization",
-    "client.MixinScreenCustomizationLayer"
+    "client.MixinScreenCustomizationLayer",
+    "client.MixinElementBuilder"
   ],
   "mixins": [
   ],
