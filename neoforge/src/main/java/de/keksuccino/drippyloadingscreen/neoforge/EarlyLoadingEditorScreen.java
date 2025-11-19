@@ -25,9 +25,11 @@ import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.FastColor;
+import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
 import net.neoforged.fml.loading.FMLConfig;
 import org.apache.logging.log4j.LogManager;
@@ -174,7 +176,6 @@ public class EarlyLoadingEditorScreen extends Screen {
 
     @Override
     public void render(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        RenderSystem.enableBlend();
         this.backgroundBounds = new ElementBounds(0.0f, 0.0f, this.width, this.height);
         this.logoBounds = null;
         this.progressBarBounds = null;
@@ -205,8 +206,11 @@ public class EarlyLoadingEditorScreen extends Screen {
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (super.mouseClicked(mouseX, mouseY, button)) {
+    public boolean mouseClicked(@NotNull MouseButtonEvent event, boolean isDoubleClick) {
+        int button = event.button();
+        double mouseX = event.x();
+        double mouseY = event.y();
+        if (super.mouseClicked(event, isDoubleClick)) {
             return true;
         }
         if (button == 0) {
@@ -236,7 +240,10 @@ public class EarlyLoadingEditorScreen extends Screen {
     }
 
     @Override
-    public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
+    public boolean mouseDragged(MouseButtonEvent event, double dragX, double dragY) {
+        int button = event.button();
+        double mouseX = event.x();
+        double mouseY = event.y();
         if (button == 0) {
             if (this.activeResize != null) {
                 handleResizeDrag(mouseX, mouseY);
@@ -248,11 +255,12 @@ public class EarlyLoadingEditorScreen extends Screen {
                 return true;
             }
         }
-        return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+        return super.mouseDragged(event, dragX, dragY);
     }
 
     @Override
-    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+    public boolean mouseReleased(MouseButtonEvent event) {
+        int button = event.button();
         if (button == 0) {
             boolean handled = false;
             if (this.activeResize != null) {
@@ -271,7 +279,7 @@ public class EarlyLoadingEditorScreen extends Screen {
                 return true;
             }
         }
-        return super.mouseReleased(mouseX, mouseY, button);
+        return super.mouseReleased(event);
     }
 
     @Override
@@ -319,8 +327,8 @@ public class EarlyLoadingEditorScreen extends Screen {
         int scaledWidth = (int) ((float) this.width / scale);
         int scaledHeight = (int) ((float) this.height / scale);
 
-        graphics.pose().pushPose();
-        graphics.pose().scale(scale, scale, scale);
+        graphics.pose().pushMatrix();
+        graphics.pose().scale(scale, scale);
 
         int gridSize = FancyMenu.getOptions().layoutEditorGridSize.getValue();
         int lineThickness = 1;
@@ -353,7 +361,7 @@ public class EarlyLoadingEditorScreen extends Screen {
             linesHorizontalToBottomPosY += gridSize;
         }
 
-        graphics.pose().popPose();
+        graphics.pose().popMatrix();
     }
 
     private GridPalette getOrUpdateGridPalette() {
@@ -404,20 +412,20 @@ public class EarlyLoadingEditorScreen extends Screen {
     }
 
     private static float computeLuminance(int color) {
-        float r = FastColor.ARGB32.red(color) / 255.0f;
-        float g = FastColor.ARGB32.green(color) / 255.0f;
-        float b = FastColor.ARGB32.blue(color) / 255.0f;
+        float r = ARGB.red(color) / 255.0f;
+        float g = ARGB.green(color) / 255.0f;
+        float b = ARGB.blue(color) / 255.0f;
         return 0.2126f * r + 0.7152f * g + 0.0722f * b;
     }
 
     private static float computeBlendedLuminance(int backgroundColor, int gridColor) {
-        float alpha = FastColor.ARGB32.alpha(gridColor) / 255.0f;
-        float bgR = FastColor.ARGB32.red(backgroundColor) / 255.0f;
-        float bgG = FastColor.ARGB32.green(backgroundColor) / 255.0f;
-        float bgB = FastColor.ARGB32.blue(backgroundColor) / 255.0f;
-        float fgR = FastColor.ARGB32.red(gridColor) / 255.0f;
-        float fgG = FastColor.ARGB32.green(gridColor) / 255.0f;
-        float fgB = FastColor.ARGB32.blue(gridColor) / 255.0f;
+        float alpha = ARGB.alpha(gridColor) / 255.0f;
+        float bgR = ARGB.red(backgroundColor) / 255.0f;
+        float bgG = ARGB.green(backgroundColor) / 255.0f;
+        float bgB = ARGB.blue(backgroundColor) / 255.0f;
+        float fgR = ARGB.red(gridColor) / 255.0f;
+        float fgG = ARGB.green(gridColor) / 255.0f;
+        float fgB = ARGB.blue(gridColor) / 255.0f;
         float blendedR = blendChannel(bgR, fgR, alpha);
         float blendedG = blendChannel(bgG, fgG, alpha);
         float blendedB = blendChannel(bgB, fgB, alpha);
@@ -429,11 +437,11 @@ public class EarlyLoadingEditorScreen extends Screen {
     }
 
     private static int invertGridColor(int color) {
-        int alpha = FastColor.ARGB32.alpha(color);
-        int invertedR = 255 - FastColor.ARGB32.red(color);
-        int invertedG = 255 - FastColor.ARGB32.green(color);
-        int invertedB = 255 - FastColor.ARGB32.blue(color);
-        return FastColor.ARGB32.color(alpha, invertedR, invertedG, invertedB);
+        int alpha = ARGB.alpha(color);
+        int invertedR = 255 - ARGB.red(color);
+        int invertedG = 255 - ARGB.green(color);
+        int invertedB = 255 - ARGB.blue(color);
+        return ARGB.color(alpha, invertedR, invertedG, invertedB);
     }
 
     private float renderLogoLayer(GuiGraphics graphics, RenderMetrics metrics, float uiScale) {
@@ -589,7 +597,6 @@ public class EarlyLoadingEditorScreen extends Screen {
         if ((right - left) < 2 || (bottom - top) < 2) {
             return;
         }
-        RenderSystem.enableBlend();
         graphics.fill(left + 1, top, right - 1, top + 1, argbColor);
         graphics.fill(left + 1, bottom - 1, right - 1, bottom, argbColor);
         graphics.fill(left, top, left + 1, bottom, argbColor);
@@ -617,7 +624,6 @@ public class EarlyLoadingEditorScreen extends Screen {
     private void drawHandle(GuiGraphics graphics, float centerX, float centerY, int half, int color) {
         int cx = Math.round(centerX);
         int cy = Math.round(centerY);
-        RenderSystem.enableBlend();
         graphics.fill(cx - half, cy - half, cx + half, cy + half, color);
     }
 
@@ -702,17 +708,16 @@ public class EarlyLoadingEditorScreen extends Screen {
         if (text.isEmpty() || alpha <= 0.0f || this.font == null) {
             return;
         }
-        graphics.pose().pushPose();
-        graphics.pose().translate(metrics.toGui(x), metrics.toGui(y), 0.0f);
+        graphics.pose().pushMatrix();
+        graphics.pose().translate(metrics.toGui(x), metrics.toGui(y));
         float guiAdjustedScale = textScale * metrics.guiScaleFactor();
         if (guiAdjustedScale <= 0.0f) {
-            graphics.pose().popPose();
+            graphics.pose().popMatrix();
             return;
         }
-        graphics.pose().scale(guiAdjustedScale, guiAdjustedScale, 1.0f);
-        RenderSystem.enableBlend();
+        graphics.pose().scale(guiAdjustedScale, guiAdjustedScale);
         graphics.drawString(this.font, text, 0, 0, toArgb(this.colorScheme.foreground(), alpha), false);
-        graphics.pose().popPose();
+        graphics.pose().popMatrix();
     }
 
     private List<LoggerLine> collectLoggerLines(long now) {
@@ -857,10 +862,9 @@ public class EarlyLoadingEditorScreen extends Screen {
         int drawHeight = Math.max(1, Math.round(height));
         int drawX = Math.round(x);
         int drawY = Math.round(y);
-        RenderSystem.enableBlend();
         ResourceLocation tex = texture.location();
         if (tex == null) return;
-        graphics.blit(tex, drawX, drawY, 0.0f, 0.0f, drawWidth, drawHeight, drawWidth, drawHeight);
+        graphics.blit(RenderPipelines.GUI_TEXTURED, tex, drawX, drawY, 0.0f, 0.0f, drawWidth, drawHeight, drawWidth, drawHeight);
     }
 
     private void drawBundledMojangLogo(GuiGraphics graphics, TextureInfo texture, float x, float y, float width, float height) {
@@ -877,7 +881,6 @@ public class EarlyLoadingEditorScreen extends Screen {
         int textureHeight = Math.max(1, texture.height());
         int topPixels = Math.max(1, textureHeight / 2);
         int bottomPixels = Math.max(1, textureHeight - topPixels);
-        RenderSystem.enableBlend();
         ResourceLocation tex = texture.location();
         if (tex == null) return;
         graphics.blit(tex, drawX, drawY, leftWidth, totalHeight, -MOJANG_LOGO_U_OVERLAP, 0.0f, textureWidth, topPixels, textureWidth, textureHeight);
@@ -890,7 +893,6 @@ public class EarlyLoadingEditorScreen extends Screen {
         int top = Math.round(y);
         int right = Math.max(left + 1, Math.round(x + width));
         int bottom = Math.max(top + 1, Math.round(y + height));
-        RenderSystem.enableBlend();
         graphics.fill(left, top, right, bottom, argb);
     }
 
@@ -900,7 +902,6 @@ public class EarlyLoadingEditorScreen extends Screen {
         int top = Math.round(y);
         int right = Math.max(left + 1, Math.round(x + width));
         int bottom = Math.max(top + 1, Math.round(y + height));
-        RenderSystem.enableBlend();
         graphics.fill(left, top, right, top + 1, argb);
         graphics.fill(left, bottom - 1, right, bottom, argb);
         graphics.fill(left, top, left + 1, bottom, argb);
@@ -920,7 +921,7 @@ public class EarlyLoadingEditorScreen extends Screen {
         int right = Math.max(left + 1, Math.round(x + width));
         int bottom = Math.max(top + 1, Math.round(y + height));
         graphics.enableScissor(left, top, right, bottom);
-        graphics.pose().pushPose();
+        graphics.pose().pushMatrix();
         graphics.pose().translate(x + width / 2.0f, y + height / 2.0f, 0.0f);
         graphics.pose().mulPose(Axis.ZP.rotationDegrees(-45.0f));
         float span = (float) Math.hypot(width, height) + 20.0f;
@@ -932,7 +933,7 @@ public class EarlyLoadingEditorScreen extends Screen {
             int maxX = Math.round(offset + stripeThickness / 2.0f);
             graphics.fill(minX, Math.round(-span), maxX, Math.round(span), stripeColor);
         }
-        graphics.pose().popPose();
+        graphics.pose().popMatrix();
         graphics.disableScissor();
     }
 
@@ -2043,7 +2044,7 @@ public class EarlyLoadingEditorScreen extends Screen {
         int r = Mth.clamp(Math.round(color.r() * 255.0f), 0, 255);
         int g = Mth.clamp(Math.round(color.g() * 255.0f), 0, 255);
         int b = Mth.clamp(Math.round(color.b() * 255.0f), 0, 255);
-        return FastColor.ARGB32.color(a, r, g, b);
+        return ARGB.color(a, r, g, b);
     }
 
     private RenderMetrics captureRenderMetrics() {

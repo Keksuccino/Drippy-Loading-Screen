@@ -3,7 +3,7 @@ package de.keksuccino.drippyloadingscreen.mixin.mixins.common.client;
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.pipeline.RenderPipeline;
 import de.keksuccino.drippyloadingscreen.DrippyLoadingScreen;
 import de.keksuccino.drippyloadingscreen.customization.DrippyOverlayScreen;
 import de.keksuccino.drippyloadingscreen.mixin.MixinCache;
@@ -15,15 +15,15 @@ import de.keksuccino.fancymenu.events.screen.*;
 import de.keksuccino.fancymenu.util.event.acara.EventHandler;
 import de.keksuccino.fancymenu.util.rendering.RenderingUtils;
 import de.keksuccino.fancymenu.util.window.WindowHandler;
+import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.LoadingOverlay;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ReloadInstance;
-import net.minecraft.util.FastColor;
+import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
-import net.minecraft.util.profiling.InactiveProfiler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
@@ -34,10 +34,8 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import java.util.Objects;
 import java.util.function.Consumer;
 
-@SuppressWarnings("deprecation")
 @Mixin(LoadingOverlay.class)
 public class MixinLoadingOverlay {
 
@@ -94,16 +92,11 @@ public class MixinLoadingOverlay {
     /**
      * @reason This replaces the outdated render() call with the new renderWithTooltip() call that FancyMenu hooks into for rendering events.
      */
-    @WrapOperation(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/Screen;render(Lnet/minecraft/client/gui/GuiGraphics;IIF)V"))
+    @WrapOperation(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/Screen;renderWithTooltipAndSubtitles(Lnet/minecraft/client/gui/GuiGraphics;IIF)V"))
     private void wrap_Screen_render_in_render_Drippy(Screen instance, GuiGraphics graphics, int mouseX, int mouseY, float partial, Operation<Void> original) {
         if (!DrippyLoadingScreen.getOptions().fadeInOutLoadingScreen.getValue()) return;
         RenderingUtils.setTooltipRenderingBlocked(true);
-        // Keep depth test disabled during the whole screen rendering to make stuff from the screen not shine through the loading screen
-        RenderSystem.disableDepthTest();
-        RenderingUtils.setDepthTestLocked(true);
-        Objects.requireNonNull(Minecraft.getInstance().screen).renderWithTooltip(graphics, mouseX, mouseY, partial);
-        RenderingUtils.setDepthTestLocked(false);
-        RenderSystem.enableDepthTest();
+        original.call(instance, graphics, mouseX, mouseY, partial);
         RenderingUtils.setTooltipRenderingBlocked(false);
     }
 
@@ -117,35 +110,18 @@ public class MixinLoadingOverlay {
         if (!this.shouldRenderVanillaDrippy()) {
             info.cancel();
             this.cachedElementOpacityDrippy = DrippyLoadingScreen.getOptions().fadeInOutLoadingScreen.getValue() ? opacity : 1.0F;
-            RenderingUtils.resetShaderColor(graphics);
         }
     }
 
-    @WrapWithCondition(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphics;blit(Lnet/minecraft/resources/ResourceLocation;IIIIFFIIII)V"))
-    private boolean cancelOriginalLogoRenderingDrippy(GuiGraphics instance, ResourceLocation atlasLocation, int x, int y, int width, int height, float uOffset, float vOffset, int uWidth, int vHeight, int textureWidth, int textureHeight) {
+    @WrapWithCondition(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphics;blit(Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/resources/ResourceLocation;IIFFIIIIIII)V"))
+    private boolean cancelOriginalLogoRenderingDrippy(GuiGraphics instance, RenderPipeline pipeline, ResourceLocation atlas, int x, int y, float u, float v, int width, int height, int uWidth, int vHeight, int textureWidth, int textureHeight, int color) {
         return this.shouldRenderVanillaDrippy();
     }
 
-    @WrapWithCondition(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphics;fill(Lnet/minecraft/client/renderer/RenderType;IIIII)V"))
-    private boolean cancelBackgroundRenderingDrippy(GuiGraphics instance, RenderType renderType, int minX, int minY, int maxX, int maxY, int color) {
-        this.cachedBackgroundOpacityDrippy = DrippyLoadingScreen.getOptions().fadeInOutLoadingScreen.getValue() ? Math.min(1.0F, Math.max(0.0F, (float)FastColor.ARGB32.alpha(color) / 255.0F)) : 1.0F;
+    @WrapWithCondition(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphics;fill(IIIII)V"))
+    private boolean cancelBackgroundRenderingDrippy(GuiGraphics instance, int minX, int minY, int maxX, int maxY, int color) {
+        this.cachedBackgroundOpacityDrippy = DrippyLoadingScreen.getOptions().fadeInOutLoadingScreen.getValue() ? Math.min(1.0F, Math.max(0.0F, (float) ARGB.alpha(color) / 255.0F)) : 1.0F;
         return this.shouldRenderVanillaDrippy();
-    }
-
-    @Inject(method = "render", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/GlStateManager;_clear(IZ)V", shift = At.Shift.AFTER, remap = false))
-    private void clearColorAfterBackgroundRenderingDrippy(GuiGraphics graphics, int mouseX, int mouseY, float partialTick, CallbackInfo info) {
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
-        RenderingUtils.resetShaderColor(graphics);
-    }
-
-    @Unique
-    private void restoreRenderDefaultsDrippy(GuiGraphics graphics) {
-        RenderingUtils.resetShaderColor(graphics);
-        RenderSystem.defaultBlendFunc();
-        RenderSystem.depthMask(true);
-        RenderSystem.enableDepthTest();
-        RenderSystem.enableBlend();
     }
 
     @Unique
