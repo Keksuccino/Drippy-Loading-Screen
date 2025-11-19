@@ -1,29 +1,43 @@
+
 plugins {
-    id 'idea'
     id 'java'
+    id 'idea'
     id 'maven-publish'
-    id 'org.spongepowered.gradle.vanilla' version '0.2.1-SNAPSHOT'
+    id "fabric-loom" version "$fabric_loom_version"
 }
+
 base {
     archivesName = "${mod_id}"
 }
-minecraft {
-    version(minecraft_version)
-    if (file("src/main/resources/${mod_id}.accesswidener").exists()) {
-        accessWideners(file("src/main/resources/${mod_id}.accesswidener"))
+
+repositories {
+    flatDir {
+        dirs 'libs'
     }
 }
 
 dependencies {
-    compileOnly 'io.github.llamalad7:mixinextras-common:0.4.1'
+    minecraft "com.mojang:minecraft:${minecraft_version}"
+    mappings loom.layered() {
+        officialMojangMappings()
+        parchment("org.parchmentmc.data:parchment-${parchment_mc_version}:${parchment_version}@zip")
+    }
+    implementation group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.2'
+    implementation group: 'org.ow2.asm', name: 'asm-tree', version: '9.7'
+    compileOnly(annotationProcessor("io.github.llamalad7:mixinextras-common:${mixin_extras_version}"))
     compileOnly group:'org.spongepowered', name:'mixin', version:'0.8.5'
-    //compileOnly fileTree('libs') { include '*.jar' }
-    compileOnly 'com.github.Keksuccino:japng:0.5.3'
-    compileOnly "maven.modrinth:konkrete:1.9.13-1.21.10-neoforge"
-    compileOnly "maven.modrinth:melody:1.0.13-1.21.10-neoforge"
-    compileOnly "maven.modrinth:fancymenu:3.7.2-1.21.10-neoforge"
-    implementation group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.1'
-    implementation group: 'org.ow2.asm', name: 'asm-tree', version: '9.3'
+    modCompileOnly "maven.modrinth:melody:1.0.14-1.21.10-fabric"
+    modCompileOnly "maven.modrinth:konkrete:1.9.13-1.21.10-fabric"
+	modCompileOnly "flatdir:fancymenu:3.8.0"
+}
+
+loom {
+    if (file("src/main/resources/${mod_id}.accesswidener").exists()) {
+        accessWidenerPath.set(file("src/main/resources/${mod_id}.accesswidener"))
+    }
+    mixin {
+        defaultRefmapName.set("${mod_id}.refmap.json")
+    }
 }
 
 publishing {
