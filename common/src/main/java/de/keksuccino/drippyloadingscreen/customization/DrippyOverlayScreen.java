@@ -57,6 +57,7 @@ public class DrippyOverlayScreen extends Screen {
     @Override
     public void render(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partial) {
         this.renderBackground(graphics);
+        EventHandler.INSTANCE.postEvent(new RenderedScreenBackgroundEvent(this, graphics, mouseX, mouseY, partial));
         super.render(graphics, mouseX, mouseY, partial);
     }
 
@@ -71,7 +72,6 @@ public class DrippyOverlayScreen extends Screen {
             graphics.fill(RenderType.guiOverlay(), 0, 0, this.width, this.height, replaceAlpha(color, (int)(this.backgroundOpacity * 255.0F)));
             RenderingUtils.resetShaderColor(graphics);
         }
-        EventHandler.INSTANCE.postEvent(new RenderedScreenBackgroundEvent(this, graphics, mouseX, mouseY, partial));
     }
 
     private static int replaceAlpha(int color, int alpha) {

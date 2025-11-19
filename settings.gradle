@@ -29,4 +29,3 @@ rootProject.name = 'drippy-1.20.1'
 include("common")
 include("fabric")
 include("forge")
-include("earlywindow")
