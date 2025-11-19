@@ -3,21 +3,21 @@
   "package": "de.keksuccino.drippyloadingscreen.mixin.mixins.common",
   "compatibilityLevel": "JAVA_17",
   "client": [
-    "client.IMixinFontManager",
     "client.IMixinLoadingOverlay",
     "client.IMixinMinecraft",
     "client.MixinCustomizationOverlay",
+    "client.MixinCustomizationOverlayUI",
     "client.MixinImageElement",
     "client.MixinImageMenuBackground",
     "client.MixinLayout",
     "client.MixinLayoutEditorUI",
     "client.MixinLoadingOverlay",
+    "client.MixinMenuBackgroundBuilder",
     "client.MixinPlayerEntityElement",
     "client.MixinProgressBarElement",
     "client.MixinScreenCustomization",
     "client.MixinScreenCustomizationLayer",
-    "client.IMixinSimplePreparableReloadListener",
-    "client.MixinCustomizationOverlayUI"
+    "client.MixinElementBuilder"
   ],
   "mixins": [
   ],

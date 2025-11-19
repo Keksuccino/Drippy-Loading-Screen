@@ -1,7 +1,6 @@
 package de.keksuccino.drippyloadingscreen.customization;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import de.keksuccino.drippyloadingscreen.mixin.mixins.common.client.IMixinLoadingOverlay;
 import de.keksuccino.fancymenu.customization.ScreenCustomization;
 import de.keksuccino.fancymenu.customization.layer.ScreenCustomizationLayer;
@@ -10,13 +9,13 @@ import de.keksuccino.fancymenu.events.screen.RenderedScreenBackgroundEvent;
 import de.keksuccino.fancymenu.mixin.mixins.common.client.IMixinAbstractWidget;
 import de.keksuccino.fancymenu.util.event.acara.EventHandler;
 import de.keksuccino.fancymenu.util.rendering.RenderingUtils;
-import de.keksuccino.fancymenu.util.rendering.gui.GuiGraphics;
 import de.keksuccino.fancymenu.util.rendering.ui.widget.RendererWidget;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import de.keksuccino.drippyloadingscreen.mixin.MixinCache;
-import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.screens.LoadingOverlay;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FastColor;
@@ -56,24 +55,23 @@ public class DrippyOverlayScreen extends Screen {
     }
 
     @Override
-    public void render(@NotNull PoseStack graphics, int mouseX, int mouseY, float partial) {
+    public void render(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partial) {
         this.renderBackground(graphics);
+        EventHandler.INSTANCE.postEvent(new RenderedScreenBackgroundEvent(this, graphics, mouseX, mouseY, partial));
         super.render(graphics, mouseX, mouseY, partial);
     }
 
     @Override
-    public void renderBackground(@NotNull PoseStack pose) {
-        GuiGraphics graphics = GuiGraphics.currentGraphics();
+    public void renderBackground(@NotNull GuiGraphics graphics) {
         ScreenCustomizationLayer layer = ScreenCustomizationLayerHandler.getLayerOfScreen(this);
         boolean shouldRenderDefaultBackground = (layer == null) || layer.layoutBase.menuBackgrounds.isEmpty();
         IntSupplier supplier = IMixinLoadingOverlay.getBrandBackgroundDrippy();
         int color = (supplier != null) ? supplier.getAsInt() : 0;
         if (shouldRenderDefaultBackground) {
             RenderingUtils.resetShaderColor(graphics);
-            graphics.fill(0, 0, this.width, this.height, replaceAlpha(color, (int)(this.backgroundOpacity * 255.0F)));
+            graphics.fill(RenderType.guiOverlay(), 0, 0, this.width, this.height, replaceAlpha(color, (int)(this.backgroundOpacity * 255.0F)));
             RenderingUtils.resetShaderColor(graphics);
         }
-        EventHandler.INSTANCE.postEvent(new RenderedScreenBackgroundEvent(this, graphics.pose()));
     }
 
     private static int replaceAlpha(int color, int alpha) {
@@ -98,8 +96,7 @@ public class DrippyOverlayScreen extends Screen {
         int logoPosY = centerY - logoHeightHalf;
 
         return new RendererWidget(logoPosX, logoPosY, logoWidthHalf * 2, logoHeightHalf * 2,
-                (pose, mouseX, mouseY, partial, x, y, width, height, widget) -> {
-                    GuiGraphics graphics = GuiGraphics.currentGraphics();
+                (graphics, mouseX, mouseY, partial, x, y, width, height, widget) -> {
                     RenderSystem.disableDepthTest();
                     RenderSystem.depthMask(false);
                     RenderSystem.enableBlend();
@@ -132,8 +129,7 @@ public class DrippyOverlayScreen extends Screen {
         int barHeight = 10;
 
         return new RendererWidget(barPosX, barPosY, barWidth, barHeight,
-                (pose, mouseX, mouseY, partial, x, y, width, height, widget) -> {
-            GuiGraphics graphics = GuiGraphics.currentGraphics();
+                (graphics, mouseX, mouseY, partial, x, y, width, height, widget) -> {
                     float currentProgress = 0.5F;
                     if (Minecraft.getInstance().getOverlay() instanceof LoadingOverlay) {
                         currentProgress = ((IMixinLoadingOverlay)Minecraft.getInstance().getOverlay()).getCurrentProgressDrippy();

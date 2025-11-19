@@ -3,7 +3,7 @@ plugins {
     id 'java'
     id 'idea'
     id 'maven-publish'
-    id 'fabric-loom' version '1.6-SNAPSHOT'
+    id "fabric-loom" version "$fabric_loom_version"
 }
 
 base {
@@ -11,22 +11,29 @@ base {
 }
 
 repositories {
-    flatDir { dirs 'libs' }
+    flatDir {
+        dirs 'libs'
+    }
 }
 
 dependencies {
     minecraft "com.mojang:minecraft:${minecraft_version}"
-    mappings loom.officialMojangMappings()
+    mappings loom.layered() {
+        officialMojangMappings()
+        parchment("org.parchmentmc.data:parchment-${parchment_mc_version}:${parchment_version}@zip")
+    }
     modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
     implementation group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.1'
-    implementation project(":common")
-    include(implementation(annotationProcessor("io.github.llamalad7:mixinextras-fabric:0.3.2")))
-    implementation 'com.github.Keksuccino:japng:0.5.3'
+	implementation project(":common")
+    include(implementation(annotationProcessor("io.github.llamalad7:mixinextras-fabric:${mixin_extras_version}")))
+    include(implementation 'org.joml:joml:1.10.8')
     modImplementation "maven.modrinth:melody:1.0.1-1.19.2-fabric"
     modImplementation "maven.modrinth:konkrete:1.8.0-1.19.1-1.19.2-fabric"
-    modImplementation "maven.modrinth:modmenu:4.1.2"
-    modImplementation "maven.modrinth:fancymenu:3.5.0-1.19.2-fabric"
+    modImplementation "maven.modrinth:modmenu:4.2.0-beta.2"
+    //This is only to fix the missing dependency error in-dev
+    implementation group: 'ca.weblite', name: 'java-objc-bridge', version: '1.1'
+	modImplementation "flatdir:fancymenu:3.8.0"
 }
 
 loom {
