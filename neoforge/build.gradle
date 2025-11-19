@@ -60,7 +60,7 @@ dependencies {
     implementation "net.neoforged:neoforge:${neoforge_version}"
     implementation "maven.modrinth:konkrete:1.9.13-1.21.10-neoforge"
 	implementation "maven.modrinth:melody:1.0.14-1.21.10-neoforge"
-	implementation "flatdir:fancymenu:3.8.0"
+	implementation "flatdir:fancymenu:3.8.0.2"
     implementation project(":earlywindow")
     compileOnly project(":common")
 }
