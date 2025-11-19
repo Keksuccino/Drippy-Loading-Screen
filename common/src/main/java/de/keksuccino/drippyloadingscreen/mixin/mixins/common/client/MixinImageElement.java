@@ -15,7 +15,7 @@ public class MixinImageElement {
     /**
      * @reason This tries to prevent the texture from flickering after reloading the texture manager in the {@link LoadingOverlay}.
      */
-    @Inject(method = "render", at = @At(value = "INVOKE", target = "Lde/keksuccino/fancymenu/customization/element/elements/image/ImageElement;getTextureResource()Lde/keksuccino/fancymenu/util/resource/resources/texture/ITexture;", shift = At.Shift.AFTER, remap = false))
+    @Inject(method = "render", at = @At(value = "INVOKE", target = "Lde/keksuccino/fancymenu/customization/element/elements/image/ImageElement;getTextureResource()Lde/keksuccino/fancymenu/util/resource/resources/texture/ITexture;", shift = At.Shift.AFTER, remap = false), remap = false)
     private void afterGetResourceDrippy(GuiGraphics graphics, int mouseX, int mouseY, float partial, CallbackInfo ci) {
 
         ImageElement e = (ImageElement) ((Object)this);

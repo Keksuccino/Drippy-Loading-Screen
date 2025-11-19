@@ -5,7 +5,6 @@
   "mixins": [
   ],
   "client": [
-    "client.MixinForgeLoadingOverlay"
   ],
   "injectors": {
     "defaultRequire": 1
