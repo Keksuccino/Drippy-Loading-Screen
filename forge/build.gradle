@@ -75,7 +75,6 @@ sourceSets.main.resources.srcDir 'src/generated/resources'
 
 dependencies {
     minecraft("net.minecraftforge:forge:${minecraft_version}-${forge_version}")
-    implementation('net.sf.jopt-simple:jopt-simple:5.0.4') { version { strictly '5.0.4' } }
     annotationProcessor("org.spongepowered:mixin:0.8.5-SNAPSHOT:processor")
     //Needs to be "implementation" when building and "compileOnly" in-dev for some frickin reason
     implementation(annotationProcessor("io.github.llamalad7:mixinextras-common:${mixin_extras_version}"))
@@ -83,14 +82,14 @@ dependencies {
     implementation(jarJar("io.github.llamalad7:mixinextras-forge:${mixin_extras_version}")) {
         jarJar.ranged(it, "[${mixin_extras_version},)")
     }
-    minecraftLibrary(jarJar("org.joml:joml:1.10.8")) {
-        jarJar.ranged(it, "[1.10.8,)")
-    }
+//    minecraftLibrary(jarJar("org.joml:joml:1.10.8")) {
+//        jarJar.ranged(it, "[1.10.8,)")
+//    }
     implementation fg.deobf("maven.modrinth:konkrete:1.8.0-1.19-1.19.2-forge")
     implementation fg.deobf("maven.modrinth:melody:1.0.1-1.19.2-forge")
+    implementation fg.deobf("flatdir:fancymenu:3.8.0")
     //This is only to fix the missing dependency error in-dev
     implementation (group: 'ca.weblite', name: 'java-objc-bridge', version: '1.1')
-    implementation fg.deobf("flatdir:fancymenu:3.8.0")
     compileOnly project(":common")
 }
 
@@ -141,7 +140,7 @@ publishing {
 jar {
     manifest {
         attributes([
-                "MixinConfigs": "${mod_id}.forge.mixins.json,${mod_id}.mixins.json"
+                "MixinConfigs": "${mod_id}.forge.mixins.json,${mod_id}.mixins.json,${mod_id}.late.mixins.json"
         ])
     }
 }

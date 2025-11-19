@@ -18,10 +18,10 @@
     "client.MixinPlayerEntityElement",
     "client.MixinProgressBarElement",
     "client.MixinScreenCustomization",
-    "client.MixinScreenCustomizationLayer"
+    "client.MixinScreenCustomizationLayer",
+    "client.IMixinSimplePreparableReloadListener"
   ],
   "mixins": [
-    "client.IMixinSimplePreparableReloadListener"
   ],
   "injectors": {
     "defaultRequire": 1
