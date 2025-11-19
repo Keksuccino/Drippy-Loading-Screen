@@ -11,7 +11,7 @@ public class DrippyLoadingScreenNeoForge {
 
     public DrippyLoadingScreenNeoForge(@NotNull IEventBus eventBus) {
 
-        DrippyLoadingScreen.init();
+        // DrippyLoadingScreen.init(); <- Moved to MixinMinecraft
 
         DrippyEvents.earlyLoadingEditorScreenSupplier = EarlyLoadingEditorScreen::new;
 
