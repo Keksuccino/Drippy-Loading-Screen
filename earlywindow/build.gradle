@@ -36,6 +36,7 @@ def lwjglVersion = '3.3.3'
 dependencies {
     compileOnly "net.neoforged:neoforge:${neoforge_version}"
     compileOnly "net.neoforged.fancymodloader:loader:${fancymodloader_version}"
+    compileOnly "net.neoforged.fancymodloader:earlydisplay:${fancymodloader_version}"
     compileOnly "org.lwjgl:lwjgl-glfw:${lwjglVersion}"
     compileOnly "org.lwjgl:lwjgl-opengl:${lwjglVersion}"
     compileOnly "org.lwjgl:lwjgl-stb:${lwjglVersion}"

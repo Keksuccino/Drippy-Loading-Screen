@@ -6,7 +6,6 @@ import de.keksuccino.drippyloadingscreen.earlywindow.window.sync.EarlyWindowRefe
 import de.keksuccino.drippyloadingscreen.earlywindow.window.texture.EarlyWindowTextureLoader;
 import de.keksuccino.drippyloadingscreen.earlywindow.window.texture.EarlyWindowTextureLoader.LoadedTexture;
 import java.io.IOException;
-import java.lang.reflect.Constructor;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -19,16 +18,15 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Optional;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Consumer;
-import java.util.function.IntConsumer;
-import java.util.function.IntSupplier;
-import java.util.function.LongSupplier;
-import java.util.function.Supplier;
+import net.neoforged.fml.ModLoadingIssue;
+import net.neoforged.fml.earlydisplay.error.ErrorDisplay;
 import net.neoforged.fml.loading.FMLConfig;
 import net.neoforged.fml.loading.FMLPaths;
+import net.neoforged.fml.loading.ProgramArgs;
 import net.neoforged.fml.loading.progress.Message;
 import net.neoforged.fml.loading.progress.ProgressMeter;
 import net.neoforged.fml.loading.progress.StartupNotificationManager;
@@ -84,8 +82,6 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
     private int windowX;
     private int windowY;
     private Runnable ticker = EMPTY_TICK;
-    private String glVersion = "3.2";
-    private Constructor<?> overlayConstructor;
     private Thread renderThread;
     private GLCapabilities renderCapabilities;
     private final ConcurrentLinkedQueue<PendingTextureUpload> pendingWebTextures = new ConcurrentLinkedQueue<>();
@@ -97,6 +93,11 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
     private ColorScheme colorScheme = ColorScheme.red();
     private EarlyWindowTextureLoader textureLoader;
     private String effectiveWindowTitle = "Minecraft";
+    private String assetsDirectory;
+    private String assetIndex;
+    private String minecraftVersion = "";
+    private String neoForgeVersion = "";
+    private String lastProgressLabel = "";
 
     private LoadedTexture backgroundTexture;
     private LoadedTexture logoTexture;
@@ -123,7 +124,7 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
     }
 
     @Override
-    public Runnable initialize(String[] arguments) {
+    public void initialize(ProgramArgs arguments) {
         this.gameDirectory = FMLPaths.GAMEDIR.get();
         this.textureLoader = new EarlyWindowTextureLoader(this.gameDirectory, DrippyEarlyWindowProvider.class.getClassLoader());
         Path configDir = FMLPaths.CONFIGDIR.get();
@@ -131,11 +132,26 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
         this.options = new EarlyLoadingOptionsLoader(configDir).load();
         this.effectiveWindowTitle = this.options.windowTitle();
         this.colorScheme = resolveColorScheme();
+        this.assetsDirectory = arguments.get("assetsDir");
+        this.assetIndex = arguments.get("assetIndex");
 
         setupWindow();
         startRenderThread();
         this.ticker = this::pollEvents;
-        return this::periodicTick;
+    }
+
+    @Override
+    public void setMinecraftVersion(String version) {
+        this.minecraftVersion = version == null ? "" : version;
+    }
+
+    @Override
+    public void setNeoForgeVersion(String version) {
+        if (version == null || Objects.equals(this.neoForgeVersion, version)) {
+            return;
+        }
+        this.neoForgeVersion = version;
+        StartupNotificationManager.modLoaderConsumer().ifPresent(consumer -> consumer.accept("Starting NeoForge " + version));
     }
 
     private void setupWindow() {
@@ -231,7 +247,6 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
         GLFW.glfwMakeContextCurrent(this.window);
         this.renderCapabilities = GL.createCapabilities();
         GL.setCapabilities(this.renderCapabilities);
-        this.glVersion = Optional.ofNullable(GL11.glGetString(GL11.GL_VERSION)).orElse(this.glVersion);
         GLFW.glfwSwapInterval(1);
         loadTextures();
         this.lastProgressSampleNanos = System.nanoTime();
@@ -250,13 +265,7 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
     }
 
     @Override
-    public void updateFramebufferSize(IntConsumer width, IntConsumer height) {
-        width.accept(this.framebufferWidth);
-        height.accept(this.framebufferHeight);
-    }
-
-    @Override
-    public long setupMinecraftWindow(IntSupplier width, IntSupplier height, Supplier<String> title, LongSupplier monitor) {
+    public long takeOverGlfwWindow() {
         this.running = false;
         this.ticker = EMPTY_TICK;
         if (this.renderThread != null) {
@@ -268,55 +277,37 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
         }
 
         GLFW.glfwMakeContextCurrent(this.window);
-        GL.createCapabilities();
-        GLFW.glfwSetWindowTitle(this.window, title.get());
         GLFW.glfwSwapInterval(0);
-        GLFW.glfwMakeContextCurrent(0L);
+        GLFW.glfwSetFramebufferSizeCallback(this.window, null);
+        GLFW.glfwSetWindowSizeCallback(this.window, null);
+        GLFW.glfwSetWindowPosCallback(this.window, null);
+        completeProgress();
         return this.window;
-    }
-
-    @Override
-    public boolean positionWindow(Optional<Object> monitor, IntConsumer widthSetter, IntConsumer heightSetter, IntConsumer xSetter, IntConsumer ySetter) {
-        widthSetter.accept(this.windowWidth);
-        heightSetter.accept(this.windowHeight);
-        xSetter.accept(this.windowX);
-        ySetter.accept(this.windowY);
-        return true;
-    }
-
-    @Override
-    public <T> Supplier<T> loadingOverlay(Supplier<?> mc, Supplier<?> ri, Consumer<Optional<Throwable>> ex, boolean fade) {
-        if (this.overlayConstructor == null) {
-            throw new IllegalStateException("[DRIPPY LOADING SCREEN] Custom loading overlay is not available yet!");
-        }
-        return () -> {
-            try {
-                Object overlay = overlayConstructor.newInstance(mc.get(), ri.get(), ex, fade);
-                @SuppressWarnings("unchecked")
-                T castOverlay = (T) overlay;
-                return castOverlay;
-            } catch (ReflectiveOperationException e) {
-                throw new IllegalStateException("[DRIPPY LOADING SCREEN] Failed to create Drippy loading overlay!", e);
-            }
-        };
-    }
-
-    @Override
-    public void updateModuleReads(ModuleLayer layer) {
-        try {
-            ClassLoader loader = Thread.currentThread().getContextClassLoader();
-            var overlayClass = Class.forName("de.keksuccino.drippyloadingscreen.neoforge.CustomLoadingOverlay", false, loader);
-            var minecraftClass = Class.forName("net.minecraft.client.Minecraft", false, loader);
-            var reloadClass = Class.forName("net.minecraft.server.packs.resources.ReloadInstance", false, loader);
-            this.overlayConstructor = overlayClass.getConstructor(minecraftClass, reloadClass, Consumer.class, boolean.class);
-        } catch (Exception e) {
-            throw new IllegalStateException("[DRIPPY LOADING SCREEN] Custom loading overlay class missing!", e);
-        }
     }
 
     @Override
     public void periodicTick() {
         this.ticker.run();
+    }
+
+    @Override
+    public void updateProgress(String label) {
+        if (label == null) {
+            return;
+        }
+        String sanitized = label.trim();
+        if (sanitized.isEmpty() || sanitized.equals(this.lastProgressLabel)) {
+            return;
+        }
+        this.lastProgressLabel = sanitized;
+        StartupNotificationManager.modLoaderConsumer().ifPresent(consumer -> consumer.accept(sanitized));
+    }
+
+    @Override
+    public void completeProgress() {
+        this.lastProgressLabel = "";
+        this.progressIndeterminate = false;
+        this.displayedProgress = 1.0f;
     }
 
     private void pollEvents() {
@@ -326,14 +317,17 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
     }
 
     @Override
-    public String getGLVersion() {
-        return this.glVersion;
-    }
-
-    @Override
     public void crash(String message) {
         LOGGER.error("Early window crash: {}", message);
         TinyFileDialogs.tinyfd_messageBox("Drippy Loading Screen", message, "ok", "error", true);
+    }
+
+    @Override
+    public void displayFatalErrorAndExit(List<ModLoadingIssue> issues, Path modsFolder, Path logFile, Path crashReportFile) {
+        long windowHandle = this.takeOverGlfwWindow();
+        GL.createCapabilities();
+        this.running = false;
+        ErrorDisplay.fatal(windowHandle, this.assetsDirectory, this.assetIndex, issues, modsFolder, logFile, crashReportFile);
     }
 
     private void drawFrame() {
