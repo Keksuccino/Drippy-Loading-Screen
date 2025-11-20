@@ -3,10 +3,11 @@
   "package": "de.keksuccino.drippyloadingscreen.mixin.mixins.neoforge",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
+    "client.MixinMinecraft"
   ],
   "client": [
-    "client.MixinNeoForgeLoadingOverlay",
-    "client.MixinNeoForgeCustomizationOverlayUI"
+    "client.MixinNeoForgeCustomizationOverlayUI",
+    "client.MixinNeoForgeLoadingOverlay"
   ],
   "injectors": {
     "defaultRequire": 1

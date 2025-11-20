@@ -9,6 +9,7 @@
     "client.IMixinMinecraft",
     "client.MixinCustomizationOverlay",
     "client.MixinCustomizationOverlayUI",
+    "client.MixinElementBuilder",
     "client.MixinImageElement",
     "client.MixinImageMenuBackground",
     "client.MixinLayout",
@@ -19,10 +20,11 @@
     "client.MixinPlayerEntityElement",
     "client.MixinProgressBarElement",
     "client.MixinScreenCustomization",
-    "client.MixinScreenCustomizationLayer",
-    "client.MixinElementBuilder"
+    "client.MixinScreenCustomizationLayer"
   ],
   "mixins": [
+    "client.MixinFontManager",
+    "client.MixinGuiRenderState"
   ],
   "injectors": {
     "defaultRequire": 1
