@@ -2,7 +2,7 @@
 DRIPPY LOADING SCREEN v3.1.0 | CHANGELOG [ !! WIP !! NOT READY YET !! WIP !! ]
 
 - Dropped support for (Lex)Forge for Minecraft 1.21+
-- Dropped support for Minecraft 1.18.2, 1.21.4
+- Dropped support for Minecraft 1.18.2, 1.21.4, 1.21.8
 - Added support for FancyMenu v3.8.0+
 - Added features to customize NeoForge's Early Loading Screen
   - There is an editor for easy editing the screen, but it is very basic compared to full FancyMenu/Drippy, because of how limited the early loading screen is
