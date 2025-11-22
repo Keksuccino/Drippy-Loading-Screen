@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "package": "de.keksuccino.drippyloadingscreen.mixin.mixins.forge",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+  ],
+  "client": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "refmap": "drippyloadingscreen.refmap.json",
+  "plugin": "de.keksuccino.drippyloadingscreen.mixin.DrippyMixinPlugin",
+  "minVersion": "0.8"
+}

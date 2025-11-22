@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "id": "${mod_id}",
+  "version": "${mod_version}",
+  "name": "${mod_name}",
+  "description": "${mod_description}",
+  "environment": "*",
+  "authors": [
+    "${mod_authors}"
+  ],
+  "contributors": [
+  ],
+  "contact": {},
+  "license": "${mod_license}",
+  "icon": "drippy_logo_128x128.png",
+  "entrypoints": {
+    "main": [
+      "de.keksuccino.drippyloadingscreen.DrippyLoadingScreenFabric"
+    ],
+    "client": [],
+    "server": []
+  },
+  "mixins": [
+    "drippyloadingscreen.mixins.json",
+    "drippyloadingscreen.fabric.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=${fabric_loader_version}",
+    "fabric": ">=${fabric_short_version}",
+    "konkrete": ">=1.8.0",
+    "fancymenu": ">=3.8.0",
+    "minecraft": ">=${minecraft_version}",
+    "java": ">=17"
+  },
+  "accessWidener": "drippyloadingscreen.accesswidener"
+}

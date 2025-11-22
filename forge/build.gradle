@@ -1,0 +1,146 @@
+
+plugins {
+    id 'idea'
+    id 'maven-publish'
+    id 'net.minecraftforge.gradle' version '[6.0.24,6.2)'
+    id 'org.spongepowered.mixin' version '0.7-SNAPSHOT'
+}
+
+base {
+    archivesName = "${mod_id}"
+}
+
+mixin {
+    add(sourceSets.main, "${mod_id}.refmap.json")
+    config("${mod_id}.mixins.json")
+    config("${mod_id}.forge.mixins.json")
+}
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+
+jarJar.enable()
+
+repositories {
+    flatDir {
+        dirs 'libs'
+    }
+}
+
+minecraft {
+
+    mappings channel: 'official', version: minecraft_version
+
+    // This property allows configuring Gradle's ProcessResources task(s) to run on IDE output locations before launching the game.
+    // It is REQUIRED to be set to true for this template to function.
+    // See https://docs.gradle.org/current/dsl/org.gradle.language.jvm.tasks.ProcessResources.html
+    copyIdeResources = true
+
+    // Automatically enable forge AccessTransformers if the file exists
+    // This location is hardcoded in Forge and can not be changed.
+    // https://github.com/MinecraftForge/MinecraftForge/blob/be1698bb1554f9c8fa2f58e32b9ab70bc4385e60/fmlloader/src/main/java/net/minecraftforge/fml/loading/moddiscovery/ModFile.java#L123
+    if (file('src/main/resources/META-INF/accesstransformer.cfg').exists()) {
+        accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
+    }
+
+    runs {
+        client {
+            workingDirectory project.file('../run_client')
+            ideaModule "${rootProject.name}.${project.name}.main"
+            taskName 'Client'
+            property 'mixin.env.remapRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
+            mods {
+                modClientRun {
+                    source sourceSets.main
+                }
+            }
+        }
+        server {
+            workingDirectory project.file('../run_server')
+            ideaModule "${rootProject.name}.${project.name}.main"
+            taskName 'Server'
+            property 'mixin.env.remapRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
+            mods {
+                modServerRun {
+                    source sourceSets.main
+                }
+            }
+        }
+    }
+
+}
+
+sourceSets.main.resources.srcDir 'src/generated/resources'
+
+dependencies {
+    minecraft("net.minecraftforge:forge:${minecraft_version}-${forge_version}")
+    annotationProcessor("org.spongepowered:mixin:0.8.5-SNAPSHOT:processor")
+    //Needs to be "implementation" when building and "compileOnly" in-dev for some frickin reason
+    implementation(annotationProcessor("io.github.llamalad7:mixinextras-common:${mixin_extras_version}"))
+    //compileOnly(annotationProcessor("io.github.llamalad7:mixinextras-common:${mixin_extras_version}"))
+    implementation(jarJar("io.github.llamalad7:mixinextras-forge:${mixin_extras_version}")) {
+        jarJar.ranged(it, "[${mixin_extras_version},)")
+    }
+//    minecraftLibrary(jarJar("org.joml:joml:1.10.8")) {
+//        jarJar.ranged(it, "[1.10.8,)")
+//    }
+    implementation fg.deobf("maven.modrinth:konkrete:1.8.0-1.19-1.19.2-forge")
+    implementation fg.deobf("maven.modrinth:melody:1.0.1-1.19.2-forge")
+    implementation fg.deobf("flatdir:fancymenu:3.8.0")
+    //This is only to fix the missing dependency error in-dev
+    implementation (group: 'ca.weblite', name: 'java-objc-bridge', version: '1.1')
+    compileOnly project(":common")
+}
+
+// Exclude Fabric Loader from Forge
+configurations {
+    runtimeClasspath    { exclude group: 'net.fabricmc', module: 'fabric-loader' }
+    developmentRuntimeClasspath {
+        // Gradle 8 names used by ForgeGradle 6
+        exclude group: 'net.fabricmc', module: 'fabric-loader'
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    source(project(":common").sourceSets.main.allSource)
+}
+tasks.withType(Javadoc).configureEach {
+    source(project(":common").sourceSets.main.allJava)
+}
+tasks.named("sourcesJar", Jar) {
+    from(project(":common").sourceSets.main.allSource)
+}
+
+processResources {
+    dependsOn(tasks.named("compileJava"))
+    from(project(":common").sourceSets.main.resources) {
+        exclude "${mod_id}.refmap.json"
+    }
+}
+
+jar.finalizedBy('reobfJar')
+//jar.finalizedBy('jarJar')
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifactId base.archivesName.get()
+            from components.java
+            fg.component(it)
+        }
+    }
+    repositories {
+        maven {
+            url "file://" + System.getenv("local_maven")
+        }
+    }
+}
+
+jar {
+    manifest {
+        attributes([
+                "MixinConfigs": "${mod_id}.forge.mixins.json,${mod_id}.mixins.json,${mod_id}.late.mixins.json"
+        ])
+    }
+}

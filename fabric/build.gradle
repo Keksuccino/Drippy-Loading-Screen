@@ -1,0 +1,88 @@
+
+plugins {
+    id 'java'
+    id 'idea'
+    id 'maven-publish'
+    id "fabric-loom" version "$fabric_loom_version"
+}
+
+base {
+    archivesName = "${mod_id}"
+}
+
+repositories {
+    flatDir {
+        dirs 'libs'
+    }
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:${minecraft_version}"
+    mappings loom.layered() {
+        officialMojangMappings()
+        parchment("org.parchmentmc.data:parchment-${parchment_mc_version}:${parchment_version}@zip")
+    }
+    modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
+    implementation group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.1'
+	implementation project(":common")
+    include(implementation(annotationProcessor("io.github.llamalad7:mixinextras-fabric:${mixin_extras_version}")))
+    include(implementation 'org.joml:joml:1.10.8')
+    modImplementation "maven.modrinth:melody:1.0.1-1.19.2-fabric"
+    modImplementation "maven.modrinth:konkrete:1.8.0-1.19.1-1.19.2-fabric"
+    modImplementation "maven.modrinth:modmenu:4.2.0-beta.2"
+    //This is only to fix the missing dependency error in-dev
+    implementation group: 'ca.weblite', name: 'java-objc-bridge', version: '1.1'
+	modImplementation "flatdir:fancymenu:3.8.0"
+}
+
+loom {
+    if (project(":common").file("src/main/resources/${mod_id}.accesswidener").exists()) {
+        accessWidenerPath.set(project(":common").file("src/main/resources/${mod_id}.accesswidener"))
+    }
+    mixin {
+        defaultRefmapName.set("${mod_id}.refmap.json")
+    }
+    runs {
+        client {
+            client()
+            setConfigName("Fabric Client")
+            ideConfigGenerated(true)
+            runDir("run_client")
+        }
+        server {
+            server()
+            setConfigName("Fabric Server")
+            ideConfigGenerated(true)
+            runDir("run_server")
+        }
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    source(project(":common").sourceSets.main.allSource)
+}
+tasks.withType(Javadoc).configureEach {
+    source(project(":common").sourceSets.main.allJava)
+}
+tasks.named("sourcesJar", Jar) {
+    from(project(":common").sourceSets.main.allSource)
+}
+
+processResources {
+    from project(":common").sourceSets.main.resources
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifactId base.archivesName.get()
+            from components.java
+        }
+    }
+    repositories {
+        maven {
+            url "file://" + System.getenv("local_maven")
+        }
+    }
+}
