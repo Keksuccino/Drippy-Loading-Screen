@@ -19,22 +19,21 @@ import de.keksuccino.fancymenu.util.resource.ResourceSource;
 import de.keksuccino.fancymenu.util.resource.ResourceSourceType;
 import de.keksuccino.fancymenu.util.resource.ResourceSupplier;
 import de.keksuccino.fancymenu.util.resource.resources.texture.ITexture;
-import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
+import net.minecraft.util.Util;
 import net.neoforged.fml.loading.FMLConfig;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -51,7 +50,7 @@ public class EarlyLoadingEditorScreen extends Screen {
     private static final Logger LOGGER = LogManager.getLogger();
 
     private static final Component TITLE = Component.translatable("drippyloadingscreen.screen.early_loading_preview");
-    private static final ResourceLocation MOJANG_LOGO_LOCATION = ResourceLocation.fromNamespaceAndPath("minecraft", "textures/gui/title/mojangstudios.png");
+    private static final Identifier MOJANG_LOGO_LOCATION = Identifier.fromNamespaceAndPath("minecraft", "textures/gui/title/mojangstudios.png");
     private static final ResourceSupplier<ITexture> MOJANG_LOGO_SUPPLIER = createBundledSupplier(MOJANG_LOGO_LOCATION);
     private static final float MOJANG_LOGO_U_OVERLAP = 0.0625f;
 
@@ -860,7 +859,7 @@ public class EarlyLoadingEditorScreen extends Screen {
         int drawHeight = Math.max(1, Math.round(height));
         int drawX = Math.round(x);
         int drawY = Math.round(y);
-        ResourceLocation tex = texture.location();
+        Identifier tex = texture.location();
         if (tex == null) return;
         graphics.blit(RenderPipelines.GUI_TEXTURED, tex, drawX, drawY, 0.0f, 0.0f, drawWidth, drawHeight, drawWidth, drawHeight);
     }
@@ -879,7 +878,7 @@ public class EarlyLoadingEditorScreen extends Screen {
         int textureHeight = Math.max(1, texture.height());
         int topPixels = Math.max(1, textureHeight / 2);
         int bottomPixels = Math.max(1, textureHeight - topPixels);
-        ResourceLocation tex = texture.location();
+        Identifier tex = texture.location();
         if (tex == null) return;
         graphics.blit(RenderPipelines.GUI_TEXTURED, tex, drawX, drawY, -MOJANG_LOGO_U_OVERLAP, 0.0f, leftWidth, totalHeight, textureWidth, topPixels, textureWidth, textureHeight);
         graphics.blit(RenderPipelines.GUI_TEXTURED, tex, drawX + leftWidth, drawY, MOJANG_LOGO_U_OVERLAP, topPixels, rightWidth, totalHeight, textureWidth, bottomPixels, textureWidth, textureHeight);
@@ -1823,7 +1822,7 @@ public class EarlyLoadingEditorScreen extends Screen {
         if (texture == null || !texture.isReady()) {
             return TextureInfo.EMPTY;
         }
-        ResourceLocation location = texture.getResourceLocation();
+        Identifier location = texture.getIdentifier();
         if (location == null) {
             return TextureInfo.EMPTY;
         }
@@ -1908,7 +1907,7 @@ public class EarlyLoadingEditorScreen extends Screen {
         }
     }
 
-    private static ResourceSupplier<ITexture> createBundledSupplier(ResourceLocation location) {
+    private static ResourceSupplier<ITexture> createBundledSupplier(Identifier location) {
         try {
             ResourceSource source = ResourceSource.of(location.toString(), ResourceSourceType.LOCATION);
             return ResourceSupplier.image(source.getSourceWithPrefix());
@@ -2122,7 +2121,7 @@ public class EarlyLoadingEditorScreen extends Screen {
 
     private record ProgressFrameMetrics(float borderThickness, float horizontalInset, float verticalInset) {}
 
-    private record TextureInfo(@Nullable ResourceLocation location, int width, int height) {
+    private record TextureInfo(@Nullable Identifier location, int width, int height) {
         private static final TextureInfo EMPTY = new TextureInfo(null, 0, 0);
 
         private boolean isValid() {

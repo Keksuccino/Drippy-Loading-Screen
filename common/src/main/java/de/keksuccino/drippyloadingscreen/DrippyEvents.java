@@ -21,14 +21,14 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Supplier;
 
 public class DrippyEvents {
 
-    private static final ResourceLocation EDIT_BUTTON_TEXTURE = ResourceLocation.fromNamespaceAndPath("drippyloadingscreen", "textures/edit_button.png");
+    private static final Identifier EDIT_BUTTON_TEXTURE = Identifier.fromNamespaceAndPath("drippyloadingscreen", "textures/edit_button.png");
 
     private ContextMenu drippyMenu;
     private ExtendedButton drippyButton;

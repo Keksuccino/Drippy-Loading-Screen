@@ -15,7 +15,7 @@ import net.minecraft.client.gui.screens.LoadingOverlay;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
 import org.apache.logging.log4j.LogManager;
@@ -26,7 +26,7 @@ import java.util.function.IntSupplier;
 public class DrippyOverlayScreen extends Screen {
 
     private static final Logger LOGGER = LogManager.getLogger();
-    private static final ResourceLocation MOJANG_STUDIOS_LOGO_LOCATION = ResourceLocation.parse("textures/gui/title/mojangstudios.png");
+    private static final Identifier MOJANG_STUDIOS_LOGO_LOCATION = Identifier.parse("textures/gui/title/mojangstudios.png");
 
     public float backgroundOpacity = 1.0F;
 

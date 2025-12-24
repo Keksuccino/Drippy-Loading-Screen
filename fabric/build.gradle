@@ -29,6 +29,8 @@ dependencies {
     modImplementation "maven.modrinth:melody:1.0.15-1.21.11-fabric"
     modImplementation "maven.modrinth:konkrete:1.9.14-1.21.11-fabric"
 	modImplementation "maven.modrinth:fancymenu:3.8.3-1.21.11-fabric"
+    modImplementation "maven.modrinth:modmenu:17.0.0-beta.1"
+    implementation "net.objecthunter:exp4j:0.4.8"
     implementation project(":common")
 }
 

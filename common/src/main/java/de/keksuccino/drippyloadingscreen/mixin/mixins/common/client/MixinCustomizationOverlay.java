@@ -1,6 +1,6 @@
 package de.keksuccino.drippyloadingscreen.mixin.mixins.common.client;
 
-import com.llamalad7.mixinextras.injector.WrapWithCondition;
+import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import de.keksuccino.fancymenu.customization.overlay.CustomizationOverlay;
 import de.keksuccino.fancymenu.customization.overlay.CustomizationOverlayMenuBar;
 import net.minecraft.client.Minecraft;
