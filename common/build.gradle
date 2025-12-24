@@ -24,11 +24,12 @@ dependencies {
     }
     implementation group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.2'
     implementation group: 'org.ow2.asm', name: 'asm-tree', version: '9.7'
+	annotationProcessor group: 'org.ow2.asm', name: 'asm-util', version: '9.7'
     compileOnly(annotationProcessor("io.github.llamalad7:mixinextras-common:${mixin_extras_version}"))
     compileOnly group:'org.spongepowered', name:'mixin', version:'0.8.5'
-    modCompileOnly "maven.modrinth:melody:1.0.14-1.21.10-fabric"
-    modCompileOnly "maven.modrinth:konkrete:1.9.13-1.21.10-fabric"
-	modCompileOnly "flatdir:fancymenu:3.8.0"
+    modCompileOnly "maven.modrinth:melody:1.0.15-1.21.11-fabric"
+    modCompileOnly "maven.modrinth:konkrete:1.9.14-1.21.11-fabric"
+	modCompileOnly "maven.modrinth:fancymenu:3.8.3-1.21.11-fabric"
 }
 
 loom {
@@ -36,6 +37,7 @@ loom {
         accessWidenerPath.set(file("src/main/resources/${mod_id}.accesswidener"))
     }
     mixin {
+        useLegacyMixinAp = true
         defaultRefmapName.set("${mod_id}.refmap.json")
     }
 }

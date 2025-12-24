@@ -1,7 +1,7 @@
 
 plugins {
     // Required for NeoGradle
-    id "org.jetbrains.gradle.plugin.idea-ext" version "1.1.7"
+    id "org.jetbrains.gradle.plugin.idea-ext" version "1.3"
 }
 
 subprojects {
@@ -11,21 +11,21 @@ subprojects {
     java.toolchain.languageVersion = JavaLanguageVersion.of(21)
     java.withSourcesJar()
 //    java.withJavadocJar()
-        
+
     jar {
         from(rootProject.file("LICENSE")) {
             rename { "${it}_${mod_name}" }
         }
         manifest {
             attributes([
-                'Specification-Title'     : mod_name,
-                'Specification-Vendor'    : mod_authors,
-                'Specification-Version'   : mod_version,
-                'Implementation-Title'    : mod_name,
-                'Implementation-Version'  : mod_version,
-                'Implementation-Vendor'   : mod_authors,
-                'Built-On-Java'           : "${System.getProperty('java.vm.version')} (${System.getProperty('java.vm.vendor')})",
-                'Built-On-Minecraft'      : minecraft_version
+                    'Specification-Title'     : mod_name,
+                    'Specification-Vendor'    : mod_authors,
+                    'Specification-Version'   : mod_version,
+                    'Implementation-Title'    : mod_name,
+                    'Implementation-Version'  : mod_version,
+                    'Implementation-Vendor'   : mod_authors,
+                    'Built-On-Java'           : "${System.getProperty('java.vm.version')} (${System.getProperty('java.vm.vendor')})",
+                    'Built-On-Minecraft'      : minecraft_version
             ])
         }
     }
@@ -64,22 +64,7 @@ subprojects {
                 includeGroupByRegex 'com\\.github\\..*'
             }
         }
-        maven {
-            name = 'MCEF Releases'
-            url = 'https://mcef-download.cinemamod.com/repositories/releases'
-            content {
-                includeGroup 'com.cinemamod'
-            }
-        }
-        // Optional for snapshot versions
-        // Keep but scope so release and snapshot repos are not queried for unrelated modules.
-        maven {
-            name = 'MCEF Snapshots'
-            url = 'https://mcef-download.cinemamod.com/repositories/snapshots'
-            content {
-                includeGroup 'com.cinemamod'
-            }
-        }
+        maven { url = "https://keksuccino.github.io/maven/" }
         maven {
             name = 'ParchmentMC Maven'
             url = 'https://maven.parchmentmc.org'
@@ -154,8 +139,6 @@ subprojects {
                 "fabric_loader_version": fabric_loader_version,
                 "neoforge_version": neoforge_version,
                 "neoforge_loader_version": neoforge_loader_version,
-                "fer_version": fer_version,
-                "fer_mc_version": fer_mc_version,
                 "parchment_version": parchment_version,
                 "parchment_mc_version": parchment_mc_version,
                 "mixin_extras_version": mixin_extras_version,

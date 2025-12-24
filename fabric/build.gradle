@@ -26,10 +26,9 @@ dependencies {
     modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
     implementation group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.1'
     include(implementation(annotationProcessor("io.github.llamalad7:mixinextras-fabric:${mixin_extras_version}")))
-    modImplementation "maven.modrinth:melody:1.0.14-1.21.10-fabric"
-    modImplementation "maven.modrinth:konkrete:1.9.13-1.21.10-fabric"
-    modImplementation "maven.modrinth:modmenu:16.0.0-rc.1"
-	modImplementation "flatdir:fancymenu:3.8.0"
+    modImplementation "maven.modrinth:melody:1.0.15-1.21.11-fabric"
+    modImplementation "maven.modrinth:konkrete:1.9.14-1.21.11-fabric"
+	modImplementation "maven.modrinth:fancymenu:3.8.3-1.21.11-fabric"
     implementation project(":common")
 }
 
@@ -38,6 +37,7 @@ loom {
         accessWidenerPath.set(project(":common").file("src/main/resources/${mod_id}.accesswidener"))
     }
     mixin {
+        useLegacyMixinAp = true
         defaultRefmapName.set("${mod_id}.refmap.json")
     }
     runs {
@@ -61,6 +61,10 @@ tasks.withType(JavaCompile).configureEach {
 }
 tasks.withType(Javadoc).configureEach {
     source(project(":common").sourceSets.main.allJava)
+}
+tasks.withType(Test).configureEach {
+    // Allow builds when there are test sources but no matching tests.
+    failOnNoDiscoveredTests = false
 }
 tasks.named("sourcesJar", Jar) {
     from(project(":common").sourceSets.main.allSource)
