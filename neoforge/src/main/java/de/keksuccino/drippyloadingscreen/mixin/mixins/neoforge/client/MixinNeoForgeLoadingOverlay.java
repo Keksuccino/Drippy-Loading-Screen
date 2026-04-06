@@ -6,7 +6,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.vertex.*;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.LoadingOverlay;
 import net.minecraft.client.gui.screens.Overlay;
 import net.minecraft.client.gui.screens.Screen;
@@ -34,34 +34,34 @@ public class MixinNeoForgeLoadingOverlay extends LoadingOverlay {
         super(mc, reload, errorConsumer, b);
     }
 
-    @WrapMethod(method = "render")
-    private void wrap_NeoForge_render_Drippy(GuiGraphics graphics, int mouseX, int mouseY, float partial, Operation<Void> original) {
+    @WrapMethod(method = "extractRenderState")
+    private void wrap_NeoForge_extractRenderState_Drippy(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partial, Operation<Void> original) {
 
         // Render original NeoForge overlay to not break logic and mixins of other mods (but remove any actual rendering via mixins below)
         original.call(graphics, mouseX, mouseY, partial);
 
         // Render Vanilla overlay after, so Drippy can render its stuff
-        super.render(graphics, mouseX, mouseY, partial);
+        super.extractRenderState(graphics, mouseX, mouseY, partial);
 
     }
 
-    @WrapOperation(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/Screen;render(Lnet/minecraft/client/gui/GuiGraphics;IIF)V"))
-    private void wrap_NeoForge_Screen_render_in_render_Drippy(Screen instance, GuiGraphics graphics, int mouseX, int mouseY, float partial, Operation<Void> original) {
+    @WrapOperation(method = "extractRenderState", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/Screen;extractRenderState(Lnet/minecraft/client/gui/GuiGraphicsExtractor;IIF)V"))
+    private void wrap_NeoForge_Screen_extractRenderState_in_extractRenderState_Drippy(Screen instance, GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partial, Operation<Void> original) {
         // Never call
     }
 
-    @WrapOperation(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;setOverlay(Lnet/minecraft/client/gui/screens/Overlay;)V"))
-    private void wrap_NeoForge_setOverlay_in_render_Drippy(Minecraft instance, Overlay loadingGui, Operation<Void> original) {
+    @WrapOperation(method = "extractRenderState", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;setOverlay(Lnet/minecraft/client/gui/screens/Overlay;)V"))
+    private void wrap_NeoForge_setOverlay_in_extractRenderState_Drippy(Minecraft instance, Overlay loadingGui, Operation<Void> original) {
         // Never call
     }
 
-    @WrapOperation(method = "render", at = @At(value = "INVOKE", target = "Lnet/neoforged/fml/earlydisplay/DisplayWindow;renderToFramebuffer()V"))
-    private void wrap_NeoForge_DisplayWindow_renderToFramebuffer_in_render_Drippy(DisplayWindow instance, Operation<Void> original) {
+    @WrapOperation(method = "extractRenderState", at = @At(value = "INVOKE", target = "Lnet/neoforged/fml/earlydisplay/DisplayWindow;renderToFramebuffer()V"))
+    private void wrap_NeoForge_DisplayWindow_renderToFramebuffer_in_extractRenderState_Drippy(DisplayWindow instance, Operation<Void> original) {
         // Never call
     }
 
-    @WrapOperation(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphics;blit(Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/resources/Identifier;IIFFIIIIIII)V"))
-    private void wrap_NeoForge_blit_in_render_Drippy(GuiGraphics instance, RenderPipeline pipeline, Identifier atlas, int x, int y, float u, float v, int width, int height, int uWidth, int vHeight, int textureWidth, int textureHeight, int color, Operation<Void> original) {
+    @WrapOperation(method = "extractRenderState", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphicsExtractor;blit(Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/resources/Identifier;IIFFIIIIIII)V"))
+    private void wrap_NeoForge_blit_in_extractRenderState_Drippy(GuiGraphicsExtractor instance, RenderPipeline pipeline, Identifier atlas, int x, int y, float u, float v, int width, int height, int uWidth, int vHeight, int textureWidth, int textureHeight, int color, Operation<Void> original) {
         // Never call
     }
 

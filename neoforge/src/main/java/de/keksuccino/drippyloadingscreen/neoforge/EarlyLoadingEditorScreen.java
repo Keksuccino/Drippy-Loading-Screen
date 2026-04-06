@@ -20,7 +20,7 @@ import de.keksuccino.fancymenu.util.resource.ResourceSourceType;
 import de.keksuccino.fancymenu.util.resource.ResourceSupplier;
 import de.keksuccino.fancymenu.util.resource.resources.texture.ITexture;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.RenderPipelines;
@@ -172,7 +172,7 @@ public class EarlyLoadingEditorScreen extends Screen {
     }
 
     @Override
-    public void render(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+    public void extractRenderState(@NotNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
         this.backgroundBounds = new ElementBounds(0.0f, 0.0f, this.width, this.height);
         this.logoBounds = null;
         this.progressBarBounds = null;
@@ -194,11 +194,11 @@ public class EarlyLoadingEditorScreen extends Screen {
         if (this.selectedElement != null && !this.elementGeometries.containsKey(this.selectedElement)) {
             setSelectedElement(null);
         }
-        super.render(graphics, mouseX, mouseY, partialTick);
+        super.extractRenderState(graphics, mouseX, mouseY, partialTick);
     }
 
     @Override
-    public void renderBackground(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+    public void extractBackground(@NotNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
         // Background is fully controlled by render().
     }
 
@@ -285,7 +285,7 @@ public class EarlyLoadingEditorScreen extends Screen {
         closeAllContextMenus();
     }
 
-    private void renderBackgroundLayer(GuiGraphics graphics, RenderMetrics metrics) {
+    private void renderBackgroundLayer(GuiGraphicsExtractor graphics, RenderMetrics metrics) {
         graphics.fill(0, 0, this.width, this.height, toArgb(this.colorScheme.background(), 1.0f));
         TextureInfo background = fetchTexture(this.textureSuppliers.background());
         this.lastBackgroundTextureValid = background.isValid();
@@ -312,7 +312,7 @@ public class EarlyLoadingEditorScreen extends Screen {
         drawTexture(graphics, background, metrics.toGui(x), metrics.toGui(y), metrics.toGui(drawWidth), metrics.toGui(drawHeight));
     }
 
-    private void renderEditorGrid(GuiGraphics graphics) {
+    private void renderEditorGrid(GuiGraphicsExtractor graphics) {
         if (!FancyMenu.getOptions().showLayoutEditorGrid.getValue()) {
             return;
         }
@@ -441,7 +441,7 @@ public class EarlyLoadingEditorScreen extends Screen {
         return ARGB.color(alpha, invertedR, invertedG, invertedB);
     }
 
-    private float renderLogoLayer(GuiGraphics graphics, RenderMetrics metrics, float uiScale) {
+    private float renderLogoLayer(GuiGraphicsExtractor graphics, RenderMetrics metrics, float uiScale) {
         LogoTexture logo = resolveLogoTexture();
         TextureInfo logoTexture = logo.texture();
         float scaledOffsetY = this.visualOptions.logoOffsetY() * uiScale;
@@ -476,7 +476,7 @@ public class EarlyLoadingEditorScreen extends Screen {
         return y + height;
     }
 
-    private void renderProgressBar(GuiGraphics graphics, RenderMetrics metrics, float logoBottom, float uiScale) {
+    private void renderProgressBar(GuiGraphicsExtractor graphics, RenderMetrics metrics, float logoBottom, float uiScale) {
         float screenWidth = metrics.absoluteWidth();
         float screenHeight = metrics.absoluteHeight();
         int configuredWidth = Math.max(32, this.visualOptions.barWidth());
@@ -534,7 +534,7 @@ public class EarlyLoadingEditorScreen extends Screen {
         }
     }
 
-    private void renderWatermarks(GuiGraphics graphics, RenderMetrics metrics, float uiScale) {
+    private void renderWatermarks(GuiGraphicsExtractor graphics, RenderMetrics metrics, float uiScale) {
         renderWatermark(graphics, metrics, this.textureSuppliers.topLeft(), this.visualOptions.topLeftWidth(), this.visualOptions.topLeftHeight(),
                 this.visualOptions.topLeftOffsetX(), this.visualOptions.topLeftOffsetY(), WatermarkAnchor.TOP_LEFT, uiScale);
         renderWatermark(graphics, metrics, this.textureSuppliers.topRight(), this.visualOptions.topRightWidth(), this.visualOptions.topRightHeight(),
@@ -545,7 +545,7 @@ public class EarlyLoadingEditorScreen extends Screen {
                 this.visualOptions.bottomRightOffsetX(), this.visualOptions.bottomRightOffsetY(), WatermarkAnchor.BOTTOM_RIGHT, uiScale);
     }
 
-    private void renderElementHoverIndicators(GuiGraphics graphics, double mouseX, double mouseY) {
+    private void renderElementHoverIndicators(GuiGraphicsExtractor graphics, double mouseX, double mouseY) {
         if (this.elementGeometries.isEmpty()) {
             return;
         }
@@ -586,7 +586,7 @@ public class EarlyLoadingEditorScreen extends Screen {
         CursorHandler.setClientTickCursor(resolveCursorForHandle(hoveredHandle));
     }
 
-    private void drawEditorHoverBorder(GuiGraphics graphics, ElementBounds bounds, int argbColor) {
+    private void drawEditorHoverBorder(GuiGraphicsExtractor graphics, ElementBounds bounds, int argbColor) {
         int left = Math.round(bounds.x());
         int top = Math.round(bounds.y());
         int right = Math.round(bounds.x() + bounds.width());
@@ -600,7 +600,7 @@ public class EarlyLoadingEditorScreen extends Screen {
         graphics.fill(right - 1, top, right, bottom, argbColor);
     }
 
-    private void drawResizeHandles(GuiGraphics graphics, ElementBounds bounds, int argbColor) {
+    private void drawResizeHandles(GuiGraphicsExtractor graphics, ElementBounds bounds, int argbColor) {
         int half = RESIZE_HANDLE_SIZE / 2;
         float left = bounds.x();
         float top = bounds.y();
@@ -618,13 +618,13 @@ public class EarlyLoadingEditorScreen extends Screen {
         drawHandle(graphics, right, bottom, half, argbColor);
     }
 
-    private void drawHandle(GuiGraphics graphics, float centerX, float centerY, int half, int color) {
+    private void drawHandle(GuiGraphicsExtractor graphics, float centerX, float centerY, int half, int color) {
         int cx = Math.round(centerX);
         int cy = Math.round(centerY);
         graphics.fill(cx - half, cy - half, cx + half, cy + half, color);
     }
 
-    private void renderWatermark(GuiGraphics graphics, RenderMetrics metrics, @Nullable ResourceSupplier<ITexture> supplier, int configuredWidth, int configuredHeight,
+    private void renderWatermark(GuiGraphicsExtractor graphics, RenderMetrics metrics, @Nullable ResourceSupplier<ITexture> supplier, int configuredWidth, int configuredHeight,
                                  int offsetX, int offsetY, WatermarkAnchor anchor, float uiScale) {
         TextureInfo texture = fetchTexture(supplier);
         boolean hasTexture = texture.isValid();
@@ -672,7 +672,7 @@ public class EarlyLoadingEditorScreen extends Screen {
         }
     }
 
-    private void renderLoggerOverlay(GuiGraphics graphics, RenderMetrics metrics, float uiScale) {
+    private void renderLoggerOverlay(GuiGraphicsExtractor graphics, RenderMetrics metrics, float uiScale) {
         if (this.visualOptions.hideLogger() || this.font == null) {
             return;
         }
@@ -701,7 +701,7 @@ public class EarlyLoadingEditorScreen extends Screen {
         }
     }
 
-    private void drawLoggerLine(GuiGraphics graphics, RenderMetrics metrics, String text, float x, float y, float alpha, float textScale) {
+    private void drawLoggerLine(GuiGraphicsExtractor graphics, RenderMetrics metrics, String text, float x, float y, float alpha, float textScale) {
         if (text.isEmpty() || alpha <= 0.0f || this.font == null) {
             return;
         }
@@ -713,7 +713,7 @@ public class EarlyLoadingEditorScreen extends Screen {
             return;
         }
         graphics.pose().scale(guiAdjustedScale, guiAdjustedScale);
-        graphics.drawString(this.font, text, 0, 0, toArgb(this.colorScheme.foreground(), alpha), false);
+        graphics.text(this.font, text, 0, 0, toArgb(this.colorScheme.foreground(), alpha), false);
         graphics.pose().popMatrix();
     }
 
@@ -754,7 +754,7 @@ public class EarlyLoadingEditorScreen extends Screen {
         }
     }
 
-    private void drawIndeterminateProgress(GuiGraphics graphics, float x, float y, float width, float height,
+    private void drawIndeterminateProgress(GuiGraphicsExtractor graphics, float x, float y, float width, float height,
                                            ProgressFrameMetrics frameMetrics, TextureInfo progressTexture) {
         float start = this.indeterminateOffset;
         float end = start + INDETERMINATE_SEGMENT_WIDTH;
@@ -766,7 +766,7 @@ public class EarlyLoadingEditorScreen extends Screen {
         }
     }
 
-    private void drawProgressSegment(GuiGraphics graphics, float baseX, float baseY, float width, float height,
+    private void drawProgressSegment(GuiGraphicsExtractor graphics, float baseX, float baseY, float width, float height,
                                      float start, float end, ProgressFrameMetrics frameMetrics, TextureInfo progressTexture) {
         if (end <= start) {
             return;
@@ -792,7 +792,7 @@ public class EarlyLoadingEditorScreen extends Screen {
         return new ProgressFrameMetrics(border, horizontalInset, verticalInset);
     }
 
-    private void drawVanillaProgressFrame(GuiGraphics graphics, float baseX, float baseY, float width, float height,
+    private void drawVanillaProgressFrame(GuiGraphicsExtractor graphics, float baseX, float baseY, float width, float height,
                                           ProgressFrameMetrics metrics) {
         if (metrics == null) {
             return;
@@ -806,7 +806,7 @@ public class EarlyLoadingEditorScreen extends Screen {
         drawSolidRect(graphics, baseX + border, baseY + height - border, horizontalWidth, border, color, 1.0f);
     }
 
-    private void drawVanillaProgressSegment(GuiGraphics graphics, float baseX, float baseY, float width, float height,
+    private void drawVanillaProgressSegment(GuiGraphicsExtractor graphics, float baseX, float baseY, float width, float height,
                                             float start, float end, ProgressFrameMetrics metrics) {
         if (metrics == null) {
             return;
@@ -833,7 +833,7 @@ public class EarlyLoadingEditorScreen extends Screen {
         drawSolidRect(graphics, x0, innerTop, segmentWidth, innerHeight, this.colorScheme.foreground(), 1.0f);
     }
 
-    private void drawProgressTextureClipped(GuiGraphics graphics, TextureInfo texture, float baseX, float baseY, float width, float height, float start, float end) {
+    private void drawProgressTextureClipped(GuiGraphicsExtractor graphics, TextureInfo texture, float baseX, float baseY, float width, float height, float start, float end) {
         float segmentStart = baseX + width * start;
         float segmentEnd = baseX + width * end;
         int clipMinX = Math.round(Math.min(segmentStart, segmentEnd));
@@ -851,7 +851,7 @@ public class EarlyLoadingEditorScreen extends Screen {
         }
     }
 
-    private void drawTexture(GuiGraphics graphics, TextureInfo texture, float x, float y, float width, float height) {
+    private void drawTexture(GuiGraphicsExtractor graphics, TextureInfo texture, float x, float y, float width, float height) {
         if (!texture.isValid()) {
             return;
         }
@@ -864,7 +864,7 @@ public class EarlyLoadingEditorScreen extends Screen {
         graphics.blit(RenderPipelines.GUI_TEXTURED, tex, drawX, drawY, 0.0f, 0.0f, drawWidth, drawHeight, drawWidth, drawHeight);
     }
 
-    private void drawBundledMojangLogo(GuiGraphics graphics, TextureInfo texture, float x, float y, float width, float height) {
+    private void drawBundledMojangLogo(GuiGraphicsExtractor graphics, TextureInfo texture, float x, float y, float width, float height) {
         if (!texture.isValid()) {
             return;
         }
@@ -884,7 +884,7 @@ public class EarlyLoadingEditorScreen extends Screen {
         graphics.blit(RenderPipelines.GUI_TEXTURED, tex, drawX + leftWidth, drawY, MOJANG_LOGO_U_OVERLAP, topPixels, rightWidth, totalHeight, textureWidth, bottomPixels, textureWidth, textureHeight);
     }
 
-    private void drawSolidRect(GuiGraphics graphics, float x, float y, float width, float height, Color color, float alpha) {
+    private void drawSolidRect(GuiGraphicsExtractor graphics, float x, float y, float width, float height, Color color, float alpha) {
         int argb = toArgb(color, alpha);
         int left = Math.round(x);
         int top = Math.round(y);
@@ -893,7 +893,7 @@ public class EarlyLoadingEditorScreen extends Screen {
         graphics.fill(left, top, right, bottom, argb);
     }
 
-    private void drawOutline(GuiGraphics graphics, float x, float y, float width, float height, Color color, float alpha) {
+    private void drawOutline(GuiGraphicsExtractor graphics, float x, float y, float width, float height, Color color, float alpha) {
         int argb = toArgb(color, alpha);
         int left = Math.round(x);
         int top = Math.round(y);
@@ -905,7 +905,7 @@ public class EarlyLoadingEditorScreen extends Screen {
         graphics.fill(right - 1, top, right, bottom, argb);
     }
 
-    private void drawPlaceholderOverlay(GuiGraphics graphics, float x, float y, float width, float height) {
+    private void drawPlaceholderOverlay(GuiGraphicsExtractor graphics, float x, float y, float width, float height) {
         if (width <= 1.0f || height <= 1.0f) {
             return;
         }

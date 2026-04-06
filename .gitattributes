@@ -1,0 +1,4 @@
+# Added by run-loader-wsl.sh for WSL launcher compatibility.
+*.sh text eol=lf
+gradlew text eol=lf
+gradlew.bat text eol=crlf

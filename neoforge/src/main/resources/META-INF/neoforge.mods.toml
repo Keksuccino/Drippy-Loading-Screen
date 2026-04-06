@@ -17,21 +17,18 @@ config = "${mod_id}.mixins.json"
 [[mixins]]
 config = "${mod_id}.neoforge.mixins.json"
 
-[[accessTransformers]]
-file="META-INF/accesstransformer.cfg"
-
 [[dependencies.${mod_id}]]
 modId="konkrete"
 type="required" #mandatory (Can be one of "required", "optional", "incompatible" or "discouraged")
 ordering="NONE"
-versionRange="[1.9.0,)"
+versionRange="[1.10.0,)"
 side="BOTH"
 
 [[dependencies.${mod_id}]]
 modId="fancymenu"
 type="required" #mandatory (Can be one of "required", "optional", "incompatible" or "discouraged")
 ordering="NONE"
-versionRange="[3.8.0,)"
+versionRange="[3.8.5,)"
 side="BOTH"
 
 [[dependencies.${mod_id}]] #optional

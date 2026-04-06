@@ -31,13 +31,14 @@ repositories {
     }
 }
 
-def lwjglVersion = '3.3.3'
-def fancymodloader_version = '10.0.36'
+def lwjglVersion = '3.4.1'
+def fancymodloader_version = '11.0.5'
 
 dependencies {
     compileOnly "net.neoforged:neoforge:${neoforge_version}"
     compileOnly "net.neoforged.fancymodloader:loader:${fancymodloader_version}"
     compileOnly "net.neoforged.fancymodloader:earlydisplay:${fancymodloader_version}"
+    compileOnly "org.lwjgl:lwjgl:${lwjglVersion}"
     compileOnly "org.lwjgl:lwjgl-glfw:${lwjglVersion}"
     compileOnly "org.lwjgl:lwjgl-opengl:${lwjglVersion}"
     compileOnly "org.lwjgl:lwjgl-stb:${lwjglVersion}"

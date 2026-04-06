@@ -9,8 +9,8 @@ import de.keksuccino.fancymenu.mixin.mixins.common.client.IMixinAbstractWidget;
 import de.keksuccino.fancymenu.util.event.acara.EventHandler;
 import de.keksuccino.fancymenu.util.rendering.ui.widget.RendererWidget;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
 import de.keksuccino.drippyloadingscreen.mixin.MixinCache;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.LoadingOverlay;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.RenderPipelines;
@@ -53,12 +53,12 @@ public class DrippyOverlayScreen extends Screen {
     }
 
     @Override
-    public void render(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partial) {
-        super.render(graphics, mouseX, mouseY, partial);
+    public void extractRenderState(@NotNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partial) {
+        super.extractRenderState(graphics, mouseX, mouseY, partial);
     }
 
     @Override
-    public void renderBackground(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partial) {
+    public void extractBackground(@NotNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partial) {
         ScreenCustomizationLayer layer = ScreenCustomizationLayerHandler.getLayerOfScreen(this);
         boolean shouldRenderDefaultBackground = (layer == null) || layer.layoutBase.menuBackgrounds.isEmpty();
         IntSupplier supplier = IMixinLoadingOverlay.getBrandBackgroundDrippy();
@@ -127,7 +127,7 @@ public class DrippyOverlayScreen extends Screen {
 
     }
 
-    private static void drawProgressBar(GuiGraphics graphics, int xMin, int yMin, int xMax, int yMax, float opacity, float currentProgress) {
+    private static void drawProgressBar(GuiGraphicsExtractor graphics, int xMin, int yMin, int xMax, int yMax, float opacity, float currentProgress) {
         int i = Mth.ceil((float)(xMax - xMin - 2) * currentProgress);
         int j = Math.round(opacity * 255.0F);
         int k = ARGB.color(j, 255, 255, 255);

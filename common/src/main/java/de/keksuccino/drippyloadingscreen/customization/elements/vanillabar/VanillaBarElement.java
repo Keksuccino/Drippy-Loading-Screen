@@ -5,9 +5,8 @@ import de.keksuccino.drippyloadingscreen.mixin.mixins.common.client.IMixinLoadin
 import de.keksuccino.fancymenu.customization.element.AbstractElement;
 import de.keksuccino.fancymenu.customization.element.ElementBuilder;
 import de.keksuccino.fancymenu.util.rendering.DrawableColor;
-import de.keksuccino.fancymenu.util.rendering.RenderingUtils;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.LoadingOverlay;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
@@ -22,7 +21,7 @@ public class VanillaBarElement extends AbstractElement {
     }
 
     @Override
-    public void render(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partial) {
+    public void extractRenderState(@NotNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partial) {
 
         int x = this.getAbsoluteX();
         int y = this.getAbsoluteY();
@@ -37,7 +36,7 @@ public class VanillaBarElement extends AbstractElement {
 
     }
 
-    protected void drawProgressBar(GuiGraphics graphics, int xMin, int yMin, int xMax, int yMax, float currentProgress) {
+    protected void drawProgressBar(GuiGraphicsExtractor graphics, int xMin, int yMin, int xMax, int yMax, float currentProgress) {
         int i = Mth.ceil((float)(xMax - xMin - 2) * currentProgress);
         int k = mergeOpacity(this.color.getColorInt(), this.opacity);
         graphics.fill(xMin + 2, yMin + 2, xMin + i, yMax - 2, k);

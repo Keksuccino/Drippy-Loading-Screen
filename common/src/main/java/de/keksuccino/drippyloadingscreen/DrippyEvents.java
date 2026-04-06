@@ -14,9 +14,9 @@ import de.keksuccino.fancymenu.util.rendering.ui.tooltip.Tooltip;
 import de.keksuccino.fancymenu.util.rendering.ui.tooltip.TooltipHandler;
 import de.keksuccino.fancymenu.util.rendering.ui.widget.button.ExtendedButton;
 import de.keksuccino.konkrete.input.MouseInput;
-import net.minecraft.client.gui.GuiGraphics;
 import de.keksuccino.drippyloadingscreen.customization.DrippyOverlayScreen;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.renderer.RenderPipelines;
@@ -101,7 +101,7 @@ public class DrippyEvents {
             }) {
 
                 @Override
-                public void render(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partial) {
+                protected void extractContents(@NotNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partial) {
 
                     this.alpha = 1.0F;
 
@@ -114,15 +114,15 @@ public class DrippyEvents {
                     } else {
                         this.setX(-30);
                     }
-                    super.render(graphics, mouseX, mouseY, partial);
+                    super.extractContents(graphics, mouseX, mouseY, partial);
                     graphics.blit(RenderPipelines.GUI_TEXTURED, EDIT_BUTTON_TEXTURE, this.getX(), this.getY(), 0.0f, 0.0f, this.getWidth(), this.getHeight(), this.getWidth(), this.getHeight());
 
-                    drippyMenu.render(graphics, mouseX, mouseY, partial);
+                    drippyMenu.extractRenderState(graphics, mouseX, mouseY, partial);
 
                 }
 
                 @Override
-                protected void renderBackground(@NotNull GuiGraphics graphics) {
+                protected void renderBackground(@NotNull GuiGraphicsExtractor graphics) {
                     boolean b = this.isHovered;
                     if (drippyMenu.isOpen()) this.isHovered = true;
                     super.renderBackground(graphics);
@@ -150,7 +150,7 @@ public class DrippyEvents {
 
         if ((e.getScreen() instanceof TitleScreen) && CustomizationOverlay.isOverlayVisible(e.getScreen())) {
             if (this.drippyButton != null) {
-                this.drippyButton.render(e.getGraphics(), e.getMouseX(), e.getMouseY(), e.getPartial());
+                this.drippyButton.extractRenderState(e.getGraphics(), e.getMouseX(), e.getMouseY(), e.getPartial());
             }
         }
 

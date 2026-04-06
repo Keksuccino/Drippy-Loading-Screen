@@ -10,13 +10,6 @@ base {
     archivesName = "${mod_id}"
 }
 
-// Automatically enable neoforge AccessTransformers if the file exists
-// This location is hardcoded in FML and can not be changed.
-// https://github.com/neoforged/FancyModLoader/blob/a952595eaaddd571fbc53f43847680b00894e0c1/loader/src/main/java/net/neoforged/fml/loading/moddiscovery/ModFile.java#L118
-if (file('src/main/resources/META-INF/accesstransformer.cfg').exists()) {
-    minecraft.accessTransformers.file file('src/main/resources/META-INF/accesstransformer.cfg')
-}
-
 runs {
     configureEach {
         modSource project.sourceSets.main
@@ -41,12 +34,12 @@ sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 jarJar.enable()
 
-subsystems {
-    parchment {
-        minecraftVersion = "${parchment_mc_version}"
-        mappingsVersion = "${parchment_version}"
-    }
-}
+//subsystems {
+//    parchment {
+//        minecraftVersion = "${parchment_mc_version}"
+//        mappingsVersion = "${parchment_version}"
+//    }
+//}
 
 repositories {
     flatDir {
@@ -58,9 +51,9 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.2")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.2")
     implementation "net.neoforged:neoforge:${neoforge_version}"
-    implementation "maven.modrinth:konkrete:1.9.14-1.21.11-neoforge"
-	implementation "maven.modrinth:melody:1.0.15-1.21.11-neoforge"
-	implementation "maven.modrinth:fancymenu:3.8.3-1.21.11-neoforge"
+    implementation "maven.modrinth:konkrete:1.10.0-26.1.1-neoforge"
+	implementation "maven.modrinth:melody:1.0.16-26.1.1-neoforge"
+	implementation "maven.modrinth:fancymenu:3.8.5-26.1.1-neoforge"
     implementation "net.objecthunter:exp4j:0.4.8"
     implementation project(":earlywindow")
     compileOnly project(":common")
@@ -98,8 +91,12 @@ configurations {
 // NeoGradle compiles the game, but we don't want to add our common code to the game's code
 Spec<Task> notNeoTask = { Task it -> !it.name.startsWith("neo") } as Spec<Task>
 
-tasks.withType(JavaCompile).matching(notNeoTask).configureEach {
+tasks.named("compileJava", JavaCompile).configure {
     source(project(":common").sourceSets.main.allSource)
+}
+
+tasks.withType(JavaCompile).matching(notNeoTask).configureEach {
+    it.options.compilerArgs += ['-Xlint:-deprecation', '-Xlint:-removal']
 }
 
 tasks.withType(Javadoc).matching(notNeoTask).configureEach {

@@ -16,7 +16,7 @@ import de.keksuccino.fancymenu.util.event.acara.EventHandler;
 import de.keksuccino.fancymenu.util.rendering.RenderingUtils;
 import de.keksuccino.fancymenu.util.window.WindowHandler;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.LoadingOverlay;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.resources.Identifier;
@@ -65,8 +65,8 @@ public class MixinLoadingOverlay {
 
     }
 
-    @Inject(method = "render", at = @At("RETURN"))
-    private void after_render_Drippy(GuiGraphics graphics, int mouseX, int mouseY, float partial, CallbackInfo info) {
+    @Inject(method = "extractRenderState", at = @At("RETURN"))
+    private void after_render_Drippy(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partial, CallbackInfo info) {
 
         if (this.shouldRenderVanillaDrippy()) return;
 
@@ -82,7 +82,7 @@ public class MixinLoadingOverlay {
             EventHandler.INSTANCE.postEvent(new ScreenTickEvent.Post(getDrippyOverlayScreen()));
 
             EventHandler.INSTANCE.postEvent(new RenderScreenEvent.Pre(getDrippyOverlayScreen(), graphics, mouseX, mouseY, partial));
-            getDrippyOverlayScreen().renderWithTooltipAndSubtitles(graphics, mouseX, mouseY, partial);
+            getDrippyOverlayScreen().extractRenderStateWithTooltipAndSubtitles(graphics, mouseX, mouseY, partial);
             EventHandler.INSTANCE.postEvent(new RenderScreenEvent.Post(getDrippyOverlayScreen(), graphics, mouseX, mouseY, partial));
 
         });
@@ -92,34 +92,34 @@ public class MixinLoadingOverlay {
     /**
      * @reason This replaces the outdated render() call with the new renderWithTooltip() call that FancyMenu hooks into for rendering events.
      */
-    @WrapOperation(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/Screen;renderWithTooltipAndSubtitles(Lnet/minecraft/client/gui/GuiGraphics;IIF)V"))
-    private void wrap_Screen_render_in_render_Drippy(Screen instance, GuiGraphics graphics, int mouseX, int mouseY, float partial, Operation<Void> original) {
+    @WrapOperation(method = "extractRenderState", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/Screen;extractRenderStateWithTooltipAndSubtitles(Lnet/minecraft/client/gui/GuiGraphicsExtractor;IIF)V"))
+    private void wrap_Screen_render_in_render_Drippy(Screen instance, GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partial, Operation<Void> original) {
         if (!DrippyLoadingScreen.getOptions().fadeInOutLoadingScreen.getValue()) return;
         RenderingUtils.setTooltipRenderingBlocked(true);
         original.call(instance, graphics, mouseX, mouseY, partial);
         RenderingUtils.setTooltipRenderingBlocked(false);
     }
 
-    @Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;setOverlay(Lnet/minecraft/client/gui/screens/Overlay;)V"))
-    private void beforeCloseOverlayDrippy(GuiGraphics graphics, int mouseX, int mouseY, float partialTick, CallbackInfo info) {
+    @Inject(method = "extractRenderState", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;setOverlay(Lnet/minecraft/client/gui/screens/Overlay;)V"))
+    private void beforeCloseOverlayDrippy(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick, CallbackInfo info) {
         EventHandler.INSTANCE.postEvent(new CloseScreenEvent(drippyOverlayScreen, null));
     }
 
-    @Inject(method = "drawProgressBar", at = @At("HEAD"), cancellable = true)
-    private void cancelOriginalProgressBarRenderingDrippy(GuiGraphics graphics, int minX, int minY, int maxX, int maxY, float opacity, CallbackInfo info) {
+    @Inject(method = "extractProgressBar", at = @At("HEAD"), cancellable = true)
+    private void cancelOriginalProgressBarRenderingDrippy(GuiGraphicsExtractor graphics, int minX, int minY, int maxX, int maxY, float opacity, CallbackInfo info) {
         if (!this.shouldRenderVanillaDrippy()) {
             info.cancel();
             this.cachedElementOpacityDrippy = DrippyLoadingScreen.getOptions().fadeInOutLoadingScreen.getValue() ? opacity : 1.0F;
         }
     }
 
-    @WrapWithCondition(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphics;blit(Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/resources/Identifier;IIFFIIIIIII)V"))
-    private boolean cancelOriginalLogoRenderingDrippy(GuiGraphics instance, RenderPipeline pipeline, Identifier atlas, int x, int y, float u, float v, int width, int height, int uWidth, int vHeight, int textureWidth, int textureHeight, int color) {
+    @WrapWithCondition(method = "extractRenderState", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphicsExtractor;blit(Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/resources/Identifier;IIFFIIIIIII)V"))
+    private boolean cancelOriginalLogoRenderingDrippy(GuiGraphicsExtractor instance, RenderPipeline pipeline, Identifier atlas, int x, int y, float u, float v, int width, int height, int uWidth, int vHeight, int textureWidth, int textureHeight, int color) {
         return this.shouldRenderVanillaDrippy();
     }
 
-    @WrapWithCondition(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphics;fill(IIIII)V"))
-    private boolean cancelBackgroundRenderingDrippy(GuiGraphics instance, int minX, int minY, int maxX, int maxY, int color) {
+    @WrapWithCondition(method = "extractRenderState", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphicsExtractor;fill(IIIII)V"))
+    private boolean cancelBackgroundRenderingDrippy(GuiGraphicsExtractor instance, int minX, int minY, int maxX, int maxY, int color) {
         this.cachedBackgroundOpacityDrippy = DrippyLoadingScreen.getOptions().fadeInOutLoadingScreen.getValue() ? Math.min(1.0F, Math.max(0.0F, (float) ARGB.alpha(color) / 255.0F)) : 1.0F;
         return this.shouldRenderVanillaDrippy();
     }
