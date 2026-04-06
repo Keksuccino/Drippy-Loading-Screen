@@ -1,10 +1,19 @@
 # Repository Guidelines
 
 ## Project Structure & Module Organization
-Drippy Loading Screen is a Minecraft 1.21.11 mod, and it is an addon for another mod called FancyMenu. It uses the MultiLoader layout with shared logic under `common` and loader-specific wrappers under `fabric` and `neoforge`. Place shared Java sources in `common/src/main/java` and assets such as menu JSON, translations, or textures in `common/src/main/resources` so they ship with every loader build. Loader-only hooks belong inside each module's `src/main/java` tree; keep local run directories like `run_client` and `run_server` for iterative testing but never depend on them for assets.
+- Drippy Loading Screen is a Minecraft Java 26.1.1 mod (the version number is not a typo) that uses the MultiLoader layout with shared logic under `common` and loader-specific wrappers under `fabric` and `neoforge`.
+- Place shared Java sources in `common/src/main/java` and assets such as menu JSON, translations, or textures in `common/src/main/resources` so they ship with every loader build.
+- Loader-only hooks belong inside each module's `src/main/java` tree; keep local run directories like `run_client` and `run_server` for iterative testing but never depend on them for assets.
+
+## Environment
+- You are operating in a WSL2 environment running inside a Windows system.
 
 ## Coding Style & Naming Conventions
-Target Java 21 with 4-space indentation and UTF-8 encoding (WITHOUT BOM), matching the Gradle toolchain configuration. Follow existing packages under `de.keksuccino.drippyloadingscreen`, mirroring existing sub-packages like `customization`, `events`, and `platform` to keep cross-loader boundaries clear. Name resources with the `drippyloadingscreen` prefix (e.g., `drippyloadingscreen.mixins.json`, `drippyloadingscreen.accesswidener`) so Gradle and the loaders resolve them consistently. Prefer explicit nullability annotations from `jsr305`, keep Mixin classes lightweight, and document multi-step flows with concise comments.
+- Target Java 25 with 4-space indentation and UTF-8 encoding (WITHOUT BOM), matching the Gradle toolchain configuration.
+- Follow existing packages under `de.keksuccino.drippyloadingscreen`, mirroring existing sub-packages to keep cross-loader boundaries clear.
+- Name resources with the `drippyloadingscreen` prefix (e.g., `drippyloadingscreen.mixins.json`, `drippyloadingscreen.accesswidener`) so Gradle and the loaders resolve them consistently.
+- Prefer explicit nullability annotations from `jsr305`.
+- Keep Mixin classes lightweight.
 
 ## Mixin Structurization
 - Place shared mixins under `common/src/main/java/de/keksuccino/drippyloadingscreen/mixin/mixins/common/<side>` and mirror the existing folder depth when adding new targets.
@@ -23,18 +32,24 @@ Target Java 21 with 4-space indentation and UTF-8 encoding (WITHOUT BOM), matchi
 - When you add something to a system that already has localizations available for other parts of the system, first read the existing localizations to understand how the new localizations should get formatted.
 - Always read and write en_us.json with an explicit UTF-8-without-BOM encoding.
 
-## Networking & Packets
-FancyMenu (which Drippy is an addon for) uses its own custom packet system. If you need to add packets for a feature, make sure to analyze the `de.keksuccino.fancymenu.networking` package first, to understand how packets get implemented and registered.
-
 ## Minecraft Sources
-You have access to the full Minecraft 1.21.11 sources in the `minecraft_cached_sources` folder. The folder contains source sets for Fabric (`fabric`) and NeoForge (`neoforge`). Before starting a task, make sure to read sources you could need for the task, so you know how the current Minecraft code actually looks. Always do that, knowing how the actual Minecraft code looks is very important, especially when you work with mixins.
-Make sure to always compare Vanilla classes from both modloaders (Fabric, NeoForge), since NeoForge often alter Vanilla classes, so mixins can't always get applied in `common` and instead need to get implemented for every launcher if the point to place the mixin differs between modloaders.
+- You have access to the full Minecraft 26.1.1 sources in `/library_sources/minecraft_26.1.1/fabric/` and `/library_sources/minecraft_26.1.1/neoforge/`.
+- You have access to the full Minecraft 1.21.11 sources in `/library_sources/minecraft_1.21.11/fabric/` and `/library_sources/minecraft_1.21.11/neoforge/`.
+- Use the Minecraft sources for research when working with Minecraft-related code.
+- Always prefer the sources provided in the `/library_sources/` folder instead of trying to unpack source JARs yourself. Only do that when the provided sources don't contain what you need.
+- Minecraft 1.21.11 is the version before Minecraft 26.1.1.
 
-## Library Sources
-You have access to some of the most important library sources used by Minecraft, like full LWJGL and JOML sources in the `library_cached_sources` folder. Make sure to check the sources when working on tasks that involve working with libraries used by Minecraft.
-
-## FancyMenu Sources
-You have access to the full sources of FancyMenu in the `fancymenu_cached_sources` folder. Use these sources if you add new features to Drippy that use FancyMenu features.
-
-## Git & Run/Compile
-NEVER try to run git commands or try to run/compile the project!
+## Testing
+- After making changes to the code, use the repo-root launcher script `./run-loader-wsl.sh` from WSL to run loader dev clients for testing. It intentionally calls Windows `gradlew.bat`, not Linux `gradlew`, so it reuses the existing Windows Gradle cache and Windows Java installation instead of requiring a separate WSL toolchain.
+- The shared instance directories are the repo-root `run_client` and `run_server` folders for both loaders.
+- Supported launch forms are `./run-loader-wsl.sh fabric`, `./run-loader-wsl.sh fabric server`, `./run-loader-wsl.sh neoforge`, and `./run-loader-wsl.sh neoforge server`. Additional Gradle arguments can be appended, for example `./run-loader-wsl.sh fabric --stacktrace`.
+- For command-line control of the running game, the launcher must be started in an interactive TTY session. Plain pipe-based execution shows the game log, but stdin ends up closed and `drippyloadingscreendebug` commands cannot be delivered.
+- When the TTY session starts, `cmd.exe` may emit a cursor-position query escape (`ESC [ 6 n`). Reply with `\u001b[1;1R` once so the Windows console handshake completes and Gradle output continues normally.
+- Wait for the Drippy Loading Screen readiness line before sending commands: `[DRIPPY DEBUG] Command line debugging is ready. Use 'drippyloadingscreendebug help'.`
+- Send debug commands with CRLF line endings, for example `drippyloadingscreendebug help\r\n`. Using only `\n` is less reliable through the Windows console chain.
+- A proven Fabric test flow is:
+    - Launch `./run-loader-wsl.sh fabric` in a TTY.
+    - Answer the initial `cmd.exe` cursor query with `\u001b[1;1R` if it appears.
+    - Wait for the Drippy Loading Screen debug readiness line.
+    - Send `drippyloadingscreendebug help\r\n` to see all available debug commands, including ones to navigate in menus and load into a world.
+- Before launching another test client, make sure no previous repo-backed `java.exe`, `javaw.exe`, or `cmd.exe` processes of the game are still running. Do not stack multiple leftover instances.
