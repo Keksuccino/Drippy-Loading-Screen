@@ -1,5 +1,6 @@
 package de.keksuccino.drippyloadingscreen.earlywindow.bootstrap;
 
+import de.keksuccino.drippyloadingscreen.earlywindow.window.DrippyEarlyWindowProvider;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -11,7 +12,6 @@ import org.apache.logging.log4j.Logger;
 public class DrippyEarlyWindowBootstrapper implements GraphicsBootstrapper {
 
     private static final Logger LOGGER = LogManager.getLogger();
-    private static final String PROVIDER_NAME = "drippy_early_window";
 
     @Override
     public String name() {
@@ -30,7 +30,7 @@ public class DrippyEarlyWindowBootstrapper implements GraphicsBootstrapper {
         }
 
         String currentProvider = FMLConfig.getConfigValue(FMLConfig.ConfigValue.EARLY_WINDOW_PROVIDER);
-        if (PROVIDER_NAME.equals(currentProvider)) {
+        if (DrippyEarlyWindowProvider.PROVIDER_NAME.equals(currentProvider)) {
             return;
         }
         if (!Objects.equals(currentProvider, "fmlearlywindow")) {
@@ -38,8 +38,8 @@ public class DrippyEarlyWindowBootstrapper implements GraphicsBootstrapper {
             return;
         }
 
-        FMLConfig.updateConfig(FMLConfig.ConfigValue.EARLY_WINDOW_PROVIDER, PROVIDER_NAME);
-        LOGGER.info("[DRIPPY LOADING SCREEN] Configured NeoForge to use the {} early window provider.", PROVIDER_NAME);
+        FMLConfig.updateConfig(FMLConfig.ConfigValue.EARLY_WINDOW_PROVIDER, DrippyEarlyWindowProvider.PROVIDER_NAME);
+        LOGGER.info("[DRIPPY LOADING SCREEN] Configured NeoForge to use the {} early window provider.", DrippyEarlyWindowProvider.PROVIDER_NAME);
 
     }
 
