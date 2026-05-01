@@ -31,7 +31,7 @@ dependencies {
     modImplementation "maven.modrinth:melody:1.0.4-1.20.1-1.20.4-fabric"
     modImplementation "maven.modrinth:konkrete:1.8.1-1.20.1-fabric"
     modImplementation "maven.modrinth:modmenu:7.2.2"
-	modImplementation "flatdir:fancymenu:3.8.0"
+	modImplementation "flatdir:fancymenu:3.9.0"
     implementation project(":common")
 }
 
