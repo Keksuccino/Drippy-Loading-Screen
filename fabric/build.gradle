@@ -33,8 +33,7 @@ dependencies {
     modCompileOnly 'com.cinemamod:mcef:2.1.6-1.21.1'
 	modImplementation "maven.modrinth:melody:1.0.10-1.21-fabric"
     modImplementation "maven.modrinth:konkrete:1.9.9-1.21-fabric"
-	//modImplementation "maven.modrinth:fancymenu:3.8.0-1.21.1-fabric"
-	modImplementation "flatdir:fancymenu:3.8.0"
+	modImplementation "flatdir:fancymenu:3.9.0"
     implementation project(":common")
 }
 

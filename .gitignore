@@ -1,0 +1,15 @@
+/.gradle/
+/.idea/
+/build/
+/run_client/
+/run_server/
+/neoforge/runs/
+/fabric/run_client/
+/common/.gradle/
+/common/build/
+/fabric/.gradle/
+/fabric/build/
+/neoforge/.gradle/
+/neoforge/build/
+/forge/.gradle/
+/forge/build/
