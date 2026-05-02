@@ -18,7 +18,7 @@ public class MixinLayoutEditorUI {
      * @reason Remove unsupported element types in loading screen layouts.
      */
     @Redirect(method = "buildElementContextMenu", at = @At(value = "INVOKE", target = "Lde/keksuccino/fancymenu/customization/element/ElementRegistry;getBuilders()Ljava/util/List;"), remap = false)
-    private static List<ElementBuilder<?,?>> wrapGetBuildersDrippy() {
+    private List<ElementBuilder<?,?>> wrapGetBuildersDrippy() {
         List<ElementBuilder<?,?>> l = ElementRegistry.getBuilders();
         if (Minecraft.getInstance().screen instanceof LayoutEditorScreen editor) {
             if (!editor.layout.isUniversalLayout() && DrippyUtils.isDrippyIdentifier(editor.layout.screenIdentifier)) {

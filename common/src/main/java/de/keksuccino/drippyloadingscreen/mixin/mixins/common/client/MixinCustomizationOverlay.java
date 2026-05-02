@@ -1,22 +1,25 @@
 package de.keksuccino.drippyloadingscreen.mixin.mixins.common.client;
 
-import com.llamalad7.mixinextras.injector.WrapWithCondition;
-import com.mojang.blaze3d.vertex.PoseStack;
 import de.keksuccino.fancymenu.customization.overlay.CustomizationOverlay;
-import de.keksuccino.fancymenu.customization.overlay.CustomizationOverlayMenuBar;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.LoadingOverlay;
+import net.minecraft.client.gui.screens.Screen;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(CustomizationOverlay.class)
 public class MixinCustomizationOverlay {
 
-    //TODO übernehmen
-    //Don't render FM's menu bar when DrippyOverlayScreen gets rendered in LoadingOverlay
-    @WrapWithCondition(method = "onRenderPost", at = @At(value = "INVOKE", target = "Lde/keksuccino/fancymenu/customization/overlay/CustomizationOverlayMenuBar;render(Lcom/mojang/blaze3d/vertex/PoseStack;IIF)V"))
-    private boolean wrapMenuBarRenderingDrippy(CustomizationOverlayMenuBar instance, PoseStack graphics, int mouseX, int mouseY, float partial) {
-        return !(Minecraft.getInstance().getOverlay() instanceof LoadingOverlay);
+    /**
+     * @reason Don't render FancyMenu overlays when DrippyOverlayScreen gets rendered in LoadingOverlay.
+     */
+    @Inject(method = "isOverlayVisible", at = @At("HEAD"), cancellable = true, remap = false)
+    private static void on_isOverlayVisible_Drippy(Screen currentScreen, CallbackInfoReturnable<Boolean> info) {
+        if (Minecraft.getInstance().getOverlay() instanceof LoadingOverlay) {
+            info.setReturnValue(false);
+        }
     }
 
 }

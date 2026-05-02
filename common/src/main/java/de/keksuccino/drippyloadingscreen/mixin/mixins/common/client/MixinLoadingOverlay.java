@@ -101,16 +101,16 @@ public class MixinLoadingOverlay {
 
             //This is to render the overlay in its own scale while still rendering the actual current screen under it in the current screen's scale
             //It's important to calculate the fixed scale BEFORE updating the window GUI scale
-            float renderScale = UIBase.calculateFixedScale((float)this.cachedOverlayScaleDrippy);
+            float renderScale = UIBase.calculateFixedRenderScale((float)this.cachedOverlayScaleDrippy);
             double guiScale = Minecraft.getInstance().getWindow().getGuiScale();
             Minecraft.getInstance().getWindow().setGuiScale(this.cachedOverlayScaleDrippy);
             graphics.pose().pushPose();
             graphics.pose().scale(renderScale, renderScale, renderScale);
 
-            EventHandler.INSTANCE.postEvent(new RenderScreenEvent.Pre(drippyOverlayScreen, graphics.pose(), mouseX, mouseY, partial));
+            EventHandler.INSTANCE.postEvent(new RenderScreenEvent.Pre(drippyOverlayScreen, graphics, mouseX, mouseY, partial));
             drippyOverlayScreen.render(graphics.pose(), mouseX, mouseY, partial);
             this.restoreRenderDefaultsDrippy(graphics);
-            EventHandler.INSTANCE.postEvent(new RenderScreenEvent.Post(drippyOverlayScreen, graphics.pose(), mouseX, mouseY, partial));
+            EventHandler.INSTANCE.postEvent(new RenderScreenEvent.Post(drippyOverlayScreen, graphics, mouseX, mouseY, partial));
 
             //Reset scale after rendering
             graphics.pose().scale(1.0F, 1.0F, 1.0F);
