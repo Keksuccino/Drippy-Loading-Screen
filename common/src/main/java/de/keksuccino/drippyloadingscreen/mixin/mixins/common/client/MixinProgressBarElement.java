@@ -15,7 +15,7 @@ public class MixinProgressBarElement {
     /**
      * @reason This tries to prevent the texture from flickering after reloading the texture manager in the {@link LoadingOverlay}.
      */
-    @Inject(method = "extractRenderState", at = @At(value = "INVOKE", target = "Lde/keksuccino/fancymenu/customization/element/elements/progressbar/ProgressBarElement;renderBackground(Lnet/minecraft/client/gui/GuiGraphicsExtractor;)V"))
+    @Inject(method = "extractRenderState", at = @At(value = "INVOKE", target = "Lde/keksuccino/fancymenu/customization/element/elements/progressbar/ProgressBarElement;extractBackground(Lnet/minecraft/client/gui/GuiGraphicsExtractor;)V"))
     private void beforeRenderBackgroundDrippy(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partial, CallbackInfo ci) {
 
         ProgressBarElement e = (ProgressBarElement) ((Object)this);

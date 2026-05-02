@@ -2,6 +2,8 @@ package de.keksuccino.drippyloadingscreen.mixin.mixins.common.client;
 
 import de.keksuccino.drippyloadingscreen.DrippyUtils;
 import de.keksuccino.fancymenu.customization.background.backgrounds.image.ImageMenuBackground;
+import de.keksuccino.fancymenu.util.resource.ResourceSupplier;
+import de.keksuccino.fancymenu.util.resource.resources.texture.ITexture;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.LoadingOverlay;
 import org.spongepowered.asm.mixin.Mixin;
@@ -19,7 +21,8 @@ public class MixinImageMenuBackground {
     private void afterGetResourceDrippy(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partial, CallbackInfo ci) {
 
         ImageMenuBackground e = (ImageMenuBackground) ((Object)this);
-        DrippyUtils.waitForTexture(e.textureSupplier.get());
+        ResourceSupplier<ITexture> supplier = e.textureSupplier.get();
+        if (supplier != null) DrippyUtils.waitForTexture(supplier.get());
 
     }
 
