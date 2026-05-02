@@ -29,7 +29,7 @@ dependencies {
     compileOnly group:'org.spongepowered', name:'mixin', version:'0.8.5'
     modCompileOnly "maven.modrinth:melody:1.0.15-1.21.11-fabric"
     modCompileOnly "maven.modrinth:konkrete:1.9.14-1.21.11-fabric"
-	modCompileOnly "maven.modrinth:fancymenu:3.8.3-1.21.11-fabric"
+	modCompileOnly "flatdir:fancymenu:3.9.0"
     compileOnly "net.objecthunter:exp4j:0.4.8"
 }
 
