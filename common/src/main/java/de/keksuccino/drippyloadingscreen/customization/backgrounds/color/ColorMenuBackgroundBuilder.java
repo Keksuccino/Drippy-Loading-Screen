@@ -1,8 +1,7 @@
 package de.keksuccino.drippyloadingscreen.customization.backgrounds.color;
 
 import de.keksuccino.fancymenu.customization.background.MenuBackgroundBuilder;
-import de.keksuccino.fancymenu.customization.background.SerializedMenuBackground;
-import de.keksuccino.fancymenu.util.LocalizationUtils;
+import de.keksuccino.fancymenu.util.properties.PropertyContainer;
 import de.keksuccino.fancymenu.util.rendering.DrawableColor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
@@ -22,7 +21,6 @@ public class ColorMenuBackgroundBuilder extends MenuBackgroundBuilder<ColorMenuB
         return true;
     }
 
-    @Override
     public void buildNewOrEditInstance(Screen currentScreen, @Nullable ColorMenuBackground backgroundToEdit, @NotNull Consumer<ColorMenuBackground> backgroundConsumer) {
         ColorMenuBackground back = (backgroundToEdit != null) ? (ColorMenuBackground) backgroundToEdit.copy() : null;
         if (back == null) {
@@ -40,25 +38,21 @@ public class ColorMenuBackgroundBuilder extends MenuBackgroundBuilder<ColorMenuB
     }
 
     @Override
-    public ColorMenuBackground deserializeBackground(SerializedMenuBackground serializedMenuBackground) {
+    public @NotNull ColorMenuBackground buildDefaultInstance() {
+        return new ColorMenuBackground(this);
+    }
 
-        ColorMenuBackground b = new ColorMenuBackground(this);
+    @Override
+    public void deserializeBackground(@NotNull PropertyContainer serializedMenuBackground, @NotNull ColorMenuBackground deserializeTo) {
 
         String hex = serializedMenuBackground.getValue("color");
-        if (hex != null) b.color = DrawableColor.of(hex);
-
-        return b;
+        if (hex != null) deserializeTo.color = DrawableColor.of(hex);
 
     }
 
     @Override
-    public SerializedMenuBackground serializedBackground(ColorMenuBackground background) {
-
-        SerializedMenuBackground serialized = new SerializedMenuBackground();
-
-        serialized.putProperty("color", background.color.getHex());
-
-        return serialized;
+    public void serializeBackground(@NotNull ColorMenuBackground background, @NotNull PropertyContainer serializeTo) {
+        serializeTo.putProperty("color", background.color.getHex());
 
     }
 
@@ -68,8 +62,8 @@ public class ColorMenuBackgroundBuilder extends MenuBackgroundBuilder<ColorMenuB
     }
 
     @Override
-    public @Nullable Component[] getDescription() {
-        return LocalizationUtils.splitLocalizedLines("drippyloadingscreen.background.color.desc");
+    public @Nullable Component getDescription() {
+        return Component.translatable("drippyloadingscreen.background.color.desc");
     }
 
 }

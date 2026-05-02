@@ -13,7 +13,7 @@ import de.keksuccino.fancymenu.customization.element.elements.progressbar.Progre
 import de.keksuccino.fancymenu.customization.layout.Layout;
 import de.keksuccino.fancymenu.util.Legacy;
 import de.keksuccino.fancymenu.util.MathUtils;
-import de.keksuccino.fancymenu.util.SerializationUtils;
+import de.keksuccino.fancymenu.util.SerializationHelper;
 import de.keksuccino.fancymenu.util.properties.PropertyContainer;
 import de.keksuccino.fancymenu.util.properties.PropertyContainerSet;
 import de.keksuccino.fancymenu.util.rendering.DrawableColor;
@@ -51,7 +51,7 @@ public class MixinLayout {
 
                         if (element != null) {
 
-                            element.useProgressForElementAnchor = SerializationUtils.deserializeBoolean(false, sec.getValue("progress_for_element_orientation"));
+                            element.useProgressForElementAnchor = SerializationHelper.INSTANCE.deserializeBoolean(false, sec.getValue("progress_for_element_orientation"));
                             element.progressValueMode = ProgressBarElement.ProgressValueMode.FLOATING_POINT;
 
                             elements.add(Elements.PROGRESS_BAR.serializeElementInternal(element));
@@ -68,9 +68,9 @@ public class MixinLayout {
 
                         if (element != null) {
 
-                            element.useProgressForElementAnchor = SerializationUtils.deserializeBoolean(false, sec.getValue("progress_for_element_orientation"));
+                            element.useProgressForElementAnchor = SerializationHelper.INSTANCE.deserializeBoolean(false, sec.getValue("progress_for_element_orientation"));
                             element.progressValueMode = ProgressBarElement.ProgressValueMode.PERCENTAGE;
-                            element.progressSource = Placeholders.GAME_LOADING_PROGRESS_PERCENT.getDefaultPlaceholderString().toString();
+                            element.progressSource.setManualInput(Placeholders.GAME_LOADING_PROGRESS_PERCENT.getDefaultPlaceholderString().toString());
 
                             elements.add(Elements.PROGRESS_BAR.serializeElementInternal(element));
                             elementOrder.add(element.getInstanceIdentifier());

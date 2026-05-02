@@ -11,8 +11,9 @@ import de.keksuccino.fancymenu.util.event.acara.EventListener;
 import de.keksuccino.fancymenu.util.rendering.RenderingUtils;
 import de.keksuccino.fancymenu.util.rendering.ui.UIBase;
 import de.keksuccino.fancymenu.util.rendering.ui.contextmenu.v2.ContextMenu;
-import de.keksuccino.fancymenu.util.rendering.ui.screen.NotificationScreen;
-import de.keksuccino.fancymenu.util.rendering.ui.tooltip.Tooltip;
+import de.keksuccino.fancymenu.util.rendering.ui.dialog.Dialogs;
+import de.keksuccino.fancymenu.util.rendering.ui.dialog.message.MessageDialogStyle;
+import de.keksuccino.fancymenu.util.rendering.ui.tooltip.UITooltip;
 import de.keksuccino.fancymenu.util.rendering.ui.tooltip.TooltipHandler;
 import de.keksuccino.fancymenu.util.rendering.ui.widget.button.ExtendedButton;
 import net.minecraft.client.gui.GuiGraphics;
@@ -42,7 +43,6 @@ public class DrippyEvents {
         if ((e.getScreen() instanceof TitleScreen) && CustomizationOverlay.isOverlayVisible(e.getScreen())) {
 
             this.drippyMenu = new ContextMenu()
-                    .setForceDefaultTooltipStyle(true)
                     .setForceUIScale(true);
 
             this.drippyMenu.addClickableEntry("customize_loading_screen", Component.translatable("drippyloadingscreen.settings.customize_loading_screen"), (menu, entry) -> {
@@ -57,12 +57,12 @@ public class DrippyEvents {
                                 if (s != null) Minecraft.getInstance().setScreen(s);
                             } else {
                                 Screen current = Minecraft.getInstance().screen;
-                                Minecraft.getInstance().setScreen(NotificationScreen.error(aBoolean -> {
+                                Dialogs.openMessageWithCallback(Component.translatable("drippyloadingscreen.settings.customize_early_loading_screen.module_missing"), MessageDialogStyle.ERROR, aBoolean -> {
                                     Minecraft.getInstance().setScreen(current);
-                                }, LocalizationUtils.splitLocalizedLines("drippyloadingscreen.settings.customize_early_loading_screen.module_missing")));
+                                });
                             }
                         }).setIcon(ContextMenu.IconFactory.getIcon("edit"))
-                        .setTooltipSupplier((contextMenu, contextMenuEntry) -> Tooltip.of(Component.translatable("drippyloadingscreen.settings.customize_early_loading_screen.desc")));
+                        .setTooltipSupplier((contextMenu, contextMenuEntry) -> UITooltip.of(Component.translatable("drippyloadingscreen.settings.customize_early_loading_screen.desc")));
 
             }
 
@@ -71,24 +71,24 @@ public class DrippyEvents {
             this.drippyMenu.addValueCycleEntry("allow_universal_layouts",
                             CommonCycles.cycleEnabledDisabled("drippyloadingscreen.settings.allow_universal", DrippyLoadingScreen.getOptions().allowUniversalLayouts.getValue())
                                     .addCycleListener(value -> DrippyLoadingScreen.getOptions().allowUniversalLayouts.setValue(value.getAsBoolean())))
-                    .setTooltipSupplier((menu, entry) -> Tooltip.of(LocalizationUtils.splitLocalizedLines("drippyloadingscreen.settings.allow_universal.desc")))
+                    .setTooltipSupplier((menu, entry) -> UITooltip.of(LocalizationUtils.splitLocalizedLines("drippyloadingscreen.settings.allow_universal.desc")))
                     .setIcon(ContextMenu.IconFactory.getIcon("layout"));
 
             this.drippyMenu.addValueCycleEntry("wait_for_textures_in_loading",
                             CommonCycles.cycleEnabledDisabled("drippyloadingscreen.settings.wait_for_textures_in_loading", DrippyLoadingScreen.getOptions().waitForTexturesInLoading.getValue())
                                     .addCycleListener(value -> DrippyLoadingScreen.getOptions().waitForTexturesInLoading.setValue(value.getAsBoolean())))
-                    .setTooltipSupplier((menu, entry) -> Tooltip.of(LocalizationUtils.splitLocalizedLines("drippyloadingscreen.settings.wait_for_textures_in_loading.desc")))
+                    .setTooltipSupplier((menu, entry) -> UITooltip.of(LocalizationUtils.splitLocalizedLines("drippyloadingscreen.settings.wait_for_textures_in_loading.desc")))
                     .setIcon(ContextMenu.IconFactory.getIcon("timer"));
 
             this.drippyMenu.addValueCycleEntry("early_fade_out_elements",
                             CommonCycles.cycleEnabledDisabled("drippyloadingscreen.settings.early_fade_out_elements", DrippyLoadingScreen.getOptions().earlyFadeOutElements.getValue())
                                     .addCycleListener(value -> DrippyLoadingScreen.getOptions().earlyFadeOutElements.setValue(value.getAsBoolean())))
-                    .setTooltipSupplier((menu, entry) -> Tooltip.of(LocalizationUtils.splitLocalizedLines("drippyloadingscreen.settings.early_fade_out_elements.desc")));
+                    .setTooltipSupplier((menu, entry) -> UITooltip.of(LocalizationUtils.splitLocalizedLines("drippyloadingscreen.settings.early_fade_out_elements.desc")));
 
             this.drippyMenu.addValueCycleEntry("fade_out_loading_screen",
                             CommonCycles.cycleEnabledDisabled("drippyloadingscreen.settings.fade_out_loading_screen", DrippyLoadingScreen.getOptions().fadeInOutLoadingScreen.getValue())
                                     .addCycleListener(value -> DrippyLoadingScreen.getOptions().fadeInOutLoadingScreen.setValue(value.getAsBoolean())))
-                    .setTooltipSupplier((menu, entry) -> Tooltip.of(LocalizationUtils.splitLocalizedLines("drippyloadingscreen.settings.fade_out_loading_screen.desc")));
+                    .setTooltipSupplier((menu, entry) -> UITooltip.of(LocalizationUtils.splitLocalizedLines("drippyloadingscreen.settings.fade_out_loading_screen.desc")));
 
             //------------------------------
 
@@ -103,7 +103,7 @@ public class DrippyEvents {
 
                     var m = CustomizationOverlay.getCurrentMenuBarInstance();
                     if ((m == null) || (!m.isUserNavigatingInMenuBar() && !drippyMenu.isUserNavigatingInMenu())) {
-                        TooltipHandler.INSTANCE.addTooltip(Tooltip.of(LocalizationUtils.splitLocalizedLines("drippyloadingscreen.edit_loading_screen.desc")).setDefaultStyle().setScale(UIBase.getUIScale()), () -> this.isHovered, false, true);
+                        TooltipHandler.INSTANCE.addRenderTickTooltip(UITooltip.of(LocalizationUtils.splitLocalizedLines("drippyloadingscreen.edit_loading_screen.desc")), () -> this.isHovered);
                     }
                     if (this.isHoveredOrFocused() || drippyMenu.isOpen()) {
                         this.setX(-20);
@@ -121,10 +121,10 @@ public class DrippyEvents {
                 }
 
                 @Override
-                protected void renderBackground(@NotNull GuiGraphics graphics) {
+                protected void renderBackground(@NotNull GuiGraphics graphics, float partial) {
                     boolean b = this.isHovered;
                     if (drippyMenu.isOpen()) this.isHovered = true;
-                    super.renderBackground(graphics);
+                    super.renderBackground(graphics, partial);
                     this.isHovered = b;
                 }
 
