@@ -164,7 +164,7 @@ public class MixinLoadingOverlay {
         return this.shouldRenderVanillaDrippy();
     }
 
-    @Inject(method = "render", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/GlStateManager;_clear(IZ)V", shift = At.Shift.AFTER, remap = false))
+    @Inject(method = "render", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/GlStateManager;_clear(IZ)V", shift = At.Shift.AFTER))
     private void clearColorAfterBackgroundRenderingDrippy(PoseStack poseStack, int mouseX, int mouseY, float partialTick, CallbackInfo ci) {
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
