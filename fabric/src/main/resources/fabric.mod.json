@@ -28,7 +28,7 @@
     "fabricloader": ">=${fabric_loader_version}",
     "fabric-api": ">=${fabric_short_version}",
     "konkrete": ">=1.10.0",
-    "fancymenu": ">=3.8.5",
+    "fancymenu": ">=3.9.0",
     "minecraft": ">=${minecraft_version}",
     "java": ">=${java_version}"
   }

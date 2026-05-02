@@ -24,7 +24,7 @@ dependencies {
     include(implementation(annotationProcessor("io.github.llamalad7:mixinextras-fabric:${mixin_extras_version}")))
     implementation "maven.modrinth:melody:1.0.16-26.1.1-fabric"
     implementation "maven.modrinth:konkrete:1.10.0-26.1.1-fabric"
-	implementation "maven.modrinth:fancymenu:3.8.5-26.1.1-fabric"
+	implementation "flatdir:fancymenu:3.9.0"
     implementation "maven.modrinth:modmenu:18.0.0-alpha.8"
     implementation "net.objecthunter:exp4j:0.4.8"
     implementation project(":common")
