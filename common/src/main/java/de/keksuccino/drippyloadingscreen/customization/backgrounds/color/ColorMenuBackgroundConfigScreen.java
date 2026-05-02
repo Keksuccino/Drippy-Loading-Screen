@@ -4,7 +4,7 @@ import de.keksuccino.fancymenu.util.LocalizationUtils;
 import de.keksuccino.fancymenu.util.input.TextValidators;
 import de.keksuccino.fancymenu.util.rendering.DrawableColor;
 import de.keksuccino.fancymenu.util.rendering.ui.screen.CellScreen;
-import de.keksuccino.fancymenu.util.rendering.ui.tooltip.Tooltip;
+import de.keksuccino.fancymenu.util.rendering.ui.tooltip.UITooltip;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 import java.util.function.Consumer;
@@ -46,9 +46,9 @@ public class ColorMenuBackgroundConfigScreen extends CellScreen {
         super.init();
 
         if (this.doneButton != null) {
-            this.doneButton.setTooltipSupplier(consumes -> {
+            this.doneButton.setUITooltipSupplier(consumes -> {
                 if (!TextValidators.HEX_COLOR_TEXT_VALIDATOR.get(this.colorHex)) {
-                    return Tooltip.of(LocalizationUtils.splitLocalizedLines("drippyloadingscreen.background.color.config.invalid_color")).setDefaultStyle();
+                    return UITooltip.of(LocalizationUtils.splitLocalizedLines("drippyloadingscreen.background.color.config.invalid_color"));
                 }
                 return null;
             });

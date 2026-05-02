@@ -58,7 +58,7 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.2")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.2")
     implementation "net.neoforged:neoforge:${neoforge_version}"
-    implementation "maven.modrinth:konkrete:1.9.14-1.21.11-neoforge"
+    implementation "maven.modrinth:konkrete:1.9.18-1.21.11-neoforge"
 	implementation "maven.modrinth:melody:1.0.15-1.21.11-neoforge"
 	implementation "flatdir:fancymenu:3.9.0"
     implementation "net.objecthunter:exp4j:0.4.8"

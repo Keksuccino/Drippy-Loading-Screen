@@ -10,10 +10,10 @@ import de.keksuccino.fancymenu.util.file.type.FileMediaType;
 import de.keksuccino.fancymenu.util.file.type.groups.FileTypeGroup;
 import de.keksuccino.fancymenu.util.file.type.types.FileTypes;
 import de.keksuccino.fancymenu.util.file.type.types.ImageFileType;
-import de.keksuccino.fancymenu.util.rendering.ui.NonStackableOverlayUI;
 import de.keksuccino.fancymenu.util.rendering.ui.UIBase;
 import de.keksuccino.fancymenu.util.rendering.ui.contextmenu.v2.ContextMenu;
-import de.keksuccino.fancymenu.util.rendering.ui.screen.resource.ResourceChooserScreen;
+import de.keksuccino.fancymenu.util.rendering.ui.contextmenu.v2.ContextMenuUtils;
+import de.keksuccino.fancymenu.util.rendering.ui.screen.resource.ResourceChooserWindowBody;
 import de.keksuccino.fancymenu.util.rendering.ui.cursor.CursorHandler;
 import de.keksuccino.fancymenu.util.resource.ResourceSource;
 import de.keksuccino.fancymenu.util.resource.ResourceSourceType;
@@ -320,7 +320,7 @@ public class EarlyLoadingEditorScreen extends Screen {
         int centerColor = gridPalette.centerColor();
         int normalColor = gridPalette.normalColor();
 
-        float scale = UIBase.calculateFixedScale(1.0f);
+        float scale = UIBase.calculateFixedRenderScale(1.0f);
         int scaledWidth = (int) ((float) this.width / scale);
         int scaledHeight = (int) ((float) this.height / scale);
 
@@ -362,8 +362,8 @@ public class EarlyLoadingEditorScreen extends Screen {
     }
 
     private GridPalette getOrUpdateGridPalette() {
-        int baseCenter = UIBase.getUIColorTheme().layout_editor_grid_color_center.getColorInt();
-        int baseNormal = UIBase.getUIColorTheme().layout_editor_grid_color_normal.getColorInt();
+        int baseCenter = UIBase.getUITheme().layout_editor_grid_color_center.getColorInt();
+        int baseNormal = UIBase.getUITheme().layout_editor_grid_color_normal.getColorInt();
         int background = toArgb(this.colorScheme.background(), 1.0f);
         boolean hasTexture = this.lastBackgroundTextureValid;
         if ((this.cachedGridPalette == null)
@@ -549,8 +549,8 @@ public class EarlyLoadingEditorScreen extends Screen {
         if (this.elementGeometries.isEmpty()) {
             return;
         }
-        int hoverColor = UIBase.getUIColorTheme().layout_editor_element_border_color_normal.getColorInt();
-        int selectedColor = UIBase.getUIColorTheme().layout_editor_element_border_color_selected.getColorInt();
+        int hoverColor = UIBase.getUITheme().layout_editor_element_border_color_normal.getColorInt();
+        int selectedColor = UIBase.getUITheme().layout_editor_element_border_color_selected.getColorInt();
         for (SelectableElement element : SelectableElement.values()) {
             ElementGeometry geometry = this.elementGeometries.get(element);
             if (geometry == null) {
@@ -1499,7 +1499,7 @@ public class EarlyLoadingEditorScreen extends Screen {
     }
 
     private void addIntegerInputEntry(ContextMenu menu, String entryIdentifier, Component label, Options.Option<Integer> option) {
-        NonStackableOverlayUI.addIntegerInputContextMenuEntryTo(menu, entryIdentifier, label,
+        ContextMenuUtils.addIntegerInputContextMenuEntryTo(menu, entryIdentifier, label,
                         option::getValue,
                         value -> applyOptionChange(() -> option.setValue(value != null ? value : option.getDefaultValue())),
                         true, option.getDefaultValue(), null, null)
@@ -1507,7 +1507,7 @@ public class EarlyLoadingEditorScreen extends Screen {
     }
 
     private void addStringInputEntry(ContextMenu menu, String entryIdentifier, Component label, Options.Option<String> option) {
-        NonStackableOverlayUI.addInputContextMenuEntryTo(menu, entryIdentifier, label,
+        ContextMenuUtils.addInputContextMenuEntryTo(menu, entryIdentifier, label,
                         option::getValue,
                         value -> applyOptionChange(() -> option.setValue((value != null) ? value : option.getDefaultValue())),
                         true, option.getDefaultValue(), null, false, false, null, null)
@@ -1515,10 +1515,9 @@ public class EarlyLoadingEditorScreen extends Screen {
     }
 
     private void addImageChooserEntry(ContextMenu menu, String entryIdentifier, Component label, Options.Option<String> option) {
-        final ResourceChooserScreen<ITexture, ImageFileType> chooser = ResourceChooserScreen.image(PNG_APNG_FILE_FILTER, s -> {});
         ResourceSupplier<ITexture> defaultSupplier = createRawImageSupplier(option.getDefaultValue());
-        NonStackableOverlayUI.addGenericResourceChooserContextMenuEntryTo(menu, entryIdentifier,
-                        () -> chooser,
+        ContextMenuUtils.addGenericResourceChooserContextMenuEntryTo(menu, entryIdentifier,
+                        () -> ResourceChooserWindowBody.image(PNG_APNG_FILE_FILTER, s -> {}),
                         ResourceSupplier::image,
                         defaultSupplier,
                         () -> createRawImageSupplier(option.getValue()),
@@ -1822,7 +1821,7 @@ public class EarlyLoadingEditorScreen extends Screen {
         if (texture == null || !texture.isReady()) {
             return TextureInfo.EMPTY;
         }
-        Identifier location = texture.getIdentifier();
+        Identifier location = texture.getResourceLocation();
         if (location == null) {
             return TextureInfo.EMPTY;
         }
@@ -2046,7 +2045,7 @@ public class EarlyLoadingEditorScreen extends Screen {
 
     private RenderMetrics captureRenderMetrics() {
         Minecraft minecraft = Minecraft.getInstance();
-        float guiFactor = Math.max(UIBase.calculateFixedScale(1.0f), 1.0f / Math.max(1.0f, (float)minecraft.getWindow().getGuiScale()));
+        float guiFactor = Math.max(UIBase.calculateFixedRenderScale(1.0f), 1.0f / Math.max(1.0f, (float)minecraft.getWindow().getGuiScale()));
         float absoluteWidth = Math.max(1.0f, minecraft.getWindow().getWidth());
         float absoluteHeight = Math.max(1.0f, minecraft.getWindow().getHeight());
         return new RenderMetrics(absoluteWidth, absoluteHeight, guiFactor);

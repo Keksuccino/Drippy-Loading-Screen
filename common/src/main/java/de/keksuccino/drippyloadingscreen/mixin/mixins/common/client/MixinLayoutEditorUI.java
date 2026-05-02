@@ -8,7 +8,9 @@ import de.keksuccino.fancymenu.customization.layout.editor.LayoutEditorScreen;
 import de.keksuccino.fancymenu.customization.layout.editor.LayoutEditorUI;
 import de.keksuccino.fancymenu.util.rendering.ui.contextmenu.v2.ContextMenu;
 import net.minecraft.client.Minecraft;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -18,6 +20,10 @@ import java.util.List;
 
 @Mixin(LayoutEditorUI.class)
 public class MixinLayoutEditorUI {
+
+    @Shadow
+    @Final
+    private LayoutEditorScreen editor;
 
     /**
      * @reason Remove unsupported element types in loading screen layouts.
@@ -46,9 +52,9 @@ public class MixinLayoutEditorUI {
      * @reason Custom GUI scaling is not supported in the loading overlay.
      */
     @Inject(method = "buildRightClickContextMenu", at = @At("RETURN"), remap = false)
-    private static void after_buildRightClickContextMenu_Drippy(LayoutEditorScreen editor, CallbackInfoReturnable<ContextMenu> info) {
+    private void after_buildRightClickContextMenu_Drippy(CallbackInfoReturnable<ContextMenu> info) {
 
-        if (editor.layoutTargetScreen instanceof DrippyOverlayScreen) {
+        if (this.editor.layoutTargetScreen instanceof DrippyOverlayScreen) {
             info.getReturnValue().removeEntry("auto_scaling");
             info.getReturnValue().removeEntry("forced_gui_scale");
         }

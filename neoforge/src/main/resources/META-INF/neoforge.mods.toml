@@ -24,7 +24,7 @@ file="META-INF/accesstransformer.cfg"
 modId="konkrete"
 type="required" #mandatory (Can be one of "required", "optional", "incompatible" or "discouraged")
 ordering="NONE"
-versionRange="[1.9.0,)"
+versionRange="[1.9.18,)"
 side="BOTH"
 
 [[dependencies.${mod_id}]]
