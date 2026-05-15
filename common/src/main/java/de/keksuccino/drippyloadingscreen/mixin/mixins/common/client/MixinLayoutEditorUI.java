@@ -21,9 +21,8 @@ import java.util.List;
 @Mixin(LayoutEditorUI.class)
 public class MixinLayoutEditorUI {
 
-    @Shadow
-    @Final
-    private LayoutEditorScreen editor;
+    @Shadow(remap = false)
+    @Final private LayoutEditorScreen editor;
 
     /**
      * @reason Remove unsupported element types in loading screen layouts.

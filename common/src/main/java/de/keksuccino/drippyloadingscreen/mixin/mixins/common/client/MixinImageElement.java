@@ -36,7 +36,7 @@ public class MixinImageElement {
     /**
      * @reason The NeoForge loading overlay can render before FancyMenu's shader sources are available.
      */
-    @WrapOperation(method = "render", at = @At(value = "INVOKE", target = "Lde/keksuccino/fancymenu/util/rendering/SmoothImageRectangleRenderer;renderSmoothImageRectRoundAllCornersScaled(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/resources/Identifier;FFFFFFFFIF)V"), remap = false)
+    @WrapOperation(method = "render", at = @At(value = "INVOKE", target = "Lde/keksuccino/fancymenu/util/rendering/SmoothImageRectangleRenderer;renderSmoothImageRectRoundAllCornersScaled(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/resources/Identifier;FFFFFFFFIF)V"))
     private void wrap_renderSmoothImageRectRoundAllCornersScaled_Drippy(GuiGraphics graphics, Identifier texture, float x, float y, float width, float height, float topLeftRadius, float topRightRadius, float bottomRightRadius, float bottomLeftRadius, int color, float partial, Operation<Void> original) {
 
         if ((Minecraft.getInstance().getOverlay() instanceof LoadingOverlay) && !areSmoothImageShadersAvailableDrippy()) {
