@@ -32,7 +32,7 @@ repositories {
 }
 
 def lwjglVersion = '3.4.1'
-def fancymodloader_version = '11.0.5'
+def fancymodloader_version = '11.0.13'
 
 dependencies {
     compileOnly "net.neoforged:neoforge:${neoforge_version}"
