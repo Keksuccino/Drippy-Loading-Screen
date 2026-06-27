@@ -39,7 +39,7 @@ public class MixinImageElement {
     @WrapOperation(method = "extractRenderState", at = @At(value = "INVOKE", target = "Lde/keksuccino/fancymenu/util/rendering/SmoothImageRectangleRenderer;renderSmoothImageRectRoundAllCornersScaled(Lnet/minecraft/client/gui/GuiGraphicsExtractor;Lnet/minecraft/resources/Identifier;FFFFFFFFIF)V"))
     private void wrap_renderSmoothImageRectRoundAllCornersScaled_Drippy(GuiGraphicsExtractor graphics, Identifier texture, float x, float y, float width, float height, float topLeftRadius, float topRightRadius, float bottomRightRadius, float bottomLeftRadius, int color, float partial, Operation<Void> original) {
 
-        if ((Minecraft.getInstance().getOverlay() instanceof LoadingOverlay) && !areSmoothImageShadersAvailableDrippy()) {
+        if ((Minecraft.getInstance().gui.overlay() instanceof LoadingOverlay) && !areSmoothImageShadersAvailableDrippy()) {
             int roundedWidth = Math.max(1, Math.round(width));
             int roundedHeight = Math.max(1, Math.round(height));
             graphics.blit(RenderPipelines.GUI_TEXTURED, texture, Math.round(x), Math.round(y), 0.0F, 0.0F, roundedWidth, roundedHeight, roundedWidth, roundedHeight);

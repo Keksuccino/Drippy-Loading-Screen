@@ -32,9 +32,9 @@ public class ColorMenuBackgroundBuilder extends MenuBackgroundBuilder<ColorMenuB
            } else {
                backgroundConsumer.accept(backgroundToEdit);
            }
-           Minecraft.getInstance().setScreen(currentScreen);
+           Minecraft.getInstance().gui.setScreen(currentScreen);
         });
-        Minecraft.getInstance().setScreen(s);
+        Minecraft.getInstance().gui.setScreen(s);
     }
 
     @Override

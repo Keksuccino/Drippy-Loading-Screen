@@ -17,7 +17,7 @@ public class MixinCustomizationOverlay {
      */
     @Inject(method = "isOverlayVisible", at = @At("HEAD"), cancellable = true, remap = false)
     private static void on_isOverlayVisible_Drippy(Screen currentScreen, CallbackInfoReturnable<Boolean> info) {
-        if (Minecraft.getInstance().getOverlay() instanceof LoadingOverlay) {
+        if (Minecraft.getInstance().gui.overlay() instanceof LoadingOverlay) {
             info.setReturnValue(false);
         }
     }

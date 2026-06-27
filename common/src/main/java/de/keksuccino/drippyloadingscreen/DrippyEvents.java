@@ -47,7 +47,7 @@ public class DrippyEvents {
                     .setForceUIScale(true);
 
             this.drippyMenu.addClickableEntry("customize_loading_screen", Component.translatable("drippyloadingscreen.settings.customize_loading_screen"), (menu, entry) -> {
-                Minecraft.getInstance().setScreen(new DrippyOverlayScreen());
+                Minecraft.getInstance().gui.setScreen(new DrippyOverlayScreen());
             }).setIcon(ContextMenu.IconFactory.getIcon("edit"));
 
             if (Services.PLATFORM.getPlatformName().equalsIgnoreCase("neoforge")) {
@@ -55,11 +55,11 @@ public class DrippyEvents {
                 this.drippyMenu.addClickableEntry("customize_early_loading_screen", Component.translatable("drippyloadingscreen.settings.customize_early_loading_screen"), (menu, entry) -> {
                             if (DrippyLoadingScreen.isEarlyLoadingModulePresent()) {
                                 Screen s = earlyLoadingEditorScreenSupplier.get();
-                                if (s != null) Minecraft.getInstance().setScreen(s);
+                                if (s != null) Minecraft.getInstance().gui.setScreen(s);
                             } else {
-                                Screen current = Minecraft.getInstance().screen;
+                                Screen current = Minecraft.getInstance().gui.screen();
                                 Dialogs.openMessageWithCallback(Component.translatable("drippyloadingscreen.settings.customize_early_loading_screen.module_missing"), MessageDialogStyle.ERROR, aBoolean -> {
-                                    Minecraft.getInstance().setScreen(current);
+                                    Minecraft.getInstance().gui.setScreen(current);
                                 });
                             }
                         }).setIcon(ContextMenu.IconFactory.getIcon("edit"))

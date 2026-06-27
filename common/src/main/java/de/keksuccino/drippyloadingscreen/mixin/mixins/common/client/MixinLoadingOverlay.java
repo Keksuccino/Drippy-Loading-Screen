@@ -15,6 +15,7 @@ import de.keksuccino.fancymenu.events.screen.*;
 import de.keksuccino.fancymenu.util.event.acara.EventHandler;
 import de.keksuccino.fancymenu.util.rendering.RenderingUtils;
 import de.keksuccino.fancymenu.util.window.WindowHandler;
+import de.keksuccino.konkrete.rendering.GuiUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.LoadingOverlay;
@@ -100,7 +101,7 @@ public class MixinLoadingOverlay {
         RenderingUtils.setTooltipRenderingBlocked(false);
     }
 
-    @Inject(method = "extractRenderState", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;setOverlay(Lnet/minecraft/client/gui/screens/Overlay;)V"))
+    @Inject(method = "extractRenderState", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/Gui;setOverlay(Lnet/minecraft/client/gui/screens/Overlay;)V"))
     private void beforeCloseOverlayDrippy(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick, CallbackInfo info) {
         EventHandler.INSTANCE.postEvent(new CloseScreenEvent(drippyOverlayScreen, null));
     }
@@ -238,11 +239,11 @@ public class MixinLoadingOverlay {
         try {
             boolean customizationEnabled = ScreenCustomization.isScreenCustomizationEnabled();
             ScreenCustomization.setScreenCustomizationEnabled(true);
-            Screen current = Minecraft.getInstance().screen;
+            Screen current = Minecraft.getInstance().gui.screen();
             if (!(current instanceof DrippyOverlayScreen)) {
-                Minecraft.getInstance().screen = getDrippyOverlayScreen();
+                de.keksuccino.konkrete.rendering.GuiUtils.setScreenDirect(getDrippyOverlayScreen());
                 run.run();
-                Minecraft.getInstance().screen = current;
+                de.keksuccino.konkrete.rendering.GuiUtils.setScreenDirect(current);
             }
             ScreenCustomization.setScreenCustomizationEnabled(customizationEnabled);
         } catch (Exception ex) {

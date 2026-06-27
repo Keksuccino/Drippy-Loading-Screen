@@ -23,7 +23,7 @@ public class DrippyUtils {
     }
 
     public static boolean isDrippyRendering() {
-        return (Minecraft.getInstance().screen instanceof DrippyOverlayScreen);
+        return (Minecraft.getInstance().gui.screen() instanceof DrippyOverlayScreen);
     }
 
     public static boolean isDrippyIdentifier(@Nullable String identifier) {

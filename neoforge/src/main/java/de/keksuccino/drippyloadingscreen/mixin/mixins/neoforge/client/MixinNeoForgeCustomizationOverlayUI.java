@@ -16,7 +16,7 @@ public class MixinNeoForgeCustomizationOverlayUI {
     private static void after_buildMenuBar_NeoForge_Drippy(boolean expanded, CallbackInfoReturnable<CustomizationOverlayMenuBar> info) {
 
         CustomizationOverlayMenuBar bar = info.getReturnValue();
-        boolean isEarlyLoadingEditor = (Minecraft.getInstance().screen instanceof EarlyLoadingEditorScreen);
+        boolean isEarlyLoadingEditor = (Minecraft.getInstance().gui.screen() instanceof EarlyLoadingEditorScreen);
         if ((bar != null) && isEarlyLoadingEditor) {
             bar.removeEntry("screen");
             bar.removeEntry("tools");

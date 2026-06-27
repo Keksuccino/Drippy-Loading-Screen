@@ -1,6 +1,6 @@
 package de.keksuccino.drippyloadingscreen.customization;
 
-import de.keksuccino.drippyloadingscreen.mixin.mixins.common.client.IMixinLoadingOverlay;
+import de.keksuccino.drippyloadingscreen.mixin.mixins.common.client.AccessorMixinLoadingOverlay;
 import de.keksuccino.fancymenu.customization.ScreenCustomization;
 import de.keksuccino.fancymenu.customization.layer.ScreenCustomizationLayer;
 import de.keksuccino.fancymenu.customization.layer.ScreenCustomizationLayerHandler;
@@ -61,7 +61,7 @@ public class DrippyOverlayScreen extends Screen {
     public void extractBackground(@NotNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partial) {
         ScreenCustomizationLayer layer = ScreenCustomizationLayerHandler.getLayerOfScreen(this);
         boolean shouldRenderDefaultBackground = (layer == null) || layer.layoutBase.menuBackgrounds.isEmpty();
-        IntSupplier supplier = IMixinLoadingOverlay.getBrandBackgroundDrippy();
+        IntSupplier supplier = AccessorMixinLoadingOverlay.getBrandBackgroundDrippy();
         int color = (supplier != null) ? supplier.getAsInt() : 0;
         if (shouldRenderDefaultBackground) {
             graphics.fill(0, 0, this.width, this.height, replaceAlpha(color, (int)(this.backgroundOpacity * 255.0F)));
@@ -118,8 +118,8 @@ public class DrippyOverlayScreen extends Screen {
         return new RendererWidget(barPosX, barPosY, barWidth, barHeight,
                 (graphics, mouseX, mouseY, partial, x, y, width, height, widget) -> {
                     float currentProgress = 0.5F;
-                    if (Minecraft.getInstance().getOverlay() instanceof LoadingOverlay) {
-                        currentProgress = ((IMixinLoadingOverlay)Minecraft.getInstance().getOverlay()).getCurrentProgressDrippy();
+                    if (Minecraft.getInstance().gui.overlay() instanceof LoadingOverlay) {
+                        currentProgress = ((AccessorMixinLoadingOverlay)Minecraft.getInstance().gui.overlay()).getCurrentProgressDrippy();
                     }
                     drawProgressBar(graphics, x, y, x + width, y + height, ((IMixinAbstractWidget)widget).getAlphaFancyMenu(), currentProgress);
                 }

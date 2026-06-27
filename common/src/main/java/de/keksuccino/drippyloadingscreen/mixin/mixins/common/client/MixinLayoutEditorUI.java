@@ -31,7 +31,7 @@ public class MixinLayoutEditorUI {
     @Redirect(method = "buildElementContextMenu", at = @At(value = "INVOKE", target = "Lde/keksuccino/fancymenu/customization/element/ElementRegistry;getBuilders()Ljava/util/List;"), remap = false)
     private static List<ElementBuilder<?,?>> wrapGetBuildersDrippy() {
         List<ElementBuilder<?,?>> l = ElementRegistry.getBuilders();
-        if (Minecraft.getInstance().screen instanceof LayoutEditorScreen editor) {
+        if (Minecraft.getInstance().gui.screen() instanceof LayoutEditorScreen editor) {
             if (!editor.layout.isUniversalLayout() && DrippyUtils.isDrippyIdentifier(editor.layout.screenIdentifier)) {
                 l.removeIf(elementBuilder -> {
 

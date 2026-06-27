@@ -14,7 +14,7 @@ public class MixinGuiRenderState {
 
     @Inject(method = "addText", at = @At("HEAD"), cancellable = true)
     private void before_submitText_Drippy(GuiTextRenderState guiTextRenderState, CallbackInfo info) {
-        if (Minecraft.getInstance().getOverlay() != null) {
+        if (Minecraft.getInstance().gui.overlay() != null) {
             if (!DrippyUtils.fontsReady()) info.cancel();
         }
     }
