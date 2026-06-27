@@ -31,8 +31,10 @@ KEYCHAIN_SERVICES = {
 
 REQUIRED_GRADLE_PROPERTIES = ("mod_id", "mod_version", "minecraft_version")
 SUPPORTED_SIDES = ("client", "server")
-IGNORED_JAR_SUFFIXES = ("-source.jar", "-sources.jar", "-unshaded.jar")
+IGNORED_JAR_SUFFIXES = ("-source.jar", "-sources.jar", "-unshaded.jar", "-plain.jar")
 VERSIONED_JAR_PATTERN = re.compile(r"-\d+(?:\.\d+)+\.jar$")
+MAIN_UPLOAD_TARGET = "main"
+EARLYWINDOW_MODULE = "earlywindow"
 
 
 @dataclass(frozen=True)
@@ -47,6 +49,7 @@ LOADER_INFOS: Dict[str, LoaderInfo] = {
     "fabric": LoaderInfo("fabric", "Fabric", "fabric", "Fabric"),
     "forge": LoaderInfo("forge", "Forge", "forge", "Forge"),
     "neoforge": LoaderInfo("neoforge", "NeoForge", "neoforge", "NeoForge"),
+    "earlywindow": LoaderInfo("earlywindow", "NeoForge", "neoforge", "NeoForge"),
     "quilt": LoaderInfo("quilt", "Quilt", "quilt", "Quilt"),
 }
 
@@ -60,6 +63,7 @@ class SelectedJar:
 @dataclass(frozen=True)
 class StagedArtifact:
     loader: str
+    upload_target: str
     source_path: Path
     staged_path: Path
     file_name: str
@@ -445,6 +449,100 @@ def normalize_dependencies_for_loader(loader: str, raw_dependencies: Any) -> Lis
     return dependencies
 
 
+def upload_target_key_for_loader(loader: str) -> str:
+    if loader == EARLYWINDOW_MODULE:
+        return EARLYWINDOW_MODULE
+    return MAIN_UPLOAD_TARGET
+
+
+def upload_target_keys_for_loaders(loaders: Iterable[str]) -> List[str]:
+    keys: List[str] = []
+    seen = set()
+    for loader in loaders:
+        key = upload_target_key_for_loader(loader)
+        if key not in seen:
+            seen.add(key)
+            keys.append(key)
+    return keys
+
+
+def upload_target_label(target_key: str) -> str:
+    if target_key == MAIN_UPLOAD_TARGET:
+        return "Main Mod"
+    if target_key == EARLYWINDOW_MODULE:
+        return "EarlyWindow"
+    return target_key[:1].upper() + target_key[1:]
+
+
+def upload_target_message_label(target_key: str) -> str:
+    if target_key == MAIN_UPLOAD_TARGET:
+        return "Main project"
+    if target_key == EARLYWINDOW_MODULE:
+        return "EarlyWindow project"
+    return f"{upload_target_label(target_key)} project"
+
+
+def get_upload_target_config(
+    project_config: Dict[str, Any],
+    target_key: str,
+) -> Dict[str, Any]:
+    if target_key == MAIN_UPLOAD_TARGET:
+        return project_config
+
+    project_targets = project_config.get("project_targets", {})
+    if not isinstance(project_targets, dict):
+        raise UploadError("Config field 'project_targets' must be an object.")
+
+    target_config = project_targets.get(target_key)
+    if not isinstance(target_config, dict):
+        raise UploadError(
+            f"Missing config for upload target '{target_key}'. "
+            "Run the script interactively to create it."
+        )
+    return target_config
+
+
+def ensure_upload_target_config(
+    project_config: Dict[str, Any],
+    target_key: str,
+    *,
+    show_target_label: bool,
+) -> bool:
+    changed = False
+    if target_key == MAIN_UPLOAD_TARGET:
+        target_config = project_config
+    else:
+        project_targets = project_config.setdefault("project_targets", {})
+        if not isinstance(project_targets, dict):
+            raise UploadError("Config field 'project_targets' must be an object.")
+        target_config = project_targets.setdefault(target_key, {})
+        if not isinstance(target_config, dict):
+            raise UploadError(
+                f"Config for upload target '{target_key}' must be an object."
+            )
+
+    def target_section(platform: str) -> str:
+        if show_target_label or target_key != MAIN_UPLOAD_TARGET:
+            return f"{upload_target_label(target_key)} {platform} Target"
+        return f"{platform} Target"
+
+    if not target_config.get("modrinth_project_id"):
+        section(target_section("Modrinth"))
+        target_config["modrinth_project_id"] = prompt_line(
+            "Modrinth project ID or slug: "
+        )
+        changed = True
+
+    if not target_config.get("curseforge_project_id"):
+        section(target_section("CurseForge"))
+        target_config["curseforge_project_id"] = prompt_numeric_id(
+            "CurseForge numeric project ID: "
+        )
+        changed = True
+
+    return changed
+
+
 def ensure_project_config(
     config: Dict[str, Any],
     project_key: str,
@@ -465,19 +563,17 @@ def ensure_project_config(
 
     changed = False
 
-    if not project_config.get("modrinth_project_id"):
-        section("Modrinth Target")
-        project_config["modrinth_project_id"] = prompt_line(
-            "Modrinth project ID or slug: "
+    upload_target_keys = upload_target_keys_for_loaders(loaders)
+    show_target_label = len(upload_target_keys) > 1
+    for target_key in upload_target_keys:
+        changed = (
+            ensure_upload_target_config(
+                project_config,
+                target_key,
+                show_target_label=show_target_label,
+            )
+            or changed
         )
-        changed = True
-
-    if not project_config.get("curseforge_project_id"):
-        section("CurseForge Target")
-        project_config["curseforge_project_id"] = prompt_numeric_id(
-            "CurseForge numeric project ID: "
-        )
-        changed = True
 
     if not project_config.get("supported_environments"):
         section("Supported Environments")
@@ -528,7 +624,7 @@ def ensure_project_config(
 
     for loader in loaders:
         if loader not in dependencies_by_loader:
-            section(f"{loader_fancy_name(loader)} Dependencies")
+            section(f"{module_display_name(loader)} Dependencies")
             raw = prompt_line(
                 "Mandatory dependency slugs, comma-separated. Leave empty for none: ",
                 allow_empty=True,
@@ -549,6 +645,39 @@ def loader_fancy_name(loader: str) -> str:
     if info:
         return info.fancy_name
     return loader[:1].upper() + loader[1:]
+
+
+def module_display_name(loader: str) -> str:
+    if loader == EARLYWINDOW_MODULE:
+        return "EarlyWindow (NeoForge)"
+    return loader_fancy_name(loader)
+
+
+def upload_loader_name(loader: str) -> str:
+    info = LOADER_INFOS.get(loader)
+    if info:
+        return info.modrinth_name
+    return loader
+
+
+def staged_file_name(
+    loader: str,
+    *,
+    mod_id: str,
+    mod_version: str,
+    minecraft_version: str,
+) -> str:
+    safe_mod_id = safe_file_component(mod_id)
+    loader_name = safe_file_component(upload_loader_name(loader))
+    if loader == EARLYWINDOW_MODULE:
+        safe_mod_id = f"{safe_mod_id}-earlywindow"
+
+    return (
+        f"{safe_mod_id}_"
+        f"{loader_name}_"
+        f"{safe_file_component(mod_version)}_MC_"
+        f"{safe_file_component(minecraft_version)}.jar"
+    )
 
 
 def keychain_token(service_name: str) -> Optional[str]:
@@ -751,11 +880,11 @@ def stage_artifacts(
             assume_yes=assume_yes,
         )
 
-        file_name = (
-            f"{safe_file_component(mod_id)}_"
-            f"{safe_file_component(loader)}_"
-            f"{safe_file_component(mod_version)}_MC_"
-            f"{safe_file_component(minecraft_version)}.jar"
+        file_name = staged_file_name(
+            loader,
+            mod_id=mod_id,
+            mod_version=mod_version,
+            minecraft_version=minecraft_version,
         )
         staged_path = output_dir / file_name
         shutil.copy2(selected.source_path, staged_path)
@@ -771,10 +900,12 @@ def stage_artifacts(
             f"[{loader_fancy_name(loader)}] "
             f"v{mod_version} MC {minecraft_version}"
         )
-        modrinth_version_number = f"{mod_version}-{minecraft_version}-{loader}"
+        modrinth_version_number = (
+            f"{mod_version}-{minecraft_version}-{upload_loader_name(loader)}"
+        )
 
         print(
-            f"{CONSOLE.style(loader, 'loader')}: "
+            f"{CONSOLE.style(module_display_name(loader), 'loader')}: "
             f"{CONSOLE.style(selected.source_path.name, 'file')} "
             f"{CONSOLE.style('->', 'muted')} "
             f"{CONSOLE.style(file_name, 'file')} "
@@ -784,6 +915,7 @@ def stage_artifacts(
         artifacts.append(
             StagedArtifact(
                 loader=loader,
+                upload_target=upload_target_key_for_loader(loader),
                 source_path=selected.source_path,
                 staged_path=staged_path,
                 file_name=file_name,
@@ -1104,31 +1236,18 @@ def require_modrinth_project_id(project: Dict[str, Any], lookup_name: str) -> st
 
 def validate_modrinth_targets(
     client: ModrinthClient,
-    loaders: Sequence[str],
     minecraft_version: str,
-    project_id_or_slug: str,
+    project_config: Dict[str, Any],
     artifacts: Sequence[StagedArtifact],
-) -> ModrinthTargets:
+) -> Dict[str, ModrinthTargets]:
     section("Modrinth Validation")
-
-    project = client.get_project(project_id_or_slug)
-    project_id = require_modrinth_project_id(project, project_id_or_slug)
-    project_title = project.get("title") or project.get("slug") or project_id_or_slug
-    CONSOLE.key_value("Project", project_title, value_style="platform")
-    CONSOLE.key_value("Project ID", project_id, value_style="id", indent=2)
 
     loader_names = {
         str(loader.get("name"))
         for loader in client.get_loaders()
-        if "mod" in loader.get("supported_project_types", [])
-        or "project" in loader.get("supported_project_types", [])
+        if "mod" in (loader.get("supported_project_types") or [])
+        or "project" in (loader.get("supported_project_types") or [])
     }
-    for loader in loaders:
-        modrinth_loader = LOADER_INFOS[loader].modrinth_name
-        if modrinth_loader not in loader_names:
-            raise UploadError(f"Modrinth does not list loader '{modrinth_loader}'.")
-        CONSOLE.key_value("Loader", modrinth_loader, value_style="loader", indent=2)
-
     game_versions = {
         str(version.get("version"))
         for version in client.get_game_versions()
@@ -1139,45 +1258,94 @@ def validate_modrinth_targets(
         )
     CONSOLE.key_value("Minecraft version", minecraft_version, value_style="version")
 
-    dependency_ids_by_slug: Dict[str, str] = {}
-    dependency_slugs = sorted(
-        {
-            dependency
-            for artifact in artifacts
-            for dependency in artifact.dependencies
-        }
-    )
-    if dependency_slugs:
-        print(CONSOLE.style("Dependencies:", "key"))
-    for dependency_slug in dependency_slugs:
-        try:
-            dependency_project = client.get_project(dependency_slug)
-        except ApiError as exc:
-            raise UploadError(
-                f"Could not resolve Modrinth dependency slug '{dependency_slug}' to a project ID."
-            ) from exc
-        dependency_id = require_modrinth_project_id(dependency_project, dependency_slug)
-        dependency_title = (
-            dependency_project.get("title")
-            or dependency_project.get("slug")
-            or dependency_slug
+    target_keys = upload_target_keys_for_loaders(artifact.loader for artifact in artifacts)
+    targets_by_key: Dict[str, ModrinthTargets] = {}
+    dependency_project_cache: Dict[str, Tuple[str, str]] = {}
+
+    for target_key in target_keys:
+        target_artifacts = [
+            artifact for artifact in artifacts
+            if artifact.upload_target == target_key
+        ]
+        target_config = get_upload_target_config(project_config, target_key)
+        project_id_or_slug = target_config["modrinth_project_id"]
+        project = client.get_project(project_id_or_slug)
+        project_id = require_modrinth_project_id(project, project_id_or_slug)
+        project_title = project.get("title") or project.get("slug") or project_id_or_slug
+
+        CONSOLE.subsection(f"{upload_target_label(target_key)} Project")
+        CONSOLE.key_value("Project", project_title, value_style="platform", indent=2)
+        CONSOLE.key_value("Project ID", project_id, value_style="id", indent=2)
+
+        printed_loaders = set()
+        for artifact in target_artifacts:
+            modrinth_loader = LOADER_INFOS[artifact.loader].modrinth_name
+            if modrinth_loader not in loader_names:
+                raise UploadError(f"Modrinth does not list loader '{modrinth_loader}'.")
+            loader_key = (artifact.loader, modrinth_loader)
+            if loader_key in printed_loaders:
+                continue
+            printed_loaders.add(loader_key)
+            CONSOLE.key_value(
+                f"{module_display_name(artifact.loader)} loader",
+                modrinth_loader,
+                value_style="loader",
+                indent=2,
+            )
+
+        dependency_ids_by_slug: Dict[str, str] = {}
+        dependency_slugs = sorted(
+            {
+                dependency
+                for artifact in target_artifacts
+                for dependency in artifact.dependencies
+            }
         )
-        dependency_ids_by_slug[dependency_slug] = dependency_id
-        print(
-            "  "
-            + CONSOLE.style(dependency_slug, "file")
-            + CONSOLE.style(" -> ", "muted")
-            + CONSOLE.style(dependency_title, "value")
-            + CONSOLE.style(" (ID ", "muted")
-            + CONSOLE.style(dependency_id, "id")
-            + CONSOLE.style(")", "muted")
+        if dependency_slugs:
+            print("  " + CONSOLE.style("Dependencies:", "key"))
+        for dependency_slug in dependency_slugs:
+            if dependency_slug in dependency_project_cache:
+                dependency_id, dependency_title = dependency_project_cache[dependency_slug]
+            else:
+                try:
+                    dependency_project = client.get_project(dependency_slug)
+                except ApiError as exc:
+                    raise UploadError(
+                        "Could not resolve Modrinth dependency slug "
+                        f"'{dependency_slug}' to a project ID."
+                    ) from exc
+                dependency_id = require_modrinth_project_id(
+                    dependency_project,
+                    dependency_slug,
+                )
+                dependency_title = (
+                    dependency_project.get("title")
+                    or dependency_project.get("slug")
+                    or dependency_slug
+                )
+                dependency_project_cache[dependency_slug] = (
+                    dependency_id,
+                    str(dependency_title),
+                )
+
+            dependency_ids_by_slug[dependency_slug] = dependency_id
+            print(
+                "    "
+                + CONSOLE.style(dependency_slug, "file")
+                + CONSOLE.style(" -> ", "muted")
+                + CONSOLE.style(dependency_title, "value")
+                + CONSOLE.style(" (ID ", "muted")
+                + CONSOLE.style(dependency_id, "id")
+                + CONSOLE.style(")", "muted")
+            )
+
+        targets_by_key[target_key] = ModrinthTargets(
+            project=project,
+            project_id=project_id,
+            dependency_ids_by_slug=dependency_ids_by_slug,
         )
 
-    return ModrinthTargets(
-        project=project,
-        project_id=project_id,
-        dependency_ids_by_slug=dependency_ids_by_slug,
-    )
+    return targets_by_key
 
 
 def resolve_curseforge_tags(
@@ -1192,13 +1360,19 @@ def resolve_curseforge_tags(
     CONSOLE.key_value("Minecraft version ID", minecraft_version_id, value_style="id", indent=2)
 
     loader_ids_by_module: Dict[str, int] = {}
+    loader_ids_by_name: Dict[str, int] = {}
     for loader in loaders:
         curseforge_loader = LOADER_INFOS[loader].curseforge_name
-        loader_id = client.resolve_tag_id(curseforge_loader, "modloader")
+        if curseforge_loader not in loader_ids_by_name:
+            loader_ids_by_name[curseforge_loader] = client.resolve_tag_id(
+                curseforge_loader,
+                "modloader",
+            )
+        loader_id = loader_ids_by_name[curseforge_loader]
         loader_ids_by_module[loader] = loader_id
         print(
             "  "
-            + CONSOLE.style("Loader:", "key")
+            + CONSOLE.style(f"{module_display_name(loader)} loader:", "key")
             + " "
             + CONSOLE.style(curseforge_loader, "loader")
             + CONSOLE.style(" -> ID ", "muted")
@@ -1309,6 +1483,8 @@ def sync_modrinth_environment(
     project_config: Dict[str, Any],
     project_data: Dict[str, Any],
     *,
+    modrinth_project_id: str,
+    target_label: str,
     upload_enabled: bool,
 ) -> None:
     desired_client_side, desired_server_side = modrinth_environment_values(project_config)
@@ -1320,19 +1496,19 @@ def sync_modrinth_environment(
         and current_server_side == desired_server_side
     ):
         CONSOLE.success(
-            "Modrinth environment is already "
+            f"{target_label} Modrinth environment is already "
             f"client={desired_client_side}, server={desired_server_side}."
         )
         return
 
     message = (
-        "Modrinth project environment "
+        f"{target_label} Modrinth project environment "
         f"{current_client_side}/{current_server_side} -> "
         f"{desired_client_side}/{desired_server_side}"
     )
     if upload_enabled:
         client.patch_project_environment(
-            project_config["modrinth_project_id"],
+            modrinth_project_id,
             client_side=desired_client_side,
             server_side=desired_server_side,
         )
@@ -1375,9 +1551,32 @@ def print_plan_summary(
         modrinth_version_environment(project_config),
     )
 
+    upload_target_count = len(
+        upload_target_keys_for_loaders(artifact.loader for artifact in artifacts)
+    )
     for artifact in artifacts:
+        target_config = get_upload_target_config(project_config, artifact.upload_target)
         dependencies = ", ".join(artifact.dependencies) if artifact.dependencies else "none"
-        CONSOLE.subsection(loader_fancy_name(artifact.loader))
+        CONSOLE.subsection(module_display_name(artifact.loader))
+        if upload_target_count > 1:
+            CONSOLE.key_value(
+                "Upload target",
+                upload_target_label(artifact.upload_target),
+                value_style="platform",
+                indent=2,
+            )
+        CONSOLE.key_value(
+            "Modrinth project",
+            target_config["modrinth_project_id"],
+            value_style="id",
+            indent=2,
+        )
+        CONSOLE.key_value(
+            "CurseForge project",
+            target_config["curseforge_project_id"],
+            value_style="id",
+            indent=2,
+        )
         CONSOLE.key_value("Source", artifact.source_path, value_style="path", indent=2)
         CONSOLE.key_value("Staged", artifact.staged_path, value_style="file", indent=2)
         CONSOLE.key_value("Display name", artifact.display_name, indent=2)
@@ -1399,8 +1598,19 @@ def confirm_real_upload(artifacts: Sequence[StagedArtifact], *, assume_yes: bool
 
     CONSOLE.blank()
     CONSOLE.warning("This will upload these files to Modrinth and CurseForge:")
+    upload_target_count = len(
+        upload_target_keys_for_loaders(artifact.loader for artifact in artifacts)
+    )
     for artifact in artifacts:
-        CONSOLE.bullet(artifact.file_name, style_name="file", indent=2)
+        if upload_target_count > 1:
+            target = upload_target_label(artifact.upload_target)
+            CONSOLE.bullet(
+                f"{artifact.file_name} -> {target}",
+                style_name="file",
+                indent=2,
+            )
+        else:
+            CONSOLE.bullet(artifact.file_name, style_name="file", indent=2)
     answer = input(CONSOLE.prompt("Type 'upload' to continue: ")).strip()
     if answer != "upload":
         raise UploadError("Upload aborted before any files were sent.")
@@ -1413,13 +1623,21 @@ def upload_artifacts(
     project_config: Dict[str, Any],
     properties: Dict[str, str],
     artifacts: Sequence[StagedArtifact],
-    modrinth_targets: ModrinthTargets,
+    modrinth_targets_by_key: Dict[str, ModrinthTargets],
     cf_tags: CurseForgeTags,
     release_type: str,
 ) -> None:
     section("Uploading")
     for artifact in artifacts:
-        CONSOLE.subsection(loader_fancy_name(artifact.loader))
+        CONSOLE.subsection(module_display_name(artifact.loader))
+        target_config = get_upload_target_config(project_config, artifact.upload_target)
+        modrinth_targets = modrinth_targets_by_key[artifact.upload_target]
+        CONSOLE.key_value(
+            "Upload target",
+            upload_target_label(artifact.upload_target),
+            value_style="platform",
+            indent=2,
+        )
 
         modrinth_metadata = modrinth_version_metadata(
             project_config,
@@ -1447,7 +1665,7 @@ def upload_artifacts(
             release_type,
         )
         curseforge_result = curseforge_client.upload_file(
-            project_config["curseforge_project_id"],
+            target_config["curseforge_project_id"],
             curseforge_metadata,
             artifact,
         )
@@ -1568,11 +1786,10 @@ def main(argv: Sequence[str]) -> int:
         modrinth_client = ModrinthClient(tokens["modrinth"])
         curseforge_client = CurseForgeClient(tokens["curseforge"])
 
-        modrinth_targets = validate_modrinth_targets(
+        modrinth_targets_by_key = validate_modrinth_targets(
             modrinth_client,
-            loaders,
             properties["minecraft_version"],
-            project_config["modrinth_project_id"],
+            project_config,
             artifacts,
         )
         cf_tags = resolve_curseforge_tags(
@@ -1593,12 +1810,15 @@ def main(argv: Sequence[str]) -> int:
         )
 
         if args.dry_run:
-            sync_modrinth_environment(
-                modrinth_client,
-                project_config,
-                modrinth_targets.project,
-                upload_enabled=False,
-            )
+            for target_key, modrinth_targets in modrinth_targets_by_key.items():
+                sync_modrinth_environment(
+                    modrinth_client,
+                    project_config,
+                    modrinth_targets.project,
+                    modrinth_project_id=modrinth_targets.project_id,
+                    target_label=upload_target_message_label(target_key),
+                    upload_enabled=False,
+                )
             CONSOLE.blank()
             CONSOLE.success("Dry run complete.")
             CONSOLE.key_value(
@@ -1608,19 +1828,22 @@ def main(argv: Sequence[str]) -> int:
             )
         else:
             confirm_real_upload(artifacts, assume_yes=args.yes)
-            sync_modrinth_environment(
-                modrinth_client,
-                project_config,
-                modrinth_targets.project,
-                upload_enabled=True,
-            )
+            for target_key, modrinth_targets in modrinth_targets_by_key.items():
+                sync_modrinth_environment(
+                    modrinth_client,
+                    project_config,
+                    modrinth_targets.project,
+                    modrinth_project_id=modrinth_targets.project_id,
+                    target_label=upload_target_message_label(target_key),
+                    upload_enabled=True,
+                )
             upload_artifacts(
                 modrinth_client=modrinth_client,
                 curseforge_client=curseforge_client,
                 project_config=project_config,
                 properties=properties,
                 artifacts=artifacts,
-                modrinth_targets=modrinth_targets,
+                modrinth_targets_by_key=modrinth_targets_by_key,
                 cf_tags=cf_tags,
                 release_type=args.release_type,
             )
