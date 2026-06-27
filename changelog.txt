@@ -1,4 +1,13 @@
 
+DRIPPY LOADING SCREEN v3.1.4 | CHANGELOG
+
+- Ported the mod to Minecraft 26.2
+
+%changelog:end%
+
+
+
+
 
 DRIPPY LOADING SCREEN v3.1.0 | CHANGELOG
 
@@ -28,11 +37,13 @@ DRIPPY LOADING SCREEN v3.1.0 | CHANGELOG
 
 
 
+
 CHANGELOG | DRIPPY LOADING SCREEN v3.0.15
  
 - Fixed crash on game launch in Minecraft 1.21.6 (#90)
 
 %changelog:end%
+
 
 
 
