@@ -5,15 +5,14 @@ import de.keksuccino.drippyloadingscreen.mixin.MixinCache;
 import de.keksuccino.fancymenu.customization.screen.identifier.ScreenIdentifierHandler;
 import de.keksuccino.fancymenu.util.resource.resources.texture.ITexture;
 import net.minecraft.client.Minecraft;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import net.minecraft.client.gui.screens.LoadingOverlay;
 import org.jetbrains.annotations.Nullable;
 
 public class DrippyUtils {
 
-    private static final Logger LOGGER = LogManager.getLogger();
-
     public static final DrippyOverlayScreen DUMMY_DRIPPY_OVERLAY_SCREEN = new DrippyOverlayScreen();
+
+    public static boolean drippyCustomizationEntered = false;
 
     public static void waitForTexture(@Nullable ITexture t) {
         if (!DrippyLoadingScreen.getOptions().waitForTexturesInLoading.getValue()) return;
@@ -33,6 +32,10 @@ public class DrippyUtils {
 
     public static boolean fontsReady() {
         return MixinCache.fontsReady;
+    }
+
+    public static boolean isLoadingOverlayActive() {
+        return Minecraft.getInstance().getOverlay() instanceof LoadingOverlay;
     }
 
 }
