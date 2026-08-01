@@ -42,6 +42,9 @@ dependencies {
     modImplementation "maven.modrinth:5ZwdcRci:nLsUmFtQ" // ImmediatelyFast
     modImplementation "maven.modrinth:uXXizFIs:sOzRw3CG" // FerriteCore
     modImplementation "maven.modrinth:1eAoo2KR:iu96ISLv" // YACL
+    // Loom 1.9 removes nested-jar declarations while remapping these mods, so expose the exact embedded libraries directly to the development runtime.
+    runtimeOnly "org.quiltmc.parsers:gson:0.2.1"
+    runtimeOnly "net.lenni0451:Reflect:1.3.4"
 
     testImplementation "org.junit.jupiter:junit-jupiter:5.10.2"
     testRuntimeOnly "org.junit.platform:junit-platform-launcher:1.10.2"

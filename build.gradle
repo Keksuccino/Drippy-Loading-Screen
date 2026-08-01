@@ -82,6 +82,20 @@ subprojects {
             }
         }
         maven {
+            name = 'QuiltMC Releases'
+            url = 'https://maven.quiltmc.org/repository/release/'
+            content {
+                includeGroup 'org.quiltmc.parsers'
+            }
+        }
+        maven {
+            name = 'Lenni0451 Releases'
+            url = 'https://maven.lenni0451.net/releases'
+            content {
+                includeGroup 'net.lenni0451'
+            }
+        }
+        maven {
             name = 'MCEF Releases'
             url = 'https://mcef-download.cinemamod.com/repositories/releases'
             content {
