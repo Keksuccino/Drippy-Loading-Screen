@@ -1,4 +1,21 @@
 
+DRIPPY LOADING SCREEN v3.1.5 | CHANGELOG
+
+- Added support for FancyMenu v3.9.9
+- Added a "Click Here" hint pointing to the "Customization" tab in the menu bar when opening Drippy's customization screen for the first time
+- Removed the old "Color" menu background, because it got marked as deprecated a very long time ago, and FancyMenu has a replacement for it available
+- Disabled element-level auto-sizing for Drippy layouts, because that feature is not supported by the loading screen (#106)
+- All types of browser and video elements, menu backgrounds, and decoration overlays should now be disabled in Drippy layouts, because they don't work correctly in the loading screen
+
+- Fixed Drippy on NeoForge trying to load a client-side class on the server-side, resulting in a crash (#102)
+- Fixed Drippy still uses old FancyMenu category localization key in Placeholders menu (#98)
+
+%changelog:end%
+
+
+
+
+
 DRIPPY LOADING SCREEN v3.1.4 | CHANGELOG
 
 - Ported the mod to Minecraft 26.2
