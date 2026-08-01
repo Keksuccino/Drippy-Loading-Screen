@@ -65,6 +65,20 @@ subprojects {
             }
         }
         maven {
+            name = 'Sodium Extra Releases'
+            url = 'https://maven.flashyreese.me/releases'
+            content {
+                includeGroup 'net.caffeinemc'
+            }
+        }
+        maven {
+            name = 'Quilt Releases'
+            url = 'https://maven.quiltmc.org/repository/release'
+            content {
+                includeGroup 'org.quiltmc.parsers'
+            }
+        }
+        maven {
             name = 'MCEF Releases'
             url = 'https://mcef-download.cinemamod.com/repositories/releases'
             content {
@@ -110,8 +124,10 @@ subprojects {
                         'curse.maven',
                         'com.github.Keksuccino',
                         'com.github.rtyley',
+                        'net.caffeinemc',
                         'net.fabricmc',
                         'net.fabricmc.fabric-api',
+                        'org.quiltmc.parsers',
                         'net.minecraftforge',
                         'net.neoforged',
                         'org.spongepowered',

@@ -28,13 +28,18 @@ dependencies {
     modImplementation "maven.modrinth:fancymenu:3.9.9-1.20.1-fabric"
     implementation project(":common")
 
-    implementation "maven.modrinth:AANobbMI:OihdIimA" // Sodium
-    implementation "maven.modrinth:PtjYWJkn:mDbF0LZT" // Sodium Extra
-    implementation "maven.modrinth:gvQqBUqZ:iEcXOkz4" // Lithium
-    implementation "maven.modrinth:YL57xq9U:s5eFLITc" // Iris
-    implementation "maven.modrinth:5ZwdcRci:iwYUrQJO" // ImmediatelyFast
-    implementation "maven.modrinth:uXXizFIs:unerR5MN" // FerriteCore
-    implementation "maven.modrinth:1eAoo2KR:dvS5DjUA" // YACL
+    modImplementation "maven.modrinth:AANobbMI:OihdIimA" // Sodium
+    modImplementation "maven.modrinth:PtjYWJkn:I7ggF6B5" // Sodium Extra
+    // Loom does not expose Sodium Extra's nested CaffeineConfig JAR on development runtime classpaths.
+    modRuntimeOnly "net.caffeinemc:CaffeineConfig:1.3.0+1.17"
+    modImplementation "maven.modrinth:gvQqBUqZ:iEcXOkz4" // Lithium
+    modImplementation "maven.modrinth:YL57xq9U:s5eFLITc" // Iris
+    modImplementation "maven.modrinth:5ZwdcRci:xXPjBbf0" // ImmediatelyFast
+    runtimeOnly "net.lenni0451:Reflect:1.3.4" // Nested in ImmediatelyFast's production JAR.
+    modImplementation "maven.modrinth:uXXizFIs:unerR5MN" // FerriteCore
+    modImplementation "maven.modrinth:1eAoo2KR:yDSgD8Iz" // YACL
+    // Loom also strips YACL's nested Quilt parser JARs from the development runtime classpath.
+    modRuntimeOnly "org.quiltmc.parsers:gson:0.2.1"
 
     testImplementation "org.junit.jupiter:junit-jupiter:5.10.2"
     testRuntimeOnly "org.junit.platform:junit-platform-launcher:1.10.2"
