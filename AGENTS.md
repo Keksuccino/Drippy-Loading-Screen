@@ -1,8 +1,9 @@
 # Repository Guidelines
 
 ## Project Structure & Module Organization
-- This workspace is giving you access to multiple "Drippy Loading Screen" branches/workspaces, which is a Minecraft Java mod. It uses the MultiLoader layout with shared logic under `common` and loader-specific wrappers under `fabric`, and `forge` or `neoforge` depending on the Minecraft version.
-- Drippy Loading Screen is an addon for "FancyMenu", which is a mod to customize Minecraft's menus/screens. Drippy adds support for the loading screen.
+- This workspace is giving you access to multiple "Drippy Loading Screen" (aka. "Drippy") branches/workspaces, which is a Minecraft Java mod. It uses the MultiLoader layout with shared logic under `common` and loader-specific wrappers under `fabric`, and `forge` or `neoforge` depending on the Minecraft version.
+- Starting with the 1.21.1 branch, Drippy has a special module `earlywindow`, which is for adding support for NeoForge's "early loading screen". This is not a normal mod loader module and should not get run as standalone.
+- Drippy is an addon for "FancyMenu", which is a mod to customize Minecraft's menus/screens. Drippy adds support for the loading screen.
 - Place shared Java sources in `common/src/main/java` and assets such as menu JSON, translations, or textures in `common/src/main/resources` so they ship with every loader build.
 - Loader-only hooks belong inside each module's `src/main/java` tree; keep local run directories like `run_client` and `run_server` for iterative testing but never depend on them for assets.
 - Drippy Loading Screen's Gradle projects have an unconventional handling of the `version` variable. In Drippy Loading Screen's Gradle projects, this variable is always `1.0.0`, which is intentional and should NEVER be changed.
