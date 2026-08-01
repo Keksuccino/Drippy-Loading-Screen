@@ -77,7 +77,7 @@ public class DrippyOverlayScreen extends Screen {
         ScreenCustomizationLayer layer = ScreenCustomizationLayerHandler.getLayerOfScreen(this);
         boolean hasActiveLayout = (layer != null) && !layer.activeLayouts.isEmpty();
         // The hint target only exists in FancyMenu's customization overlay, and the hint is unnecessary once a layout is active.
-        if (isCustomizationHintEligible(DrippyUtils.drippyCustomizationEntered, DrippyUtils.isDrippyRendering(), DrippyUtils.isLoadingOverlayActive(), CustomizationOverlay.isOverlayVisible(this), hasActiveLayout)) {
+        if (isCustomizationHintEligible(DrippyUtils.drippyCustomizationEntered, DrippyUtils.isDrippyRendering(), DrippyUtils.isLoadingOverlayActive(), hasActiveLayout) && CustomizationOverlay.isOverlayVisible(this)) {
             drawCustomizationHint(graphics);
         }
     }
@@ -101,8 +101,8 @@ public class DrippyOverlayScreen extends Screen {
         return color & 16777215 | alpha << 24;
     }
 
-    static boolean isCustomizationHintEligible(boolean customizationEntered, boolean drippyRendering, boolean loadingOverlayActive, boolean customizationOverlayVisible, boolean hasActiveLayout) {
-        return customizationEntered && drippyRendering && !loadingOverlayActive && customizationOverlayVisible && !hasActiveLayout;
+    static boolean isCustomizationHintEligible(boolean customizationEntered, boolean drippyRendering, boolean loadingOverlayActive, boolean hasActiveLayout) {
+        return customizationEntered && drippyRendering && !loadingOverlayActive && !hasActiveLayout;
     }
 
     private void drawCustomizationHint(GuiGraphics graphics) {

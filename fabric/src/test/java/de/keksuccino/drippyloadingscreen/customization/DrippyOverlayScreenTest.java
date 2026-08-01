@@ -9,27 +9,27 @@ class DrippyOverlayScreenTest {
 
     @Test
     void allowsHintAfterEnteringCustomizationWithoutAnActiveLayout() {
-        assertTrue(DrippyOverlayScreen.isCustomizationHintEligible(true, true, false, true, false));
+        assertTrue(DrippyOverlayScreen.isCustomizationHintEligible(true, true, false, false));
     }
 
     @Test
     void suppressesHintBeforeEnteringCustomization() {
-        assertFalse(DrippyOverlayScreen.isCustomizationHintEligible(false, true, false, true, false));
+        assertFalse(DrippyOverlayScreen.isCustomizationHintEligible(false, true, false, false));
     }
 
     @Test
     void suppressesHintOutsideDrippyScreenRendering() {
-        assertFalse(DrippyOverlayScreen.isCustomizationHintEligible(true, false, false, true, false));
+        assertFalse(DrippyOverlayScreen.isCustomizationHintEligible(true, false, false, false));
     }
 
     @Test
     void suppressesHintWhileTheLoadingOverlayIsActive() {
-        assertFalse(DrippyOverlayScreen.isCustomizationHintEligible(true, true, true, true, false));
+        assertFalse(DrippyOverlayScreen.isCustomizationHintEligible(true, true, true, false));
     }
 
     @Test
     void suppressesHintWhenALayoutIsAlreadyActive() {
-        assertFalse(DrippyOverlayScreen.isCustomizationHintEligible(true, true, false, true, true));
+        assertFalse(DrippyOverlayScreen.isCustomizationHintEligible(true, true, false, true));
     }
 
 }
