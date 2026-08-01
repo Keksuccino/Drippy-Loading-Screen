@@ -73,8 +73,9 @@ public class DrippyOverlayScreen extends Screen {
     public void render(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partial) {
         super.render(graphics, mouseX, mouseY, partial);
         ScreenCustomizationLayer layer = ScreenCustomizationLayerHandler.getLayerOfScreen(this);
+        boolean hasActiveLayout = (layer != null) && !layer.activeLayouts.isEmpty();
         // The hint target only exists in FancyMenu's customization overlay, and the hint is unnecessary once a layout is active.
-        if (DrippyUtils.drippyCustomizationEntered && DrippyUtils.isDrippyRendering() && !DrippyUtils.isLoadingOverlayActive() && CustomizationOverlay.isOverlayVisible(this) && ((layer == null) || layer.activeLayouts.isEmpty())) {
+        if (isCustomizationHintEligible(DrippyUtils.drippyCustomizationEntered, DrippyUtils.isDrippyRendering(), DrippyUtils.isLoadingOverlayActive(), hasActiveLayout) && CustomizationOverlay.isOverlayVisible(this)) {
             drawCustomizationHint(graphics);
         }
     }
@@ -122,6 +123,11 @@ public class DrippyOverlayScreen extends Screen {
         graphics.fill(-10, 8, 10, 12, color);
         graphics.fill(-4, 12, 4, CUSTOMIZATION_HINT_ARROW_LENGTH, color);
         graphics.pose().popPose();
+    }
+
+    // Keep the lifecycle predicate centralized because showing this hint during real loading can leak editor UI into the loading overlay.
+    static boolean isCustomizationHintEligible(boolean customizationEntered, boolean drippyRendering, boolean loadingOverlayActive, boolean hasActiveLayout) {
+        return customizationEntered && drippyRendering && !loadingOverlayActive && !hasActiveLayout;
     }
 
     public static RendererWidget buildLogoWidget() {

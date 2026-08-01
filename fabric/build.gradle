@@ -48,7 +48,11 @@ dependencies {
 
 }
 
-test {
+tasks.withType(Test).configureEach {
+    workingDir(layout.buildDirectory.dir("test-working-directory"))
+    doFirst {
+        workingDir.mkdirs()
+    }
     useJUnitPlatform()
 }
 
