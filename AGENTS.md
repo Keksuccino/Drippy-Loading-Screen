@@ -2,6 +2,7 @@
 
 ## Project Structure & Module Organization
 - This workspace is giving you access to multiple "Drippy Loading Screen" branches/workspaces, which is a Minecraft Java mod. It uses the MultiLoader layout with shared logic under `common` and loader-specific wrappers under `fabric`, and `forge` or `neoforge` depending on the Minecraft version.
+- Drippy Loading Screen is an addon for "FancyMenu", which is a mod to customize Minecraft's menus/screens. Drippy adds support for the loading screen.
 - Place shared Java sources in `common/src/main/java` and assets such as menu JSON, translations, or textures in `common/src/main/resources` so they ship with every loader build.
 - Loader-only hooks belong inside each module's `src/main/java` tree; keep local run directories like `run_client` and `run_server` for iterative testing but never depend on them for assets.
 - Drippy Loading Screen's Gradle projects have an unconventional handling of the `version` variable. In Drippy Loading Screen's Gradle projects, this variable is always `1.0.0`, which is intentional and should NEVER be changed.
@@ -69,8 +70,8 @@
 - When you need to add compat code for a mod, place these classes in dedicated and well-organized "compat" packages.
 
 ## Networking & Packets
-- Drippy Loading Screen uses its own custom packet system.
-- If you need to add packets for a feature, make sure to analyze the `de.keksuccino.drippyloadingscreen.networking` package in the `common` module first, to understand how packets get implemented and registered.
+- FancyMenu uses its own custom packet system.
+- If you need to add packets to Drippy Loading Screen for a feature, use FancyMenu's packet system, and make sure to analyze the `de.keksuccino.fancymenu.networking` package first, to understand how packets get implemented and registered in FancyMenu.
 
 ## Localization
 - Always add en_us localizations for the features you add. Only en_us.
