@@ -38,6 +38,13 @@ dependencies {
     modImplementation "maven.modrinth:uXXizFIs:kwjHqfz7" // FerriteCore 5.0.3
     modImplementation "maven.modrinth:1eAoo2KR:bIVYcRpm" // YACL 2.2.0
 
+    // Loom 1.9 strips nested JARs from these production mods on the development runtime classpath.
+    modRuntimeOnly("net.caffeinemc:mixin-config:1.0.0+1.17") { transitive = false } // Sodium Extra
+    runtimeOnly("net.lenni0451:Reflect:1.3.4") { transitive = false } // ImmediatelyFast
+    runtimeOnly("org.antlr:antlr4-runtime:4.11.1") { transitive = false } // Iris
+    runtimeOnly("io.github.douira:glsl-transformer:2.0.0-pre13") { transitive = false } // Iris
+    runtimeOnly("org.anarres:jcpp:1.4.14") { transitive = false } // Iris
+
     testImplementation "org.junit.jupiter:junit-jupiter:5.10.2"
     testRuntimeOnly "org.junit.platform:junit-platform-launcher:1.10.2"
 }
