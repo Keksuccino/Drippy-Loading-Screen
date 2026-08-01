@@ -13,7 +13,8 @@ import de.keksuccino.fancymenu.customization.element.elements.item.ItemElementBu
 import de.keksuccino.fancymenu.customization.element.elements.musiccontroller.MusicControllerElementBuilder;
 import de.keksuccino.fancymenu.customization.element.elements.slider.v2.SliderElementBuilder;
 import de.keksuccino.fancymenu.customization.element.elements.tooltip.TooltipElementBuilder;
-import de.keksuccino.fancymenu.customization.element.elements.video.mcef.MCEFVideoElementBuilder;
+import de.keksuccino.fancymenu.customization.element.elements.video.nativevideo.NativeVideoElementBuilder;
+import de.keksuccino.fancymenu.customization.element.elements.video.rinku.RinkuVideoElementBuilder;
 import de.keksuccino.fancymenu.customization.layout.editor.LayoutEditorScreen;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -30,7 +31,9 @@ public class MixinElementBuilder {
 
         if (editor.layoutTargetScreen instanceof DrippyOverlayScreen) {
 
-            if (self instanceof MCEFVideoElementBuilder) info.setReturnValue(false);
+            if (self instanceof RinkuVideoElementBuilder) info.setReturnValue(false);
+
+            if (self instanceof NativeVideoElementBuilder) info.setReturnValue(false);
 
             if (self instanceof CursorElementBuilder) info.setReturnValue(false);
 
