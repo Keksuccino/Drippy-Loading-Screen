@@ -28,7 +28,7 @@ side="BOTH"
 modId="fancymenu"
 type="required" #mandatory (Can be one of "required", "optional", "incompatible" or "discouraged")
 ordering="NONE"
-versionRange="[3.9.1,)"
+versionRange="[3.9.9,)"
 side="BOTH"
 
 [[dependencies.${mod_id}]] #optional

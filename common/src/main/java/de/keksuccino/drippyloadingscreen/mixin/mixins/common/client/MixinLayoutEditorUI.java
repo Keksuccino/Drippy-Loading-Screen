@@ -1,11 +1,17 @@
 package de.keksuccino.drippyloadingscreen.mixin.mixins.common.client;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import de.keksuccino.drippyloadingscreen.DrippyUtils;
 import de.keksuccino.drippyloadingscreen.customization.DrippyOverlayScreen;
+import de.keksuccino.fancymenu.customization.decorationoverlay.AbstractDecorationOverlay;
+import de.keksuccino.fancymenu.customization.decorationoverlay.AbstractDecorationOverlayBuilder;
+import de.keksuccino.fancymenu.customization.decorationoverlay.overlays.DecorationOverlays;
 import de.keksuccino.fancymenu.customization.element.ElementBuilder;
 import de.keksuccino.fancymenu.customization.element.ElementRegistry;
 import de.keksuccino.fancymenu.customization.layout.editor.LayoutEditorScreen;
 import de.keksuccino.fancymenu.customization.layout.editor.LayoutEditorUI;
+import de.keksuccino.fancymenu.util.Pair;
 import de.keksuccino.fancymenu.util.rendering.ui.contextmenu.v2.ContextMenu;
 import net.minecraft.client.Minecraft;
 import org.spongepowered.asm.mixin.Final;
@@ -16,6 +22,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import java.util.Comparator;
 import java.util.List;
 
 @Mixin(LayoutEditorUI.class)
@@ -46,6 +53,32 @@ public class MixinLayoutEditorUI {
             }
         }
         return l;
+    }
+
+    /**
+     * @reason This is to be able to filter which types of decoration overlays should be available in the loading screen.
+     */
+    @WrapOperation(method = "buildDecorationOverlaysMenu", at = @At(value = "INVOKE", target = "Ljava/util/List;sort(Ljava/util/Comparator;)V"))
+    private static void wrap_List_sort_in_buildDecorationOverlaysMenu_Drippy(List<Pair<AbstractDecorationOverlayBuilder<?>, AbstractDecorationOverlay<?>>> instance, Comparator<?> c, Operation<Void> original) {
+
+        if (Minecraft.getInstance().gui.screen() instanceof LayoutEditorScreen editor) {
+            if (!editor.layout.isUniversalLayout() && DrippyUtils.isDrippyIdentifier(editor.layout.screenIdentifier)) {
+
+                instance.removeIf(pair -> {
+
+                    if (pair.getFirst().getIdentifier().equals(DecorationOverlays.BROWSER.getIdentifier())) return true;
+
+                    if (pair.getFirst().getIdentifier().equals(DecorationOverlays.BUDDY.getIdentifier())) return true;
+
+                    return false;
+
+                });
+
+            }
+        }
+
+        original.call(instance, c);
+
     }
 
     /**
