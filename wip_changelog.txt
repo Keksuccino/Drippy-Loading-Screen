@@ -1,6 +1,0 @@
-
-DRIPPY LOADING SCREEN v3.X.X | CHANGELOG [ !! WIP !! NOT READY YET !! WIP !! ]
-
-- 
-
-%changelog:end%
