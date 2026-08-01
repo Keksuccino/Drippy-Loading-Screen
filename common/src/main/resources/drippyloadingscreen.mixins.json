@@ -4,6 +4,7 @@
   "compatibilityLevel": "JAVA_17",
   "client": [
     "client.IMixinLoadingOverlay",
+    "client.MixinAbstractEditorElement",
     "client.MixinCustomizationOverlay",
     "client.MixinCustomizationOverlayUI",
     "client.MixinElementBuilder",
