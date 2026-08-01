@@ -1,6 +1,8 @@
 
-DRIPPY LOADING SCREEN v3.X.X | CHANGELOG [ !! WIP !! NOT READY YET !! WIP !! ]
+DRIPPY LOADING SCREEN v3.1.5 | CHANGELOG [ !! WIP !! NOT READY YET !! WIP !! ]
 
-- 
+- Added support for FancyMenu v3.9.9
+- Added a "Click Here" hint pointing to the "Customization" tab in the menu bar when opening Drippy's customization screen for the first time
+- Removed the old "Color" menu background, because it was marked as deprecated for a very long time now and FancyMenu has a replacement for it available
 
 %changelog:end%
