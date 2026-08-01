@@ -17,17 +17,30 @@ repositories {
 }
 
 dependencies {
+
     minecraft "com.mojang:minecraft:${minecraft_version}"
     implementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
     implementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
     implementation group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.1'
+    implementation project(":common")
     include(implementation(annotationProcessor("io.github.llamalad7:mixinextras-fabric:${mixin_extras_version}")))
+    implementation "net.objecthunter:exp4j:0.4.8"
     implementation "maven.modrinth:melody:1.0.17-26.2-fabric"
     implementation "maven.modrinth:konkrete:1.11.1-26.2-fabric"
     implementation "maven.modrinth:fancymenu:3.9.9-26.2-fabric"
     implementation "maven.modrinth:modmenu:20.0.0-beta.4"
-    implementation "net.objecthunter:exp4j:0.4.8"
-    implementation project(":common")
+
+    implementation "maven.modrinth:AANobbMI:3QgJXuSK" // Sodium
+    implementation "maven.modrinth:PtjYWJkn:9M5lqgDj" // Sodium Extra
+    implementation "maven.modrinth:gvQqBUqZ:vy3clWg7" // Lithium
+    implementation "maven.modrinth:YL57xq9U:3uIIps8q" // Iris
+    implementation "maven.modrinth:5ZwdcRci:4r0uMdy5" // ImmediatelyFast
+    implementation "maven.modrinth:uXXizFIs:d5ddUdiB" // FerriteCore
+    implementation "maven.modrinth:1eAoo2KR:LlSShNCR" // YACL
+
+    testImplementation "org.junit.jupiter:junit-jupiter:5.10.2"
+    testRuntimeOnly "org.junit.platform:junit-platform-launcher:1.10.2"
+
 }
 
 loom {
