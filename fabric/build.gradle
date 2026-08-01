@@ -80,6 +80,11 @@ tasks.withType(Javadoc).configureEach {
 tasks.withType(Test).configureEach {
     // Allow builds when there are test sources but no matching tests.
     failOnNoDiscoveredTests = false
+    workingDir(layout.buildDirectory.dir("test-working-directory"))
+    doFirst {
+        workingDir.mkdirs()
+    }
+    useJUnitPlatform()
 }
 tasks.named("sourcesJar", Jar) {
     from(project(":common").sourceSets.main.allSource)
