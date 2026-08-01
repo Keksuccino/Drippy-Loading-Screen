@@ -37,6 +37,23 @@ subprojects {
     }
 
     repositories {
+        // Minecraft 1.21.1 ships a Mojang-specific macOS FreeType patch that is not published to Maven Central.
+        // The repository must be exclusive because Gradle otherwise finds the module metadata on Maven Central first
+        // and then only checks that repository for the Mojang-specific classifier.
+        exclusiveContent {
+            forRepository {
+                maven {
+                    name = 'Mojang Libraries'
+                    url = 'https://libraries.minecraft.net/'
+                    metadataSources {
+                        artifact()
+                    }
+                }
+            }
+            filter {
+                includeVersion 'org.lwjgl', 'lwjgl-freetype', '3.3.3'
+            }
+        }
         mavenCentral()
         maven {
             name = 'Sponge / Mixin'
