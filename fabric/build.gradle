@@ -14,6 +14,13 @@ repositories {
     flatDir {
         dirs 'libs'
     }
+    maven {
+        name = 'Quilt Releases'
+        url = 'https://maven.quiltmc.org/repository/release/'
+        content {
+            includeGroup 'org.quiltmc.parsers'
+        }
+    }
 }
 
 dependencies {
@@ -42,6 +49,21 @@ dependencies {
     modImplementation "maven.modrinth:5ZwdcRci:QwkfUKSj" // ImmediatelyFast
     modImplementation "maven.modrinth:uXXizFIs:Ii0gP3D8" // FerriteCore
     modImplementation "maven.modrinth:1eAoo2KR:pHWDw3Vc" // YACL
+
+    // Loom 1.14 removes nested-jar declarations while remapping these test mods, so their exact bundled libraries
+    // must also be present on the development runtime classpath. Keep these pins synchronized with the jars above.
+    runtimeOnly("net.lenni0451:Reflect:1.6.1") { transitive = false } // ImmediatelyFast
+    runtimeOnly("org.antlr:antlr4-runtime:4.13.1") { transitive = false } // Iris
+    runtimeOnly("io.github.douira:glsl-transformer:3.0.0-pre3") { transitive = false } // Iris
+    runtimeOnly("org.anarres:jcpp:1.4.14") { transitive = false } // Iris
+    runtimeOnly("com.twelvemonkeys.imageio:imageio-core:3.12.0") { transitive = false } // YACL
+    runtimeOnly("com.twelvemonkeys.imageio:imageio-webp:3.12.0") { transitive = false } // YACL
+    runtimeOnly("com.twelvemonkeys.imageio:imageio-metadata:3.12.0") { transitive = false } // YACL
+    runtimeOnly("com.twelvemonkeys.common:common-lang:3.12.0") { transitive = false } // YACL
+    runtimeOnly("com.twelvemonkeys.common:common-io:3.12.0") { transitive = false } // YACL
+    runtimeOnly("com.twelvemonkeys.common:common-image:3.12.0") { transitive = false } // YACL
+    runtimeOnly("org.quiltmc.parsers:json:0.2.1") { transitive = false } // YACL
+    runtimeOnly("org.quiltmc.parsers:gson:0.2.1") { transitive = false } // YACL
 
     testImplementation "org.junit.jupiter:junit-jupiter:5.10.2"
     testRuntimeOnly "org.junit.platform:junit-platform-launcher:1.10.2"
