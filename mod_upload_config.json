@@ -1,0 +1,38 @@
+{
+  "config_version": 1,
+  "projects": {
+    "drippyloadingscreen": {
+      "changelog_url": "https://github.com/Keksuccino/Drippy-Loading-Screen/blob/main/changelog.txt",
+      "curseforge_project_id": "511770",
+      "dependencies": {
+        "earlywindow": [
+          "drippy-loading-screen"
+        ],
+        "fabric": [
+          "fabric-api",
+          "konkrete",
+          "melody",
+          "fancymenu"
+        ],
+        "neoforge": [
+          "konkrete",
+          "melody",
+          "fancymenu"
+        ]
+      },
+      "mandatory_environments": [
+        "client"
+      ],
+      "modrinth_project_id": "v3CYg2V9",
+      "project_targets": {
+        "earlywindow": {
+          "curseforge_project_id": "1390924",
+          "modrinth_project_id": "k3TlcLvL"
+        }
+      },
+      "supported_environments": [
+        "client"
+      ]
+    }
+  }
+}
