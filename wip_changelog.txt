@@ -5,4 +5,6 @@ DRIPPY LOADING SCREEN v3.1.5 | CHANGELOG [ !! WIP !! NOT READY YET !! WIP !! ]
 - Added a "Click Here" hint pointing to the "Customization" tab in the menu bar when opening Drippy's customization screen for the first time
 - Removed the old "Color" menu background, because it got marked as deprecated a very long time ago, and FancyMenu has a replacement for it available
 
+- Fixed Drippy on NeoForge trying to load a client-side class on the server-side, resulting in a crash (#102)
+
 %changelog:end%
