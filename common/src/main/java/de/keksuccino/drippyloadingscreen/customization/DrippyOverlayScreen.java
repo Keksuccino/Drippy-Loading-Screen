@@ -1,10 +1,13 @@
 package de.keksuccino.drippyloadingscreen.customization;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.math.Axis;
+import de.keksuccino.drippyloadingscreen.DrippyUtils;
 import de.keksuccino.drippyloadingscreen.mixin.mixins.common.client.IMixinLoadingOverlay;
 import de.keksuccino.fancymenu.customization.ScreenCustomization;
 import de.keksuccino.fancymenu.customization.layer.ScreenCustomizationLayer;
 import de.keksuccino.fancymenu.customization.layer.ScreenCustomizationLayerHandler;
+import de.keksuccino.fancymenu.customization.overlay.CustomizationOverlay;
 import de.keksuccino.fancymenu.events.screen.RenderedScreenBackgroundEvent;
 import de.keksuccino.fancymenu.mixin.mixins.common.client.IMixinAbstractWidget;
 import de.keksuccino.fancymenu.util.event.acara.EventHandler;
@@ -29,6 +32,18 @@ public class DrippyOverlayScreen extends Screen {
 
     private static final Logger LOGGER = LogManager.getLogger();
     private static final ResourceLocation MOJANG_STUDIOS_LOGO_LOCATION = new ResourceLocation("textures/gui/title/mojangstudios.png");
+    private static final Component CUSTOMIZATION_HINT = Component.translatable("drippyloadingscreen.overlay.customization_hint");
+    private static final int CUSTOMIZATION_HINT_COLOR = 0xFFFFFFFF;
+    private static final int CUSTOMIZATION_HINT_SHADOW_COLOR = 0xA0000000;
+    private static final float CUSTOMIZATION_HINT_SHADOW_OFFSET = 2.0F;
+    private static final float CUSTOMIZATION_HINT_ARROW_TIP_X = 45.0F;
+    private static final float CUSTOMIZATION_HINT_ARROW_TIP_Y = 40.0F;
+    private static final int CUSTOMIZATION_HINT_ARROW_LENGTH = 66;
+    // GUI coordinates grow downward, so a negative rotation turns an upward-facing arrow toward the upper-left.
+    private static final float CUSTOMIZATION_HINT_ARROW_ROTATION = (float)Math.toRadians(-20.0D);
+    private static final float CUSTOMIZATION_HINT_TEXT_SCALE = 2.0F;
+    private static final float CUSTOMIZATION_HINT_TEXT_GAP = 8.0F;
+    private static final float CUSTOMIZATION_HINT_TEXT_Y_OFFSET = 15.0F;
 
     public float backgroundOpacity = 1.0F;
 
@@ -59,6 +74,12 @@ public class DrippyOverlayScreen extends Screen {
         this.renderBackground(graphics);
         EventHandler.INSTANCE.postEvent(new RenderedScreenBackgroundEvent(this, graphics, mouseX, mouseY, partial));
         super.render(graphics, mouseX, mouseY, partial);
+        ScreenCustomizationLayer layer = ScreenCustomizationLayerHandler.getLayerOfScreen(this);
+        boolean hasActiveLayout = (layer != null) && !layer.activeLayouts.isEmpty();
+        // The hint target only exists in FancyMenu's customization overlay, and the hint is unnecessary once a layout is active.
+        if (isCustomizationHintEligible(DrippyUtils.drippyCustomizationEntered, DrippyUtils.isDrippyRendering(), DrippyUtils.isLoadingOverlayActive(), CustomizationOverlay.isOverlayVisible(this), hasActiveLayout)) {
+            drawCustomizationHint(graphics);
+        }
     }
 
     @Override
@@ -78,6 +99,35 @@ public class DrippyOverlayScreen extends Screen {
         if (alpha > 255) alpha = 255;
         if (alpha < 0) alpha = 0;
         return color & 16777215 | alpha << 24;
+    }
+
+    static boolean isCustomizationHintEligible(boolean customizationEntered, boolean drippyRendering, boolean loadingOverlayActive, boolean customizationOverlayVisible, boolean hasActiveLayout) {
+        return customizationEntered && drippyRendering && !loadingOverlayActive && customizationOverlayVisible && !hasActiveLayout;
+    }
+
+    private void drawCustomizationHint(GuiGraphics graphics) {
+        drawCustomizationHintArrow(graphics, CUSTOMIZATION_HINT_ARROW_TIP_X + CUSTOMIZATION_HINT_SHADOW_OFFSET, CUSTOMIZATION_HINT_ARROW_TIP_Y + CUSTOMIZATION_HINT_SHADOW_OFFSET, CUSTOMIZATION_HINT_SHADOW_COLOR);
+        drawCustomizationHintArrow(graphics, CUSTOMIZATION_HINT_ARROW_TIP_X, CUSTOMIZATION_HINT_ARROW_TIP_Y, CUSTOMIZATION_HINT_COLOR);
+
+        float arrowTailX = CUSTOMIZATION_HINT_ARROW_TIP_X - Mth.sin(CUSTOMIZATION_HINT_ARROW_ROTATION) * CUSTOMIZATION_HINT_ARROW_LENGTH;
+        float arrowTailY = CUSTOMIZATION_HINT_ARROW_TIP_Y + Mth.cos(CUSTOMIZATION_HINT_ARROW_ROTATION) * CUSTOMIZATION_HINT_ARROW_LENGTH;
+
+        graphics.pose().pushPose();
+        graphics.pose().translate(arrowTailX + CUSTOMIZATION_HINT_TEXT_GAP, arrowTailY - this.font.lineHeight * CUSTOMIZATION_HINT_TEXT_SCALE * 0.5F + CUSTOMIZATION_HINT_TEXT_Y_OFFSET, 0.0F);
+        graphics.pose().scale(CUSTOMIZATION_HINT_TEXT_SCALE, CUSTOMIZATION_HINT_TEXT_SCALE, 1.0F);
+        graphics.drawString(this.font, CUSTOMIZATION_HINT, 0, 0, CUSTOMIZATION_HINT_COLOR, true);
+        graphics.pose().popPose();
+    }
+
+    private static void drawCustomizationHintArrow(GuiGraphics graphics, float tipX, float tipY, int color) {
+        graphics.pose().pushPose();
+        graphics.pose().translate(tipX, tipY, 0.0F);
+        graphics.pose().mulPose(Axis.ZP.rotation(CUSTOMIZATION_HINT_ARROW_ROTATION));
+        graphics.fill(-2, 0, 2, 4, color);
+        graphics.fill(-6, 4, 6, 8, color);
+        graphics.fill(-10, 8, 10, 12, color);
+        graphics.fill(-4, 12, 4, CUSTOMIZATION_HINT_ARROW_LENGTH, color);
+        graphics.pose().popPose();
     }
 
     public static RendererWidget buildLogoWidget() {

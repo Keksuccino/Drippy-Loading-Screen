@@ -48,6 +48,7 @@ public class DrippyEvents {
                     .setForceUIScale(true);
 
             this.drippyMenu.addClickableEntry("customize_loading_screen", Component.translatable("drippyloadingscreen.settings.customize_loading_screen"), (menu, entry) -> {
+                DrippyUtils.drippyCustomizationEntered = true;
                 Minecraft.getInstance().setScreen(new DrippyOverlayScreen());
             }).setIcon(ContextMenu.IconFactory.getIcon("edit"));
 
