@@ -2,7 +2,9 @@ package de.keksuccino.drippyloadingscreen.mixin.mixins.common.client;
 
 import de.keksuccino.drippyloadingscreen.customization.DrippyOverlayScreen;
 import de.keksuccino.fancymenu.customization.background.MenuBackgroundBuilder;
-import de.keksuccino.fancymenu.customization.background.backgrounds.video.mcef.MCEFVideoMenuBackgroundBuilder;
+import de.keksuccino.fancymenu.customization.background.backgrounds.browser.BrowserMenuBackgroundBuilder;
+import de.keksuccino.fancymenu.customization.background.backgrounds.video.nativevideo.NativeVideoMenuBackgroundBuilder;
+import de.keksuccino.fancymenu.customization.background.backgrounds.video.rinku.RinkuVideoMenuBackgroundBuilder;
 import de.keksuccino.fancymenu.customization.layout.editor.LayoutEditorScreen;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -19,7 +21,11 @@ public class MixinMenuBackgroundBuilder {
 
         if (editor.layoutTargetScreen instanceof DrippyOverlayScreen) {
 
-            if (self instanceof MCEFVideoMenuBackgroundBuilder) info.setReturnValue(false);
+            if (self instanceof RinkuVideoMenuBackgroundBuilder) info.setReturnValue(false);
+
+            if (self instanceof NativeVideoMenuBackgroundBuilder) info.setReturnValue(false);
+
+            if (self instanceof BrowserMenuBackgroundBuilder) info.setReturnValue(false);
 
         }
 
