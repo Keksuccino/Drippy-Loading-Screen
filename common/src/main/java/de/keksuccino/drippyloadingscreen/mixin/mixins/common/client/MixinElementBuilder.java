@@ -12,6 +12,8 @@ import de.keksuccino.fancymenu.customization.element.elements.item.ItemElementBu
 import de.keksuccino.fancymenu.customization.element.elements.musiccontroller.MusicControllerElementBuilder;
 import de.keksuccino.fancymenu.customization.element.elements.slider.v2.SliderElementBuilder;
 import de.keksuccino.fancymenu.customization.element.elements.tooltip.TooltipElementBuilder;
+import de.keksuccino.fancymenu.customization.element.elements.video.nativevideo.NativeVideoElementBuilder;
+import de.keksuccino.fancymenu.customization.element.elements.video.rinku.RinkuVideoElementBuilder;
 import de.keksuccino.fancymenu.customization.layout.editor.LayoutEditorScreen;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -27,6 +29,13 @@ public class MixinElementBuilder {
         ElementBuilder self = (ElementBuilder)((Object)this);
 
         if (editor.layoutTargetScreen instanceof DrippyOverlayScreen) {
+
+            // FancyMenu omits MCEF classes from Forge, so use its shared serialized identifier without linking the Fabric-only type.
+            if (self.getIdentifier().equals("video_mcef")) info.setReturnValue(false);
+
+            if (self instanceof RinkuVideoElementBuilder) info.setReturnValue(false);
+
+            if (self instanceof NativeVideoElementBuilder) info.setReturnValue(false);
 
             if (self instanceof CursorElementBuilder) info.setReturnValue(false);
 
