@@ -27,6 +27,17 @@ dependencies {
     modImplementation "maven.modrinth:modmenu:7.2.2"
     modImplementation "maven.modrinth:fancymenu:3.9.9-1.20.1-fabric"
     implementation project(":common")
+
+    implementation "maven.modrinth:AANobbMI:OihdIimA" // Sodium
+    implementation "maven.modrinth:PtjYWJkn:mDbF0LZT" // Sodium Extra
+    implementation "maven.modrinth:gvQqBUqZ:iEcXOkz4" // Lithium
+    implementation "maven.modrinth:YL57xq9U:s5eFLITc" // Iris
+    implementation "maven.modrinth:5ZwdcRci:iwYUrQJO" // ImmediatelyFast
+    implementation "maven.modrinth:uXXizFIs:unerR5MN" // FerriteCore
+    implementation "maven.modrinth:1eAoo2KR:dvS5DjUA" // YACL
+
+    testImplementation "org.junit.jupiter:junit-jupiter:5.10.2"
+    testRuntimeOnly "org.junit.platform:junit-platform-launcher:1.10.2"
 }
 
 loom {
@@ -60,6 +71,14 @@ tasks.withType(Javadoc).configureEach {
 }
 tasks.named("sourcesJar", Jar) {
     from(project(":common").sourceSets.main.allSource)
+}
+
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
+    workingDir = layout.buildDirectory.dir("test-working-directory").get().asFile
+    doFirst {
+        workingDir.mkdirs()
+    }
 }
 
 processResources {

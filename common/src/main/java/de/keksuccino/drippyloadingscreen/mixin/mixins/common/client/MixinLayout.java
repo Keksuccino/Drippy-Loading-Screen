@@ -1,9 +1,6 @@
 package de.keksuccino.drippyloadingscreen.mixin.mixins.common.client;
 
-import de.keksuccino.drippyloadingscreen.customization.backgrounds.Backgrounds;
-import de.keksuccino.drippyloadingscreen.customization.backgrounds.color.ColorMenuBackground;
 import de.keksuccino.drippyloadingscreen.customization.placeholders.Placeholders;
-import de.keksuccino.fancymenu.customization.background.MenuBackground;
 import de.keksuccino.fancymenu.customization.element.SerializedElement;
 import de.keksuccino.fancymenu.customization.element.anchor.ElementAnchorPoints;
 import de.keksuccino.fancymenu.customization.element.elements.Elements;
@@ -16,7 +13,6 @@ import de.keksuccino.fancymenu.util.MathUtils;
 import de.keksuccino.fancymenu.util.SerializationHelper;
 import de.keksuccino.fancymenu.util.properties.PropertyContainer;
 import de.keksuccino.fancymenu.util.properties.PropertyContainerSet;
-import de.keksuccino.fancymenu.util.rendering.DrawableColor;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -201,38 +197,6 @@ public class MixinLayout {
         elements.forEach((s, vanillaWidgetElement) -> {
             returnValue.add(VanillaWidgetElementBuilder.INSTANCE.serializeElementInternal(vanillaWidgetElement));
         });
-
-    }
-
-    @Legacy("Convert old v2 background color deep element to new ColorMenuBackground instance. Remove this in the future.")
-    @Inject(method = "convertLegacyMenuBackground", at = @At("RETURN"), cancellable = true, remap = false)
-    private static void atReturnConvertLegacyMenuBackgroundDrippy(PropertyContainerSet layout, CallbackInfoReturnable<MenuBackground> info) {
-
-        if (info.getReturnValue() != null) return;
-
-        for (PropertyContainer sec : layout.getContainersOfType("customization")) {
-
-            String action = sec.getValue("action");
-            if (action != null) {
-
-                //BACKGROUND COLOR
-                if (action.equals("deep_customization_element:drippy_overlay_background")) {
-
-                    ColorMenuBackground background = new ColorMenuBackground(Backgrounds.COLOR_MENU_BACKGROUND);
-
-                    String color = sec.getValue("custom_color_hex");
-                    if (color != null) {
-                        background.color = DrawableColor.of(color);
-                    }
-
-                    info.setReturnValue(background);
-                    break;
-
-                }
-
-            }
-
-        }
 
     }
 

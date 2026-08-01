@@ -2,7 +2,6 @@ package de.keksuccino.drippyloadingscreen;
 
 import java.io.File;
 import de.keksuccino.drippyloadingscreen.customization.DrippyOverlayScreen;
-import de.keksuccino.drippyloadingscreen.customization.backgrounds.Backgrounds;
 import de.keksuccino.drippyloadingscreen.customization.elements.Elements;
 import de.keksuccino.drippyloadingscreen.customization.placeholders.Placeholders;
 import de.keksuccino.fancymenu.customization.ScreenCustomization;
@@ -60,11 +59,8 @@ public class DrippyLoadingScreen {
 			//Disable customization for all background config screens
 			ScreenCustomization.addScreenBlacklistRule(s -> s.startsWith("de.keksuccino.drippyloadingscreen.customization.backgrounds."));
 
-			//Register custom backgrounds
-			Backgrounds.registerAll();
-
-			//Register custom placeholders
-			Placeholders.registerAll();
+            //Register custom placeholders
+            Placeholders.registerAll();
 
 			//Register custom element types
 			Elements.registerAll();
