@@ -42,6 +42,7 @@ import org.lwjgl.opengl.GLCapabilities;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.stb.STBEasyFont;
 import org.lwjgl.system.MemoryStack;
+import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.util.tinyfd.TinyFileDialogs;
 
 public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
@@ -84,6 +85,7 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
     private Runnable ticker = EMPTY_TICK;
     private Thread renderThread;
     private GLCapabilities renderCapabilities;
+    private EarlyWindowCoreRenderer coreRenderer;
     private final ConcurrentLinkedQueue<PendingTextureUpload> pendingWebTextures = new ConcurrentLinkedQueue<>();
     private HttpClient httpClient;
 
@@ -175,15 +177,21 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
         EarlyWindowReferenceSizeStore.persist(this.drippyConfigDirectory, this.baseWindowWidth, this.baseWindowHeight);
 
         GLFW.glfwDefaultWindowHints();
+        GLFW.glfwWindowHint(GLFW.GLFW_CLIENT_API, GLFW.GLFW_OPENGL_API);
+        GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_CREATION_API, GLFW.GLFW_NATIVE_CONTEXT_API);
+        GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_VERSION_MAJOR, 3);
+        GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_VERSION_MINOR, 3);
+        GLFW.glfwWindowHint(GLFW.GLFW_OPENGL_PROFILE, GLFW.GLFW_OPENGL_CORE_PROFILE);
+        GLFW.glfwWindowHint(GLFW.GLFW_OPENGL_FORWARD_COMPAT, GLFW.GLFW_TRUE);
         GLFW.glfwWindowHint(GLFW.GLFW_VISIBLE, GLFW.GLFW_TRUE);
         GLFW.glfwWindowHint(GLFW.GLFW_RESIZABLE, GLFW.GLFW_TRUE);
-        GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_VERSION_MAJOR, 3);
-        GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_VERSION_MINOR, 2);
-        GLFW.glfwWindowHint(GLFW.GLFW_OPENGL_PROFILE, GLFW.GLFW_OPENGL_COMPAT_PROFILE);
+        if (FMLConfig.getBoolConfigValue(FMLConfig.ConfigValue.DEBUG_OPENGL)) {
+            GLFW.glfwWindowHint(GLFW.GLFW_OPENGL_DEBUG_CONTEXT, GLFW.GLFW_TRUE);
+        }
 
         this.window = GLFW.glfwCreateWindow(this.windowWidth, this.windowHeight, this.effectiveWindowTitle, 0L, 0L);
         if (this.window == 0L) {
-            throw new IllegalStateException("[DRIPPY LOADING SCREEN] Failed to create Drippy early window!");
+            throw new IllegalStateException("[DRIPPY LOADING SCREEN] Failed to create Drippy early window! " + readLastGlfwError());
         }
 
         centerWindow();
@@ -237,6 +245,19 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
         }
     }
 
+    private static String readLastGlfwError() {
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            var descriptionPointer = stack.mallocPointer(1);
+            int error = GLFW.glfwGetError(descriptionPointer);
+            if (error == GLFW.GLFW_NO_ERROR) {
+                return "";
+            }
+            long descriptionAddress = descriptionPointer.get(0);
+            String description = descriptionAddress == 0L ? "" : MemoryUtil.memUTF8(descriptionAddress);
+            return String.format(Locale.ROOT, "GLFW error [0x%X] %s", error, description);
+        }
+    }
+
     private void startRenderThread() {
         this.renderThread = new Thread(this::renderLoop, "Drippy-EarlyWindow");
         this.renderThread.setDaemon(true);
@@ -247,6 +268,7 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
         GLFW.glfwMakeContextCurrent(this.window);
         this.renderCapabilities = GL.createCapabilities();
         GL.setCapabilities(this.renderCapabilities);
+        this.coreRenderer = new EarlyWindowCoreRenderer();
         GLFW.glfwSwapInterval(1);
         loadTextures();
         this.lastProgressSampleNanos = System.nanoTime();
@@ -258,6 +280,7 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
                 GLFW.glfwSwapBuffers(this.window);
             }
         } finally {
+            cleanupRenderer();
             cleanupTextures();
             GL.setCapabilities(null);
             GLFW.glfwMakeContextCurrent(0L);
@@ -316,6 +339,13 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
         }
     }
 
+    private void cleanupRenderer() {
+        if (this.coreRenderer != null) {
+            this.coreRenderer.close();
+            this.coreRenderer = null;
+        }
+    }
+
     @Override
     public void crash(String message) {
         LOGGER.error("Early window crash: {}", message);
@@ -340,14 +370,9 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
         GL11.glClearColor(this.colorScheme.background().r(), this.colorScheme.background().g(), this.colorScheme.background().b(), 1.0f);
         GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
 
-        GL11.glMatrixMode(GL11.GL_PROJECTION);
-        GL11.glLoadIdentity();
-        GL11.glOrtho(0.0, this.windowWidth, this.windowHeight, 0.0, -1.0, 1.0);
-        GL11.glMatrixMode(GL11.GL_MODELVIEW);
-        GL11.glLoadIdentity();
-
         GL11.glEnable(GL11.GL_BLEND);
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+        this.coreRenderer.beginFrame(this.windowWidth, this.windowHeight);
 
         float uiScale = computeUiScale();
         renderBackgroundLayer();
@@ -356,8 +381,8 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
         renderWatermarks(uiScale);
         renderLoggerOverlay(uiScale);
 
+        this.coreRenderer.endFrame();
         GL11.glDisable(GL11.GL_BLEND);
-        GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
     }
 
     private void renderBackgroundLayer() {
@@ -577,22 +602,8 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
         }
         this.loggerVertexBuffer.limit(this.loggerVertexBuffer.capacity());
         this.loggerVertexBuffer.position(0);
-        boolean texturesEnabled = GL11.glIsEnabled(GL11.GL_TEXTURE_2D);
-        GL11.glDisable(GL11.GL_TEXTURE_2D);
-        GL11.glPushMatrix();
-        GL11.glTranslatef(x, y, 0.0f);
-        GL11.glScalef(textScale, textScale, 1.0f);
-        GL11.glEnableClientState(GL11.GL_VERTEX_ARRAY);
-        GL11.glVertexPointer(2, GL11.GL_FLOAT, 16, this.loggerVertexBuffer);
         Color foreground = this.colorScheme.foreground();
-        GL11.glColor4f(foreground.r(), foreground.g(), foreground.b(), clamp(alpha, 0.0f, 1.0f));
-        GL11.glDrawArrays(GL11.GL_QUADS, 0, quadCount * 4);
-        GL11.glDisableClientState(GL11.GL_VERTEX_ARRAY);
-        GL11.glPopMatrix();
-        if (texturesEnabled) {
-            GL11.glEnable(GL11.GL_TEXTURE_2D);
-        }
-        GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+        this.coreRenderer.drawText(this.loggerVertexBuffer, quadCount, x, y, foreground.r(), foreground.g(), foreground.b(), clamp(alpha, 0.0f, 1.0f), textScale);
     }
 
     private List<StartupNotificationManager.AgeMessage> collectLoggerMessages() {
@@ -712,45 +723,16 @@ public class DrippyEarlyWindowProvider implements ImmediateWindowProvider {
     }
 
     private void drawSolidQuad(float x, float y, float width, float height, Color color, float alpha) {
-        GL11.glDisable(GL11.GL_TEXTURE_2D);
-        GL11.glColor4f(color.r(), color.g(), color.b(), alpha);
-        GL11.glBegin(GL11.GL_QUADS);
-        GL11.glVertex2f(x, y);
-        GL11.glVertex2f(x + width, y);
-        GL11.glVertex2f(x + width, y + height);
-        GL11.glVertex2f(x, y + height);
-        GL11.glEnd();
-        GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+        this.coreRenderer.drawSolidQuad(x, y, width, height, color.r(), color.g(), color.b(), alpha);
     }
 
     private void drawRectangleOutline(float x, float y, float width, float height, Color color, float alpha) {
-        GL11.glDisable(GL11.GL_TEXTURE_2D);
-        GL11.glColor4f(color.r(), color.g(), color.b(), alpha);
-        GL11.glBegin(GL11.GL_LINE_LOOP);
-        GL11.glVertex2f(x, y);
-        GL11.glVertex2f(x + width, y);
-        GL11.glVertex2f(x + width, y + height);
-        GL11.glVertex2f(x, y + height);
-        GL11.glEnd();
-        GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+        this.coreRenderer.drawRectangleOutline(x, y, width, height, color.r(), color.g(), color.b(), alpha);
     }
 
     private void drawTexturedQuad(float x, float y, float width, float height, LoadedTexture texture, float u0, float v0, float u1, float v1) {
-        GL11.glEnable(GL11.GL_TEXTURE_2D);
         int textureId = texture.currentTextureId(this.currentFrameTimestampNanos);
-        GL11.glBindTexture(GL11.GL_TEXTURE_2D, textureId);
-        GL11.glBegin(GL11.GL_QUADS);
-        GL11.glTexCoord2f(u0, v0);
-        GL11.glVertex2f(x, y);
-        GL11.glTexCoord2f(u1, v0);
-        GL11.glVertex2f(x + width, y);
-        GL11.glTexCoord2f(u1, v1);
-        GL11.glVertex2f(x + width, y + height);
-        GL11.glTexCoord2f(u0, v1);
-        GL11.glVertex2f(x, y + height);
-        GL11.glEnd();
-        GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
-        GL11.glDisable(GL11.GL_TEXTURE_2D);
+        this.coreRenderer.drawTexturedQuad(textureId, x, y, width, height, u0, v0, u1, v1);
     }
 
     private void drawBundledMojangLogo(float x, float y, float width, float height, LoadedTexture texture) {
