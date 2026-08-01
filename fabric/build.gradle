@@ -10,12 +10,6 @@ base {
     archivesName = "${mod_id}"
 }
 
-repositories {
-    flatDir {
-        dirs 'libs'
-    }
-}
-
 dependencies {
     minecraft "com.mojang:minecraft:${minecraft_version}"
     mappings loom.layered() {
@@ -33,7 +27,7 @@ dependencies {
     modImplementation "maven.modrinth:modmenu:4.2.0-beta.2"
     //This is only to fix the missing dependency error in-dev
     implementation group: 'ca.weblite', name: 'java-objc-bridge', version: '1.1'
-	modImplementation "flatdir:fancymenu:3.9.0"
+	modImplementation "maven.modrinth:fancymenu:3.9.9-1.19.2-fabric"
 }
 
 loom {

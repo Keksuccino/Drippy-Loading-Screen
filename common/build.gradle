@@ -10,16 +10,6 @@ base {
     archivesName = "${mod_id}"
 }
 
-repositories {
-    flatDir {
-        dirs 'libs'
-    }
-}
-
-repositories {
-    flatDir { dirs 'libs' }
-}
-
 dependencies {
     minecraft "com.mojang:minecraft:${minecraft_version}"
     mappings loom.layered() {
@@ -39,7 +29,7 @@ dependencies {
     //Test to fix weird behaviour with Gson
     compileOnly 'com.google.code.gson:gson:2.8.9'
     compileOnly 'org.joml:joml:1.10.8'
-	modCompileOnly "flatdir:fancymenu:3.9.0"
+	modCompileOnly "maven.modrinth:fancymenu:3.9.9-1.19.2-fabric"
 }
 
 loom {
