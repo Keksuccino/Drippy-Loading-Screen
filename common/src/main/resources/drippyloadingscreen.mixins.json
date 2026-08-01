@@ -6,6 +6,7 @@
     "client.IMixinFontManager",
     "client.IMixinLoadingOverlay",
     "client.IMixinMinecraft",
+    "client.MixinAbstractEditorElement",
     "client.MixinCustomizationOverlay",
     "client.MixinCustomizationOverlayUI",
     "client.MixinElementBuilder",
