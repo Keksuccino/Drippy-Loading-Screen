@@ -65,6 +65,15 @@ body:
       required: true
 
   - type: input
+    id: drippy-version
+    attributes:
+      label: Drippy Version
+      description: Which Drippy version are you using?
+      placeholder: "Example: 3.1.2"
+    validations:
+      required: true
+
+  - type: input
     id: fancymenu-version
     attributes:
       label: FancyMenu Version
