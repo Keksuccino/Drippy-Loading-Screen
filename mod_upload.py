@@ -87,6 +87,13 @@ class CurseForgeTags:
     environment_ids_by_side: Dict[str, int]
 
 
+@dataclass(frozen=True)
+class JavaRuntime:
+    version: str
+    source: str
+    java_home: Optional[Path] = None
+
+
 class UploadError(Exception):
     pass
 
@@ -449,6 +456,59 @@ def normalize_dependencies_for_loader(loader: str, raw_dependencies: Any) -> Lis
     return dependencies
 
 
+def normalize_java_version(raw: Any, source: str) -> str:
+    if isinstance(raw, (int, float)):
+        value = str(raw)
+    elif isinstance(raw, str):
+        value = raw
+    else:
+        raise UploadError(f"{source} java_version must be a string or number.")
+
+    version = value.strip()
+    if not version:
+        raise UploadError(f"{source} java_version must not be empty.")
+    if any(character.isspace() for character in version):
+        raise UploadError(f"{source} java_version must not contain whitespace.")
+    return version
+
+
+def ensure_java_version(
+    properties: Dict[str, str],
+    project_config: Dict[str, Any],
+) -> Tuple[JavaRuntime, bool]:
+    if properties.get("java_version"):
+        return (
+            JavaRuntime(
+                version=normalize_java_version(
+                    properties["java_version"],
+                    "gradle.properties",
+                ),
+                source="gradle.properties",
+            ),
+            False,
+        )
+
+    if project_config.get("java_version"):
+        return (
+            JavaRuntime(
+                version=normalize_java_version(
+                    project_config["java_version"],
+                    "config",
+                ),
+                source="saved config",
+            ),
+            False,
+        )
+
+    section("Java Runtime")
+    java_version = normalize_java_version(
+        prompt_line("Java version for Gradle builds (for example 17, 21, 25): "),
+        "prompted",
+    )
+    project_config["java_version"] = java_version
+    return JavaRuntime(version=java_version, source="saved config"), True
+
+
 def upload_target_key_for_loader(loader: str) -> str:
     if loader == EARLYWINDOW_MODULE:
         return EARLYWINDOW_MODULE
@@ -727,14 +787,77 @@ def gradle_command(project_root: Path) -> List[str]:
     return ["gradle"]
 
 
-def build_loader_modules(project_root: Path, loaders: Sequence[str]) -> None:
+def resolve_java_home(java_version: str) -> Path:
+    java_home_binary = Path("/usr/libexec/java_home")
+    if not java_home_binary.is_file():
+        raise UploadError(
+            "Could not find /usr/libexec/java_home for resolving the requested JDK."
+        )
+
+    result = subprocess.run(
+        [str(java_home_binary), "-v", java_version],
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    if result.returncode != 0:
+        details = (result.stderr or result.stdout).strip()
+        message = (
+            f"Could not find an installed JDK for Java {java_version} "
+            "via /usr/libexec/java_home."
+        )
+        if details:
+            message += f" {details}"
+        raise UploadError(message)
+
+    java_home = Path(result.stdout.strip())
+    java_binary = java_home / "bin" / "java"
+    if not java_binary.is_file():
+        raise UploadError(
+            f"Resolved Java {java_version} to {java_home}, but bin/java was not found."
+        )
+    return java_home
+
+
+def resolve_java_runtime(java_runtime: JavaRuntime) -> JavaRuntime:
+    return JavaRuntime(
+        version=java_runtime.version,
+        source=java_runtime.source,
+        java_home=resolve_java_home(java_runtime.version),
+    )
+
+
+def java_subprocess_env(java_runtime: JavaRuntime) -> Dict[str, str]:
+    if java_runtime.java_home is None:
+        raise UploadError("Internal error: Gradle build requested without resolved JAVA_HOME.")
+
+    env = os.environ.copy()
+    java_home = str(java_runtime.java_home)
+    java_bin = str(java_runtime.java_home / "bin")
+    env["JAVA_HOME"] = java_home
+    env["PATH"] = java_bin + os.pathsep + env.get("PATH", "")
+    return env
+
+
+def build_loader_modules(
+    project_root: Path,
+    loaders: Sequence[str],
+    java_runtime: JavaRuntime,
+) -> None:
     section("Gradle Build")
+    CONSOLE.key_value(
+        "Java version",
+        f"{java_runtime.version} ({java_runtime.source})",
+        value_style="version",
+    )
+    CONSOLE.key_value("JAVA_HOME", java_runtime.java_home, value_style="path")
     command_prefix = gradle_command(project_root)
+    env = java_subprocess_env(java_runtime)
     for loader in loaders:
         task = f":{loader}:build"
         command = command_prefix + [task]
         CONSOLE.command(command)
-        result = subprocess.run(command, cwd=str(project_root))
+        result = subprocess.run(command, cwd=str(project_root), env=env)
         if result.returncode != 0:
             raise UploadError(
                 f"Build failed for module '{loader}' with exit code {result.returncode}."
@@ -1523,6 +1646,7 @@ def print_plan_summary(
     project_key: str,
     properties: Dict[str, str],
     project_config: Dict[str, Any],
+    java_runtime: JavaRuntime,
     artifacts: Sequence[StagedArtifact],
     upload_enabled: bool,
     release_type: str,
@@ -1533,6 +1657,13 @@ def print_plan_summary(
     CONSOLE.key_value("Mod ID", properties["mod_id"], value_style="file")
     CONSOLE.key_value("Mod version", properties["mod_version"], value_style="version")
     CONSOLE.key_value("Minecraft version", properties["minecraft_version"], value_style="version")
+    CONSOLE.key_value(
+        "Java version",
+        f"{java_runtime.version} ({java_runtime.source})",
+        value_style="version",
+    )
+    if java_runtime.java_home is not None:
+        CONSOLE.key_value("JAVA_HOME", java_runtime.java_home, value_style="path")
     CONSOLE.key_value("Release type", release_type)
     mode_text = "upload after confirmation" if upload_enabled else "dry run"
     mode_style = "upload" if upload_enabled else "dry_run"
@@ -1760,6 +1891,9 @@ def main(argv: Sequence[str]) -> int:
             loaders,
             reset_project_config=args.reset_config,
         )
+        java_runtime, java_config_changed = ensure_java_version(properties, project_config)
+        config_changed = config_changed or java_config_changed
+
         if config_changed or not config_path.exists():
             save_config(config_path, config)
             CONSOLE.blank()
@@ -1771,7 +1905,8 @@ def main(argv: Sequence[str]) -> int:
             section("Gradle Build")
             CONSOLE.warning("Skipped because --skip-build was provided.")
         else:
-            build_loader_modules(project_root, loaders)
+            java_runtime = resolve_java_runtime(java_runtime)
+            build_loader_modules(project_root, loaders, java_runtime)
 
         artifacts = stage_artifacts(
             project_root,
@@ -1804,6 +1939,7 @@ def main(argv: Sequence[str]) -> int:
             project_key=project_key,
             properties=properties,
             project_config=project_config,
+            java_runtime=java_runtime,
             artifacts=artifacts,
             upload_enabled=not args.dry_run,
             release_type=args.release_type,
