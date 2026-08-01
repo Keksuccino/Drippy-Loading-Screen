@@ -8,5 +8,6 @@ DRIPPY LOADING SCREEN v3.1.5 | CHANGELOG [ !! WIP !! NOT READY YET !! WIP !! ]
 - All types of browser and video elements, menu backgrounds, and decoration overlays should now be disabled in Drippy layouts, because they don't work correctly in the loading screen
 
 - Fixed Drippy on NeoForge trying to load a client-side class on the server-side, resulting in a crash (#102)
+- Fixed Drippy still uses old FancyMenu category localization key in Placeholders menu (#98)
 
 %changelog:end%
