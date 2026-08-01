@@ -1,0 +1,6 @@
+/build/
+/.gradle/
+/.idea/
+/common/build/
+/common/.gradle/
+/fabric/.gradle/
