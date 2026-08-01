@@ -32,6 +32,19 @@ dependencies {
     modImplementation "maven.modrinth:modmenu:17.0.0-beta.1"
     implementation "net.objecthunter:exp4j:0.4.8"
     implementation project(":common")
+
+    // Iris 1.10.7 explicitly targets Sodium 0.8.x, so these pins must stay aligned when the test matrix is updated.
+    modImplementation "maven.modrinth:AANobbMI:UddlN6L4" // Sodium
+    modImplementation "maven.modrinth:PtjYWJkn:yqY1efrC" // Sodium Extra
+    modImplementation "maven.modrinth:gvQqBUqZ:Ow7wA0kG" // Lithium
+    modImplementation "maven.modrinth:YL57xq9U:fDpuVzVr" // Iris
+    // ImmediatelyFast 1.14.3 requires Loom 1.17 metadata; 1.14.2 is the newest build remappable by this branch's Loom 1.14.
+    modImplementation "maven.modrinth:5ZwdcRci:QwkfUKSj" // ImmediatelyFast
+    modImplementation "maven.modrinth:uXXizFIs:Ii0gP3D8" // FerriteCore
+    modImplementation "maven.modrinth:1eAoo2KR:pHWDw3Vc" // YACL
+
+    testImplementation "org.junit.jupiter:junit-jupiter:5.10.2"
+    testRuntimeOnly "org.junit.platform:junit-platform-launcher:1.10.2"
 }
 
 loom {
