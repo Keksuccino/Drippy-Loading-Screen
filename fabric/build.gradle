@@ -10,12 +10,6 @@ base {
     archivesName = "${mod_id}"
 }
 
-repositories {
-    flatDir {
-        dirs 'libs'
-    }
-}
-
 dependencies {
     minecraft "com.mojang:minecraft:${minecraft_version}"
     mappings loom.layered() {
@@ -31,7 +25,7 @@ dependencies {
     modImplementation "maven.modrinth:melody:1.0.4-1.20.1-1.20.4-fabric"
     modImplementation "maven.modrinth:konkrete:1.8.1-1.20.1-fabric"
     modImplementation "maven.modrinth:modmenu:7.2.2"
-	modImplementation "flatdir:fancymenu:3.9.0"
+    modImplementation "maven.modrinth:fancymenu:3.9.9-1.20.1-fabric"
     implementation project(":common")
 }
 
