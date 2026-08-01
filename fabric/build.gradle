@@ -17,6 +17,7 @@ repositories {
 }
 
 dependencies {
+
     minecraft "com.mojang:minecraft:${minecraft_version}"
     mappings loom.layered() {
         officialMojangMappings()
@@ -33,6 +34,22 @@ dependencies {
     modImplementation "maven.modrinth:konkrete:1.9.9-1.21-fabric"
 	modImplementation "maven.modrinth:fancymenu:3.9.9-1.21.1-fabric"
     implementation project(":common")
+
+    modImplementation "maven.modrinth:AANobbMI:u1OEbNKx" // Sodium
+    modImplementation "maven.modrinth:PtjYWJkn:anDafurZ" // Sodium Extra
+    modImplementation "maven.modrinth:gvQqBUqZ:N08Z8wog" // Lithium
+    modImplementation "maven.modrinth:YL57xq9U:zsoi0dso" // Iris
+    modImplementation "maven.modrinth:5ZwdcRci:nLsUmFtQ" // ImmediatelyFast
+    modImplementation "maven.modrinth:uXXizFIs:sOzRw3CG" // FerriteCore
+    modImplementation "maven.modrinth:1eAoo2KR:iu96ISLv" // YACL
+
+    testImplementation "org.junit.jupiter:junit-jupiter:5.10.2"
+    testRuntimeOnly "org.junit.platform:junit-platform-launcher:1.10.2"
+
+}
+
+test {
+    useJUnitPlatform()
 }
 
 loom {
