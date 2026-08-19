@@ -95,14 +95,14 @@
 ## Autonomous Testing
 - After making changes, always compile/build the project to identify and fix compile errors.
 - Only use the `fabric` and `neoforge` modules for compile checks. Never use the `common` module.
-- Make sure to use Java 25 for compile/run stuff, like this for example: `JAVA_HOME=$(/usr/libexec/java_home -v <correct_java_version_for_sub_workspace>) sh gradlew :fabric:compileJava :neoforge:compileJava --stacktrace`
+- Make sure to use the correct Java version for the specific sub-workspace for compile/run stuff, like this for example: `JAVA_HOME=$(/usr/libexec/java_home -v <correct_java_version_for_sub_workspace>) sh gradlew :fabric:compileJava :neoforge:compileJava --stacktrace`
 - Add focused JUnit 5 regression tests for every bug fix or behavior change that can be tested automatically. The tests should fail for the broken behavior and cover the main path plus relevant boundary, failure, and lifecycle cases.
 - Place shared and Fabric test classes under `fabric/src/test/java`, mirroring the production package and naming each class `<Subject>Test`. Treat each test class as a focused suite for one coherent subject; split unrelated behavior into separate classes.
 - Do not duplicate shared tests in the `neoforge`/`forge` module. (Neo)Forge's test task is disabled, so run tests through `fabric` and verify production compatibility by compiling both loaders.
 - Keep tests deterministic, isolated, and Minecraft-light. Prefer small reusable or package-private helpers/controllers for logic that cannot safely instantiate Minecraft runtime objects, without weakening or distorting the production design just for testing.
 - Inject clocks, executors, suppliers, and other changing inputs when needed. Use temporary directories, loopback servers, and fakes instead of real user files, external services, arbitrary sleeps, or test-order dependencies.
-- Run the focused suite first, for example: `JAVA_HOME=$(/usr/libexec/java_home -v 25) sh gradlew :fabric:test --tests 'fully.qualified.SubjectTest' --stacktrace`
-- Before finishing, run the complete Fabric suite with Java 25 using `JAVA_HOME=$(/usr/libexec/java_home -v 25) sh gradlew :fabric:test --stacktrace`, then compile Fabric and (Neo)Forge. Use `--rerun-tasks` for the final test run when cached results could hide whether the current tree was executed.
+- Run the focused suite first, for example: `JAVA_HOME=$(/usr/libexec/java_home -v <correct_java_version_for_sub_workspace>) sh gradlew :fabric:test --tests 'fully.qualified.SubjectTest' --stacktrace`
+- Before finishing, run the complete Fabric suite using `JAVA_HOME=$(/usr/libexec/java_home -v <correct_java_version_for_sub_workspace>) sh gradlew :fabric:test --stacktrace`, then compile Fabric and (Neo)Forge. Use `--rerun-tasks` for the final test run when cached results could hide whether the current tree was executed.
 - Report the number of discovered suites/tests and the passed, failed, errored, and skipped totals.
 - A successful compile or an up-to-date Gradle task does not replace an executed regression test.
 - After compiling and normal tests succeeded, run the client of both `fabric` and `neoforge`/`forge` modules via their client launch tasks, and check the log output, to see if stuff like Mixin injects succeeded, but make sure to CLOSE THE CLIENT WINDOWS after. Only run clients when it makes sense to run them, which means when compiling is not enough to catch all potential issues.
