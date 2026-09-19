@@ -27,11 +27,7 @@ dependencies {
     implementation "net.objecthunter:exp4j:0.4.8"
     implementation "maven.modrinth:melody:${melody_version}-${minecraft_version}-fabric"
     implementation "maven.modrinth:konkrete:${konkrete_version}-${minecraft_version}-fabric"
-    compileOnly "maven.modrinth:fancymenu:${fancymenu_version}-${fancymenu_minecraft_version}-fabric"
-    // Only load FancyMenu when a build for this Minecraft version is selected.
-    if (fancymenu_minecraft_version == minecraft_version) {
-        runtimeOnly "maven.modrinth:fancymenu:${fancymenu_version}-${fancymenu_minecraft_version}-fabric"
-    }
+    implementation "maven.modrinth:fancymenu:${fancymenu_version}-${fancymenu_minecraft_version}-fabric"
     runtimeOnly "maven.modrinth:modmenu:21.0.0-beta.1"
 
     runtimeOnly "maven.modrinth:sodium:mc26.3-0.9.2-fabric" // Sodium
@@ -77,6 +73,7 @@ tasks.withType(Javadoc).configureEach {
     source(project(":common").sourceSets.main.allJava)
 }
 tasks.withType(Test).configureEach {
+    useJUnitPlatform()
     // Allow builds when there are test sources but no matching tests.
     failOnNoDiscoveredTests = false
 }

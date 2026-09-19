@@ -4,6 +4,8 @@
   "compatibilityLevel": "JAVA_${java_version}",
   "client": [
     "client.AccessorMixinLoadingOverlay",
+    "client.AccessorMixinPipelineCache",
+    "client.AccessorMixinRenderSystem",
     "client.MixinAbstractEditorElement",
     "client.MixinCustomizationOverlay",
     "client.MixinCustomizationOverlayUI",

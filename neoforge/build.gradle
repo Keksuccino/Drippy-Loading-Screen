@@ -52,11 +52,7 @@ dependencies {
     implementation "net.neoforged:neoforge:${neoforge_version}"
     implementation "maven.modrinth:konkrete:${konkrete_version}-${minecraft_version}-neoforge"
 	implementation "maven.modrinth:melody:${melody_version}-${minecraft_version}-neoforge"
-    compileOnly "maven.modrinth:fancymenu:${fancymenu_version}-${fancymenu_minecraft_version}-neoforge"
-    // Only load FancyMenu when a build for this Minecraft version is selected.
-    if (fancymenu_minecraft_version == minecraft_version) {
-        runtimeOnly "maven.modrinth:fancymenu:${fancymenu_version}-${fancymenu_minecraft_version}-neoforge"
-    }
+    implementation "maven.modrinth:fancymenu:${fancymenu_version}-${fancymenu_minecraft_version}-neoforge"
     implementation "net.objecthunter:exp4j:0.4.8"
     implementation project(":earlywindow")
     compileOnly project(":common")

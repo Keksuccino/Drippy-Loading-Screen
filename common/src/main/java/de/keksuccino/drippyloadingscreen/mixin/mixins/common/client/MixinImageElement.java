@@ -2,7 +2,9 @@ package de.keksuccino.drippyloadingscreen.mixin.mixins.common.client;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import com.mojang.blaze3d.shaders.ShaderType;
+import com.mojang.blaze3d.pipeline.PipelineCache;
+import com.mojang.renderpearl.api.pipeline.ShaderSource;
+import com.mojang.renderpearl.api.pipeline.ShaderType;
 import de.keksuccino.drippyloadingscreen.DrippyUtils;
 import de.keksuccino.fancymenu.customization.element.elements.image.ImageElement;
 import net.minecraft.client.Minecraft;
@@ -10,6 +12,7 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.LoadingOverlay;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.resources.Identifier;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -19,8 +22,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(ImageElement.class)
 public class MixinImageElement {
 
-    @Unique
-    private static final Identifier FANCYMENU_SMOOTH_IMAGE_RECT_SHADER_DRIPPY = Identifier.withDefaultNamespace("core/fancymenu_gui_smooth_image_rect");
+    @Unique private static final Identifier FANCYMENU_SMOOTH_IMAGE_RECT_SHADER_DRIPPY = Identifier.withDefaultNamespace("core/fancymenu_gui_smooth_image_rect");
 
     /**
      * @reason This tries to prevent the texture from flickering after reloading the texture manager in the {@link LoadingOverlay}.
@@ -52,8 +54,16 @@ public class MixinImageElement {
 
     @Unique
     private static boolean areSmoothImageShadersAvailableDrippy() {
-        return (Minecraft.getInstance().getShaderManager().getShader(FANCYMENU_SMOOTH_IMAGE_RECT_SHADER_DRIPPY, ShaderType.VERTEX) != null)
-                && (Minecraft.getInstance().getShaderManager().getShader(FANCYMENU_SMOOTH_IMAGE_RECT_SHADER_DRIPPY, ShaderType.FRAGMENT) != null);
+        // Only the active resource-pack cache contains FancyMenu shaders. Probing compiled pipelines
+        // would try to compile missing shaders every frame during the initial resource reload.
+        PipelineCache cache = AccessorMixinRenderSystem.getCurrentPipelineCache_Drippy();
+        return hasSmoothImageShaders_Drippy(cache == null ? null : ((AccessorMixinPipelineCache) cache).getShaderSource_Drippy());
+    }
+
+    @Unique
+    private static boolean hasSmoothImageShaders_Drippy(@Nullable ShaderSource source) {
+        // Resource reloads replace the source and can remove shaders, so readiness must not be cached.
+        return source != null && source.getShader(FANCYMENU_SMOOTH_IMAGE_RECT_SHADER_DRIPPY, ShaderType.VERTEX) != null && source.getShader(FANCYMENU_SMOOTH_IMAGE_RECT_SHADER_DRIPPY, ShaderType.FRAGMENT) != null;
     }
 
 }
