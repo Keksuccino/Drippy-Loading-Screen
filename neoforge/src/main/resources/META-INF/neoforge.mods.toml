@@ -21,14 +21,14 @@ config = "${mod_id}.neoforge.mixins.json"
 modId="konkrete"
 type="required" #mandatory (Can be one of "required", "optional", "incompatible" or "discouraged")
 ordering="NONE"
-versionRange="[1.10.0,)"
+versionRange="[${konkrete_version},)"
 side="BOTH"
 
 [[dependencies.${mod_id}]]
 modId="fancymenu"
 type="required" #mandatory (Can be one of "required", "optional", "incompatible" or "discouraged")
 ordering="NONE"
-versionRange="[3.9.9,)"
+versionRange="[${fancymenu_version},)"
 side="BOTH"
 
 [[dependencies.${mod_id}]] #optional
@@ -41,6 +41,6 @@ side = "BOTH" # Side this dependency is applied on - 'BOTH', 'CLIENT' or 'SERVER
 [[dependencies.${mod_id}]]
 modId = "minecraft"
 type="required" #mandatory (Can be one of "required", "optional", "incompatible" or "discouraged")
-versionRange = "[${minecraft_version},)"
+versionRange = "[${minecraft_version},${minecraft_version_upper_bound})"
 ordering = "NONE"
 side = "BOTH"

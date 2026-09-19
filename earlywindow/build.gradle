@@ -1,7 +1,7 @@
 
 plugins {
     id 'java-library'
-    id 'com.gradleup.shadow' version '9.2.2'
+    id 'com.gradleup.shadow' version '9.6.1'
 }
 
 base {
@@ -32,7 +32,8 @@ repositories {
 }
 
 def lwjglVersion = '3.4.1'
-def fancymodloader_version = '11.0.13'
+// Match the FML and early-display LWJGL versions shipped by the selected NeoForge.
+def fancymodloader_version = '12.0.0'
 
 dependencies {
     compileOnly "net.neoforged:neoforge:${neoforge_version}"
@@ -53,7 +54,7 @@ tasks.named("jar", Jar).configure {
 
 tasks.named("shadowJar").configure {
     archiveClassifier.set("")
-    from(rootProject.file("LICENSE")) {
+    from(rootProject.file("LICENSE.md")) {
         rename { "${it}_${mod_name}" }
     }
     manifest {

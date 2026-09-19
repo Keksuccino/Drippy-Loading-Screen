@@ -19,27 +19,27 @@ repositories {
 dependencies {
     minecraft "com.mojang:minecraft:${minecraft_version}"
     compileOnly "net.fabricmc:fabric-loader:${fabric_loader_version}"
-    implementation group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.2'
-    implementation group: 'org.ow2.asm', name: 'asm-tree', version: '9.7'
-	annotationProcessor group: 'org.ow2.asm', name: 'asm-util', version: '9.7'
+    implementation "com.google.code.findbugs:jsr305:3.0.2"
+    implementation "org.ow2.asm:asm-tree:9.10.1"
+	annotationProcessor "org.ow2.asm:asm-util:9.10.1"
     compileOnly(annotationProcessor("io.github.llamalad7:mixinextras-common:${mixin_extras_version}"))
-    compileOnly group:'org.spongepowered', name:'mixin', version:'0.8.5'
-    compileOnly "maven.modrinth:melody:1.0.17-26.2-fabric"
-    compileOnly "maven.modrinth:konkrete:1.11.1-26.2-fabric"
-	compileOnly "maven.modrinth:fancymenu:3.9.9-26.2-fabric"
+    compileOnly "net.fabricmc:sponge-mixin:0.17.3+mixin.0.8.7"
+    compileOnly "maven.modrinth:melody:${melody_version}-${minecraft_version}-fabric"
+    compileOnly "maven.modrinth:konkrete:${konkrete_version}-${minecraft_version}-fabric"
+	compileOnly "maven.modrinth:fancymenu:${fancymenu_version}-${fancymenu_minecraft_version}-fabric"
     compileOnly "net.objecthunter:exp4j:0.4.8"
 }
 
 publishing {
     publications {
         mavenJava(MavenPublication) {
-            artifactId base.archivesName.get()
+            artifactId = base.archivesName.get()
             from components.java
         }
     }
     repositories {
         maven {
-            url "file://" + System.getenv("local_maven")
+            url = "file://" + System.getenv("local_maven")
         }
     }
 }

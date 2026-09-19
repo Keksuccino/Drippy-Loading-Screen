@@ -1,7 +1,7 @@
 {
   "required": true,
   "package": "de.keksuccino.drippyloadingscreen.mixin.mixins.common",
-  "compatibilityLevel": "JAVA_17",
+  "compatibilityLevel": "JAVA_${java_version}",
   "client": [
     "client.AccessorMixinLoadingOverlay",
     "client.MixinAbstractEditorElement",
