@@ -1,4 +1,4 @@
-# Custom Progress Bars
+# Custom Progress Bars in Drippy
 
 Drippy allows you to add custom progress bar elements that can be customized.
 
