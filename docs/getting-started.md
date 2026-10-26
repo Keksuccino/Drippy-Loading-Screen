@@ -1,4 +1,4 @@
-# FancyMenu
+# Getting Started
 
 Since Drippy is just an addon for FancyMenu, most of the time it's the right thing to use [FancyMenu's docs](https://docs.fancymenu.net), that's why Drippy's docs are so empty.
 
