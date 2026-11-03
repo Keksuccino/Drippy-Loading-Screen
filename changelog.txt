@@ -1,5 +1,22 @@
+CHANGELOG | DRIPPY LOADING SCREEN v3.1.6
 
-DRIPPY LOADING SCREEN v3.1.5 | CHANGELOG
+- Ported the mod to Minecraft 26.3
+  - Needs at least FancyMenu v3.9.13 and Konkrete v1.11.1
+
+%changelog:metadata:start%
+"version":"3.1.6";
+"update_title":"";
+"update_release_date_timestamp":"1789797412";
+"update_release_date_string_ddmmyyyy":"19-09-2026";
+"update_supported_mod_loaders":"fabric,neoforge";
+"update_supported_minecraft_versions":"26.3";
+%changelog:metadata:end%
+%changelog:end%
+
+
+
+
+CHANGELOG | DRIPPY LOADING SCREEN v3.1.5
 
 - Added support for FancyMenu v3.9.9
 - Added a "Click Here" hint pointing to the "Customization" tab in the menu bar when opening Drippy's customization screen for the first time
@@ -10,23 +27,92 @@ DRIPPY LOADING SCREEN v3.1.5 | CHANGELOG
 - Fixed Drippy on NeoForge trying to load a client-side class on the server-side, resulting in a crash (#102)
 - Fixed Drippy still uses old FancyMenu category localization key in Placeholders menu (#98)
 
+%changelog:metadata:start%
+"version":"3.1.5";
+"update_title":"";
+"update_release_date_timestamp":"1785573246";
+"update_release_date_string_ddmmyyyy":"01-08-2026";
+"update_supported_mod_loaders":"forge,fabric,neoforge";
+"update_supported_minecraft_versions":"1.19.2,1.20.1,1.21.1,1.21.11,26.1.2,26.2";
+%changelog:metadata:end%
 %changelog:end%
 
 
 
 
-
-DRIPPY LOADING SCREEN v3.1.4 | CHANGELOG
+CHANGELOG | DRIPPY LOADING SCREEN v3.1.4
 
 - Ported the mod to Minecraft 26.2
 
+%changelog:metadata:start%
+"version":"3.1.4";
+"update_title":"";
+"update_release_date_timestamp":"1782531999";
+"update_release_date_string_ddmmyyyy":"27-06-2026";
+"update_supported_mod_loaders":"fabric,neoforge";
+"update_supported_minecraft_versions":"26.2";
+%changelog:metadata:end%
 %changelog:end%
 
 
 
 
+CHANGELOG | DRIPPY LOADING SCREEN v3.1.3
 
-DRIPPY LOADING SCREEN v3.1.0 | CHANGELOG
+- Minimum required FancyMenu version is now v3.9.1
+- Fixed crash on launch on Fabric 1.21.11 (#117)
+
+%changelog:metadata:start%
+"version":"3.1.3";
+"update_title":"";
+"update_release_date_timestamp":"1778869811";
+"update_release_date_string_ddmmyyyy":"15-05-2026";
+"update_supported_mod_loaders":"fabric,neoforge";
+"update_supported_minecraft_versions":"1.21.11,26.1.1,26.1.2";
+%changelog:metadata:end%
+%changelog:end%
+
+
+
+
+CHANGELOG | DRIPPY LOADING SCREEN v3.1.2
+
+- Minimum required FancyMenu version is now v3.9.0
+- Added support for FancyMenu v3.9.0 (#115)
+- Fixed Image elements breaking the loading screen when they get rendered before FancyMenu's shaders are loaded (mostly happened in NeoForge's loading screen)
+
+%changelog:metadata:start%
+"version":"3.1.2";
+"update_title":"";
+"update_release_date_timestamp":"1777819932";
+"update_release_date_string_ddmmyyyy":"03-05-2026";
+"update_supported_mod_loaders":"forge,fabric,neoforge";
+"update_supported_minecraft_versions":"1.19.2,1.20.1,1.21.1,1.21.11,26.1.1,26.1.2";
+%changelog:metadata:end%
+%changelog:end%
+
+
+
+
+CHANGELOG | DRIPPY LOADING SCREEN v3.1.1
+
+- Ported the mod to Minecraft 1.21.11
+- Ported the mod to Minecraft 26.1.1
+
+%changelog:metadata:start%
+"version":"3.1.1";
+"update_title":"";
+"update_release_date_timestamp":"1766568033";
+"update_release_date_string_ddmmyyyy":"24-12-2025";
+"update_supported_mod_loaders":"fabric,neoforge";
+"update_supported_minecraft_versions":"1.21.11,26.1.1,26.1.2";
+%changelog:metadata:end%
+%changelog:end%
+
+
+
+
+CHANGELOG | DRIPPY LOADING SCREEN v3.1.0
 
 - Dropped support for (Lex)Forge for Minecraft 1.21+
 - Dropped support for Minecraft 1.18.2, 1.21.4, 1.21.8
@@ -49,124 +135,259 @@ DRIPPY LOADING SCREEN v3.1.0 | CHANGELOG
 - Fixed "Vanilla-Like Loading Bar" element ignoring alpha in the HEX color value set as element color (#70)
 - Fixed some parts of the screen behind the loading overlay shining through, like text (#65)
 
+%changelog:metadata:start%
+"version":"3.1.0";
+"update_title":"";
+"update_release_date_timestamp":"1763796961";
+"update_release_date_string_ddmmyyyy":"22-11-2025";
+"update_supported_mod_loaders":"forge,fabric,neoforge";
+"update_supported_minecraft_versions":"1.19.2,1.20.1,1.21.1,1.21.10";
+%changelog:metadata:end%
 %changelog:end%
 
+
+
+
+CHANGELOG | DRIPPY LOADING SCREEN v3.0.16
+
+- Ported the mod to Minecraft 1.21.10 (Fabric and NeoForge only)
+
+%changelog:metadata:start%
+"version":"3.0.16";
+"update_title":"";
+"update_release_date_timestamp":"1760944966";
+"update_release_date_string_ddmmyyyy":"20-10-2025";
+"update_supported_mod_loaders":"fabric,neoforge";
+"update_supported_minecraft_versions":"1.21.10";
+%changelog:metadata:end%
+%changelog:end%
 
 
 
 
 CHANGELOG | DRIPPY LOADING SCREEN v3.0.15
- 
+
 - Fixed crash on game launch in Minecraft 1.21.6 (#90)
 
+%changelog:metadata:start%
+"version":"3.0.15";
+"update_title":"";
+"update_release_date_timestamp":"1750799306";
+"update_release_date_string_ddmmyyyy":"24-06-2025";
+"update_supported_mod_loaders":"forge,fabric,neoforge";
+"update_supported_minecraft_versions":"1.21.6,1.21.7,1.21.8";
+%changelog:metadata:end%
 %changelog:end%
 
 
 
 
-
 CHANGELOG | DRIPPY LOADING SCREEN v3.0.14
- 
+
 - Ported mod to Minecraft 1.21.6
 - Drippy will (for now) not pre-load fonts anymore, which will result in text being invisible until late init when starting the game (should be visible all the time when reloading resources)
 - Disabled ability to apply custom scaling logic (forced GUI scale; auto-sizing) to loading screen layouts because Minecraft's GUI scaling logic got too limited for that
 
+%changelog:metadata:start%
+"version":"3.0.14";
+"update_title":"";
+"update_release_date_timestamp":"1750695616";
+"update_release_date_string_ddmmyyyy":"23-06-2025";
+"update_supported_mod_loaders":"forge,fabric,neoforge";
+"update_supported_minecraft_versions":"1.21.6";
+%changelog:metadata:end%
 %changelog:end%
 
 
 
 
 CHANGELOG | DRIPPY LOADING SCREEN v3.0.13
- 
+
 - Ported mod to Minecraft 1.21.5
 
+%changelog:metadata:start%
+"version":"3.0.13";
+"update_title":"";
+"update_release_date_timestamp":"1746471031";
+"update_release_date_string_ddmmyyyy":"05-05-2025";
+"update_supported_mod_loaders":"forge,fabric,neoforge";
+"update_supported_minecraft_versions":"1.21.5";
+%changelog:metadata:end%
 %changelog:end%
 
 
 
 
 CHANGELOG | DRIPPY LOADING SCREEN v3.0.12
- 
+
 - Drippy is now compatible with FancyMenu v3.5.0+
 
+%changelog:metadata:start%
+"version":"3.0.12";
+"update_title":"";
+"update_release_date_timestamp":"1744403080";
+"update_release_date_string_ddmmyyyy":"11-04-2025";
+"update_supported_mod_loaders":"forge,fabric,neoforge";
+"update_supported_minecraft_versions":"1.18.2,1.19.2,1.20.1,1.21.1,1.21.4";
+%changelog:metadata:end%
 %changelog:end%
 
 
 
 
 CHANGELOG | DRIPPY LOADING SCREEN v3.0.11
- 
+
 - Drippy is now compatible with FancyMenu v3.4.0+
 
+%changelog:metadata:start%
+"version":"3.0.11";
+"update_title":"";
+"update_release_date_timestamp":"1739046914";
+"update_release_date_string_ddmmyyyy":"08-02-2025";
+"update_supported_mod_loaders":"forge,fabric,neoforge";
+"update_supported_minecraft_versions":"1.18.2,1.19.2,1.20.1,1.21.1,1.21.4";
+%changelog:metadata:end%
 %changelog:end%
 
 
 
 
 CHANGELOG | DRIPPY LOADING SCREEN v3.0.10
- 
+
 - Added support for MC 1.21.4
 - Now requires FancyMenu v3.3.5+
 
+%changelog:metadata:start%
+"version":"3.0.10";
+"update_title":"";
+"update_release_date_timestamp":"1736366422";
+"update_release_date_string_ddmmyyyy":"08-01-2025";
+"update_supported_mod_loaders":"forge,fabric,neoforge";
+"update_supported_minecraft_versions":"1.21.4";
+%changelog:metadata:end%
 %changelog:end%
 
 
 
 
 CHANGELOG | DRIPPY LOADING SCREEN v3.0.9
- 
-- Forge: Fixed crash on start in MC 1.20.4, 1.20.1, 1.19.2, 1.18.2
 
+- Fixed crash on start in Forge 1.20.4, 1.20.1, 1.19.2, 1.18.2
+
+%changelog:metadata:start%
+"version":"3.0.9";
+"update_title":"";
+"update_release_date_timestamp":"1728446948";
+"update_release_date_string_ddmmyyyy":"09-10-2024";
+"update_supported_mod_loaders":"forge";
+"update_supported_minecraft_versions":"1.18.2,1.19.2,1.20.1,1.20.4";
+%changelog:metadata:end%
 %changelog:end%
 
 
 
 
 CHANGELOG | DRIPPY LOADING SCREEN v3.0.8
- 
+
 - Dropped MC 1.21.0
 - Minimum FancyMenu version is now v3.2.0
 - Fixed Drippy ignoring FancyMenu's modpack mode
 
+%changelog:metadata:start%
+"version":"3.0.8";
+"update_title":"";
+"update_release_date_timestamp":"1728379766";
+"update_release_date_string_ddmmyyyy":"08-10-2024";
+"update_supported_mod_loaders":"forge,fabric,neoforge";
+"update_supported_minecraft_versions":"1.18.2,1.19.2,1.20.1,1.20.4,1.20.6,1.21.1";
+%changelog:metadata:end%
+%changelog:end%
+
+
+
+
+CHANGELOG | DRIPPY LOADING SCREEN v3.0.7
+
+- Ported to MC 1.21
+
+%changelog:metadata:start%
+"version":"3.0.7";
+"update_title":"";
+"update_release_date_timestamp":"1718537946";
+"update_release_date_string_ddmmyyyy":"16-06-2024";
+"update_supported_mod_loaders":"forge,fabric,neoforge";
+"update_supported_minecraft_versions":"1.21,1.21.1";
+%changelog:metadata:end%
 %changelog:end%
 
 
 
 
 CHANGELOG | DRIPPY LOADING SCREEN v3.0.6
- 
+
 - Ported to Forge 1.20.6
 
+%changelog:metadata:start%
+"version":"3.0.6";
+"update_title":"";
+"update_release_date_timestamp":"1715854924";
+"update_release_date_string_ddmmyyyy":"16-05-2024";
+"update_supported_mod_loaders":"forge";
+"update_supported_minecraft_versions":"1.20.6";
+%changelog:metadata:end%
 %changelog:end%
 
 
 
 
 CHANGELOG | DRIPPY LOADING SCREEN v3.0.4
- 
+
 - Ported to MC 1.20.6 (skipped 1.20.5)
 - Dropped support for MC 1.20.4
 
+%changelog:metadata:start%
+"version":"3.0.4";
+"update_title":"";
+"update_release_date_timestamp":"1714450101";
+"update_release_date_string_ddmmyyyy":"30-04-2024";
+"update_supported_mod_loaders":"fabric,neoforge";
+"update_supported_minecraft_versions":"1.20.6";
+%changelog:metadata:end%
 %changelog:end%
 
 
 
 
 CHANGELOG | DRIPPY LOADING SCREEN v3.0.3
- 
+
 - Ported to NeoForge 1.20.4
 
+%changelog:metadata:start%
+"version":"3.0.3";
+"update_title":"";
+"update_release_date_timestamp":"1709268453";
+"update_release_date_string_ddmmyyyy":"01-03-2024";
+"update_supported_mod_loaders":"neoforge";
+"update_supported_minecraft_versions":"1.20.4";
+%changelog:metadata:end%
 %changelog:end%
 
 
 
 
 CHANGELOG | DRIPPY LOADING SCREEN v3.0.2
- 
+
 - Lowered required Fabric API version to 0.88.1
 
+%changelog:metadata:start%
+"version":"3.0.2";
+"update_title":"";
+"update_release_date_timestamp":"1709017201";
+"update_release_date_string_ddmmyyyy":"27-02-2024";
+"update_supported_mod_loaders":"fabric";
+"update_supported_minecraft_versions":"1.20.1";
+%changelog:metadata:end%
 %changelog:end%
-
 
 
 
@@ -177,256 +398,413 @@ CHANGELOG | DRIPPY LOADING SCREEN v3.0.1
 - Lowered minimum required 1.20.1 Forge version to 47.1.47
 - The Drippy button in the Title Screen now always renders on top of everything (should not get rendered behind FancyMenu elements, etc.)
 
+%changelog:metadata:start%
+"version":"3.0.1";
+"update_title":"";
+"update_release_date_timestamp":"1708253308";
+"update_release_date_string_ddmmyyyy":"18-02-2024";
+"update_supported_mod_loaders":"forge,fabric";
+"update_supported_minecraft_versions":"1.18.2,1.19.2,1.20.1,1.20.4";
+%changelog:metadata:end%
 %changelog:end%
-
-
-
-
-
-CHANGELOG | DRIPPY LOADING SCREEN v3.0.0 (link version)
-
-CHANGELOG: https://gist.github.com/Keksuccino/b5f8bdad204be04566a69b914ff1554d
-
-%changelog:end%
-
 
 
 
 
 CHANGELOG | DRIPPY LOADING SCREEN v3.0.0
- 
+
 PLEASE READ:
- 
+
 Hey!
- 
+
 Just a quick info that this is a full rewrite to make Drippy compatible with FancyMenu v3.0.0+,
 so bugs will probably happen! I tried to make old layouts compatible with the new version, but some
 specific customizations could not be ported, so make sure to check your layouts and fix them if needed!
- 
+
 Thank you and happy customizing!
- 
+
 -------------------------
- 
+
 - The mod got a full rewrite to work with FancyMenu v3.0.0+
 - Dropped support for Minecraft versions below 1.18
- 
+
 - Old Drippy config (config.cfg) is not working anymore, you need to copy your settings to the new options.txt file
 - The custom color setting of the Vanilla Progress Bar element does not exist anymore
   - Add an "Vanilla-Like Progress Bar" element and hide the original one if your want to continue using a Vanilla-like progress bar with custom color
 - There's now a config setting to control if the mod should wait for textures in loading screen layouts to prevent textures from flickering during resource reload
   - This can be helpful but can also make the loading screen freeze when using large textures, so disable this if you experience lagging/freezes
 - There's now a config setting to disable the loading screen fade-out
- 
+
+%changelog:metadata:start%
+"version":"3.0.0";
+"update_title":"";
+"update_release_date_timestamp":"1706155564";
+"update_release_date_string_ddmmyyyy":"25-01-2024";
+"update_supported_mod_loaders":"forge,fabric";
+"update_supported_minecraft_versions":"1.18.2,1.19.2,1.20.1,1.20.4";
+%changelog:metadata:end%
 %changelog:end%
 
 
 
 
+CHANGELOG | DRIPPY LOADING SCREEN v2.2.6
 
 - Ported to MC 1.20.4
 
+%changelog:metadata:start%
+"version":"2.2.6";
+"update_title":"";
+"update_release_date_timestamp":"1704445416";
+"update_release_date_string_ddmmyyyy":"05-01-2024";
+"update_supported_mod_loaders":"forge,fabric";
+"update_supported_minecraft_versions":"1.20.4";
+%changelog:metadata:end%
 %changelog:end%
 
 
 
+
+CHANGELOG | DRIPPY LOADING SCREEN v2.2.5
 
 - Added support for FancyMenu 2.14.10
 
+%changelog:metadata:start%
+"version":"2.2.5";
+"update_title":"";
+"update_release_date_timestamp":"1697608175";
+"update_release_date_string_ddmmyyyy":"18-10-2023";
+"update_supported_mod_loaders":"fabric";
+"update_supported_minecraft_versions":"1.20.1,1.20.2";
+%changelog:metadata:end%
 %changelog:end%
 
 
 
+
+CHANGELOG | DRIPPY LOADING SCREEN v2.2.4
 
 - Added support for MC 1.20.2
 
+%changelog:metadata:start%
+"version":"2.2.4";
+"update_title":"";
+"update_release_date_timestamp":"1695527183";
+"update_release_date_string_ddmmyyyy":"24-09-2023";
+"update_supported_mod_loaders":"forge,fabric";
+"update_supported_minecraft_versions":"1.20.2";
+%changelog:metadata:end%
 %changelog:end%
 
 
 
 
-CHANGELOG | DRIPPY LOADING SCREEN v2.2.4 for Forge 1.20.1
- 
+CHANGELOG | DRIPPY LOADING SCREEN v2.2.4
+
+- This update is only for Forge 1.20.1
+
 - Minimum required Forge version is 47.0.19 now
- 
+
 - Further improved stability with new Forge loading screen
 
+%changelog:metadata:start%
+"version":"2.2.4";
+"update_title":"";
+"update_release_date_timestamp":"1687581074";
+"update_release_date_string_ddmmyyyy":"24-06-2023";
+"update_supported_mod_loaders":"forge";
+"update_supported_minecraft_versions":"1.20.1";
+%changelog:metadata:end%
 %changelog:end%
 
 
 
 
-CHANGELOG | DRIPPY LOADING SCREEN v2.2.3-1 for Forge 1.20.1
- 
+CHANGELOG | DRIPPY LOADING SCREEN v2.2.3-1
+
+- This update is only for Forge 1.20.1
+
 - Minimum required Forge version is 47.0.18 now
- 
+
 - Added support for latest Forge build (here we go again)
 
 - Added config option to let Drippy disable the Forge early loading screen on launch (Drippy will NOT disable the early loading screen by default)
 
+%changelog:metadata:start%
+"version":"2.2.3-1";
+"update_title":"";
+"update_release_date_timestamp":"1687477235";
+"update_release_date_string_ddmmyyyy":"22-06-2023";
+"update_supported_mod_loaders":"forge";
+"update_supported_minecraft_versions":"1.20.1";
+%changelog:metadata:end%
 %changelog:end%
 
 
 
 
-CHANGELOG | DRIPPY LOADING SCREEN v2.2.3 for Forge 1.20.1
- 
+CHANGELOG | DRIPPY LOADING SCREEN v2.2.3
+
+- This update is only for Forge 1.20.1
+
 - Minimum required Forge version is 47.0.14 now
- 
+
 - Dropped support for MC 1.20.0
- 
+
 - Added support for latest Forge 1.20.1 build
 
+%changelog:metadata:start%
+"version":"2.2.3";
+"update_title":"";
+"update_release_date_timestamp":"1687321452";
+"update_release_date_string_ddmmyyyy":"21-06-2023";
+"update_supported_mod_loaders":"forge";
+"update_supported_minecraft_versions":"1.20.1";
+%changelog:metadata:end%
 %changelog:end%
 
 
 
 
 CHANGELOG | DRIPPY LOADING SCREEN v2.2.2
- 
-- Fixed: Drippy keeps adding new entries to the "config/fancymenu/customizablemenus.txt" file on every game launch
 
-%changelog:end%
+- Fixed Drippy adding new entries to the "config/fancymenu/customizablemenus.txt" file on every game launch
 
-
-
-
-- Added support for MC 1.20
-
+%changelog:metadata:start%
+"version":"2.2.2";
+"update_title":"";
+"update_release_date_timestamp":"1686876142";
+"update_release_date_string_ddmmyyyy":"16-06-2023";
+"update_supported_mod_loaders":"forge,fabric";
+"update_supported_minecraft_versions":"1.16.5,1.18.2,1.19,1.19.1,1.19.2,1.19.3,1.19.4,1.20,1.20.1";
+%changelog:metadata:end%
 %changelog:end%
 
 
 
 
 CHANGELOG | DRIPPY LOADING SCREEN v2.2.1
- 
-- Fixed: Rare crash on startup related to config being accessed too early
 
+- Added support for MC 1.20
+
+%changelog:metadata:start%
+"version":"2.2.1";
+"update_title":"";
+"update_release_date_timestamp":"1686631196";
+"update_release_date_string_ddmmyyyy":"13-06-2023";
+"update_supported_mod_loaders":"forge,fabric";
+"update_supported_minecraft_versions":"1.20,1.20.1";
+%changelog:metadata:end%
 %changelog:end%
 
 
 
 
+CHANGELOG | DRIPPY LOADING SCREEN v2.2.1
 
-CHANGELOG | DRIPPY LOADING SCREEN v2.2.0-1 for MC 1.16
- 
-- Fixed: Crash when OptiFine is installed
+- Fixed rare crash on startup related to config being accessed too early
 
+%changelog:metadata:start%
+"version":"2.2.1";
+"update_title":"";
+"update_release_date_timestamp":"1682552187";
+"update_release_date_string_ddmmyyyy":"26-04-2023";
+"update_supported_mod_loaders":"forge,fabric";
+"update_supported_minecraft_versions":"1.16.5,1.18.2,1.19,1.19.1,1.19.2,1.19.3,1.19.4";
+%changelog:metadata:end%
 %changelog:end%
 
+
+
+
+CHANGELOG | DRIPPY LOADING SCREEN v2.2.0-1
+
+- This update is only for MC 1.16
+
+- Fixed crash when OptiFine is installed
+
+%changelog:metadata:start%
+"version":"2.2.0-1";
+"update_title":"";
+"update_release_date_timestamp":"1682463587";
+"update_release_date_string_ddmmyyyy":"25-04-2023";
+"update_supported_mod_loaders":"forge";
+"update_supported_minecraft_versions":"1.16.5";
+%changelog:metadata:end%
+%changelog:end%
 
 
 
 
 CHANGELOG | DRIPPY LOADING SCREEN v2.2.0
- 
-- Dependency Change: Minimum FancyMenu version is now 2.14.4
- 
-- Added: Config option "Early Fade-Out Elements" to make layout elements start fading out earlier than the loading screen background (default = true)
- 
-- Improved: The loading screen now fades out like in Vanilla
-- Improved: The Mojang Logo element now supports loading requirements
-- Improved: You can now move and resize the Mojang Logo element by disabling "Vanilla Size and Position Calculation"
-- Improved: The Vanilla Progress Bar element now supports loading requirements
-- Improved: You can now move and resize the Vanilla Progress Bar element by disabling "Vanilla Size and Position Calculation"
-- Improved: Tooltip of the Customize button in the title menu now tells users how to hide/show the button
- 
-- Fixed: Crash when trying to start the game without FancyMenu installed instead of showing Missing Dependency screen
-- Fixed: MC 1.16: Flickering textures when the loading screen is about to close
 
+- Minimum FancyMenu version is now 2.14.4
+
+- Added config option "Early Fade-Out Elements" to make layout elements start fading out earlier than the loading screen background (default = true)
+
+- The loading screen now fades out like in Vanilla
+- The Mojang Logo element now supports loading requirements
+- You can now move and resize the Mojang Logo element by disabling "Vanilla Size and Position Calculation"
+- The Vanilla Progress Bar element now supports loading requirements
+- You can now move and resize the Vanilla Progress Bar element by disabling "Vanilla Size and Position Calculation"
+- The tooltip of the Customize button in the title menu now tells users how to hide/show the button
+
+- Fixed crash when trying to start the game without FancyMenu installed instead of showing the Missing Dependency screen
+- Fixed flickering textures when the loading screen is about to close in MC 1.16
+
+%changelog:metadata:start%
+"version":"2.2.0";
+"update_title":"";
+"update_release_date_timestamp":"1681954646";
+"update_release_date_string_ddmmyyyy":"20-04-2023";
+"update_supported_mod_loaders":"forge,fabric";
+"update_supported_minecraft_versions":"1.16.5,1.18.2,1.19,1.19.1,1.19.2,1.19.3,1.19.4";
+%changelog:metadata:end%
 %changelog:end%
-
 
 
 
 
 CHANGELOG | DRIPPY LOADING SCREEN v2.1.4
- 
+
 - Tried to make the fix of v2.1.3 less aggressive (to improve compatibility with other mods)
 
+%changelog:metadata:start%
+"version":"2.1.4";
+"update_title":"";
+"update_release_date_timestamp":"1681168998";
+"update_release_date_string_ddmmyyyy":"10-04-2023";
+"update_supported_mod_loaders":"forge,fabric";
+"update_supported_minecraft_versions":"1.16.5,1.18.2,1.19,1.19.1,1.19.2,1.19.3,1.19.4";
+%changelog:metadata:end%
 %changelog:end%
-
 
 
 
 
 CHANGELOG | DRIPPY LOADING SCREEN v2.1.3
- 
+
 - Next attempt at trying to fix the "Bad Access To Protected Data" crash/bug
 
+%changelog:metadata:start%
+"version":"2.1.3";
+"update_title":"";
+"update_release_date_timestamp":"1681009841";
+"update_release_date_string_ddmmyyyy":"09-04-2023";
+"update_supported_mod_loaders":"forge,fabric";
+"update_supported_minecraft_versions":"1.16.5,1.18.2,1.19,1.19.1,1.19.2,1.19.3,1.19.4";
+%changelog:metadata:end%
 %changelog:end%
-
 
 
 
 
 CHANGELOG | DRIPPY LOADING SCREEN v2.1.2
- 
-- Dependency Change: Minimum required FancyMenu version is 2.14.2 now
- 
-- Fixed: Attempt at fixing the "Bad Access To Protected Data" bug/crash caused by Drippy Loading Screen + Oculus/Iris/OptiFine
 
+- Minimum required FancyMenu version is 2.14.2 now
+
+- Tried to fix the "Bad Access To Protected Data" bug/crash caused by Drippy Loading Screen + Oculus/Iris/OptiFine
+
+%changelog:metadata:start%
+"version":"2.1.2";
+"update_title":"";
+"update_release_date_timestamp":"1680753726";
+"update_release_date_string_ddmmyyyy":"06-04-2023";
+"update_supported_mod_loaders":"forge,fabric";
+"update_supported_minecraft_versions":"1.16.5,1.18.2,1.19,1.19.1,1.19.2,1.19.3,1.19.4";
+%changelog:metadata:end%
 %changelog:end%
-
-
-
-
-
-CHANGELOG | DRIPPY LOADING SCREEN for MC 1.19.4
- 
-- Added support for MC 1.19.4
-
-%changelog:end%
-
 
 
 
 
 CHANGELOG | DRIPPY LOADING SCREEN v2.1.1
- 
-- Improved: Tried to improve early loading of fonts for text rendering in loading screen (could improve mod compatibility)
- 
+
+- Added support for MC 1.19.4
+
+%changelog:metadata:start%
+"version":"2.1.1";
+"update_title":"";
+"update_release_date_timestamp":"1679029113";
+"update_release_date_string_ddmmyyyy":"17-03-2023";
+"update_supported_mod_loaders":"forge,fabric";
+"update_supported_minecraft_versions":"1.19.4";
+%changelog:metadata:end%
 %changelog:end%
 
+
+
+
+CHANGELOG | DRIPPY LOADING SCREEN v2.1.1
+
+- Tried to improve early loading of fonts for text rendering in loading screen (could improve mod compatibility)
+
+%changelog:metadata:start%
+"version":"2.1.1";
+"update_title":"";
+"update_release_date_timestamp":"1675476557";
+"update_release_date_string_ddmmyyyy":"04-02-2023";
+"update_supported_mod_loaders":"forge,fabric";
+"update_supported_minecraft_versions":"1.16.5,1.18.2,1.19,1.19.1,1.19.2,1.19.3";
+%changelog:metadata:end%
+%changelog:end%
 
 
 
 
 CHANGELOG | DRIPPY LOADING SCREEN v2.1.0
- 
-- Added: Config option to allow universal layouts in the loading screen (default: false)
-- Added: "CPU Info" placeholder (Drippy Loading Screen category)
-- Added: "GPU Info" placeholder (Drippy Loading Screen category)
-- Added: "FPS" placeholder (Drippy Loading Screen category)
-- Added: "Java Version" placeholder (Drippy Loading Screen category)
-- Added: "Java VM Name" placeholder (Drippy Loading Screen category)
-- Added: "OpenGL Info" placeholder (Drippy Loading Screen category)
-- Added: "Operating System" placeholder (Drippy Loading Screen category)
-- Added: Ability to set a background texture and color to progress bar elements (bars added before this update will have a blue background now)
- 
-- Improved: The Drippy button in the main menu now hides/shows with the FancyMenu UI (CTRL + ALT + C to toggle by default)
-- Improved: FancyMenu's customization overlay is now always visible in the Drippy customization screen (even if hidden in other screens) 
- 
- 
-KNOWN ISSUES:
- 
-- Resizing is broken for the child element when using the "element" orientation (This is a bug in FancyMenu and not Drippy)
- 
-%changelog:end%
 
+- Added config option to allow universal layouts in the loading screen (default: false)
+- Added "CPU Info" placeholder (Drippy Loading Screen category)
+- Added "GPU Info" placeholder (Drippy Loading Screen category)
+- Added "FPS" placeholder (Drippy Loading Screen category)
+- Added "Java Version" placeholder (Drippy Loading Screen category)
+- Added "Java VM Name" placeholder (Drippy Loading Screen category)
+- Added "OpenGL Info" placeholder (Drippy Loading Screen category)
+- Added "Operating System" placeholder (Drippy Loading Screen category)
+- Added the ability to set a background texture and color to progress bar elements (bars added before this update will have a blue background now)
+
+- The Drippy button in the main menu now hides/shows with the FancyMenu UI (CTRL + ALT + C to toggle by default)
+- FancyMenu's customization overlay is now always visible in the Drippy customization screen (even if hidden in other screens)
+
+KNOWN ISSUES:
+
+- Resizing is broken for the child element when using the "element" orientation (This is a bug in FancyMenu and not Drippy)
+
+%changelog:metadata:start%
+"version":"2.1.0";
+"update_title":"";
+"update_release_date_timestamp":"1675407250";
+"update_release_date_string_ddmmyyyy":"03-02-2023";
+"update_supported_mod_loaders":"forge,fabric";
+"update_supported_minecraft_versions":"1.16.5,1.18.2,1.19,1.19.1,1.19.2,1.19.3";
+%changelog:metadata:end%
+%changelog:end%
 
 
 
 
 CHANGELOG | DRIPPY LOADING SCREEN v2.0.1
- 
-- Fixed: Crash on game start
- 
- 
- 
+
+- Fixed crash on game start
+
+%changelog:metadata:start%
+"version":"2.0.1";
+"update_title":"";
+"update_release_date_timestamp":"1675291856";
+"update_release_date_string_ddmmyyyy":"01-02-2023";
+"update_supported_mod_loaders":"forge,fabric";
+"update_supported_minecraft_versions":"1.16.5,1.18.2,1.19,1.19.1,1.19.2,1.19.3";
+%changelog:metadata:end%
+%changelog:end%
+
+
+
+
 CHANGELOG | DRIPPY LOADING SCREEN v2.0.0
- 
+
 ~ It's rewrite time! ~
- 
+
 This update is a complete 100% REWRITE of Drippy!
 That's a good thing, trust me, but there are indeed some BIG CHANGES that come with that:
 
@@ -436,25 +814,25 @@ That's a good thing, trust me, but there are indeed some BIG CHANGES that come w
 
 - Drippy is now basically a FancyMenu extension, which means you have access to almost all of FancyMenu's elements,
   This also means that FancyMenu is now a DEPENDENCY!
-  
+
 - You can now use NON-BASIC CHARACTERS in text-based elements!
   That means support for Russian, Japanese, Korean and more characters!
-  
+
 - It's now possible to use ANIMATIONS in Drippy,
   which is just one of the many benefits that come from having FancyMenu as dependency!
-  
+
 - NO AUDIO SUPPORT ANYMORE!
   Yes, I know, some of you probably want to give me a good ol' punch to the face right now,
   but there's a reason for why audio support didn't make it into the rewrite.
   It's just that the audio engine is not supposed to be ready in the loading screen and initializing it that early,
   which is needed for audio support, can lead to a long list of problems with other mods.
   But don't worry, animation audio is still supported, because animations use a different audio engine.
-  
+
 - EXPORTING/IMPORTING SETUPS is now possible via FancyMenu's setup export/import feature!
   FancyMenu now sees the loading screen as normal menu, which also means it saves layouts for the loading screen in exactly
   the same way it does for other menus, so when you export your "FancyMenu" setup, you now automatically export
   loading screen layouts as well.
-  
+
 - So much more stuff you know from FancyMenu, like the new placeholder system, etc.!
 
 And the best thing: Since this is a complete rewrite, there will probably be a lot new bugs for you to discover!
@@ -463,418 +841,536 @@ Just see them as little easter eggs.
 But jokes aside, if you discover bugs (which will probably happen), report them to me, so I can fix them.
 Thank you very much!
 
+%changelog:metadata:start%
+"version":"2.0.0";
+"update_title":"";
+"update_release_date_timestamp":"1675221877";
+"update_release_date_string_ddmmyyyy":"01-02-2023";
+"update_supported_mod_loaders":"forge,fabric";
+"update_supported_minecraft_versions":"1.16.5,1.18.2,1.19,1.19.1,1.19.2,1.19.3";
+%changelog:metadata:end%
 %changelog:end%
-
-
-
-
-
-CHANGELOG | DRIPPY LOADING SCREEN v2.0.0
- 
-~ It's rewrite time! ~
- 
-This update is a complete 100% REWRITE of Drippy!
-That's a good thing, trust me, but there are indeed some BIG CHANGES that come with that:
-
-- OLD LAYOUTS ARE INCOMPATIBLE WITH THIS NEW VERSION!
-  I'm very sorry, but I wasn't able to make old layouts work in the rewrite.
-  You will need to remake your layouts, which is indeed a bummer, but I think it will pay out.
-
-- Drippy is now basically a FancyMenu extension, which means you have access to almost all of FancyMenu's elements,
-  This also means that FancyMenu is now a DEPENDENCY!
-  
-- You can now use NON-BASIC CHARACTERS in text-based elements!
-  That means support for Russian, Japanese, Korean and more characters!
-  
-- It's now possible to use ANIMATIONS in Drippy,
-  which is just one of the many benefits that come from having FancyMenu as dependency!
-  
-- NO AUDIO SUPPORT ANYMORE!
-  Yes, I know, some of you probably want to give me a good ol' punch to the face right now,
-  but there's a reason for why audio support didn't make it into the rewrite.
-  It's just that the audio engine is not supposed to be ready in the loading screen and initializing it that early,
-  which is needed for audio support, can lead to a long list of problems with other mods.
-  But don't worry, animation audio is still supported, because animations use a different audio engine.
-  
-- EXPORTING/IMPORTING SETUPS is now possible via FancyMenu's setup export/import feature!
-  FancyMenu now sees the loading screen as normal menu, which also means it saves layouts for the loading screen in exactly
-  the same way it does for other menus, so when you export your "FancyMenu" setup, you now automatically export
-  loading screen layouts as well.
-  
-- So much more stuff you know from FancyMenu, like the new placeholder system, etc.!
-
-And the best thing: Since this is a complete rewrite, there will probably be a lot new bugs for you to discover!
-Just see them as little easter eggs.
-
-But jokes aside, if you discover bugs (which will probably happen), report them to me, so I can fix them.
-Thank you very much!
-
-
-%changelog:end%
-
-
-
-
-
-- Initial MC 1.19.3 release
-
-%changelog:end%
-
 
 
 
 
 CHANGELOG | DRIPPY LOADING SCREEN v1.6.6
- 
-- Fixed: Experimental fix for the auto-scaling issue where the loading screen got the zoomies and decided to zoom out into oblivion
- 
-- Improved: Auto-scaling now requires the user to set a forced GUI scale first
---> Layouts with auto-scaling already enabled will not change, but it's really recommend to set a forced GUI scale if you haven't yet
 
+- Initial MC 1.19.3 release
+
+%changelog:metadata:start%
+"version":"1.6.6";
+"update_title":"";
+"update_release_date_timestamp":"1671418919";
+"update_release_date_string_ddmmyyyy":"19-12-2022";
+"update_supported_mod_loaders":"forge,fabric";
+"update_supported_minecraft_versions":"1.19.3";
+%changelog:metadata:end%
 %changelog:end%
 
 
 
 
-CHANGELOG | DRIPPY LOADING SCREEN v1.6.5-1 for Forge 1.16.X
- 
-- Fixed: Crash on game start when OptiFine is installed
- 
- 
+CHANGELOG | DRIPPY LOADING SCREEN v1.6.6
+
+- Experimental fix for the auto-scaling issue where the loading screen got the zoomies and decided to zoom out into oblivion
+
+- Auto-scaling now requires the user to set a forced GUI scale first
+  - Layouts with auto-scaling already enabled will not change, but it's really recommend to set a forced GUI scale if you haven't yet
+
+%changelog:metadata:start%
+"version":"1.6.6";
+"update_title":"";
+"update_release_date_timestamp":"1669853042";
+"update_release_date_string_ddmmyyyy":"01-12-2022";
+"update_supported_mod_loaders":"forge,fabric";
+"update_supported_minecraft_versions":"1.16.2,1.16.3,1.16.4,1.16.5,1.18,1.18.1,1.18.2,1.19,1.19.1,1.19.2";
+%changelog:metadata:end%
+%changelog:end%
+
+
+
+
+CHANGELOG | DRIPPY LOADING SCREEN v1.6.5-1
+
+- This update is only for Forge 1.16.X
+
+- Fixed crash on game start when OptiFine is installed
+
+%changelog:metadata:start%
+"version":"1.6.5-1";
+"update_title":"";
+"update_release_date_timestamp":"1667002835";
+"update_release_date_string_ddmmyyyy":"29-10-2022";
+"update_supported_mod_loaders":"forge";
+"update_supported_minecraft_versions":"1.16.2,1.16.3,1.16.4,1.16.5";
+%changelog:metadata:end%
+%changelog:end%
+
+
+
+
 CHANGELOG | DRIPPY LOADING SCREEN v1.6.5
- 
-- Dependency Change: Removed mandatory Auudio dependency
---> Auudio is still needed for audio elements, but it's not a mandatory dependency anymore
 
+- Removed mandatory Auudio dependency
+  - Auudio is still needed for audio elements, but it's not a mandatory dependency anymore
+
+%changelog:metadata:start%
+"version":"1.6.5";
+"update_title":"";
+"update_release_date_timestamp":"1666739662";
+"update_release_date_string_ddmmyyyy":"25-10-2022";
+"update_supported_mod_loaders":"forge,fabric";
+"update_supported_minecraft_versions":"1.16.2,1.16.3,1.16.4,1.16.5,1.18,1.18.1,1.18.2,1.19,1.19.1,1.19.2";
+%changelog:metadata:end%
 %changelog:end%
 
 
 
 
+CHANGELOG | DRIPPY LOADING SCREEN v1.6.4-1
 
-CHANGELOG | DRIPPY LOADING SCREEN v1.6.5-1 for Forge 1.16.X
- 
-- Fixed: Crash on game start when OptiFine is installed
+- This update is only for Forge 1.19
 
-%changelog:end%
-
-
-
-
-
-CHANGELOG | DRIPPY LOADING SCREEN v1.6.5
- 
-- Dependency Change: Removed mandatory Auudio dependency
---> Auudio is still needed for audio elements, but it's not a mandatory dependency anymore
-
-%changelog:end%
-
-
-
-
-
-CHANGELOG | DRIPPY LOADING SCREEN v1.6.4-1 for Forge 1.19
- 
 - Added support for the latest Forge 1.19 build (this will break the mod on older builds, so please update to the latest Forge build)
 
+%changelog:metadata:start%
+"version":"1.6.4-1";
+"update_title":"";
+"update_release_date_timestamp":"1657477175";
+"update_release_date_string_ddmmyyyy":"10-07-2022";
+"update_supported_mod_loaders":"forge";
+"update_supported_minecraft_versions":"1.19,1.19.1,1.19.2";
+%changelog:metadata:end%
 %changelog:end%
-
 
 
 
 
 CHANGELOG | DRIPPY LOADING SCREEN v1.6.4
- 
-- Fixed: Game crashing in some situations when a loading screen fades to no screen (when fading to in-game view)
 
+- Fixed game crashing in some situations when a loading screen fades to no screen (when fading to in-game view)
+
+%changelog:metadata:start%
+"version":"1.6.4";
+"update_title":"";
+"update_release_date_timestamp":"1655582739";
+"update_release_date_string_ddmmyyyy":"18-06-2022";
+"update_supported_mod_loaders":"forge,fabric";
+"update_supported_minecraft_versions":"1.16.2,1.16.3,1.16.4,1.16.5,1.18,1.18.1,1.18.2,1.19,1.19.1,1.19.2";
+%changelog:metadata:end%
 %changelog:end%
-
-
-
-
-
-- Initial MC 1.19 release
-
-%changelog:end%
-
 
 
 
 
 CHANGELOG | DRIPPY LOADING SCREEN v1.6.3
- 
-- Fixed: More potential causes of random crashes related to a missing config (you should update to this build!)
 
+- Initial MC 1.19 release
+
+%changelog:metadata:start%
+"version":"1.6.3";
+"update_title":"";
+"update_release_date_timestamp":"1654643877";
+"update_release_date_string_ddmmyyyy":"07-06-2022";
+"update_supported_mod_loaders":"forge,fabric";
+"update_supported_minecraft_versions":"1.19";
+%changelog:metadata:end%
 %changelog:end%
 
 
+
+
+CHANGELOG | DRIPPY LOADING SCREEN v1.6.3
+
+- Fixed more potential causes of random crashes related to a missing config (you should update to this build!)
+
+%changelog:metadata:start%
+"version":"1.6.3";
+"update_title":"";
+"update_release_date_timestamp":"1654107661";
+"update_release_date_string_ddmmyyyy":"01-06-2022";
+"update_supported_mod_loaders":"forge,fabric";
+"update_supported_minecraft_versions":"1.16.2,1.16.3,1.16.4,1.16.5,1.18,1.18.1,1.18.2";
+%changelog:metadata:end%
+%changelog:end%
 
 
 
 
 CHANGELOG | DRIPPY LOADING SCREEN v1.6.2
- 
-- Fixed: Random crash at game start related to Drippy's config not being loaded yet
 
+- Fixed random crash at game start related to Drippy's config not being loaded yet
+
+%changelog:metadata:start%
+"version":"1.6.2";
+"update_title":"";
+"update_release_date_timestamp":"1653585798";
+"update_release_date_string_ddmmyyyy":"26-05-2022";
+"update_supported_mod_loaders":"forge,fabric";
+"update_supported_minecraft_versions":"1.16.2,1.16.3,1.16.4,1.16.5,1.18,1.18.1,1.18.2";
+%changelog:metadata:end%
 %changelog:end%
-
-
 
 
 
 
 CHANGELOG | DRIPPY LOADING SCREEN v1.6.1
- 
-- Added: Config option to disable custom sound engine reloading, because it could cause conflicts with other mods
- 
-- Improved: Audio elements now play until the very end of the loading screen
- 
-- Fixed: Audio elements not playing in the first loading screen (when starting the game) while OptiFine is installed
 
+- Added config option to disable custom sound engine reloading, because it could cause conflicts with other mods
+
+- Audio elements now play until the very end of the loading screen
+
+- Fixed audio elements not playing in the first loading screen (when starting the game) while OptiFine is installed
+
+%changelog:metadata:start%
+"version":"1.6.1";
+"update_title":"";
+"update_release_date_timestamp":"1652985068";
+"update_release_date_string_ddmmyyyy":"19-05-2022";
+"update_supported_mod_loaders":"forge,fabric";
+"update_supported_minecraft_versions":"1.16.2,1.16.3,1.16.4,1.16.5,1.18,1.18.1,1.18.2";
+%changelog:metadata:end%
 %changelog:end%
-
-
 
 
 
 
 CHANGELOG | DRIPPY LOADING SCREEN v1.6.0
- 
+
 - Dropped support for Fabric MC 1.16
- 
+
 - NEW DEPENDENCY: Drippy Loading Screen now depends on Auudio
- 
-- Added: Audio element
---> Play background sounds in the loading screen
---> This is only useful for short sounds (or longer sounds, when loading big modpacks), since loading times aren't very long in MC by default
---> Audios get cut at the end of the loading screen, because MC's sound engine gets reloaded (you know, because it's a resource (re)loading screen)
 
+- Added Audio element
+  - Play background sounds in the loading screen
+  - This is only useful for short sounds (or longer sounds, when loading big modpacks), since loading times aren't very long in MC by default
+  - Audios get cut at the end of the loading screen, because MC's sound engine gets reloaded (you know, because it's a resource (re)loading screen)
+
+%changelog:metadata:start%
+"version":"1.6.0";
+"update_title":"";
+"update_release_date_timestamp":"1652906414";
+"update_release_date_string_ddmmyyyy":"18-05-2022";
+"update_supported_mod_loaders":"forge,fabric";
+"update_supported_minecraft_versions":"1.16.2,1.16.3,1.16.4,1.16.5,1.18,1.18.1,1.18.2";
+%changelog:metadata:end%
 %changelog:end%
-
-
 
 
 
 
 CHANGELOG | DRIPPY LOADING SCREEN v1.5.1
- 
-- Fixed: Broken v1.5.0 update for Fabric 1.16.5 (most of the new features were missing in the release, because I'm retarded)
-- Fixed: Hopefully fixed randomly occuring crash when using web textures while having OptiFine installed
 
+- Fixed broken v1.5.0 update for Fabric 1.16.5 (most of the new features were missing in the release, because I'm retarded)
+- Hopefully fixed randomly occurring crash when using web textures while having OptiFine installed
+
+%changelog:metadata:start%
+"version":"1.5.1";
+"update_title":"";
+"update_release_date_timestamp":"1643578117";
+"update_release_date_string_ddmmyyyy":"30-01-2022";
+"update_supported_mod_loaders":"forge,fabric";
+"update_supported_minecraft_versions":"1.16.2,1.16.3,1.16.4,1.16.5,1.18,1.18.1,1.18.2";
+%changelog:metadata:end%
 %changelog:end%
 
 
 
 
-
-
 CHANGELOG | DRIPPY LOADING SCREEN v1.5.0
- 
+
 - Lifted minimum required Konkrete version to 1.3.3
- 
-- Added: Placeholder text value '%cpuinfo%' to get an info text about the CPU, including name, cores, etc.
-- Added: Placeholder text value '%gpuinfo%' to get an info text about the GPU
-- Added: Placeholder text value '%javaversion%' to get the Java version
-- Added: Placeholder text value '%osname%' to get the name of the operating system
-- Added: Placeholder text value '%openglversion%' to get the OpenGL version (combined with the GPU driver version)
-- Added: Placeholder text value '%randomtext:<filepath>:<interval_sec>%' to pick a random text from a TXT file and let it pick a new one every X seconds
- 
-- Improved: Web texture handling (ported new web texture handling from FancyMenu)
-- Improved: Grid in editor now renders from the center and the centered lines look different to easily know what the center of the screen is
- 
-- Fixed: Unable to check for Optifine in required mods property of layouts (you can now check for OF by using 'optifine' as mod ID)
-- Fixed: Optifine not counting to existing mods in '%loadedmods%' and '%totalmods%' placeholder text values
-- Fixed: FPS drops in customized loading screen when many mods are installed (caused by placeholder text value)
-- Fixed: Placeholder to get the mod loader version says "Forge Version" on Fabric (changed to "Mod Loader Version")
-- Fixed: Placeholder to get the mod loader version inputs "%version:forge%" to text field on Fabric
 
+- Added placeholder text value '%cpuinfo%' to get an info text about the CPU, including name, cores, etc.
+- Added placeholder text value '%gpuinfo%' to get an info text about the GPU
+- Added placeholder text value '%javaversion%' to get the Java version
+- Added placeholder text value '%osname%' to get the name of the operating system
+- Added placeholder text value '%openglversion%' to get the OpenGL version (combined with the GPU driver version)
+- Added placeholder text value '%randomtext:<filepath>:<interval_sec>%' to pick a random text from a TXT file and let it pick a new one every X seconds
 
+- Improved web texture handling (ported new web texture handling from FancyMenu)
+- The grid in the editor now renders from the center and the centered lines look different to easily know what the center of the screen is
 
+- Fixed being unable to check for Optifine in required mods property of layouts (you can now check for OF by using 'optifine' as mod ID)
+- Fixed Optifine not counting to existing mods in '%loadedmods%' and '%totalmods%' placeholder text values
+- Fixed FPS drops in customized loading screen when many mods are installed (caused by placeholder text value)
+- Fixed placeholder to get the mod loader version saying "Forge Version" on Fabric (changed to "Mod Loader Version")
+- Fixed placeholder to get the mod loader version inputting "%version:forge%" to the text field on Fabric
 
+%changelog:metadata:start%
+"version":"1.5.0";
+"update_title":"";
+"update_release_date_timestamp":"1643304940";
+"update_release_date_string_ddmmyyyy":"27-01-2022";
+"update_supported_mod_loaders":"forge,fabric";
+"update_supported_minecraft_versions":"1.16.2,1.16.3,1.16.4,1.16.5,1.18,1.18.1";
+%changelog:metadata:end%
+%changelog:end%
 
 
 
 
 CHANGELOG | DRIPPY LOADING SCREEN v1.4.2
- 
+
 - Lifted minimum required Konkrete version to v1.3.2
- 
+
 - Dropped support for MC 1.17
- 
-- Added: "Keep Aspect Ratio" option for background images, to keep its aspect ratio instead of stretching it to the screen resolution
- 
-- Fixed: Compatibility issues with Optifine
 
+- Added "Keep Aspect Ratio" option for background images, to keep its aspect ratio instead of stretching it to the screen resolution
 
+- Fixed compatibility issues with Optifine
 
-
+%changelog:metadata:start%
+"version":"1.4.2";
+"update_title":"";
+"update_release_date_timestamp":"1639100779";
+"update_release_date_string_ddmmyyyy":"10-12-2021";
+"update_supported_mod_loaders":"forge,fabric";
+"update_supported_minecraft_versions":"1.16.2,1.16.3,1.16.4,1.16.5,1.18,1.18.1";
+%changelog:metadata:end%
+%changelog:end%
 
 
 
 
 CHANGELOG | DRIPPY LOADING SCREEN v1.4.1
- 
+
 - NEW LICENSE! Builds before v1.4.1 are not affected by this and remain with the old license.
 
-
-
+%changelog:metadata:start%
+"version":"1.4.1";
+"update_title":"";
+"update_release_date_timestamp":"1638380894";
+"update_release_date_string_ddmmyyyy":"01-12-2021";
+"update_supported_mod_loaders":"forge,fabric";
+"update_supported_minecraft_versions":"1.16.2,1.16.3,1.16.4,1.16.5,1.17,1.17.1,1.18";
+%changelog:metadata:end%
+%changelog:end%
 
 
 
 
 CHANGELOG | DRIPPY LOADING SCREEN v1.4.0
- 
-- Added: Orientation 'loading-progress', to set the progress end of a custom progress bar as orientation origin point/anchor, so the element will move with the current progress
-- Added: Placeholder text value '%loadingprogress%', to get the current loading progress in percent
- 
-- Fixed: Element ID gets copied when copy-pasting an element (should get a new one instead)
-- Fixed: Custom Progress Bar element not saving its element ID (gets new one every time it loads)
 
+- Added orientation 'loading-progress', to set the progress end of a custom progress bar as orientation origin point/anchor, so the element will move with the current progress
+- Added placeholder text value '%loadingprogress%', to get the current loading progress in percent
 
+- Fixed element ID getting copied when copy-pasting an element (should get a new one instead)
+- Fixed Custom Progress Bar element not saving its element ID (gets new one every time it loads)
 
+%changelog:metadata:start%
+"version":"1.4.0";
+"update_title":"";
+"update_release_date_timestamp":"1638300763";
+"update_release_date_string_ddmmyyyy":"30-11-2021";
+"update_supported_mod_loaders":"forge,fabric";
+"update_supported_minecraft_versions":"1.16.2,1.16.3,1.16.4,1.16.5,1.17,1.17.1";
+%changelog:metadata:end%
+%changelog:end%
 
 
 
 
 CHANGELOG | DRIPPY LOADING SCREEN v1.3.1
- 
-- Fixed: Drippy button in the main menu customizable by FancyMenu (this causes glitched layouts when hiding the button later, so it's now just always invisible for FancyMenu)
 
+- Fixed Drippy button in the main menu being customizable by FancyMenu (this causes glitched layouts when hiding the button later, so it's now just always invisible for FancyMenu)
 
-
-
+%changelog:metadata:start%
+"version":"1.3.1";
+"update_title":"";
+"update_release_date_timestamp":"1637174208";
+"update_release_date_string_ddmmyyyy":"17-11-2021";
+"update_supported_mod_loaders":"forge,fabric";
+"update_supported_minecraft_versions":"1.16.2,1.16.3,1.16.4,1.16.5,1.17,1.17.1";
+%changelog:metadata:end%
+%changelog:end%
 
 
 
 
 CHANGELOG | DRIPPY LOADING SCREEN v1.3.0
- 
-- Added: Random mode for layouts
+
+- Added random mode for layouts
   - Randomize layouts by groups, to pick one layout per group when the loading screen gets opened
   - Set groups to only pick a new layout once per game session
- 
-- Improved: Paths of textures and other files used in layouts now get converted to Linux-friendly paths when saving it in the editor
- 
-- Fixed: Customization menu not closeable by pressing ESC
-- Fixed: Some elements that use external resources like textures and other files aren't working on other systems than Windows when using backslashes in the path
 
+- Paths of textures and other files used in layouts now get converted to Linux-friendly paths when saving it in the editor
 
+- Fixed customization menu not being closeable by pressing ESC
+- Fixed some elements that use external resources like textures and other files not working on other systems than Windows when using backslashes in the path
 
-
-
+%changelog:metadata:start%
+"version":"1.3.0";
+"update_title":"";
+"update_release_date_timestamp":"1636250387";
+"update_release_date_string_ddmmyyyy":"07-11-2021";
+"update_supported_mod_loaders":"forge,fabric";
+"update_supported_minecraft_versions":"1.16.2,1.16.3,1.16.4,1.16.5,1.17,1.17.1";
+%changelog:metadata:end%
+%changelog:end%
 
 
 
 
 CHANGELOG | DRIPPY LOADING SCREEN v1.2.1
- 
-- Fixed: Incorrect character spacing of '/', '\', '|', '1', '(', ')', '[', ']' and ',' in the text rendering system (used to render text of text elements)
+
+- Fixed incorrect character spacing of '/', '\', '|', '1', '(', ')', '[', ']' and ',' in the text rendering system (used to render text of text elements)
   - If you found more characters that look like they're not having the right width or height, please report them, thank you!
 
+%changelog:metadata:start%
+"version":"1.2.1";
+"update_title":"";
+"update_release_date_timestamp":"1635452987";
+"update_release_date_string_ddmmyyyy":"28-10-2021";
+"update_supported_mod_loaders":"forge,fabric";
+"update_supported_minecraft_versions":"1.16.2,1.16.3,1.16.4,1.16.5,1.17,1.17.1";
+%changelog:metadata:end%
+%changelog:end%
 
 
 
 
+CHANGELOG | DRIPPY LOADING SCREEN v1.2.0-1
 
+- This update is only for Forge 1.17
 
+- Fixed crash when trying to create a new layout (why has nobody except of one person noticed this lmao)
 
-CHANGELOG | DRIPPY LOADING SCREEN [FORGE] v1.2.0-1 for MC 1.17
- 
-- Fixed: Crash when trying to create a new layout (why has nobody except of one person noticed this lmao)
-
-
-
-
-
+%changelog:metadata:start%
+"version":"1.2.0-1";
+"update_title":"";
+"update_release_date_timestamp":"1632942982";
+"update_release_date_string_ddmmyyyy":"29-09-2021";
+"update_supported_mod_loaders":"forge";
+"update_supported_minecraft_versions":"1.17.1";
+%changelog:metadata:end%
+%changelog:end%
 
 
 
 
 CHANGELOG | DRIPPY LOADING SCREEN v1.2.0
- 
+
 - Added support for Forge MC 1.17.1
- 
+
 - Lifted minimum required Konkrete version to v1.3.0
- 
-- Added: Auto-Scaling
+
+- Added auto-scaling
   - Just enable auto-scaling and your layout should basically just work at every scale and resolution! No more struggling with different screen sizes!
   - Because of how Minecraft text rendering works, text elements will look a bit blurry at some scales. This can't be fixed and the best workaround is to use images for text.
-- Added: Option to enable a grid in the editor for easier aligning of elements (Disabled by default, can be toggled in the mod settings)
+- Added option to enable a grid in the editor for easier aligning of elements (Disabled by default, can be toggled in the mod settings)
   - Editor shortcut to toggle the grid is CTRL + G
-- Added: Option to force a GUI scale for the loading screen
-- Added: Option to disable the fade-out of the loading screen
- 
-- Changed: Name of keybind to toggle the customization overlay
+- Added option to force a GUI scale for the loading screen
+- Added option to disable the fade-out of the loading screen
 
+- Changed the name of the keybind to toggle the customization overlay
 
-
-
-
+%changelog:metadata:start%
+"version":"1.2.0";
+"update_title":"";
+"update_release_date_timestamp":"1632535989";
+"update_release_date_string_ddmmyyyy":"25-09-2021";
+"update_supported_mod_loaders":"forge,fabric";
+"update_supported_minecraft_versions":"1.16.2,1.16.3,1.16.4,1.16.5,1.17,1.17.1";
+%changelog:metadata:end%
+%changelog:end%
 
 
 
 
 CHANGELOG | DRIPPY LOADING SCREEN v1.1.1
- 
-- Fixed: Critical: Crash when reloading resources or changing language (Only happened in Fabric 1.17, but also fixed in Forge 1.16 version, just to be sure)
-- Fixed: License link in mod description not working
+
+- Fixed crash when reloading resources or changing language (Only happened in Fabric 1.17, but also fixed in Forge 1.16 version, just to be sure) (CRITICAL)
+- Fixed license link in mod description not working
+
+%changelog:metadata:start%
+"version":"1.1.1";
+"update_title":"";
+"update_release_date_timestamp":"1630945905";
+"update_release_date_string_ddmmyyyy":"06-09-2021";
+"update_supported_mod_loaders":"forge,fabric";
+"update_supported_minecraft_versions":"1.16.2,1.16.3,1.16.4,1.16.5,1.17,1.17.1";
+%changelog:metadata:end%
+%changelog:end%
 
 
 
 
+CHANGELOG | DRIPPY LOADING SCREEN v1.1.0-2
 
+- This update is only for Forge
 
-
-
-
-CHANGELOG | DRIPPY LOADING SCREEN [FORGE] v1.1.0-2
- 
-- Changed: Ported text rendering system from Fabric 1.17 to Forge to unify layout rendering
+- Ported text rendering system from Fabric 1.17 to Forge to unify layout rendering
   - This could change the position of your text elements a little bit, so check your layouts for overlapping elements and stuff
 
+%changelog:metadata:start%
+"version":"1.1.0-2";
+"update_title":"";
+"update_release_date_timestamp":"1629667867";
+"update_release_date_string_ddmmyyyy":"22-08-2021";
+"update_supported_mod_loaders":"forge";
+"update_supported_minecraft_versions":"1.16.2,1.16.3,1.16.4,1.16.5";
+%changelog:metadata:end%
+%changelog:end%
 
 
 
 
+CHANGELOG | DRIPPY LOADING SCREEN v1.1.0-2
+
+- This update is only for Fabric
+
+- Fixed some characters getting cut off at the bottom in the text rendering system
+- Fixed wrong character width for lowercase "j" character in the text rendering system
+
+%changelog:metadata:start%
+"version":"1.1.0-2";
+"update_title":"";
+"update_release_date_timestamp":"1629396536";
+"update_release_date_string_ddmmyyyy":"19-08-2021";
+"update_supported_mod_loaders":"fabric";
+"update_supported_minecraft_versions":"1.17,1.17.1";
+%changelog:metadata:end%
+%changelog:end%
 
 
 
 
-CHANGELOG | DRIPPY LOADING SCREEN [FABRIC] v1.1.0-2
- 
-- Fixed: Text rendering: Some characters cutted off at the bottom
-- Fixed: Text rendering: Wrong character width for lowercase "j" character
+CHANGELOG | DRIPPY LOADING SCREEN v1.1.0-1
 
+- This update is only for Fabric
 
+- Re-enabled text elements in the Fabric version
 
-
-
-
-
-
-
-
-CHANGELOG | DRIPPY LOADING SCREEN [FABRIC] v1.1.0-1
- 
-- Fixed: Re-Enabled text elements in the Fabric version
-
-
-
-
+%changelog:metadata:start%
+"version":"1.1.0-1";
+"update_title":"";
+"update_release_date_timestamp":"1629153438";
+"update_release_date_string_ddmmyyyy":"16-08-2021";
+"update_supported_mod_loaders":"fabric";
+"update_supported_minecraft_versions":"1.17,1.17.1";
+%changelog:metadata:end%
+%changelog:end%
 
 
 
 
 CHANGELOG | DRIPPY LOADING SCREEN v1.1.0
- 
-- Added: Ability to set a background image
- 
-- Improved: Elements now fade-out with the loading screen
- 
-- Fixed: Images getting rendered wrongly/glitchy in some cases
-- Fixed: Vanilla elements showing "Move Up" and "Move Down" controls even though they can't be moved up and down
 
+- Added the ability to set a background image
 
+- Elements now fade out with the loading screen
 
+- Fixed images getting rendered wrongly/glitchy in some cases
+- Fixed Vanilla elements showing "Move Up" and "Move Down" controls even though they can't be moved up and down
 
-
+%changelog:metadata:start%
+"version":"1.1.0";
+"update_title":"";
+"update_release_date_timestamp":"1628545607";
+"update_release_date_string_ddmmyyyy":"09-08-2021";
+"update_supported_mod_loaders":"forge,fabric";
+"update_supported_minecraft_versions":"1.16.2,1.16.3,1.16.4,1.16.5,1.17,1.17.1";
+%changelog:metadata:end%
+%changelog:end%
